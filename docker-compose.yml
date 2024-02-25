@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  node:
+    build:
+      context: .
+    container_name: multiplechain-js
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./:/usr/src/app
+    init: true
