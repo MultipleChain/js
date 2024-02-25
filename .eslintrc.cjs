@@ -11,13 +11,13 @@ module.exports = {
                 node: true
             },
             files: ['.eslintrc.{js,cjs}'],
-            excludeFiles: ['*.d.ts'],
             parserOptions: {
                 sourceType: 'script'
             }
         }
     ],
     parserOptions: {
+        project: './tsconfig.json',
         ecmaVersion: 'latest',
         sourceType: 'module'
     },
