@@ -1,0 +1,31 @@
+{
+    "name": "@multiplechain/utils",
+    "version": "0.1.3",
+    "type": "module",
+    "main": "./src/index.ts",
+    "files": [
+        "src",
+        "!tsconfig.tsbuildinfo"
+    ],
+    "scripts": {
+        "test": "vitest run --dir tests",
+        "lint": "eslint . --ext .ts"
+    },
+    "keywords": [
+        "web3",
+        "crypto",
+        "blockchain",
+        "multiple-chain",
+        "standard"
+    ],
+    "author": "MultipleChain",
+    "license": "MIT",
+    "homepage": "https://github.com/MultipleChain/js",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/MultipleChain/js.git"
+    },
+    "bugs": {
+        "url": "https://github.com/MultipleChain/js/issues"
+    }
+}

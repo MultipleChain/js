@@ -12,7 +12,7 @@ export default defineConfig({
         assetsInlineLimit: 0,
         rollupOptions: {
             input: {
-                main: 'src/main.ts'
+                main: 'packages/main.ts'
             },
             output: {
                 format: 'umd',

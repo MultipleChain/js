@@ -18,5 +18,6 @@
         "noUnusedParameters": true,
         "noFallthroughCasesInSwitch": true
     },
-    "include": ["src/**/*.ts", ".eslintrc.cjs", "vite.config.ts", "vitest.config.ts"]
+    "include": ["packages/**/*.ts", ".eslintrc.cjs", "vite.config.ts", "vitest.config.ts", "vite-env.d.ts"],
+    "exclude": ["node_modules", "dist", "packages/**/*.d.ts"]
 }
