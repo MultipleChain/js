@@ -6,6 +6,7 @@
     "types": "./dist/types/index.d.ts",
     "files": [
         "dist",
+        "README.md",
         "!tsconfig.tsbuildinfo"
     ],
     "scripts": {

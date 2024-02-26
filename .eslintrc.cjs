@@ -24,5 +24,6 @@ module.exports = {
     plugins: ['prettier', 'filenames'],
     rules: {
         'filenames/match-exported': ['error', 'pascal']
-    }
+    },
+    ignorePatterns: ['**/*.d.ts', 'dist/', 'node_modules/']
 }
