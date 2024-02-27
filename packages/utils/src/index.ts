@@ -55,11 +55,11 @@ export const base58Decode = (input: string): Uint8Array => {
 }
 
 export const bufferToString = (input: Buffer): string => {
-    return Buffer.from(input).toString('utf8');
+    return Buffer.from(input).toString('utf8')
 }
 
 export const stringToBuffer = (input: string): Buffer => {
-    return Buffer.from(input, 'utf8');
+    return Buffer.from(input, 'utf8')
 }
 
 export const isNumeric = (value: string | number): boolean => {

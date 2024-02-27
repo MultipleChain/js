@@ -1,5 +1,13 @@
 import { describe, it, expect } from 'vitest'
-import { toHex, numberToHex, hexToNumber, base58Encode, base58Decode, bufferToString, stringToBuffer } from '../src/index.js'
+import {
+    toHex,
+    numberToHex,
+    hexToNumber,
+    base58Encode,
+    base58Decode,
+    bufferToString,
+    stringToBuffer
+} from '../src/index.js'
 
 describe('Helper methods', () => {
     it('toHex', () => {
@@ -31,6 +39,8 @@ describe('Helper methods', () => {
     })
 
     it('stringToBuffer', () => {
-        expect(stringToBuffer('example')).toStrictEqual(Buffer.from([101, 120, 97, 109, 112, 108, 101]))
+        expect(stringToBuffer('example')).toStrictEqual(
+            Buffer.from([101, 120, 97, 109, 112, 108, 101])
+        )
     })
 })
