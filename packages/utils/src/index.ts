@@ -3,18 +3,28 @@ import BigNumber from 'bignumber.js'
 
 const BASE58_ALPHABET: string = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
 
+/**
+ * Converts the decimal to hexadecimal
+ */
 export const numberToHex = (value: number | string | BigNumber, decimals: number): string => {
     const length = '1' + '0'.repeat(decimals)
     const newValue = new BigNumber(value.toString(10), 10)
     return toHex(newValue.times(length).toString(16))
 }
 
+/**
+ * Converts the hexadecimal to decimal
+ */
 export const hexToNumber = (value: string, decimals: number): number => {
     const length = '1' + '0'.repeat(decimals)
     const newValue = new BigNumber(value.toString(), 10)
     return parseFloat(newValue.dividedBy(length).toString())
 }
 
+/**
+ * Converts the given data to Base58 string. Given data may be string or an Uint8Array
+ * If the given data is a string, it'll be converted to Uint8Array inside of the method
+ */
 export const base58Encode = (input: Uint8Array | string): string => {
     // Convert input to bytes if it's a string
     if (typeof input === 'string') input = new Uint8Array(Buffer.from(input))
@@ -40,6 +50,9 @@ export const base58Encode = (input: Uint8Array | string): string => {
     return base58Array.join('')
 }
 
+/**
+ * Converts the given string to Base58 as an Uint8Array
+ */
 export const base58Decode = (input: string): Uint8Array => {
     let value = BigInt(0)
 
@@ -54,14 +67,23 @@ export const base58Decode = (input: string): Uint8Array => {
     return new Uint8Array(Buffer.from(hexString, 'hex'))
 }
 
+/**
+ * Converts the given buffer to a string
+ */
 export const bufferToString = (input: Buffer): string => {
     return Buffer.from(input).toString('utf8')
 }
 
+/**
+ * Converts the given string to a buffer
+ */
 export const stringToBuffer = (input: string): Buffer => {
     return Buffer.from(input, 'utf8')
 }
 
+/**
+ * Checks if given value is numeric
+ */
 export const isNumeric = (value: string | number): boolean => {
     return !isNaN(Number(value))
 }
