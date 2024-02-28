@@ -8,3 +8,15 @@ export interface NetworkConfigInterface {
     rpcUrl?: string
     testnet?: boolean
 }
+
+export interface ProviderInterface {
+    /**
+     * Network configuration of the provider
+     */
+    network: NetworkConfigInterface
+
+    /**
+     * Update network configuration of the provider
+     */
+    update: (config: NetworkConfigInterface) => void
+}

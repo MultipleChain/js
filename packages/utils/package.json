@@ -10,9 +10,9 @@
         "!tsconfig.tsbuildinfo"
     ],
     "scripts": {
-        "test": "vitest",
         "lint": "eslint . --ext .ts",
         "prepublishOnly": "npm run tsc",
+        "test": "vitest run --dir tests",
         "tsc": "tsc --declaration --emitDeclarationOnly  src/index.ts"
     },
     "keywords": [

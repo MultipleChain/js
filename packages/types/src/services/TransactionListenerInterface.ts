@@ -7,68 +7,63 @@ import type {
     TokenTransactionListenerFilterInterface,
     NftTransactionListenerFilterInterface
 } from '../index.js'
+import type TransactionInterface from '../models/TransactionInterface.ts'
 
 /**
  * 'DynamicTransactionListenerFilterInterface' connects transaction types to their corresponding filter interfaces
  * Every type of transaction has its own unique filter values.
  * A sender's wallet address is a common value.
  */
-interface DynamicTransactionListenerFilterInterface {
-    [TransactionTypeEnum.GENERAL]: TransactionListenerFilterInterface
-    [TransactionTypeEnum.CONTRACT]: ContractTransactionListenerFilterInterface
-    [TransactionTypeEnum.ASSET]: AssetTransactionListenerFilterInterface
-    [TransactionTypeEnum.COIN]: CoinTransactionListenerFilterInterface
-    [TransactionTypeEnum.TOKEN]: TokenTransactionListenerFilterInterface
-    [TransactionTypeEnum.NFT]: NftTransactionListenerFilterInterface
-}
+export type DynamicTransactionListenerFilterType<T extends TransactionTypeEnum> =
+    T extends TransactionTypeEnum.GENERAL
+        ? TransactionListenerFilterInterface
+        : T extends TransactionTypeEnum.CONTRACT
+          ? ContractTransactionListenerFilterInterface
+          : T extends TransactionTypeEnum.ASSET
+            ? AssetTransactionListenerFilterInterface
+            : T extends TransactionTypeEnum.COIN
+              ? CoinTransactionListenerFilterInterface
+              : T extends TransactionTypeEnum.TOKEN
+                ? TokenTransactionListenerFilterInterface
+                : T extends TransactionTypeEnum.NFT
+                  ? NftTransactionListenerFilterInterface
+                  : never
 
-export default interface TransactionListenerInterface<T extends TransactionTypeEnum> {
+export interface TransactionListenerInterface<T extends TransactionTypeEnum> {
     /**
-     * 'listeners' is a static property that holds every listener class that is generated.
-     * The purpose of this propery is to be used in stopAll() method to run stop() on each.
-     * It can be reached from class without an instance since it's not related to instance it's created on.
-     * @static
+     * The 'type' property is a generic type that is used to define the type of transaction listener.
      */
-    listeners: Array<TransactionListenerInterface<T>>
+    type: T
 
     /**
      * 'filter' is an object that has values depending on transaction listener type.
      * E.g. no matter which type of transaction is listening, 'filter' has to have a 'sender' value
      */
-    filter: DynamicTransactionListenerFilterInterface[T]
-
-    /**
-     * @param type Type of the transaction that will be listened
-     * @param filter Details of transaction that needs to be listened
-     * @returns void
-     */
-    constructor: (type: T, filter: DynamicTransactionListenerFilterInterface[T]) => void
+    filter?: DynamicTransactionListenerFilterType<T>
 
     /**
      * stop() method closes the corresponding listener of the instance it's called from.
-     * @returns void
      */
     stop: () => void
 
-    /**
-     * stopAll() method iterates through every listener using array of transaction listeners
-     * that defined as a static property 'listeners', and runs stop() method on each of them.
-     * Since the stopAll() method calls stop() for each listener, 'listeners' property is needed
-     * and it keeps track of each listener instance that is created.
-     * @returns void
-     * @static
+    /*
+     * on() method is a listener that listens to the transaction events.
+     * When a transaction is detected, it triggers the event.
      */
-    stopAll: () => void
+    on: (event: (transaction: TransactionInterface) => void) => void
 
-    GeneralTransactionProcess: () => void
+    /**
+     * listener methods for each transaction type
+     */
+    generalTransactionProcess: () => void
 
-    ContractTransactionProcess: () => void
+    contractTransactionProcess: () => void
 
-    AssetTransactionProcess: () => void
+    assetTransactionProcess: () => void
 
-    CoinTransactionProcess: () => void
+    coinTransactionProcess: () => void
 
-    TokenTransactionProcess: () => void
+    tokenTransactionProcess: () => void
 
-    NftTransactionProcess: () => void
+    nftTransactionProcess: () => void
 }

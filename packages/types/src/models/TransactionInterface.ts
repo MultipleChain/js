@@ -3,10 +3,8 @@ import type { TransactionStatusEnum } from '../enums.js'
 export default interface TransactionInterface {
     /**
      * Each transaction has its own unique ID defined by the user
-     * @param id Transaction ID
-     * @returns void
      */
-    constructor: (id: string) => void
+    id: string
 
     /**
      * @returns Raw transaction data that is taken by blockchain network via RPC.
