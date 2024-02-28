@@ -1,13 +1,40 @@
-import type { TransactionTypeEnum } from '../enums.js'
-import type {
-    TransactionListenerFilterInterface,
-    ContractTransactionListenerFilterInterface,
-    AssetTransactionListenerFilterInterface,
-    CoinTransactionListenerFilterInterface,
-    TokenTransactionListenerFilterInterface,
-    NftTransactionListenerFilterInterface
-} from '../index.js'
+import type { TransactionTypeEnum, AssetDirectionEnum } from '../enums.js'
 import type TransactionInterface from '../models/TransactionInterface.ts'
+
+/**
+ * Filter types for each transaction type in TransactionListenerInterface
+ */
+interface TransactionListenerFilterInterface {
+    sender?: string
+}
+
+interface ContractTransactionListenerFilterInterface extends TransactionListenerFilterInterface {
+    address?: string
+}
+
+interface AssetTransactionListenerFilterInterface extends TransactionListenerFilterInterface {
+    receiver?: string
+    direction?: AssetDirectionEnum
+}
+
+interface CoinTransactionListenerFilterInterface extends AssetTransactionListenerFilterInterface {
+    amount?: string
+}
+
+interface TokenTransactionListenerFilterInterface
+    extends AssetTransactionListenerFilterInterface,
+        ContractTransactionListenerFilterInterface {
+    amount?: number
+}
+
+interface NftTransactionListenerFilterInterface
+    extends AssetTransactionListenerFilterInterface,
+        ContractTransactionListenerFilterInterface {
+    nftId?: string
+}
+/**
+ * Filter types for each transaction type in TransactionListenerInterface
+ */
 
 /**
  * 'DynamicTransactionListenerFilterInterface' connects transaction types to their corresponding filter interfaces
