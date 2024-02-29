@@ -1,8 +1,9 @@
 {
     "name": "@multiplechain/types",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "type": "module",
     "main": "./src/index.ts",
+    "types": "./src/index.d.ts",
     "files": [
         "src",
         "README.md",
@@ -11,7 +12,7 @@
     "scripts": {
         "lint": "eslint . --ext .ts",
         "prepublishOnly": "npm run tsc",
-        "tsc": "tsc --declaration --emitDeclarationOnly  src/index.ts"
+        "tsc": "tsc --declaration --emitDeclarationOnly src/index.ts --outfile index.d.ts"
     },
     "keywords": [
         "web3",
