@@ -1,5 +1,5 @@
+import type { TransactionInterface } from '../models.ts'
 import type { TransactionTypeEnum, AssetDirectionEnum } from '../enums.js'
-import type TransactionInterface from '../models/TransactionInterface.ts'
 
 /**
  * Filter types for each transaction type in TransactionListenerInterface
