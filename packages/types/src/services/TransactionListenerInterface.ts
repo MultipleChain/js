@@ -1,4 +1,11 @@
-import type { TransactionInterface } from '../models.ts'
+import type {
+    TransactionInterface,
+    ContractTransactionInterface,
+    AssetTransactionInterface,
+    CoinTransactionInterface,
+    TokenTransactionInterface,
+    NftTransactionInterface
+} from '../models.ts'
 import type { TransactionTypeEnum, AssetDirectionEnum } from '../enums.js'
 
 /**
@@ -35,6 +42,26 @@ interface NftTransactionListenerFilterInterface
 /**
  * Filter types for each transaction type in TransactionListenerInterface
  */
+
+/**
+ * 'DynamicTransactionType' connects transaction types to their corresponding transaction interfaces
+ * Every type of transaction has its own unique transaction interface.
+ * A sender's wallet address is a common value.
+ */
+export type DynamicTransactionType<T extends TransactionTypeEnum> =
+    T extends TransactionTypeEnum.GENERAL
+        ? TransactionInterface
+        : T extends TransactionTypeEnum.CONTRACT
+          ? ContractTransactionInterface
+          : T extends TransactionTypeEnum.ASSET
+            ? AssetTransactionInterface
+            : T extends TransactionTypeEnum.COIN
+              ? CoinTransactionInterface
+              : T extends TransactionTypeEnum.TOKEN
+                ? TokenTransactionInterface
+                : T extends TransactionTypeEnum.NFT
+                  ? NftTransactionInterface
+                  : never
 
 /**
  * 'DynamicTransactionListenerFilterInterface' connects transaction types to their corresponding filter interfaces
@@ -77,7 +104,7 @@ export interface TransactionListenerInterface<T extends TransactionTypeEnum> {
      * on() method is a listener that listens to the transaction events.
      * When a transaction is detected, it triggers the event.
      */
-    on: (event: (transaction: TransactionInterface) => void) => void
+    on: (event: (transaction: DynamicTransactionType<T>) => void) => void
 
     /**
      * listener methods for each transaction type

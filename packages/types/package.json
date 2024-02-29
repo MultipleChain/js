@@ -9,7 +9,9 @@
         "!tsconfig.tsbuildinfo"
     ],
     "scripts": {
-        "lint": "eslint . --ext .ts"
+        "lint": "eslint . --ext .ts",
+        "prepublishOnly": "npm run tsc",
+        "tsc": "tsc --declaration --emitDeclarationOnly  src/index.ts"
     },
     "keywords": [
         "web3",

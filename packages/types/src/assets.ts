@@ -1,4 +1,4 @@
-import type TransactionInterface from './models/TransactionInterface.js'
+import type { TransactionSignerInterface } from './services/TransactionSignerInterface.ts'
 
 /**
  * There are 2 comprehensive interfaces: AssetInterface, ContractInterface
@@ -41,7 +41,7 @@ export interface AssetInterface {
      * @param receiver Receiver wallet address
      * @param amount Amount of assets that will be transferred
      */
-    transfer: (sender: string, receiver: string, amount: number) => void
+    transfer: (sender: string, receiver: string, amount: number) => TransactionSignerInterface
 
     /**
      * @returns Name of the asset (long name)
@@ -85,7 +85,7 @@ export interface TokenInterface extends AssetInterface, ContractInterface {
      * @param spender Address of the spender that will use the tokens of owner
      * @param amount Amount of the tokens that will be used
      */
-    approve: (owner: string, spender: string, amount: number) => TransactionInterface
+    approve: (owner: string, spender: string, amount: number) => TransactionSignerInterface
 
     /**
      * @param owner Address of owner of the tokens that is being used
@@ -103,7 +103,7 @@ export interface NftInterface extends Omit<AssetInterface, 'transfer'>, Contract
      * @param nftId ID of the NFT that will be transferred
      * @override transfer() in AssetInterface
      */
-    transfer: (sender: string, receiver: string, nftId: number) => void
+    transfer: (sender: string, receiver: string, nftId: number) => TransactionSignerInterface
 
     /**
      * @param nftId ID of the NFT

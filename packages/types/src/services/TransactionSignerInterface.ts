@@ -4,7 +4,7 @@ import type { TransactionInterface } from '../models.ts'
  * "any" is dependent on the blockchain network, it can be a string, object or any other type
  * so, you need define the type of the transaction data in your implementation
  */
-export default interface TransactionSignerInterface {
+export interface TransactionSignerInterface {
     /**
      * Transaction data from the blockchain network
      */
