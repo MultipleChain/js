@@ -1,9 +1,39 @@
+import type TransactionInterface from './models/TransactionInterface.js'
+
 /**
  * There are 2 comprehensive interfaces: AssetInterface, ContractInterface
  * Other interfaces have more pinpoint purposes: CoinInterface, TokenInterface, NftInterface
  */
 
 // Comprehensive interfaces
+export interface ContractInterface {
+    /**
+     * Given contract address
+     */
+    address: string
+
+    /**
+     * @param address Contract address
+     */
+    constructor: (address: string) => void
+
+    /**
+     * @returns Contract address given in constructor() as param
+     */
+    getAddress: () => string
+
+    /**
+     * Runs the contract methods dynamically
+     */
+    callMethod: (...args: any[]) => any
+
+    /**
+     * To get information from called method
+     * @returns Data used in transaction
+     */
+    getMethodData: (...args: any[]) => any
+}
+
 export interface AssetInterface {
     /**
      * transfer() method is the main method for processing transfers for fungible assets (TOKEN, COIN)
@@ -28,24 +58,6 @@ export interface AssetInterface {
      * @returns Wallet balance as currency of TOKEN or COIN assets
      */
     getBalance: (owner: string) => number
-}
-
-export interface ContractInterface {
-    /**
-     * @returns Contract address given in constructor() as param
-     */
-    getAddress: () => string
-
-    /**
-     * Runs the contract methods dynamically
-     */
-    callMethod: (...args: any[]) => void
-
-    /**
-     * To get information from called method
-     * @returns Data used in transaction
-     */
-    getMethodData: (...args: any[]) => any
 }
 
 // Sub Interfaces
@@ -73,7 +85,7 @@ export interface TokenInterface extends AssetInterface, ContractInterface {
      * @param spender Address of the spender that will use the tokens of owner
      * @param amount Amount of the tokens that will be used
      */
-    approve: (owner: string, spender: string, amount: number) => void
+    approve: (owner: string, spender: string, amount: number) => TransactionInterface
 
     /**
      * @param owner Address of owner of the tokens that is being used
