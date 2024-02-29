@@ -88,20 +88,20 @@ export interface NftInterface extends Omit<AssetInterface, 'transfer'>, Contract
      * Transfers an NFT
      * @param sender Sender wallet address
      * @param receiver Receiver wallet address
-     * @param nftID ID of the NFT that will be transferred
+     * @param nftId ID of the NFT that will be transferred
      * @override transfer() in AssetInterface
      */
-    transfer: (sender: string, receiver: string, nftID: number) => void
+    transfer: (sender: string, receiver: string, nftId: number) => void
 
     /**
-     * @param nftID ID of the NFT
+     * @param nftId ID of the NFT
      * @returns Wallet address of owner of the NFT
      */
-    getOwner: (nftID: number) => string
+    getOwner: (nftId: number) => string
 
     /**
-     * @param nftID ID of the NFT
+     * @param nftId ID of the NFT
      * @returns URL of the metadata
      */
-    getTokenURI: (nftID: number) => string | URL
+    getTokenURI: (nftId: number) => string | URL
 }
