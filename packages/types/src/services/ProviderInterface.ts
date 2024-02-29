@@ -16,6 +16,11 @@ export interface ProviderInterface {
     network: NetworkConfigInterface
 
     /**
+     * @param config - Network configuration of the provider
+     */
+    constructor: (config: NetworkConfigInterface) => void
+
+    /**
      * Update network configuration of the provider
      */
     update: (config: NetworkConfigInterface) => void
