@@ -84,7 +84,7 @@ export interface AssetTransactionInterface extends TransactionInterface {
     ) => TransactionStatusEnum
 }
 
-export interface CoinTransactionInterface extends TransactionInterface {
+export interface CoinTransactionInterface extends TransactionInterface, AssetTransactionInterface {
     /**
      * @returns Transfer amount of the transaction (coin)
      */
