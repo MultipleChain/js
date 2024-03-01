@@ -15,7 +15,8 @@
         "watch": "tsc --watch",
         "typecheck": "tsc --noEmit",
         "lint": "eslint . --ext .ts",
-        "test": "vitest run --dir tests"
+        "test": "vitest run --dir tests",
+        "prepublishOnly":"pnpm run build"
     },
     "keywords": [
         "web3",
