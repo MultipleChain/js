@@ -1,4 +1,9 @@
 {
+    "compilerOptions": {
+        "declaration": true,
+        "outFile": "./src/index.d.ts",
+        "emitDeclarationOnly": true,
+    },
     "extends": "../../tsconfig.json",
     "include": ["src", ".eslintrc.cjs"]
 }

@@ -1,6 +1,6 @@
 {
     "name": "@multiplechain/types",
-    "version": "0.1.3",
+    "version": "0.1.5",
     "type": "module",
     "main": "./src/index.ts",
     "types": "./src/index.d.ts",
@@ -10,9 +10,8 @@
         "!tsconfig.tsbuildinfo"
     ],
     "scripts": {
-        "lint": "eslint . --ext .ts",
-        "prepublishOnly": "npm run tsc",
-        "tsc": "tsc --declaration --emitDeclarationOnly src/index.ts --outfile index.d.ts"
+        "prepublishOnly": "tsc",
+        "lint": "eslint . --ext .ts"
     },
     "keywords": [
         "web3",

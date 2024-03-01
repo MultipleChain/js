@@ -10,10 +10,9 @@
         "!tsconfig.tsbuildinfo"
     ],
     "scripts": {
+        "prepublishOnly": "tsc",
         "lint": "eslint . --ext .ts",
-        "prepublishOnly": "npm run tsc",
-        "test": "vitest run --dir tests",
-        "tsc": "tsc --declaration --emitDeclarationOnly src/index.ts"
+        "test": "vitest run --dir tests"
     },
     "keywords": [
         "web3",
