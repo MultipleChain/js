@@ -11,11 +11,6 @@ export interface TransactionSignerInterface {
     transaction: any
 
     /**
-     * @param transaction - Transaction data from the blockchain network
-     */
-    constructor: (transaction: any) => void
-
-    /**
      * @param privateKey - Private key of the wallet to sign the transaction
      */
     sign: (privateKey: string) => TransactionSignerInterface

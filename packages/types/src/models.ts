@@ -7,12 +7,6 @@ export interface TransactionInterface {
     id: string
 
     /**
-     * @param id - Transaction id from the blockchain network
-     * This can be different names like txid, hash, signature etc.
-     */
-    constructor: (id: string) => void
-
-    /**
      * @returns Raw transaction data that is taken by blockchain network via RPC.
      */
     getData: () => object

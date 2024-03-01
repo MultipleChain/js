@@ -13,12 +13,7 @@ export interface ContractInterface {
     address: string
 
     /**
-     * @param address Contract address
-     */
-    constructor: (address: string) => void
-
-    /**
-     * @returns Contract address given in constructor() as param
+     * @returns Given contract address
      */
     getAddress: () => string
 
