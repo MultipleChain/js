@@ -37,6 +37,7 @@
         "url": "https://github.com/MultipleChain/js/issues"
     },
     "dependencies": {
-        "@multiplechain/types": "^0.1.6"
+        "@multiplechain/types": "^0.1.8",
+        "@multiplechain/utils": "^0.1.7"
     }
 }
