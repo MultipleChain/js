@@ -53,22 +53,22 @@ import type {
 
 ## Types
 ### Provider
-#### [ProviderInterface](./src/services/ProviderInterface.ts)
+#### [ProviderInterface](./packages/types/src/services/ProviderInterface.ts)
 `Provider` is the main class that will be used for every network (EVM, Solana, Tron, etc.)
 
 `ProviderInterface` is the interface of `Provider` class.
 
-#### [NetworkConfigInterface](./src/services/ProviderInterface.ts)
+#### [NetworkConfigInterface](./packages/types/src/services/ProviderInterface.ts)
 `update()` and `constructor()` methods of `Provider` class takes a config parameter. Interface of this config parameter is defined as `NetworkConfigInterface`.
 
 ### Models
 **There are 6 types of transaction models:**
-#### [TransactionInterface](./src/models.ts)
+#### [TransactionInterface](./packages/types/src/models.ts)
 `TransactionInterface` is the most comprehensive interface compared to others. Every other interface extends `TransactionInterface`.
 
 This interface has ID management of transactions since each transaction and each transaction type has its own unique ID, and also has helper functions that is being used in every other transaction types such as `getBlockNumber` and `getStatus`
 
-#### [ContractTransactionInterface](./src/models.ts)
+#### [ContractTransactionInterface](./packages/types/src/models.ts)
 Inherits `TransactionInterface`. Used for smart contracts transactions. Token and NFT transactions inherits `ContractTransactionInterface`.
 
 On top of `TransactionInterface`, lets developers to grab smart contract address used in transaction.
@@ -77,16 +77,16 @@ On top of `TransactionInterface`, lets developers to grab smart contract address
 getAddress: () => string // Smart contract address of the transaction
 ```
 
-#### [AssetTransactionInterface](./src/models.ts)
+#### [AssetTransactionInterface](./packages/types/src/models.ts)
 Inherits `TransactionInterface`. Used for asset transactions.
 
-#### [CoinTransactionInterface](./src/models.ts)
+#### [CoinTransactionInterface](./packages/types/src/models.ts)
 Used for transactions on blockchain done with native currency of the network. In other words, supports transaction data done on Layer-1 networks (Tron, Ethereum, Solana, etc.)
 
-#### [TokenTransactionInterface](./src/models.ts)
+#### [TokenTransactionInterface](./packages/types/src/models.ts)
 Used for token transactions. Adds a support for verification of approvement on top of `AssetTransactionInterface`.
 
-#### [NftTransactionInterface](./src/models.ts)
+#### [NftTransactionInterface](./packages/types/src/models.ts)
 Used for NFT transactions. NFT transactions has a pointer property to NFT ID, `NftTransactionInterface` adds a helper method named `getNftId()` to grab that ID.
 
 Also just like `TokenTransactionInterface` there is an approvement verification method in `NftTransactionInterface` too.
@@ -94,26 +94,26 @@ Also just like `TokenTransactionInterface` there is an approvement verification 
 ### Assets
 **There are 5 types of asset interfaces**
 
-#### [AssetInterface](./src/assets.ts)
+#### [AssetInterface](./packages/types/src/assets.ts)
 `AssetInterface` is the most comprehensive interface compared to others. Every other interface except `ContractInterface` extends `TransactionInterface`.
 
 It has helper methods like starting a transfer. `transfer()` method is available for every asset type (COINs, TOKENs, NFTs).
 
-#### [ContractInterface](./src/assets.ts)
+#### [ContractInterface](./packages/types/src/assets.ts)
 `ContractInterface` is inherited by `TokenInterface` and `NftInterface`. It has helper methods like grabbing contract addresses.
 
-#### [CoinInterface](./src/assets.ts)
+#### [CoinInterface](./packages/types/src/assets.ts)
 Used for coin assets. Currently adds a helper method to get decimal value of the asset on top of `AssetInterface`.
 
-#### [TokenInterface](./src/assets.ts)
+#### [TokenInterface](./packages/types/src/assets.ts)
 Contains helper methods that can be used for grabbing token data like `getTotalSupply()`.
 
-#### [NftInterface](./src/assets.ts)
+#### [NftInterface](./packages/types/src/assets.ts)
 Contains helper methods for NFT type of assets. Unlike the other asset interfaces, `NftInterface` overrides the `transfer()` method since it needs an `nftId` parameter instead of a `amount` parameter.
 
 ### Enums
 
-#### [AssetDirectionEnum](./src/enums.ts)
+#### [AssetDirectionEnum](./packages/types/src/enums.ts)
 Asset transactions (COIN, TOKEN, NFT) has two directions
 
 ```typescript
@@ -123,7 +123,7 @@ enum AssetDirectionEnum {
 }
 ```
 
-#### [TransactionTypeEnum](./src/enums.ts)
+#### [TransactionTypeEnum](./packages/types/src/enums.ts)
 There are six types of transactions at the moment. COIN, TOKEN, and NFT transactions are called ASSET transactions
 
 ```typescript
@@ -137,7 +137,7 @@ enum TransactionTypeEnum {
 }
 ```
 
-#### [TransactionStatusEnum](./src/enums.ts)
+#### [TransactionStatusEnum](./packages/types/src/enums.ts)
 There are 3 available transaction statuses:
  * FAILED: When a transaction is failed
  * PENDING: When a transaction has not been concluded
@@ -154,12 +154,12 @@ enum TransactionStatusEnum {
 
 ### Transaction Listener
 
-#### [TransactionListenerInterface](./src/services/TransactionListenerInterface.ts)
+#### [TransactionListenerInterface](./packages/types/src/services/TransactionListenerInterface.ts)
 In order to listen to transactions whether they are `PENDING` or `FAILED` for instance, there needs to be a class providing methods for transaction listening.
 
 `TransactionListenerInterface` is the interface of the `TransactionListener` class which supports gathering transaction status, stopping the transaction, and callbacks after a transaction status change.
 
-#### [DynamicTransactionType](./src/services/TransactionListenerInterface.ts)
+#### [DynamicTransactionType](./packages/types/src/services/TransactionListenerInterface.ts)
 There are different types of transactions, in order to listen correct transaction, correct transaction type needs to be provided. `DynamicTransactionType` is a helper interface that connects transaction types to their corresponding transaction interfaces
 
 ```typescript
@@ -179,13 +179,13 @@ export type DynamicTransactionType<T extends TransactionTypeEnum> =
                   : never
 ```
 
-#### [DynamicTransactionListenerFilterType](./src/services/TransactionListenerInterface.ts)
+#### [DynamicTransactionListenerFilterType](./packages/types/src/services/TransactionListenerInterface.ts)
 `filter` is an object that has values depending on transaction listener type. It has properties such as `sender`, `receiver`, etc.
 
 Just like `DynamicTransactionType`, `DynamicTransactionListenerFilterType` is a helper interface to get correct filter type.
 
 ### Transaction Signer
-#### [TransactionSignerInterface](./src/services/TransactionSignerInterface.ts)
+#### [TransactionSignerInterface](./packages/types/src/services/TransactionSignerInterface.ts)
 
 Provides a class to sign and send transactions. `TransactionSignerInterface` has all of the methods to audit a signature.
 
