@@ -1,0 +1,16 @@
+lockfileVersion: '6.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+dependencies:
+  '@multiplechain/types':
+    specifier: ^0.1.6
+    version: 0.1.6
+
+packages:
+
+  /@multiplechain/types@0.1.6:
+    resolution: {integrity: sha512-hCWqGhWAI81tBeFMFDjAzJzCuAa37huxO43EWV5iQFe74PNlNkF1pQbaz8MMttuu3JM9jJeE9fON4JaMIUBM4Q==}
+    dev: false

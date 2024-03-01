@@ -1,6 +1,8 @@
 {
     "compilerOptions": {
+        "noEmit": true,
         "composite": true,
+        "declaration": true,
         "outDir": "./dist/esm",
         "declarationDir": "./dist/types"
     },
