@@ -6,7 +6,9 @@ import type {
     TokenTransactionInterface,
     NftTransactionInterface
 } from '../models.ts'
-import type { TransactionTypeEnum, AssetDirectionEnum } from '../enums.js'
+
+import { TransactionTypeEnum } from '../enums.js'
+import type { AssetDirectionEnum } from '../enums.js'
 
 /**
  * Filter types for each transaction type in TransactionListenerInterface
@@ -83,11 +85,37 @@ export type DynamicTransactionListenerFilterType<T extends TransactionTypeEnum> 
                   ? NftTransactionListenerFilterInterface
                   : never
 
+/**
+ * 'TransactionListenerProcessIndex' is an object that connects transaction types to their corresponding process methods.
+ * Example: this[TransactionListenerProcessIndex[type] as keyof TransactionListener]()
+ */
+export const TransactionListenerProcessIndex = {
+    [TransactionTypeEnum.GENERAL]: 'generalProcess',
+    [TransactionTypeEnum.CONTRACT]: 'contractProcess',
+    [TransactionTypeEnum.ASSET]: 'assetProcess',
+    [TransactionTypeEnum.COIN]: 'coinProcess',
+    [TransactionTypeEnum.TOKEN]: 'tokenProcess',
+    [TransactionTypeEnum.NFT]: 'nftProcess'
+}
+
+/**
+ * 'TransactionListenerCallbackType' is a type of function that is triggered when a transaction is detected.
+ * It takes a transaction as an argument.
+ */
+export type TransactionListenerCallbackType = (
+    transaction: DynamicTransactionType<TransactionTypeEnum>
+) => void
+
 export interface TransactionListenerInterface<T extends TransactionTypeEnum> {
     /**
      * The 'type' property is a generic type that is used to define the type of transaction listener.
      */
     type: T
+
+    /**
+     * 'callback' is an array of callback functions that are triggered when a transaction is detected.
+     */
+    callbacks: TransactionListenerCallbackType[]
 
     /**
      * 'filter' is an object that has values depending on transaction listener type.
@@ -104,20 +132,20 @@ export interface TransactionListenerInterface<T extends TransactionTypeEnum> {
      * on() method is a listener that listens to the transaction events.
      * When a transaction is detected, it triggers the event.
      */
-    on: (event: (transaction: DynamicTransactionType<T>) => void) => void
+    on: (callback: TransactionListenerCallbackType) => void
 
     /**
      * listener methods for each transaction type
      */
-    generalTransactionProcess: () => void
+    generalProcess: () => void
 
-    contractTransactionProcess: () => void
+    contractProcess: () => void
 
-    assetTransactionProcess: () => void
+    assetProcess: () => void
 
-    coinTransactionProcess: () => void
+    coinProcess: () => void
 
-    tokenTransactionProcess: () => void
+    tokenProcess: () => void
 
-    nftTransactionProcess: () => void
+    nftProcess: () => void
 }

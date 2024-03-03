@@ -18,5 +18,10 @@ export interface ProviderInterface {
     /**
      * Update network configuration of the provider
      */
-    update: (config: NetworkConfigInterface) => void
+    update: (network: NetworkConfigInterface) => void
+
+    /**
+     * Get the current network configuration is testnet or not
+     */
+    isTestnet: () => boolean
 }
