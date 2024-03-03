@@ -1,6 +1,6 @@
 {
-    "name": "@multiplechain/evm-chains",
-    "version": "0.3.5",
+    "name": "@multiplechain/network-name",
+    "version": "0.1.0",
     "type": "module",
     "main": "./dist/esm/index.js",
     "types": "./dist/types/index.d.ts",
@@ -16,20 +16,18 @@
         "typecheck": "tsc --noEmit",
         "lint": "eslint . --ext .ts",
         "test": "vitest run --dir tests",
-        "prepublishOnly": "pnpm run build"
+        "prepublishOnly":"pnpm run build"
     },
     "keywords": [
         "web3",
         "crypto",
         "blockchain",
         "multiple-chain",
-        "standard",
-        "ethereum",
-        "evm"
+        "standard"
     ],
     "author": "MultipleChain",
     "license": "MIT",
-    "homepage": "https://github.com/MultipleChain/js/tree/master/packages/networks/evm-chains",
+    "homepage": "https://github.com/MultipleChain/js/tree/master/packages/networks/network-name",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/MultipleChain/js.git"
