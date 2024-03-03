@@ -9,4 +9,9 @@ services:
       - "3000:3000"
     volumes:
       - ./:/usr/src/app
+      - node_modules:/usr/src/app/node_modules
     init: true
+    tty: true
+
+volumes:
+  node_modules: 
