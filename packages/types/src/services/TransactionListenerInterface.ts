@@ -128,11 +128,18 @@ export interface TransactionListenerInterface<T extends TransactionTypeEnum> {
      */
     stop: () => void
 
-    /*
+    /**
      * on() method is a listener that listens to the transaction events.
      * When a transaction is detected, it triggers the event.
+     * @param callback - a function that is triggered when a transaction is detected.
      */
     on: (callback: TransactionListenerCallbackType) => void
+
+    /**
+     * trigger() method triggers the event when a transaction is detected.
+     * @param transaction - the transaction that is detected
+     */
+    trigger: (transaction: DynamicTransactionType<T>) => void
 
     /**
      * listener methods for each transaction type

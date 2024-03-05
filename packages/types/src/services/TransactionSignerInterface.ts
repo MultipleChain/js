@@ -8,7 +8,12 @@ export interface TransactionSignerInterface {
     /**
      * Transaction data from the blockchain network
      */
-    transaction: any
+    rawData: any
+
+    /**
+     * Signed transaction data
+     */
+    signedRaw?: any
 
     /**
      * @param privateKey - Private key of the wallet to sign the transaction
