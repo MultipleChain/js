@@ -13,7 +13,7 @@ export interface TransactionSignerInterface {
     /**
      * Signed transaction data
      */
-    signedRaw?: any
+    signedData?: any
 
     /**
      * @param privateKey - Private key of the wallet to sign the transaction

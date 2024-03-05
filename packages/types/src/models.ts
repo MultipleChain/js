@@ -1,4 +1,4 @@
-import type { AssetDirectionEnum, TransactionStatusEnum } from './enums.js'
+import type { AssetDirectionEnum, TransactionStatusEnum } from './enums.ts'
 
 export interface TransactionInterface {
     /**
@@ -67,6 +67,11 @@ export interface AssetTransactionInterface extends TransactionInterface {
     getReceiver: () => string
 
     /**
+     * @returns Transfer amount of the transaction (coin)
+     */
+    getAmount: () => number
+
+    /**
      * @param direction - Direction of the transaction (asset)
      * @param address - Wallet address of the receiver or sender of the transaction, dependant on direction
      * @param amount Amount of assets that will be transferred
@@ -78,12 +83,7 @@ export interface AssetTransactionInterface extends TransactionInterface {
     ) => TransactionStatusEnum
 }
 
-export interface CoinTransactionInterface extends AssetTransactionInterface {
-    /**
-     * @returns Transfer amount of the transaction (coin)
-     */
-    getAmount: () => number
-}
+export interface CoinTransactionInterface extends AssetTransactionInterface {}
 
 export interface TokenTransactionInterface
     extends AssetTransactionInterface,
@@ -91,6 +91,7 @@ export interface TokenTransactionInterface
     /**
      * @param direction - Direction of the transaction (token)
      * @param address - Wallet address of the owner or spender of the transaction, dependant on direction
+     * @param amount Amount of tokens that will be approved
      */
     verifyApprove: (
         direction: AssetDirectionEnum,

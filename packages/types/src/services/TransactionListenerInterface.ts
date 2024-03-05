@@ -7,8 +7,8 @@ import type {
     NftTransactionInterface
 } from '../models.ts'
 
-import { TransactionTypeEnum } from '../enums.js'
-import type { AssetDirectionEnum } from '../enums.js'
+import { TransactionTypeEnum } from '../enums.ts'
+import type { AssetDirectionEnum } from '../enums.ts'
 
 /**
  * Filter types for each transaction type in TransactionListenerInterface

@@ -18,26 +18,22 @@ export interface ContractInterface {
     getAddress: () => string
 
     /**
+     * @param method Method name
+     * @param args Method parameters
      * Runs the contract methods dynamically
      */
-    callMethod: (...args: any[]) => any
+    callMethod: (method: string, ...args: any[]) => any
 
     /**
+     * @param method Method name
+     * @param args Method parameters
      * To get information from called method
      * @returns Data used in transaction
      */
-    getMethodData: (...args: any[]) => any
+    getMethodData: (method: string, ...args: any[]) => any
 }
 
 export interface AssetInterface {
-    /**
-     * transfer() method is the main method for processing transfers for fungible assets (TOKEN, COIN)
-     * @param sender Sender wallet address
-     * @param receiver Receiver wallet address
-     * @param amount Amount of assets that will be transferred
-     */
-    transfer: (sender: string, receiver: string, amount: number) => TransactionSignerInterface
-
     /**
      * @returns Name of the asset (long name)
      */
@@ -53,6 +49,14 @@ export interface AssetInterface {
      * @returns Wallet balance as currency of TOKEN or COIN assets
      */
     getBalance: (owner: string) => number
+
+    /**
+     * transfer() method is the main method for processing transfers for fungible assets (TOKEN, COIN)
+     * @param sender Sender wallet address
+     * @param receiver Receiver wallet address
+     * @param amount Amount of assets that will be transferred
+     */
+    transfer: (sender: string, receiver: string, amount: number) => TransactionSignerInterface
 }
 
 // Sub Interfaces
@@ -92,15 +96,6 @@ export interface TokenInterface extends AssetInterface, ContractInterface {
 
 export interface NftInterface extends Omit<AssetInterface, 'transfer'>, ContractInterface {
     /**
-     * Transfers an NFT
-     * @param sender Sender wallet address
-     * @param receiver Receiver wallet address
-     * @param nftId ID of the NFT that will be transferred
-     * @override transfer() in AssetInterface
-     */
-    transfer: (sender: string, receiver: string, nftId: number) => TransactionSignerInterface
-
-    /**
      * @param nftId ID of the NFT
      * @returns Wallet address of owner of the NFT
      */
@@ -111,4 +106,13 @@ export interface NftInterface extends Omit<AssetInterface, 'transfer'>, Contract
      * @returns URL of the metadata
      */
     getTokenURI: (nftId: number) => string | URL
+
+    /**
+     * Transfers an NFT
+     * @param sender Sender wallet address
+     * @param receiver Receiver wallet address
+     * @param nftId ID of the NFT that will be transferred
+     * @override transfer() in AssetInterface
+     */
+    transfer: (sender: string, receiver: string, nftId: number) => TransactionSignerInterface
 }
