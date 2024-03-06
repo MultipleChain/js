@@ -1,12 +1,22 @@
 import type { ContractInterface } from '@multiplechain/types'
 
 export class Contract implements ContractInterface {
+    /**
+     * Contract address
+     */
     address: string
 
     /**
-     * @param address Contract address
+     * Contract ABI
      */
-    constructor(address: string) {
+    abi: object[]
+
+    /**
+     * @param address Contract address
+     * @param abi Contract ABI
+     */
+    constructor(address: string, abi: object[] = []) {
+        this.abi = abi
         this.address = address
     }
 
