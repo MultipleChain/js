@@ -22,7 +22,7 @@ export class Contract implements ContractInterface {
      * @param args Method parameters
      * @returns Method result
      */
-    callMethod(method: string, args: any[]): any {
+    callMethod(method: string, ...args: any[]): any {
         return {}
     }
 

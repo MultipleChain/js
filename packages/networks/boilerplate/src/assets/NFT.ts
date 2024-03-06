@@ -1,16 +1,28 @@
-import { Asset } from './Asset.ts'
+import { Contract } from './Contract.ts'
 import { TransactionSigner } from '../services/TransactionSigner.ts'
 import type { NftInterface, TransactionSignerInterface } from '@multiplechain/types'
 
-export class NFT extends Asset implements NftInterface {
-    address: string
+export class NFT extends Contract implements NftInterface {
+    /**
+     * @returns Contract name
+     */
+    getName(): string {
+        return 'example'
+    }
 
     /**
-     * @param address Contract address
+     * @returns Contract symbol
      */
-    constructor(address: string) {
-        super()
-        this.address = address
+    getSymbol(): string {
+        return 'example'
+    }
+
+    /**
+     * @param owner Wallet address
+     * @returns Wallet balance as currency of TOKEN or COIN assets
+     */
+    getBalance(owner: string): number {
+        return 0
     }
 
     /**
@@ -25,24 +37,6 @@ export class NFT extends Asset implements NftInterface {
      */
     getNftId(): number {
         return 0
-    }
-
-    /**
-     * @param method Method name
-     * @param args Method parameters
-     * @returns Method result
-     */
-    callMethod(method: string, args: any[]): any {
-        return {}
-    }
-
-    /**
-     * @param method Method name
-     * @param args Method parameters
-     * @returns Method data
-     */
-    getMethodData(method: string, ...args: any[]): any {
-        return {}
     }
 
     /**

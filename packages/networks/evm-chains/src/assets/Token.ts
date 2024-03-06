@@ -1,16 +1,20 @@
-import { Asset } from './Asset.ts'
+import { Contract } from './Contract.ts'
 import { TransactionSigner } from '../services/TransactionSigner.ts'
 import type { TokenInterface, TransactionSignerInterface } from '@multiplechain/types'
 
-export class Token extends Asset implements TokenInterface {
-    address: string
+export class Token extends Contract implements TokenInterface {
+    /**
+     * @returns Token name
+     */
+    getName(): string {
+        return 'example'
+    }
 
     /**
-     * @param address Contract address
+     * @returns Token symbol
      */
-    constructor(address: string) {
-        super()
-        this.address = address
+    getSymbol(): string {
+        return 'example'
     }
 
     /**
@@ -28,6 +32,14 @@ export class Token extends Asset implements TokenInterface {
     }
 
     /**
+     * @param owner Wallet address
+     * @returns Wallet balance as currency of TOKEN or COIN assets
+     */
+    getBalance(owner: string): number {
+        return 0
+    }
+
+    /**
      * @returns Total supply of the token
      */
     getTotalSupply(): number {
@@ -35,21 +47,13 @@ export class Token extends Asset implements TokenInterface {
     }
 
     /**
-     * @param method Method name
-     * @param args Method parameters
-     * @returns Method result
+     * transfer() method is the main method for processing transfers for fungible assets (TOKEN, COIN)
+     * @param sender Sender wallet address
+     * @param receiver Receiver wallet address
+     * @param amount Amount of assets that will be transferred
      */
-    callMethod(method: string, args: any[]): any {
-        return {}
-    }
-
-    /**
-     * @param method Method name
-     * @param args Method parameters
-     * @returns Method data
-     */
-    getMethodData(method: string, ...args: any[]): any {
-        return {}
+    transfer(sender: string, receiver: string, amount: number): TransactionSignerInterface {
+        return new TransactionSigner('example')
     }
 
     /**

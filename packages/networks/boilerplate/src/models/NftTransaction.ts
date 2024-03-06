@@ -1,8 +1,22 @@
-import { AssetTransaction } from './AssetTransaction.ts'
+import { ContractTransaction } from './ContractTransaction.ts'
 import { TransactionStatusEnum } from '@multiplechain/types'
 import type { NftTransactionInterface, AssetDirectionEnum } from '@multiplechain/types'
 
-export class NftTransaction extends AssetTransaction implements NftTransactionInterface {
+export class NftTransaction extends ContractTransaction implements NftTransactionInterface {
+    /**
+     * @returns Wallet address of the sender of transaction
+     */
+    getReceiver(): string {
+        return 'example'
+    }
+
+    /**
+     * @returns Transfer amount of the transaction (token)
+     */
+    getAmount(): number {
+        return 0
+    }
+
     /**
      * @returns ID of the NFT
      */
