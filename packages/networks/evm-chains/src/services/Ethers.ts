@@ -36,11 +36,11 @@ export class Ethers {
         }
     }
 
-    get getJsonRpc(): JsonRpcProvider {
+    public get jsonRpc(): JsonRpcProvider {
         return this.jsonRpcProvider
     }
 
-    get getWebsocket(): WebSocketProvider | undefined {
+    public get websocket(): WebSocketProvider | undefined {
         return this.websocketProvider
     }
 

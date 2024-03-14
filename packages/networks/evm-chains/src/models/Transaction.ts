@@ -1,5 +1,6 @@
 import type { TransactionInterface } from '@multiplechain/types'
 import { TransactionStatusEnum } from '@multiplechain/types'
+import { Provider } from '../services/Provider.ts'
 
 export class Transaction implements TransactionInterface {
     /**
@@ -7,15 +8,32 @@ export class Transaction implements TransactionInterface {
      */
     id: string
 
+    /**
+     * Provider instance
+     */
+    private readonly provider: Provider
+
     constructor(id: string) {
         this.id = id
+        this.provider = Provider.instance
     }
 
     /**
      * @returns Raw transaction data that is taken by blockchain network via RPC.
      */
-    getData(): object {
-        return {}
+    async getData(): Promise<object | null> {
+        try {
+            const data = (await this.provider.ethers.getTransaction(this.id)) ?? {}
+            const receipt = (await this.provider.ethers.getTransactionReceipt(this.id)) ?? {}
+            const result: object = { ...data, ...receipt }
+            return Object.keys(result).length !== 0 ? result : null
+        } catch (error) {
+            const e = error as Error
+            if (String(e.message).includes('timeout')) {
+                throw new Error('rpc-timeout')
+            }
+            throw new Error('data-request-failed')
+        }
     }
 
     /**
