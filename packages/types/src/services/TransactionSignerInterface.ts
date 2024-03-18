@@ -18,7 +18,7 @@ export interface TransactionSignerInterface {
     /**
      * @param privateKey - Private key of the wallet to sign the transaction
      */
-    sign: (privateKey: string) => TransactionSignerInterface
+    sign: (privateKey: string) => Promise<TransactionSignerInterface>
 
     /**
      * @returns Send the transaction to the blockchain network, returns a promise of the transaction
