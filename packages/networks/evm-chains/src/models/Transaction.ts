@@ -30,9 +30,9 @@ export class Transaction implements TransactionInterface {
         } catch (error) {
             const e = error as Error
             if (String(e.message).includes('timeout')) {
-                throw new Error('rpc-timeout')
+                throw new Error('RPC Timeout')
             }
-            throw new Error('data-request-failed')
+            throw new Error('Transaction not found')
         }
     }
 

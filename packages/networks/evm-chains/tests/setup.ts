@@ -10,6 +10,7 @@ export const provider = new Provider({
     explorerUrl: 'https://sepolia.etherscan.io/',
     nativeCurrency: {
         symbol: 'ETH',
+        name: 'Ethereum',
         decimals: 18
     }
 })

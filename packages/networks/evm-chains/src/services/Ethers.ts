@@ -6,17 +6,12 @@ import type {
     TransactionResponse
 } from 'ethers'
 
-import { Contract, ContractFactory, JsonRpcProvider, WebSocketProvider } from 'ethers'
+import { Wallet, Contract, ContractFactory, JsonRpcProvider, WebSocketProvider } from 'ethers'
 
 import { toHex } from '@multiplechain/utils'
 
 import type { EvmNetworkConfigInterface } from './Provider.ts'
-
-declare module 'ethers' {
-    interface JsonRpcProvider {
-        getGasPrice: () => Promise<number>
-    }
-}
+import type { TransactionData } from '../services/TransactionSigner.ts'
 
 export class Ethers {
     network: EvmNetworkConfigInterface
@@ -47,32 +42,45 @@ export class Ethers {
     /**
      * @param {String} address
      * @param {object[]} abi
-     * @param {JsonRpcSigner} provider
-     * @returns {Object}
+     * @param {JsonRpcSigner} signer
+     * @returns {Promise<Contract>}
      */
-    public contract(address: string, abi: object[], provider?: JsonRpcSigner): Contract {
-        return new Contract(address, abi, provider)
+    public async contract(
+        address: string,
+        abi: object[],
+        signer?: JsonRpcSigner
+    ): Promise<Contract> {
+        return new Contract(address, abi, signer ?? (await this.jsonRpc.getSigner()))
+    }
+
+    /**
+     * @param privateKey private key of the wallet
+     * @param provider provider of the blockchain network
+     * @returns {Wallet}
+     */
+    public wallet(privateKey: string, provider?: JsonRpcProvider): Wallet {
+        return new Wallet(privateKey, provider ?? this.jsonRpc)
     }
 
     /**
      * @param {object[]} abi
      * @param {String} bytecode
-     * @param {JsonRpcSigner} provider
-     * @returns {Object}
+     * @param {JsonRpcSigner} signer
+     * @returns {Promise<ContractFactory>}
      */
-    public contractFactory(
+    public async contractFactory(
         abi: object[],
         bytecode: string,
-        provider?: JsonRpcSigner
-    ): ContractFactory {
-        return new ContractFactory(abi, bytecode, provider)
+        signer?: JsonRpcSigner
+    ): Promise<ContractFactory> {
+        return new ContractFactory(abi, bytecode, signer ?? (await this.jsonRpc.getSigner()))
     }
 
     /**
      * @param {Object} data
      * @returns {Promise<string>}
      */
-    public async getEstimateGas(data: object): Promise<string> {
+    public async getEstimateGas(data: TransactionData): Promise<string> {
         return toHex((await this.jsonRpcProvider.estimateGas(data)).toString())
     }
 
@@ -80,7 +88,15 @@ export class Ethers {
      * @returns {Promise<string>}
      */
     public async getGasPrice(): Promise<string> {
-        return toHex((await this.jsonRpcProvider.getGasPrice()).toString())
+        return (await this.jsonRpc.send('eth_gasPrice', [])).toString() as string
+    }
+
+    /**
+     * @param {String} address
+     * @returns {Promise<number>}
+     */
+    public async getNonce(address: string): Promise<number> {
+        return await this.jsonRpcProvider.getTransactionCount(address)
     }
 
     /**

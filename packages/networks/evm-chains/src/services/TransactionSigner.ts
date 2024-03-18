@@ -1,20 +1,34 @@
 import type { TransactionSignerInterface, TransactionInterface } from '@multiplechain/types'
+import { Provider } from '../services/Provider.ts'
+import type { TransactionRequest, Wallet } from 'ethers'
+import { Transaction } from '../models/Transaction.ts'
+
+export interface TransactionData extends TransactionRequest {
+    gas?: string
+}
+
+const { ethers } = Provider.instance
 
 export class TransactionSigner implements TransactionSignerInterface {
     /**
      * Transaction data from the blockchain network
      */
-    rawData: any
+    rawData: TransactionData
 
     /**
      * Signed transaction data
      */
-    signedData?: any
+    signedData: string
+
+    /**
+     * Wallet instance from ethers with the private key
+     */
+    wallet: Wallet
 
     /**
      * @param rawData - Transaction data
      */
-    constructor(rawData: any) {
+    constructor(rawData: TransactionData) {
         this.rawData = rawData
     }
 
@@ -22,7 +36,9 @@ export class TransactionSigner implements TransactionSignerInterface {
      * Sign the transaction
      * @param privateKey - Transaction data
      */
-    sign(privateKey: string): this {
+    public async sign(privateKey: string): Promise<TransactionSigner> {
+        this.wallet = ethers.wallet(privateKey)
+        this.signedData = await this.wallet.signTransaction(this.rawData)
         return this
     }
 
@@ -31,7 +47,9 @@ export class TransactionSigner implements TransactionSignerInterface {
      * @returns Promise of the transaction
      */
     async send(): Promise<TransactionInterface | Error> {
-        return await Promise.resolve(this.signedData)
+        return new Transaction(
+            (await ethers.jsonRpc.send('eth_sendRawTransaction', [this.signedData])).hash as string
+        )
     }
 
     /**

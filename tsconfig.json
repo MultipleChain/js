@@ -18,7 +18,8 @@
         "strict": true,
         "noUnusedLocals": true,
         "noUnusedParameters": true,
-        "noFallthroughCasesInSwitch": true
+        "noFallthroughCasesInSwitch": true,
+        "strictPropertyInitialization": false
     },
     "include": ["packages/**/*.ts", ".eslintrc.json", "vite.config.ts", "vitest.config.ts", "vite-env.d.ts"],
     "exclude": ["node_modules", "dist", "packages/**/*.d.ts"]

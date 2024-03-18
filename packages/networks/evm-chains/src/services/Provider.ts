@@ -15,21 +15,21 @@ export interface EvmNetworkConfigInterface extends NetworkConfigInterface {
     }
 }
 
-export class Provider implements Omit<ProviderInterface, 'update' | 'network'> {
+export class Provider implements Omit<ProviderInterface, 'update'> {
     /**
      * Network configuration of the provider
      */
-    private network: EvmNetworkConfigInterface
+    public network: EvmNetworkConfigInterface
 
     /**
      * Ethers service
      */
-    private _ethers: Ethers
+    public ethers: Ethers
 
     /**
      * Static instance of the provider
      */
-    private static _instance: Provider
+    public static _instance: Provider
 
     /**
      * @param network - Network configuration of the provider
@@ -37,14 +37,7 @@ export class Provider implements Omit<ProviderInterface, 'update' | 'network'> {
     constructor(network: EvmNetworkConfigInterface) {
         this.network = network
         Provider._instance = this
-        this._ethers = new Ethers(network)
-    }
-
-    /**
-     * @returns Ethers service instance
-     */
-    get ethers(): Ethers {
-        return this._ethers
+        this.ethers = new Ethers(network)
     }
 
     /**
@@ -63,6 +56,9 @@ export class Provider implements Omit<ProviderInterface, 'update' | 'network'> {
      * @param network - Network configuration of the provider
      */
     static initialize(network: EvmNetworkConfigInterface): void {
+        if (Provider._instance !== undefined) {
+            throw new Error('Provider is already initialized')
+        }
         Provider._instance = new Provider(network)
     }
 
@@ -73,7 +69,7 @@ export class Provider implements Omit<ProviderInterface, 'update' | 'network'> {
     update(network: EvmNetworkConfigInterface): void {
         this.network = network
         Provider._instance = this
-        this._ethers = new Ethers(network)
+        this.ethers = new Ethers(network)
     }
 
     /**
