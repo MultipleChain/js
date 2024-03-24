@@ -68,7 +68,7 @@ export interface CoinInterface extends AssetInterface {
     /**
      * @returns Decimal value of the coin
      */
-    getDecimals: () => Promise<number>
+    getDecimals: () => number
 }
 
 export interface TokenInterface
