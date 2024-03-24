@@ -22,7 +22,7 @@ export interface ContractInterface {
      * @param args Method parameters
      * Runs the contract methods dynamically
      */
-    callMethod: (method: string, ...args: any[]) => any
+    callMethod: (method: string, ...args: any[]) => Promise<any>
 
     /**
      * @param method Method name
@@ -30,7 +30,7 @@ export interface ContractInterface {
      * To get information from called method
      * @returns Data used in transaction
      */
-    getMethodData: (method: string, ...args: any[]) => any
+    getMethodData: (method: string, ...args: any[]) => Promise<any>
 }
 
 export interface AssetInterface {
@@ -68,10 +68,22 @@ export interface CoinInterface extends AssetInterface {
     /**
      * @returns Decimal value of the coin
      */
-    getDecimals: () => number
+    getDecimals: () => Promise<number>
 }
 
-export interface TokenInterface extends AssetInterface, ContractInterface {
+export interface TokenInterface
+    extends Omit<AssetInterface, 'getName' | 'getSymbol'>,
+        ContractInterface {
+    /**
+     * @returns Name of the asset (long name)
+     */
+    getName: () => Promise<string>
+
+    /**
+     * @returns Symbol of the asset (short name)
+     */
+    getSymbol: () => Promise<string>
+
     /**
      * @returns Decimal value of the token
      */
@@ -98,7 +110,19 @@ export interface TokenInterface extends AssetInterface, ContractInterface {
     allowance: (owner: string, spender: string) => Promise<number>
 }
 
-export interface NftInterface extends Omit<AssetInterface, 'transfer'>, ContractInterface {
+export interface NftInterface
+    extends Omit<AssetInterface, 'transfer' | 'getName' | 'getSymbol'>,
+        ContractInterface {
+    /**
+     * @returns Name of the asset (long name)
+     */
+    getName: () => Promise<string>
+
+    /**
+     * @returns Symbol of the asset (short name)
+     */
+    getSymbol: () => Promise<string>
+
     /**
      * @param nftId ID of the NFT
      * @returns Wallet address of owner of the NFT

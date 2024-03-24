@@ -9,7 +9,7 @@ export interface TransactionInterface {
     /**
      * @returns Raw transaction data that is taken by blockchain network via RPC.
      */
-    getData: () => object
+    getData: () => Promise<object | null>
 
     /**
      * @returns Transaction id from the blockchain network
@@ -25,51 +25,51 @@ export interface TransactionInterface {
     /**
      * @returns Wallet address of the sender of transaction
      */
-    getSender: () => string
+    getSender: () => Promise<string>
 
     /**
      * @returns Transaction fee as native coin amount
      */
-    getFee: () => number
+    getFee: () => Promise<number>
 
     /**
      * @returns Block ID of the transaction
      */
-    getBlockNumber: () => number
+    getBlockNumber: () => Promise<number>
 
     /**
      * @returns UNIX timestamp of the date that block is added to blockchain
      */
-    getBlockTimestamp: () => number
+    getBlockTimestamp: () => Promise<number>
 
     /**
      * @returns Block confirmation amount
      */
-    getBlockConfirmationCount: () => number
+    getBlockConfirmationCount: () => Promise<number>
 
     /**
      * @returns Status of the transaction.
      */
-    getStatus: () => TransactionStatusEnum
+    getStatus: () => Promise<TransactionStatusEnum>
 }
 
 export interface ContractTransactionInterface extends TransactionInterface {
     /**
      * @returns Smart contract address of the transaction
      */
-    getAddress: () => string
+    getAddress: () => Promise<string>
 }
 
 export interface AssetTransactionInterface extends TransactionInterface {
     /**
      * @returns Receiver wallet address of the transaction (asset)
      */
-    getReceiver: () => string
+    getReceiver: () => Promise<string>
 
     /**
      * @returns Transfer amount of the transaction (coin)
      */
-    getAmount: () => number
+    getAmount: () => Promise<number>
 
     /**
      * @param direction - Direction of the transaction (asset)
@@ -80,7 +80,7 @@ export interface AssetTransactionInterface extends TransactionInterface {
         direction: AssetDirectionEnum,
         address: string,
         amount: number
-    ) => TransactionStatusEnum
+    ) => Promise<TransactionStatusEnum>
 }
 
 export interface CoinTransactionInterface extends AssetTransactionInterface {}
@@ -97,7 +97,7 @@ export interface TokenTransactionInterface
         direction: AssetDirectionEnum,
         address: string,
         amount: number
-    ) => TransactionStatusEnum
+    ) => Promise<TransactionStatusEnum>
 }
 
 export interface NftTransactionInterface
@@ -106,7 +106,7 @@ export interface NftTransactionInterface
     /**
      * @returns ID of the NFT
      */
-    getNftId: () => number
+    getNftId: () => Promise<number>
 
     /**
      * @param direction - Direction of the transaction (nft)
@@ -118,5 +118,5 @@ export interface NftTransactionInterface
         direction: AssetDirectionEnum,
         address: string,
         nftId: number
-    ) => TransactionStatusEnum
+    ) => Promise<TransactionStatusEnum>
 }
