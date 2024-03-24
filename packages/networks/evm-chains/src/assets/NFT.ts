@@ -1,4 +1,5 @@
 import { Contract } from './Contract.ts'
+import ERC721 from '../../resources/erc721.json'
 import { TransactionSigner } from '../services/TransactionSigner.ts'
 import type { NftInterface, TransactionSignerInterface } from '@multiplechain/types'
 

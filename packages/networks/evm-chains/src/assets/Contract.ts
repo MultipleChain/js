@@ -1,4 +1,8 @@
 import type { ContractInterface } from '@multiplechain/types'
+import type { Contract as EthersContract } from 'ethers'
+import { Provider } from '../services/Provider.ts'
+
+const { ethers } = Provider.instance
 
 export class Contract implements ContractInterface {
     /**
@@ -12,12 +16,18 @@ export class Contract implements ContractInterface {
     abi: object[]
 
     /**
+     * Ethers contract
+     */
+    ethersContract: EthersContract
+
+    /**
      * @param address Contract address
      * @param abi Contract ABI
      */
-    constructor(address: string, abi: object[] = []) {
+    constructor(address: string, abi: object[]) {
         this.abi = abi
         this.address = address
+        this.ethersContract = ethers.contract(address, abi, ethers.jsonRpc)
     }
 
     /**
@@ -32,8 +42,8 @@ export class Contract implements ContractInterface {
      * @param args Method parameters
      * @returns Method result
      */
-    callMethod(method: string, ...args: any[]): any {
-        return {}
+    async callMethod(method: string, ...args: any[]): Promise<any> {
+        return this.ethersContract[method](...args) // eslint-disable-line
     }
 
     /**
@@ -41,7 +51,7 @@ export class Contract implements ContractInterface {
      * @param args Method parameters
      * @returns Method data
      */
-    getMethodData(method: string, ...args: any[]): any {
-        return {}
+    async getMethodData(method: string, ...args: any[]): Promise<string> {
+        return this.ethersContract.interface.encodeFunctionData(method, args)
     }
 }

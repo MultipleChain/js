@@ -45,12 +45,12 @@ export class Ethers {
      * @param {JsonRpcSigner} signer
      * @returns {Promise<Contract>}
      */
-    public async contract(
+    public contract(
         address: string,
         abi: object[],
-        signer?: JsonRpcSigner
-    ): Promise<Contract> {
-        return new Contract(address, abi, signer ?? (await this.jsonRpc.getSigner()))
+        signer?: JsonRpcSigner | JsonRpcProvider
+    ): Contract {
+        return new Contract(address, abi, signer)
     }
 
     /**
@@ -68,12 +68,12 @@ export class Ethers {
      * @param {JsonRpcSigner} signer
      * @returns {Promise<ContractFactory>}
      */
-    public async contractFactory(
+    public contractFactory(
         abi: object[],
         bytecode: string,
-        signer?: JsonRpcSigner
-    ): Promise<ContractFactory> {
-        return new ContractFactory(abi, bytecode, signer ?? (await this.jsonRpc.getSigner()))
+        signer?: JsonRpcSigner | JsonRpcProvider
+    ): ContractFactory {
+        return new ContractFactory(abi, bytecode, signer)
     }
 
     /**

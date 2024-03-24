@@ -3,6 +3,11 @@ import { describe, it, expect, assert } from 'vitest'
 import { Coin } from '../src/assets/Coin.ts'
 import { TransactionSigner } from '../src/services/TransactionSigner.ts'
 import { Transaction } from '../src/models/Transaction.ts'
+import { Contract } from '../src/assets/Contract.ts'
+import ERC20 from '../resources/erc20.json'
+import { numberToHex } from '@multiplechain/utils'
+
+const transferTestIsOpen = false
 
 const balanceTestAddress = '0x760A4d3D03928D1e8541A7644B34370c1b79aa9F'
 const tokenTestAddress = '0x4294cb0dD25dC9140B5127f247cBd47Eeb673431'
@@ -31,6 +36,7 @@ describe('Coin', () => {
     })
 
     it('Transfer', async () => {
+        if (!transferTestIsOpen) return
         const signer = await coin.transfer(
             senderTestAddress,
             receiverTestAddress,
@@ -59,7 +65,22 @@ describe('Coin', () => {
     })
 })
 
-// describe('Contract', () => {})
+describe('Contract', () => {
+    const contract = new Contract(tokenTestAddress, ERC20)
+    it('callMethod', async () => {
+        const name = await contract.callMethod('name')
+        expect(name).toBe('MyToken')
+    })
+
+    it('getMethodData', async () => {
+        const decimals = await contract.callMethod('decimals')
+        const hexAmount = numberToHex(tokenBalanceTestAmount, Number(decimals))
+        const data = await contract.getMethodData('transfer', receiverTestAddress, hexAmount)
+        expect(data).toBe(
+            '0xa9059cbb000000000000000000000000bba4d06d1cef94b35adecfda893523907fdd36de00000000000000000000000000000000000000000000003635c9adc5dea00000'
+        )
+    })
+})
 
 // describe('Token', () => {})
 
