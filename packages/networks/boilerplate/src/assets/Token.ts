@@ -6,28 +6,21 @@ export class Token extends Contract implements TokenInterface {
     /**
      * @returns Token name
      */
-    getName(): string {
+    async getName(): Promise<string> {
         return 'example'
     }
 
     /**
      * @returns Token symbol
      */
-    getSymbol(): string {
-        return 'example'
-    }
-
-    /**
-     * @returns Contract address
-     */
-    getAddress(): string {
+    async getSymbol(): Promise<string> {
         return 'example'
     }
 
     /**
      * @returns Decimal value of the coin
      */
-    getDecimals(): number {
+    async getDecimals(): Promise<number> {
         return 18
     }
 
@@ -35,14 +28,14 @@ export class Token extends Contract implements TokenInterface {
      * @param owner Wallet address
      * @returns Wallet balance as currency of TOKEN or COIN assets
      */
-    getBalance(owner: string): number {
+    async getBalance(owner: string): Promise<number> {
         return 0
     }
 
     /**
      * @returns Total supply of the token
      */
-    getTotalSupply(): number {
+    async getTotalSupply(): Promise<number> {
         return 0
     }
 
@@ -52,7 +45,11 @@ export class Token extends Contract implements TokenInterface {
      * @param receiver Receiver wallet address
      * @param amount Amount of assets that will be transferred
      */
-    transfer(sender: string, receiver: string, amount: number): TransactionSignerInterface {
+    async transfer(
+        sender: string,
+        receiver: string,
+        amount: number
+    ): Promise<TransactionSignerInterface> {
         return new TransactionSigner('example')
     }
 
@@ -62,7 +59,11 @@ export class Token extends Contract implements TokenInterface {
      * @param spender Address of the spender that will use the tokens of owner
      * @param amount Amount of the tokens that will be used
      */
-    approve(owner: string, spender: string, amount: number): TransactionSignerInterface {
+    async approve(
+        owner: string,
+        spender: string,
+        amount: number
+    ): Promise<TransactionSignerInterface> {
         return new TransactionSigner('example')
     }
 
@@ -71,7 +72,7 @@ export class Token extends Contract implements TokenInterface {
      * @param spender Address of the spender that is using the tokens of owner
      * @returns Amount of the tokens that is being used by spender
      */
-    allowance(owner: string, spender: string): number {
+    async allowance(owner: string, spender: string): Promise<number> {
         return 0
     }
 }

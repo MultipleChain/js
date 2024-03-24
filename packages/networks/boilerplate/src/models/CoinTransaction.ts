@@ -6,14 +6,14 @@ export class CoinTransaction extends Transaction implements CoinTransactionInter
     /**
      * @returns Wallet address of the sender of transaction
      */
-    getReceiver(): string {
+    async getReceiver(): Promise<string> {
         return 'example'
     }
 
     /**
      * @returns Transfer amount of the transaction (coin)
      */
-    getAmount(): number {
+    async getAmount(): Promise<number> {
         return 0
     }
 
@@ -22,11 +22,11 @@ export class CoinTransaction extends Transaction implements CoinTransactionInter
      * @param address - Wallet address of the receiver or sender of the transaction, dependant on direction
      * @param amount Amount of assets that will be transferred
      */
-    verifyTransfer(
+    async verifyTransfer(
         direction: AssetDirectionEnum,
         address: string,
         amount: number
-    ): TransactionStatusEnum {
+    ): Promise<TransactionStatusEnum> {
         return TransactionStatusEnum.PENDING
     }
 }

@@ -22,7 +22,7 @@ export class Contract implements ContractInterface {
      * @param args Method parameters
      * @returns Method result
      */
-    callMethod(method: string, ...args: any[]): any {
+    async callMethod(method: string, ...args: any[]): Promise<any> {
         return {}
     }
 
@@ -31,7 +31,7 @@ export class Contract implements ContractInterface {
      * @param args Method parameters
      * @returns Method data
      */
-    getMethodData(method: string, ...args: any[]): any {
+    async getMethodData(method: string, ...args: any[]): Promise<any> {
         return {}
     }
 }

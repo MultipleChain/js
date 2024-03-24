@@ -6,14 +6,14 @@ export class NFT extends Contract implements NftInterface {
     /**
      * @returns Contract name
      */
-    getName(): string {
+    async getName(): Promise<string> {
         return 'example'
     }
 
     /**
      * @returns Contract symbol
      */
-    getSymbol(): string {
+    async getSymbol(): Promise<string> {
         return 'example'
     }
 
@@ -21,21 +21,14 @@ export class NFT extends Contract implements NftInterface {
      * @param owner Wallet address
      * @returns Wallet balance as currency of TOKEN or COIN assets
      */
-    getBalance(owner: string): number {
+    async getBalance(owner: string): Promise<number> {
         return 0
-    }
-
-    /**
-     * @returns Contract address
-     */
-    getAddress(): string {
-        return 'example'
     }
 
     /**
      * @returns NFT ID
      */
-    getNftId(): number {
+    async getNftId(): Promise<number> {
         return 0
     }
 
@@ -45,7 +38,11 @@ export class NFT extends Contract implements NftInterface {
      * @param nftId NFT ID
      * @returns Transaction signer
      */
-    transfer(sender: string, receiver: string, nftId: number): TransactionSignerInterface {
+    async transfer(
+        sender: string,
+        receiver: string,
+        nftId: number
+    ): Promise<TransactionSignerInterface> {
         return new TransactionSigner('example')
     }
 
@@ -53,7 +50,7 @@ export class NFT extends Contract implements NftInterface {
      * @param nftId NFT ID
      * @returns NFT owner wallet address
      */
-    getOwner(nftId: number): string {
+    async getOwner(nftId: number): Promise<string> {
         return 'example'
     }
 
@@ -61,7 +58,7 @@ export class NFT extends Contract implements NftInterface {
      * @param nftId NFT ID
      * @returns NFT URI
      */
-    getTokenURI(nftId: number): string {
+    async getTokenURI(nftId: number): Promise<string> {
         return 'example'
     }
 }

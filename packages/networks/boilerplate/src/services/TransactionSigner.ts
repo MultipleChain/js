@@ -22,8 +22,8 @@ export class TransactionSigner implements TransactionSignerInterface {
      * Sign the transaction
      * @param privateKey - Transaction data
      */
-    sign(privateKey: string): this {
-        return this
+    async sign(privateKey: string): Promise<this> {
+        return await Promise.resolve(this)
     }
 
     /**

@@ -14,7 +14,7 @@ export class Transaction implements TransactionInterface {
     /**
      * @returns Raw transaction data that is taken by blockchain network via RPC.
      */
-    getData(): object {
+    async getData(): Promise<object | null> {
         return {}
     }
 
@@ -36,42 +36,42 @@ export class Transaction implements TransactionInterface {
     /**
      * @returns Wallet address of the sender of transaction
      */
-    getSender(): string {
+    async getSender(): Promise<string> {
         return 'example'
     }
 
     /**
      * @returns Transaction fee as native coin amount
      */
-    getFee(): number {
+    async getFee(): Promise<number> {
         return 0
     }
 
     /**
      * @returns Block ID of the transaction
      */
-    getBlockNumber(): number {
+    async getBlockNumber(): Promise<number> {
         return 0
     }
 
     /**
      * @returns UNIX timestamp of the date that block is added to blockchain
      */
-    getBlockTimestamp(): number {
+    async getBlockTimestamp(): Promise<number> {
         return 0
     }
 
     /**
      * @returns Confirmation count of the block that transaction is included
      */
-    getBlockConfirmationCount(): number {
+    async getBlockConfirmationCount(): Promise<number> {
         return 0
     }
 
     /**
      * @returns Status of the transaction
      */
-    getStatus(): TransactionStatusEnum {
+    async getStatus(): Promise<TransactionStatusEnum> {
         return TransactionStatusEnum.CONFIRMED
     }
 }

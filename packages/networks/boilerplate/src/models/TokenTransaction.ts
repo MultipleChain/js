@@ -6,21 +6,21 @@ export class TokenTransaction extends ContractTransaction implements TokenTransa
     /**
      * @returns Wallet address of the sender of transaction
      */
-    getReceiver(): string {
+    async getReceiver(): Promise<string> {
         return 'example'
     }
 
     /**
      * @returns Transfer amount of the transaction (token)
      */
-    getAmount(): number {
+    async getAmount(): Promise<number> {
         return 0
     }
 
     /**
      * @returns Token address of the transaction
      */
-    getAddress(): string {
+    async getAddress(): Promise<string> {
         return 'example'
     }
 
@@ -29,11 +29,11 @@ export class TokenTransaction extends ContractTransaction implements TokenTransa
      * @param address - Wallet address of the owner or spender of the transaction, dependant on direction
      * @param amount Amount of tokens that will be approved
      */
-    verifyTransfer(
+    async verifyTransfer(
         direction: AssetDirectionEnum,
         address: string,
         amount: number
-    ): TransactionStatusEnum {
+    ): Promise<TransactionStatusEnum> {
         return TransactionStatusEnum.PENDING
     }
 
@@ -42,11 +42,11 @@ export class TokenTransaction extends ContractTransaction implements TokenTransa
      * @param address - Wallet address of the owner or spender of the transaction, dependant on direction
      * @param amount Amount of tokens that will be approved
      */
-    verifyApprove(
+    async verifyApprove(
         direction: AssetDirectionEnum,
         address: string,
         amount: number
-    ): TransactionStatusEnum {
+    ): Promise<TransactionStatusEnum> {
         return TransactionStatusEnum.PENDING
     }
 }

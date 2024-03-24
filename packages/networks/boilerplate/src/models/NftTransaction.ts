@@ -6,28 +6,28 @@ export class NftTransaction extends ContractTransaction implements NftTransactio
     /**
      * @returns Wallet address of the sender of transaction
      */
-    getReceiver(): string {
+    async getReceiver(): Promise<string> {
         return 'example'
     }
 
     /**
      * @returns Transfer amount of the transaction (token)
      */
-    getAmount(): number {
+    async getAmount(): Promise<number> {
         return 0
     }
 
     /**
      * @returns ID of the NFT
      */
-    getNftId(): number {
+    async getNftId(): Promise<number> {
         return 0
     }
 
     /**
      * @returns Smart contract address of the transaction
      */
-    getAddress(): string {
+    async getAddress(): Promise<string> {
         return 'example'
     }
 
@@ -37,11 +37,11 @@ export class NftTransaction extends ContractTransaction implements NftTransactio
      * @param nftId ID of the NFT that will be transferred
      * @override verifyTransfer() in AssetTransactionInterface
      */
-    verifyTransfer(
+    async verifyTransfer(
         direction: AssetDirectionEnum,
         address: string,
         nftId: number
-    ): TransactionStatusEnum {
+    ): Promise<TransactionStatusEnum> {
         return TransactionStatusEnum.PENDING
     }
 }

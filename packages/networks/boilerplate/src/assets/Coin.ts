@@ -19,7 +19,7 @@ export class Coin implements CoinInterface {
     /**
      * @returns Decimal value of the coin
      */
-    getDecimals(): number {
+    async getDecimals(): Promise<number> {
         return 18
     }
 
@@ -27,7 +27,7 @@ export class Coin implements CoinInterface {
      * @param owner Wallet address
      * @returns Wallet balance as currency of TOKEN or COIN assets
      */
-    getBalance(owner: string): number {
+    async getBalance(owner: string): Promise<number> {
         return 0
     }
 
@@ -36,7 +36,11 @@ export class Coin implements CoinInterface {
      * @param receiver Receiver wallet address
      * @param amount Amount of assets that will be transferred
      */
-    transfer(sender: string, receiver: string, amount: number): TransactionSignerInterface {
+    async transfer(
+        sender: string,
+        receiver: string,
+        amount: number
+    ): Promise<TransactionSignerInterface> {
         return new TransactionSigner('example')
     }
 }
