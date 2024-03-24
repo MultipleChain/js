@@ -1,8 +1,8 @@
-import { TransactionSigner } from '../services/TransactionSigner.ts'
-import type { CoinInterface, TransactionSignerInterface } from '@multiplechain/types'
 import { Provider } from '../services/Provider.ts'
 import { hexToNumber, numberToHex } from '@multiplechain/utils'
+import { TransactionSigner } from '../services/TransactionSigner.ts'
 import type { TransactionData } from '../services/TransactionSigner.ts'
+import type { CoinInterface, TransactionSignerInterface } from '@multiplechain/types'
 
 const { network, ethers } = Provider.instance
 

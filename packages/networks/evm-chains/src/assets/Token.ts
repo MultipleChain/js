@@ -1,50 +1,55 @@
 import { Contract } from './Contract.ts'
 import ERC20 from '../../resources/erc20.json'
+import { Provider } from '../services/Provider.ts'
 import { TransactionSigner } from '../services/TransactionSigner.ts'
+import { hexToNumber, numberToHex, toHex } from '@multiplechain/utils'
 import type { TokenInterface, TransactionSignerInterface } from '@multiplechain/types'
 
+const { network, ethers } = Provider.instance
+
 export class Token extends Contract implements TokenInterface {
+    constructor(address: string) {
+        super(address, ERC20)
+    }
+
     /**
      * @returns Token name
      */
-    getName(): string {
-        return 'example'
+    async getName(): Promise<string> {
+        return await this.callMethod('name')
     }
 
     /**
      * @returns Token symbol
      */
-    getSymbol(): string {
-        return 'example'
-    }
-
-    /**
-     * @returns Contract address
-     */
-    getAddress(): string {
-        return 'example'
+    async getSymbol(): Promise<string> {
+        return await this.callMethod('symbol')
     }
 
     /**
      * @returns Decimal value of the coin
      */
-    getDecimals(): number {
-        return 18
+    async getDecimals(): Promise<number> {
+        return Number(await this.callMethod('decimals'))
     }
 
     /**
      * @param owner Wallet address
      * @returns Wallet balance as currency of TOKEN or COIN assets
      */
-    getBalance(owner: string): number {
-        return 0
+    async getBalance(owner: string): Promise<number> {
+        const decimals = await this.getDecimals()
+        const balance = await this.callMethod('balanceOf', owner)
+        return hexToNumber(balance as string, decimals)
     }
 
     /**
      * @returns Total supply of the token
      */
-    getTotalSupply(): number {
-        return 0
+    async getTotalSupply(): Promise<number> {
+        const decimals = await this.getDecimals()
+        const totalSupply = await this.callMethod('totalSupply')
+        return hexToNumber(totalSupply as string, decimals)
     }
 
     /**
@@ -53,8 +58,40 @@ export class Token extends Contract implements TokenInterface {
      * @param receiver Receiver wallet address
      * @param amount Amount of assets that will be transferred
      */
-    transfer(sender: string, receiver: string, amount: number): TransactionSignerInterface {
-        return new TransactionSigner('example')
+    async transfer(
+        sender: string,
+        receiver: string,
+        amount: number
+    ): Promise<TransactionSignerInterface> {
+        if (amount < 0) {
+            throw new Error('Invalid amount')
+        }
+
+        const [balance, decimals] = await Promise.all([this.getBalance(sender), this.getDecimals()])
+
+        if (amount > balance) {
+            throw new Error('Insufficient balance')
+        }
+
+        const hexAmount = numberToHex(amount, decimals)
+        const [gasPrice, nonce, data, gas] = await Promise.all([
+            ethers.getGasPrice(),
+            ethers.getNonce(sender),
+            this.getMethodData('transfer', receiver, hexAmount),
+            this.ethersContract.transfer.estimateGas(receiver, hexAmount, { from: sender })
+        ])
+
+        return new TransactionSigner({
+            data,
+            nonce,
+            gasPrice,
+            value: '0x0',
+            to: receiver,
+            from: sender,
+            gas: toHex(gas),
+            chainId: network.id,
+            gasLimit: 22000
+        })
     }
 
     /**
