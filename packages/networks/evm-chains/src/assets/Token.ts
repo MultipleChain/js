@@ -2,8 +2,8 @@ import { Contract } from './Contract.ts'
 import ERC20 from '../../resources/erc20.json'
 import { Provider } from '../services/Provider.ts'
 import { TransactionSigner } from '../services/TransactionSigner.ts'
-import { hexToNumber, numberToHex, toHex } from '@multiplechain/utils'
-import type { TokenInterface, TransactionSignerInterface } from '@multiplechain/types'
+import { hexToNumber, numberToHex } from '@multiplechain/utils'
+import type { TokenInterface } from '@multiplechain/types'
 
 const { network, ethers } = Provider.instance
 
@@ -58,11 +58,7 @@ export class Token extends Contract implements TokenInterface {
      * @param receiver Receiver wallet address
      * @param amount Amount of assets that will be transferred
      */
-    async transfer(
-        sender: string,
-        receiver: string,
-        amount: number
-    ): Promise<TransactionSignerInterface> {
+    async transfer(sender: string, receiver: string, amount: number): Promise<TransactionSigner> {
         if (amount < 0) {
             throw new Error('Invalid amount')
         }
@@ -78,19 +74,19 @@ export class Token extends Contract implements TokenInterface {
             ethers.getGasPrice(),
             ethers.getNonce(sender),
             this.getMethodData('transfer', receiver, hexAmount),
-            this.ethersContract.transfer.estimateGas(receiver, hexAmount, { from: sender })
+            this.getMethodEstimateGas('transfer', sender, receiver, hexAmount)
         ])
 
         return new TransactionSigner({
+            gas,
             data,
             nonce,
             gasPrice,
             value: '0x0',
-            to: receiver,
             from: sender,
-            gas: toHex(gas),
+            gasLimit: 800000,
             chainId: network.id,
-            gasLimit: 22000
+            to: this.getAddress()
         })
     }
 
@@ -100,8 +96,37 @@ export class Token extends Contract implements TokenInterface {
      * @param spender Address of the spender that will use the tokens of owner
      * @param amount Amount of the tokens that will be used
      */
-    approve(owner: string, spender: string, amount: number): TransactionSignerInterface {
-        return new TransactionSigner('example')
+    async approve(owner: string, spender: string, amount: number): Promise<TransactionSigner> {
+        if (amount < 0) {
+            throw new Error('Invalid amount')
+        }
+
+        const [balance, decimals] = await Promise.all([this.getBalance(owner), this.getDecimals()])
+
+        if (amount > balance) {
+            throw new Error('Insufficient balance')
+        }
+
+        const hexAmount = numberToHex(amount, decimals)
+
+        const [gasPrice, nonce, data, gas] = await Promise.all([
+            ethers.getGasPrice(),
+            ethers.getNonce(owner),
+            this.getMethodData('approve', spender, hexAmount),
+            this.getMethodEstimateGas('approve', owner, spender, hexAmount)
+        ])
+
+        return new TransactionSigner({
+            gas,
+            data,
+            nonce,
+            gasPrice,
+            value: '0x0',
+            from: owner,
+            gasLimit: 800000,
+            chainId: network.id,
+            to: this.getAddress()
+        })
     }
 
     /**
@@ -109,7 +134,10 @@ export class Token extends Contract implements TokenInterface {
      * @param spender Address of the spender that is using the tokens of owner
      * @returns Amount of the tokens that is being used by spender
      */
-    allowance(owner: string, spender: string): number {
-        return 0
+    async allowance(owner: string, spender: string): Promise<number> {
+        return hexToNumber(
+            (await this.callMethod('allowance', owner, spender)) as string,
+            await this.getDecimals()
+        )
     }
 }

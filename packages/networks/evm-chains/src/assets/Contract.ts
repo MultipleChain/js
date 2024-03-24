@@ -1,6 +1,7 @@
 import type { ContractInterface } from '@multiplechain/types'
 import type { Contract as EthersContract } from 'ethers'
 import { Provider } from '../services/Provider.ts'
+import { toHex } from '@multiplechain/utils'
 
 const { ethers } = Provider.instance
 
@@ -53,5 +54,15 @@ export class Contract implements ContractInterface {
      */
     async getMethodData(method: string, ...args: any[]): Promise<string> {
         return this.ethersContract.interface.encodeFunctionData(method, args)
+    }
+
+    /**
+     * @param method Method name
+     * @param from Sender wallet address
+     * @param args Method parameters
+     * @returns Gas estimate
+     */
+    async getMethodEstimateGas(method: string, from: string, ...args: any[]): Promise<string> {
+        return toHex(await this.ethersContract[method].estimateGas(...args, { from })) // eslint-disable-line
     }
 }
