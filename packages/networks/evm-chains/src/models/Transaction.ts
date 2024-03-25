@@ -36,6 +36,11 @@ export class Transaction implements TransactionInterface {
         }
     }
 
+    async wait(): Promise<TransactionStatusEnum> {
+        // TODO: will complete this method first
+        return await this.getStatus()
+    }
+
     /**
      * @returns Transaction id from the blockchain network
      * this can be different names like txid, hash, signature etc.
