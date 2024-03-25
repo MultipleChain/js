@@ -2,8 +2,8 @@
  * Asset transactions (COIN, TOKEN, NFT) has two directions
  */
 export enum AssetDirectionEnum {
-    INCOMING,
-    OUTGOING
+    INCOMING = 'INCOMING',
+    OUTGOING = 'OUTGOING'
 }
 
 /**
@@ -11,12 +11,12 @@ export enum AssetDirectionEnum {
  * COIN, TOKEN, and NFT transactions are called ASSET transactions
  */
 export enum TransactionTypeEnum {
-    GENERAL,
-    CONTRACT,
-    ASSET,
-    COIN,
-    TOKEN,
-    NFT
+    GENERAL = 'GENERAL',
+    CONTRACT = 'CONTRACT',
+    ASSET = 'ASSET',
+    COIN = 'COIN',
+    TOKEN = 'TOKEN',
+    NFT = 'NFT'
 }
 
 /**
@@ -26,7 +26,7 @@ export enum TransactionTypeEnum {
  * CONFIRMED --> When a transaction is confirmed
  */
 export enum TransactionStatusEnum {
-    FAILED,
-    PENDING,
-    CONFIRMED
+    FAILED = 'FAILED',
+    PENDING = 'PENDING',
+    CONFIRMED = 'CONFIRMED'
 }
