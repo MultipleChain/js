@@ -1,10 +1,10 @@
 import { Provider } from '../services/Provider.ts'
 import { Transaction } from '../models/Transaction.ts'
-import type { TransactionRequest, Wallet } from 'ethers'
+import type { TransactionRequest, Wallet, BigNumberish } from 'ethers'
 import type { TransactionSignerInterface } from '@multiplechain/types'
 
 export interface TransactionData extends TransactionRequest {
-    gas?: string
+    gas?: BigNumberish
 }
 
 const { ethers } = Provider.instance
@@ -46,7 +46,7 @@ export class TransactionSigner implements TransactionSignerInterface {
      * Send the transaction to the blockchain network
      * @returns Promise of the transaction
      */
-    async send(): Promise<Transaction | Error> {
+    async send(): Promise<Transaction> {
         return new Transaction(
             (await ethers.jsonRpc.send('eth_sendRawTransaction', [this.signedData])) as string
         )

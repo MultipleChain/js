@@ -8,8 +8,6 @@ import type {
 
 import { Wallet, Contract, ContractFactory, JsonRpcProvider, WebSocketProvider } from 'ethers'
 
-import { toHex } from '@multiplechain/utils'
-
 import type { EvmNetworkConfigInterface } from './Provider.ts'
 import type { TransactionData } from '../services/TransactionSigner.ts'
 
@@ -78,10 +76,10 @@ export class Ethers {
 
     /**
      * @param {Object} data
-     * @returns {Promise<string>}
+     * @returns {Promise<number>}
      */
-    public async getEstimateGas(data: TransactionData): Promise<string> {
-        return toHex((await this.jsonRpcProvider.estimateGas(data)).toString())
+    public async getEstimateGas(data: TransactionData): Promise<number> {
+        return Number(await this.jsonRpcProvider.estimateGas(data))
     }
 
     /**

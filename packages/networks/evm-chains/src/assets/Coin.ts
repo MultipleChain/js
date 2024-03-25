@@ -61,16 +61,15 @@ export class Coin implements CoinInterface {
             value: hexAmount
         }
 
-        const [gasPrice, nonce, gas] = await Promise.all([
+        const [gasPrice, nonce, gasLimit] = await Promise.all([
             ethers.getGasPrice(),
             ethers.getNonce(sender),
             ethers.getEstimateGas(txData)
         ])
 
-        txData.gas = gas
         txData.nonce = nonce
         txData.gasPrice = gasPrice
-        txData.gasLimit = 21000
+        txData.gasLimit = gasLimit
 
         return new TransactionSigner(txData)
     }

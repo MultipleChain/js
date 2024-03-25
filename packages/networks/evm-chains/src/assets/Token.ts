@@ -70,7 +70,7 @@ export class Token extends Contract implements TokenInterface {
         }
 
         const hexAmount = numberToHex(amount, decimals)
-        const [gasPrice, nonce, data, gas] = await Promise.all([
+        const [gasPrice, nonce, data, gasLimit] = await Promise.all([
             ethers.getGasPrice(),
             ethers.getNonce(sender),
             this.getMethodData('transfer', receiver, hexAmount),
@@ -78,13 +78,12 @@ export class Token extends Contract implements TokenInterface {
         ])
 
         return new TransactionSigner({
-            gas,
             data,
             nonce,
             gasPrice,
+            gasLimit,
             value: '0x0',
             from: sender,
-            gasLimit: 800000,
             chainId: network.id,
             to: this.getAddress()
         })
@@ -109,7 +108,7 @@ export class Token extends Contract implements TokenInterface {
 
         const hexAmount = numberToHex(amount, decimals)
 
-        const [gasPrice, nonce, data, gas] = await Promise.all([
+        const [gasPrice, nonce, data, gasLimit] = await Promise.all([
             ethers.getGasPrice(),
             ethers.getNonce(owner),
             this.getMethodData('approve', spender, hexAmount),
@@ -117,13 +116,12 @@ export class Token extends Contract implements TokenInterface {
         ])
 
         return new TransactionSigner({
-            gas,
             data,
             nonce,
             gasPrice,
+            gasLimit,
             value: '0x0',
             from: owner,
-            gasLimit: 800000,
             chainId: network.id,
             to: this.getAddress()
         })

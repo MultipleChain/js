@@ -1,12 +1,13 @@
 import { describe, it, expect, assert } from 'vitest'
 
-import { Coin } from '../src/assets/Coin.ts'
-import { TransactionSigner } from '../src/services/TransactionSigner.ts'
-import { Transaction } from '../src/models/Transaction.ts'
-import { Contract } from '../src/assets/Contract.ts'
-import { Token } from '../src/assets/Token.ts'
 import ERC20 from '../resources/erc20.json'
+import { Coin } from '../src/assets/Coin.ts'
+import { Token } from '../src/assets/Token.ts'
 import { numberToHex } from '@multiplechain/utils'
+import { Contract } from '../src/assets/Contract.ts'
+import { Transaction } from '../src/models/Transaction.ts'
+import { TransactionStatusEnum } from '@multiplechain/types'
+import { TransactionSigner } from '../src/services/TransactionSigner.ts'
 
 const transferTestIsOpen = true
 
@@ -32,6 +33,12 @@ const checkSigner = async (signer: TransactionSigner): Promise<any> => {
     await signer.sign(walletPrivateKey)
 
     assert.isString(signer.getSignedData())
+}
+
+const checkTx = async (transaction: Transaction): Promise<any> => {
+    expect(transaction).toBeInstanceOf(Transaction)
+    await transaction.wait()
+    expect(await transaction.getStatus()).toBe(TransactionStatusEnum.CONFIRMED)
 }
 
 describe('Coin', () => {
@@ -60,15 +67,12 @@ describe('Coin', () => {
 
         await checkSigner(signer)
 
-        // const beforeBalance = await coin.getBalance(receiverTestAddress)
+        const beforeBalance = await coin.getBalance(receiverTestAddress)
 
-        const transaction = await signer.send()
+        await checkTx(await signer.send())
 
-        expect(transaction).toBeInstanceOf(Transaction)
-
-        // TODO: Complete after coin transaction verify method is implemented
-        // const afterBalance = await coin.getBalance(receiverTestAddress)
-        // expect(afterBalance).toBe(beforeBalance + transferTestAmount)
+        const afterBalance = await coin.getBalance(receiverTestAddress)
+        expect(afterBalance).toBe(beforeBalance + transferTestAmount)
     })
 })
 
@@ -121,15 +125,12 @@ describe('Token', () => {
 
         await checkSigner(signer)
 
-        // const beforeBalance = await token.getBalance(receiverTestAddress)
+        const beforeBalance = await token.getBalance(receiverTestAddress)
 
-        const transaction = await signer.send()
+        await checkTx(await signer.send())
 
-        expect(transaction).toBeInstanceOf(Transaction)
-
-        // TODO: Complete after token transaction verify method is implemented
-        // const afterBalance = await token.getBalance(receiverTestAddress)
-        // expect(afterBalance).toBe(beforeBalance + transferTestAmount)
+        const afterBalance = await token.getBalance(receiverTestAddress)
+        expect(afterBalance).toBe(beforeBalance + transferTestAmount)
     })
 
     it('Approve and Allowance', async () => {
@@ -141,12 +142,11 @@ describe('Token', () => {
 
         await checkSigner(signer)
 
-        const transaction = await signer.send()
+        await checkTx(await signer.send())
 
-        expect(transaction).toBeInstanceOf(Transaction)
-
-        // TODO: complete after token transaction verify method is implemented
-        // expect(await token.allowance(senderTestAddress, receiverTestAddress)).toBe(tokenApproveTestAmount)
+        expect(await token.allowance(senderTestAddress, receiverTestAddress)).toBe(
+            tokenApproveTestAmount
+        )
     })
 })
 

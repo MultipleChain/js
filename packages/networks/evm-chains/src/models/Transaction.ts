@@ -1,8 +1,9 @@
-import type { TransactionInterface } from '@multiplechain/types'
-import { TransactionStatusEnum } from '@multiplechain/types'
 import { Provider } from '../services/Provider.ts'
-
+import { TransactionStatusEnum } from '@multiplechain/types'
+import type { TransactionInterface } from '@multiplechain/types'
 import type { TransactionReceipt, TransactionResponse } from 'ethers'
+
+const { ethers } = Provider.instance
 
 interface TransactionData {
     response: TransactionResponse
@@ -15,14 +16,8 @@ export class Transaction implements TransactionInterface {
      */
     id: string
 
-    /**
-     * Provider instance
-     */
-    private readonly provider: Provider
-
     constructor(id: string) {
         this.id = id
-        this.provider = Provider.instance
     }
 
     /**
@@ -30,8 +25,8 @@ export class Transaction implements TransactionInterface {
      */
     async getData(): Promise<TransactionData | null> {
         try {
-            const response = await this.provider.ethers.getTransaction(this.id)
-            const receipt = await this.provider.ethers.getTransactionReceipt(this.id)
+            const response = await ethers.getTransaction(this.id)
+            const receipt = await ethers.getTransactionReceipt(this.id)
             if (response === null || receipt === null) {
                 return null
             }
@@ -50,6 +45,7 @@ export class Transaction implements TransactionInterface {
             const check = async (): Promise<void> => {
                 try {
                     const status = await this.getStatus()
+                    console.log(status)
                     if (status === TransactionStatusEnum.CONFIRMED) {
                         resolve(TransactionStatusEnum.CONFIRMED)
                     } else if (status === TransactionStatusEnum.FAILED) {
