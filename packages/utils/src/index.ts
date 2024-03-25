@@ -88,4 +88,26 @@ export const isNumeric = (value: string | number): boolean => {
     return !isNaN(Number(value))
 }
 
+/**
+ * Get the number of decimal places
+ */
+export const getDecimalPlaces = (num: number): number => {
+    const match = ('' + num).match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/)
+    if (match === null) {
+        return num
+    } else {
+        return Math.max(
+            0,
+            // Number of digits right of decimal point.
+            (match[1] !== undefined && match[1] !== null ? match[1].length : 0) -
+                // Adjust for scientific notation.
+                (match[2] !== undefined && match[2] !== null ? +match[2] : 0)
+        )
+    }
+}
+
+export const fixFloat = (num: number): number => {
+    return parseFloat(num.toFixed(getDecimalPlaces(num)))
+}
+
 export { toHex }
