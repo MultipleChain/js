@@ -2,6 +2,13 @@ import type { TransactionInterface } from '@multiplechain/types'
 import { TransactionStatusEnum } from '@multiplechain/types'
 import { Provider } from '../services/Provider.ts'
 
+import type { TransactionReceipt, TransactionResponse } from 'ethers'
+
+interface TransactionData {
+    response: TransactionResponse
+    receipt: TransactionReceipt
+}
+
 export class Transaction implements TransactionInterface {
     /**
      * Each transaction has its own unique ID defined by the user
@@ -21,12 +28,14 @@ export class Transaction implements TransactionInterface {
     /**
      * @returns Raw transaction data that is taken by blockchain network via RPC.
      */
-    async getData(): Promise<object | null> {
+    async getData(): Promise<TransactionData | null> {
         try {
-            const data = (await this.provider.ethers.getTransaction(this.id)) ?? {}
-            const receipt = (await this.provider.ethers.getTransactionReceipt(this.id)) ?? {}
-            const result: object = { ...data, ...receipt }
-            return Object.keys(result).length !== 0 ? result : null
+            const response = await this.provider.ethers.getTransaction(this.id)
+            const receipt = await this.provider.ethers.getTransactionReceipt(this.id)
+            if (response === null || receipt === null) {
+                return null
+            }
+            return { response, receipt }
         } catch (error) {
             const e = error as Error
             if (String(e.message).includes('timeout')) {
@@ -37,8 +46,22 @@ export class Transaction implements TransactionInterface {
     }
 
     async wait(): Promise<TransactionStatusEnum> {
-        // TODO: will complete this method first
-        return await this.getStatus()
+        return await new Promise((resolve, reject) => {
+            const check = async (): Promise<void> => {
+                try {
+                    const status = await this.getStatus()
+                    if (status === TransactionStatusEnum.CONFIRMED) {
+                        resolve(TransactionStatusEnum.CONFIRMED)
+                    } else if (status === TransactionStatusEnum.FAILED) {
+                        reject(TransactionStatusEnum.FAILED)
+                    }
+                    setTimeout(check, 4000)
+                } catch (error) {
+                    reject(TransactionStatusEnum.FAILED)
+                }
+            }
+            check() // eslint-disable-line @typescript-eslint/no-floating-promises
+        })
     }
 
     /**
@@ -95,6 +118,16 @@ export class Transaction implements TransactionInterface {
      * @returns Status of the transaction
      */
     async getStatus(): Promise<TransactionStatusEnum> {
-        return TransactionStatusEnum.CONFIRMED
+        const data = await this.getData()
+        if (data === null) {
+            return TransactionStatusEnum.PENDING
+        } else if (data.response.blockNumber !== null) {
+            if (data.receipt.status === 1) {
+                return TransactionStatusEnum.CONFIRMED
+            } else {
+                return TransactionStatusEnum.FAILED
+            }
+        }
+        return TransactionStatusEnum.PENDING
     }
 }
