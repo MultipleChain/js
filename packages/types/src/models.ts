@@ -7,6 +7,11 @@ export interface TransactionInterface {
     id: string
 
     /**
+     * @returns Promise of the transaction status
+     */
+    wait: () => Promise<TransactionStatusEnum>
+
+    /**
      * @returns Raw transaction data that is taken by blockchain network via RPC.
      */
     getData: () => Promise<object | null>
