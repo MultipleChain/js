@@ -110,4 +110,8 @@ export const fixFloat = (num: number): number => {
     return parseFloat(num.toFixed(getDecimalPlaces(num)))
 }
 
+export const sleep = async (ms: number): Promise<void> => {
+    await new Promise((resolve) => setTimeout(resolve, ms))
+}
+
 export { toHex }
