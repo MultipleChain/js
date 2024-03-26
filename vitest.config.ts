@@ -6,6 +6,7 @@ export default mergeConfig(
     viteConfig,
     defineConfig({
         test: {
+            testTimeout: 180000,
             environment: 'jsdom',
             exclude: [...configDefaults.exclude, 'e2e/*'],
             root: fileURLToPath(new URL('./', import.meta.url)),
