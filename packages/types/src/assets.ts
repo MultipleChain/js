@@ -95,12 +95,14 @@ export interface TokenInterface
     getTotalSupply: () => Promise<number>
 
     /**
+     * @param spender Address of the spender of transaction
      * @param owner Sender wallet address
      * @param receiver Receiver wallet address
      * @param amount Amount of tokens that will be transferred
      * @override transfer() in AssetInterface
      */
     transferFrom: (
+        spender: string,
         owner: string,
         receiver: string,
         amount: number
@@ -161,11 +163,13 @@ export interface NftInterface
     ) => Promise<TransactionSignerInterface>
 
     /**
+     * @param spender Address of the spender of transaction
      * @param owner Address of owner of the nfts that will be used
      * @param receiver Address of the receiver that will receive the nfts
      * @param nftId ID of the NFT that will be transferred
      */
     transferFrom: (
+        spender: string,
         owner: string,
         receiver: string,
         nftId: number
