@@ -124,10 +124,8 @@ export class Transaction implements TransactionInterface {
      */
     async getStatus(): Promise<TransactionStatusEnum> {
         const data = await this.getData()
-        if (data === null) {
-            return TransactionStatusEnum.PENDING
-        } else if (data.response.blockNumber !== null) {
-            if (data.receipt.status === 1) {
+        if (data?.response?.blockNumber !== null) {
+            if (data?.receipt.status === 1) {
                 return TransactionStatusEnum.CONFIRMED
             } else {
                 return TransactionStatusEnum.FAILED
