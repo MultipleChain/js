@@ -2,8 +2,6 @@ import type { ContractInterface } from '@multiplechain/types'
 import type { Contract as EthersContract } from 'ethers'
 import { Provider } from '../services/Provider.ts'
 
-const { ethers } = Provider.instance
-
 export class Contract implements ContractInterface {
     /**
      * Contract address
@@ -27,6 +25,7 @@ export class Contract implements ContractInterface {
     constructor(address: string, abi: object[]) {
         this.abi = abi
         this.address = address
+        const { ethers } = Provider.instance
         this.ethersContract = ethers.contract(address, abi, ethers.jsonRpc)
     }
 

@@ -4,28 +4,29 @@ import { TransactionSigner } from '../services/TransactionSigner.ts'
 import type { TransactionData } from '../services/TransactionSigner.ts'
 import type { CoinInterface } from '@multiplechain/types'
 
-const { network, ethers } = Provider.instance
-
 export class Coin implements CoinInterface {
     /**
      * @returns Coin name
      */
     getName(): string {
-        return network.nativeCurrency.name ?? network.nativeCurrency.symbol
+        return (
+            Provider.instance.network.nativeCurrency.name ??
+            Provider.instance.network.nativeCurrency.symbol
+        )
     }
 
     /**
      * @returns Coin symbol
      */
     getSymbol(): string {
-        return network.nativeCurrency.symbol
+        return Provider.instance.network.nativeCurrency.symbol
     }
 
     /**
      * @returns Decimal value of the coin
      */
     getDecimals(): number {
-        return network.nativeCurrency.decimals
+        return Provider.instance.network.nativeCurrency.decimals
     }
 
     /**
@@ -33,7 +34,7 @@ export class Coin implements CoinInterface {
      * @returns Wallet balance as currency of TOKEN or COIN assets
      */
     async getBalance(owner: string): Promise<number> {
-        const balance = await ethers.getBalance(owner)
+        const balance = await Provider.instance.ethers.getBalance(owner)
         return hexToNumber(balance.toString(), this.getDecimals())
     }
 
@@ -51,6 +52,7 @@ export class Coin implements CoinInterface {
             throw new Error('Insufficient balance')
         }
 
+        const { network, ethers } = Provider.instance
         const hexAmount = numberToHex(amount, this.getDecimals())
 
         const txData: TransactionData = {

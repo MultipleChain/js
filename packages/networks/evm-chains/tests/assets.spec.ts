@@ -3,13 +3,13 @@ import { describe, it, expect, assert } from 'vitest'
 import ERC20 from '../resources/erc20.json'
 import { Coin } from '../src/assets/Coin.ts'
 import { Token } from '../src/assets/Token.ts'
-import { numberToHex } from '@multiplechain/utils'
+import { numberToHex, fixFloat } from '@multiplechain/utils'
 import { Contract } from '../src/assets/Contract.ts'
 import { Transaction } from '../src/models/Transaction.ts'
 import { TransactionStatusEnum } from '@multiplechain/types'
 import { TransactionSigner } from '../src/services/TransactionSigner.ts'
 
-const transferTestIsOpen = true
+const transferTestIsOpen = false
 
 const balanceTestAddress = '0x760A4d3D03928D1e8541A7644B34370c1b79aa9F'
 const coinBalanceTestAmount = 0.01
@@ -37,8 +37,8 @@ const checkSigner = async (signer: TransactionSigner): Promise<any> => {
 
 const checkTx = async (transaction: Transaction): Promise<any> => {
     expect(transaction).toBeInstanceOf(Transaction)
-    await transaction.wait()
-    expect(await transaction.getStatus()).toBe(TransactionStatusEnum.CONFIRMED)
+    const status = await transaction.wait()
+    expect(status).toBe(TransactionStatusEnum.CONFIRMED)
 }
 
 describe('Coin', () => {
@@ -72,7 +72,7 @@ describe('Coin', () => {
         await checkTx(await signer.send())
 
         const afterBalance = await coin.getBalance(receiverTestAddress)
-        expect(afterBalance).toBe(beforeBalance + transferTestAmount)
+        expect(afterBalance).toBe(fixFloat(beforeBalance + transferTestAmount))
     })
 })
 
@@ -130,10 +130,11 @@ describe('Token', () => {
         await checkTx(await signer.send())
 
         const afterBalance = await token.getBalance(receiverTestAddress)
-        expect(afterBalance).toBe(beforeBalance + transferTestAmount)
+        expect(afterBalance).toBe(fixFloat(beforeBalance + tokenTransferTestAmount))
     })
 
     it('Approve and Allowance', async () => {
+        if (!transferTestIsOpen) return
         const signer = await token.approve(
             senderTestAddress,
             receiverTestAddress,

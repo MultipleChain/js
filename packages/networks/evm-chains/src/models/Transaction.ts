@@ -2,8 +2,7 @@ import { Provider } from '../services/Provider.ts'
 import { TransactionStatusEnum } from '@multiplechain/types'
 import type { TransactionInterface } from '@multiplechain/types'
 import type { TransactionReceipt, TransactionResponse } from 'ethers'
-
-const { ethers } = Provider.instance
+import type { Ethers } from '../services/Ethers.ts'
 
 interface TransactionData {
     response: TransactionResponse
@@ -16,8 +15,14 @@ export class Transaction implements TransactionInterface {
      */
     id: string
 
+    /**
+     * Ethers service
+     */
+    ethers: Ethers
+
     constructor(id: string) {
         this.id = id
+        this.ethers = Provider.instance.ethers
     }
 
     /**
@@ -25,9 +30,12 @@ export class Transaction implements TransactionInterface {
      */
     async getData(): Promise<TransactionData | null> {
         try {
-            const response = await ethers.getTransaction(this.id)
-            const receipt = await ethers.getTransactionReceipt(this.id)
-            if (response === null || receipt === null) {
+            const response = await this.ethers.getTransaction(this.id)
+            if (response === null) {
+                return null
+            }
+            const receipt = await this.ethers.getTransactionReceipt(this.id)
+            if (receipt === null) {
                 return null
             }
             return { response, receipt }
@@ -40,18 +48,19 @@ export class Transaction implements TransactionInterface {
         }
     }
 
-    async wait(): Promise<TransactionStatusEnum> {
+    async wait(ms: number = 4000): Promise<TransactionStatusEnum> {
         return await new Promise((resolve, reject) => {
             const check = async (): Promise<void> => {
                 try {
                     const status = await this.getStatus()
-                    console.log(status)
                     if (status === TransactionStatusEnum.CONFIRMED) {
                         resolve(TransactionStatusEnum.CONFIRMED)
+                        return
                     } else if (status === TransactionStatusEnum.FAILED) {
                         reject(TransactionStatusEnum.FAILED)
+                        return
                     }
-                    setTimeout(check, 4000)
+                    setTimeout(check, ms)
                 } catch (error) {
                     reject(TransactionStatusEnum.FAILED)
                 }

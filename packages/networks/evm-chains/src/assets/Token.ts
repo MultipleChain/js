@@ -5,8 +5,6 @@ import { TransactionSigner } from '../services/TransactionSigner.ts'
 import { hexToNumber, numberToHex } from '@multiplechain/utils'
 import type { TokenInterface } from '@multiplechain/types'
 
-const { network, ethers } = Provider.instance
-
 export class Token extends Contract implements TokenInterface {
     constructor(address: string) {
         super(address, ERC20)
@@ -69,6 +67,8 @@ export class Token extends Contract implements TokenInterface {
             throw new Error('Insufficient balance')
         }
 
+        const { network, ethers } = Provider.instance
+
         const hexAmount = numberToHex(amount, decimals)
         const [gasPrice, nonce, data, gasLimit] = await Promise.all([
             ethers.getGasPrice(),
@@ -106,6 +106,7 @@ export class Token extends Contract implements TokenInterface {
             throw new Error('Insufficient balance')
         }
 
+        const { network, ethers } = Provider.instance
         const hexAmount = numberToHex(amount, decimals)
 
         const [gasPrice, nonce, data, gasLimit] = await Promise.all([

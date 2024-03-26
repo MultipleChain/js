@@ -6,20 +6,20 @@ settings:
 
 dependencies:
   '@multiplechain/types':
-    specifier: ^0.1.18
-    version: 0.1.18
+    specifier: ^0.1.19
+    version: 0.1.19
   '@multiplechain/utils':
-    specifier: ^0.1.8
-    version: 0.1.8
+    specifier: ^0.1.9
+    version: 0.1.9
 
 packages:
 
-  /@multiplechain/types@0.1.18:
-    resolution: {integrity: sha512-HToqt7TUG5BCQzoHT1NOS69KG/CS+JWFi4+VF/4xf4v8dmbHSybNnN8727Nnn6oGPv9g6fKcAvR4306xxZkSJg==}
+  /@multiplechain/types@0.1.19:
+    resolution: {integrity: sha512-mW3aAMuplEPOUFJiAf5vLXW/vnRxcBReFeu6Lo6rDmcNxujpDz1sJG1qhiRsiJL2Wynjls0mpIfAMtImO+0SDg==}
     dev: false
 
-  /@multiplechain/utils@0.1.8:
-    resolution: {integrity: sha512-AJxrAiHm+hoTOgeCFL6rXHV/EeDpmXe9KLtwNOQx8Pnqbz1sIiHEedhSGohkQsJddq8/e1d0MCBGqi7GFmtqSw==}
+  /@multiplechain/utils@0.1.9:
+    resolution: {integrity: sha512-52yrmloGDwXrMwOSfEiPJfePPIDeEqGMTE4u5QE2BQPdGe0Bto908pX4IIF1j0Srmv5TJdH9JN3MFEgzgo3qAw==}
     dependencies:
       bignumber.js: 9.1.2
       web3-utils: 4.2.0
