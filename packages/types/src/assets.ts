@@ -95,9 +95,21 @@ export interface TokenInterface
     getTotalSupply: () => Promise<number>
 
     /**
+     * @param owner Sender wallet address
+     * @param receiver Receiver wallet address
+     * @param amount Amount of tokens that will be transferred
+     * @override transfer() in AssetInterface
+     */
+    transferFrom: (
+        owner: string,
+        receiver: string,
+        amount: number
+    ) => Promise<TransactionSignerInterface>
+
+    /**
      * Gives permission to the spender to spend owner's tokens
      * @param owner Address of owner of the tokens that will be used
-     * @param spender Address of the spender that will use the tokens of owner
+     * @param spender Address of the spender that is using the tokens of owner
      * @param amount Amount of the tokens that will be used
      */
     approve: (owner: string, spender: string, amount: number) => Promise<TransactionSignerInterface>
@@ -147,4 +159,29 @@ export interface NftInterface
         receiver: string,
         nftId: number
     ) => Promise<TransactionSignerInterface>
+
+    /**
+     * @param owner Address of owner of the nfts that will be used
+     * @param receiver Address of the receiver that will receive the nfts
+     * @param nftId ID of the NFT that will be transferred
+     */
+    transferFrom: (
+        owner: string,
+        receiver: string,
+        nftId: number
+    ) => Promise<TransactionSignerInterface>
+
+    /**
+     * Gives permission to the spender to spend owner's tokens
+     * @param owner Address of owner of the tokens that will be used
+     * @param spender Address of the spender that will use the tokens of owner
+     * @param nftId ID of the NFT that will be transferred
+     */
+    approve: (owner: string, spender: string, nftId: number) => Promise<TransactionSignerInterface>
+
+    /**
+     * @param nftId ID of the NFT that will be transferred
+     * @returns Amount of the tokens that is being used by spender
+     */
+    getApproved: (nftId: number) => Promise<string>
 }
