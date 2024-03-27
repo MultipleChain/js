@@ -1,7 +1,13 @@
 import { Provider } from '../services/Provider.ts'
-import { Transaction } from '../models/Transaction.ts'
 import type { TransactionRequest, Wallet, BigNumberish } from 'ethers'
-import type { TransactionSignerInterface } from '@multiplechain/types'
+import { TransactionTypeEnum, type TransactionSignerInterface } from '@multiplechain/types'
+
+// Transactions
+import { Transaction } from '../models/Transaction.ts'
+import { NftTransaction } from '../models/NftTransaction.ts'
+import { CoinTransaction } from '../models/CoinTransaction.ts'
+import { TokenTransaction } from '../models/TokenTransaction.ts'
+import { ContractTransaction } from '../models/ContractTransaction.ts'
 
 export interface TransactionData extends TransactionRequest {
     gas?: BigNumberish
@@ -16,6 +22,11 @@ export class TransactionSigner implements TransactionSignerInterface {
     rawData: TransactionData
 
     /**
+     * Transaction type
+     */
+    type: TransactionTypeEnum
+
+    /**
      * Signed transaction data
      */
     signedData: string
@@ -28,8 +39,9 @@ export class TransactionSigner implements TransactionSignerInterface {
     /**
      * @param rawData - Transaction data
      */
-    constructor(rawData: TransactionData) {
+    constructor(rawData: TransactionData, type?: TransactionTypeEnum) {
         this.rawData = rawData
+        if (type !== undefined) this.type = type
     }
 
     /**
@@ -47,9 +59,42 @@ export class TransactionSigner implements TransactionSignerInterface {
      * @returns Promise of the transaction
      */
     async send(): Promise<Transaction> {
-        return new Transaction(
-            (await ethers.jsonRpc.send('eth_sendRawTransaction', [this.signedData])) as string
-        )
+        switch (this.type) {
+            case TransactionTypeEnum.COIN:
+                return new CoinTransaction(
+                    (await ethers.jsonRpc.send('eth_sendRawTransaction', [
+                        this.signedData
+                    ])) as string
+                )
+
+            case TransactionTypeEnum.TOKEN:
+                return new TokenTransaction(
+                    (await ethers.jsonRpc.send('eth_sendRawTransaction', [
+                        this.signedData
+                    ])) as string
+                )
+
+            case TransactionTypeEnum.NFT:
+                return new NftTransaction(
+                    (await ethers.jsonRpc.send('eth_sendRawTransaction', [
+                        this.signedData
+                    ])) as string
+                )
+
+            case TransactionTypeEnum.CONTRACT:
+                return new ContractTransaction(
+                    (await ethers.jsonRpc.send('eth_sendRawTransaction', [
+                        this.signedData
+                    ])) as string
+                )
+
+            default:
+                return new Transaction(
+                    (await ethers.jsonRpc.send('eth_sendRawTransaction', [
+                        this.signedData
+                    ])) as string
+                )
+        }
     }
 
     /**
