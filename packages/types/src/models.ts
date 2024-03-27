@@ -124,4 +124,15 @@ export interface NftTransactionInterface
         address: string,
         nftId: number
     ) => Promise<TransactionStatusEnum>
+
+    /**
+     * @param direction - Direction of the transaction (nft)
+     * @param address - Wallet address of the owner or spender of the transaction, dependant on direction
+     * @param nftId ID of the NFT that will be approved
+     */
+    verifyApprove: (
+        direction: AssetDirectionEnum,
+        address: string,
+        nftId: number
+    ) => Promise<TransactionStatusEnum>
 }
