@@ -1,115 +1,106 @@
-import { Provider } from '../services/Provider.ts'
-import type { TransactionRequest, Wallet, BigNumberish } from 'ethers'
-import { TransactionTypeEnum, type TransactionSignerInterface } from '@multiplechain/types'
+import type {
+    TransactionTypeEnum,
+    DynamicTransactionType,
+    TransactionListenerInterface,
+    TransactionListenerCallbackType,
+    DynamicTransactionListenerFilterType
+} from '@multiplechain/types'
 
-// Transactions
-import { Transaction } from '../models/Transaction.ts'
-import { NftTransaction } from '../models/NftTransaction.ts'
-import { CoinTransaction } from '../models/CoinTransaction.ts'
-import { TokenTransaction } from '../models/TokenTransaction.ts'
-import { ContractTransaction } from '../models/ContractTransaction.ts'
+import { TransactionListenerProcessIndex } from '@multiplechain/types'
 
-export interface TransactionData extends TransactionRequest {
-    gas?: BigNumberish
-}
-
-const { ethers } = Provider.instance
-
-export class TransactionSigner implements TransactionSignerInterface {
-    /**
-     * Transaction data from the blockchain network
-     */
-    rawData: TransactionData
-
+export class TransactionListener<T extends TransactionTypeEnum>
+    implements TransactionListenerInterface<T>
+{
     /**
      * Transaction type
      */
-    type: TransactionTypeEnum
+    type: T
 
     /**
-     * Signed transaction data
+     * Transaction listener callback
      */
-    signedData: string
+    callbacks: TransactionListenerCallbackType[] = []
 
     /**
-     * Wallet instance from ethers with the private key
+     * Transaction listener filter
      */
-    wallet: Wallet
+    filter: DynamicTransactionListenerFilterType<T>
 
     /**
-     * @param rawData - Transaction data
+     * @param type - Transaction type
+     * @param filter - Transaction listener filter
      */
-    constructor(rawData: TransactionData, type?: TransactionTypeEnum) {
-        this.rawData = rawData
-        if (type !== undefined) this.type = type
+    constructor(type: T, filter: DynamicTransactionListenerFilterType<T>) {
+        this.type = type
+        this.filter = filter
+        // @ts-expect-error allow dynamic access
+        this[TransactionListenerProcessIndex[type]]()
     }
 
     /**
-     * Sign the transaction
-     * @param privateKey - Transaction data
+     * Close the listener
      */
-    public async sign(privateKey: string): Promise<TransactionSigner> {
-        this.wallet = ethers.wallet(privateKey)
-        this.signedData = await this.wallet.signTransaction(this.rawData)
-        return this
+    stop(): void {
+        // Close the listener
     }
 
     /**
-     * Send the transaction to the blockchain network
-     * @returns Promise of the transaction
+     * Listen to the transaction events
+     * @param callback - Callback function
      */
-    async send(): Promise<Transaction> {
-        switch (this.type) {
-            case TransactionTypeEnum.COIN:
-                return new CoinTransaction(
-                    (await ethers.jsonRpc.send('eth_sendRawTransaction', [
-                        this.signedData
-                    ])) as string
-                )
-
-            case TransactionTypeEnum.TOKEN:
-                return new TokenTransaction(
-                    (await ethers.jsonRpc.send('eth_sendRawTransaction', [
-                        this.signedData
-                    ])) as string
-                )
-
-            case TransactionTypeEnum.NFT:
-                return new NftTransaction(
-                    (await ethers.jsonRpc.send('eth_sendRawTransaction', [
-                        this.signedData
-                    ])) as string
-                )
-
-            case TransactionTypeEnum.CONTRACT:
-                return new ContractTransaction(
-                    (await ethers.jsonRpc.send('eth_sendRawTransaction', [
-                        this.signedData
-                    ])) as string
-                )
-
-            default:
-                return new Transaction(
-                    (await ethers.jsonRpc.send('eth_sendRawTransaction', [
-                        this.signedData
-                    ])) as string
-                )
-        }
+    on(callback: TransactionListenerCallbackType): void {
+        this.callbacks.push(callback)
     }
 
     /**
-     * Get the raw transaction data
-     * @returns Transaction data
+     * Trigger the event when a transaction is detected
+     * @param transaction - Transaction data
      */
-    getRawData(): any {
-        return this.rawData
+    trigger(transaction: DynamicTransactionType<T>): void {
+        this.callbacks.forEach((callback) => {
+            callback(transaction)
+        })
     }
 
     /**
-     * Get the signed transaction data
-     * @returns Signed transaction data
+     * General transaction process
      */
-    getSignedData(): any {
-        return this.signedData
+    generalProcess(): void {
+        // General transaction process
+    }
+
+    /**
+     * Contract transaction process
+     */
+    contractProcess(): void {
+        // Contract transaction process
+    }
+
+    /**
+     * Asset transaction process
+     */
+    assetProcess(): void {
+        // Asset transaction process
+    }
+
+    /**
+     * Coin transaction process
+     */
+    coinProcess(): void {
+        // Coin transaction process
+    }
+
+    /**
+     * Token transaction process
+     */
+    tokenProcess(): void {
+        // Token transaction process
+    }
+
+    /**
+     * NFT transaction process
+     */
+    nftProcess(): void {
+        // NFT transaction process
     }
 }

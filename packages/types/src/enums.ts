@@ -13,6 +13,7 @@ export enum AssetDirectionEnum {
 export enum TransactionTypeEnum {
     GENERAL = 'GENERAL',
     CONTRACT = 'CONTRACT',
+    ASSET = 'ASSET',
     COIN = 'COIN',
     TOKEN = 'TOKEN',
     NFT = 'NFT'
