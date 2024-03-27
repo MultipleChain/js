@@ -1,9 +1,10 @@
+import { hexToNumber, numberToHex } from '@multiplechain/utils'
+import { ErrorTypeEnum, type TokenInterface } from '@multiplechain/types'
+
 import { Contract } from './Contract.ts'
 import ERC20 from '../../resources/erc20.json'
 import { Provider } from '../services/Provider.ts'
 import { TransactionSigner } from '../services/TransactionSigner.ts'
-import { hexToNumber, numberToHex } from '@multiplechain/utils'
-import type { TokenInterface } from '@multiplechain/types'
 
 export class Token extends Contract implements TokenInterface {
     constructor(address: string) {
@@ -90,6 +91,25 @@ export class Token extends Contract implements TokenInterface {
     }
 
     /**
+     * transferFrom() transfers tokens from sender to receiver using allowance
+     * @param sender Sender wallet address
+     * @param receiver Receiver wallet address
+     * @param amount Amount of assets that will be transferred
+     */
+    async transferFrom(
+        spender: string,
+        owner: string,
+        receiver: string,
+        amount: number
+    ): Promise<TransactionSigner> {
+        if (amount < 0) {
+            throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
+        }
+
+        //
+    }
+
+    /**
      * Gives permission to the spender to spend owner's tokens
      * @param owner Address of owner of the tokens that will be used
      * @param spender Address of the spender that will use the tokens of owner
@@ -97,13 +117,13 @@ export class Token extends Contract implements TokenInterface {
      */
     async approve(owner: string, spender: string, amount: number): Promise<TransactionSigner> {
         if (amount < 0) {
-            throw new Error('Invalid amount')
+            throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
         }
 
         const [balance, decimals] = await Promise.all([this.getBalance(owner), this.getDecimals()])
 
         if (amount > balance) {
-            throw new Error('Insufficient balance')
+            throw new Error(ErrorTypeEnum.INSUFFICIENT_BALANCE)
         }
 
         const { network, ethers } = Provider.instance
