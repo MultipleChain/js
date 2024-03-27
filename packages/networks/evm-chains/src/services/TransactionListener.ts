@@ -77,13 +77,6 @@ export class TransactionListener<T extends TransactionTypeEnum>
     }
 
     /**
-     * Asset transaction process
-     */
-    assetProcess(): void {
-        // Asset transaction process
-    }
-
-    /**
      * Coin transaction process
      */
     coinProcess(): void {
