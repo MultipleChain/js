@@ -1,7 +1,6 @@
 import type {
     TransactionInterface,
     ContractTransactionInterface,
-    AssetTransactionInterface,
     CoinTransactionInterface,
     TokenTransactionInterface,
     NftTransactionInterface
@@ -55,15 +54,13 @@ export type DynamicTransactionType<T extends TransactionTypeEnum> =
         ? TransactionInterface
         : T extends TransactionTypeEnum.CONTRACT
           ? ContractTransactionInterface
-          : T extends TransactionTypeEnum.ASSET
-            ? AssetTransactionInterface
-            : T extends TransactionTypeEnum.COIN
-              ? CoinTransactionInterface
-              : T extends TransactionTypeEnum.TOKEN
-                ? TokenTransactionInterface
-                : T extends TransactionTypeEnum.NFT
-                  ? NftTransactionInterface
-                  : never
+          : T extends TransactionTypeEnum.COIN
+            ? CoinTransactionInterface
+            : T extends TransactionTypeEnum.TOKEN
+              ? TokenTransactionInterface
+              : T extends TransactionTypeEnum.NFT
+                ? NftTransactionInterface
+                : never
 
 /**
  * 'DynamicTransactionListenerFilterInterface' connects transaction types to their corresponding filter interfaces
@@ -75,15 +72,13 @@ export type DynamicTransactionListenerFilterType<T extends TransactionTypeEnum> 
         ? TransactionListenerFilterInterface
         : T extends TransactionTypeEnum.CONTRACT
           ? ContractTransactionListenerFilterInterface
-          : T extends TransactionTypeEnum.ASSET
-            ? AssetTransactionListenerFilterInterface
-            : T extends TransactionTypeEnum.COIN
-              ? CoinTransactionListenerFilterInterface
-              : T extends TransactionTypeEnum.TOKEN
-                ? TokenTransactionListenerFilterInterface
-                : T extends TransactionTypeEnum.NFT
-                  ? NftTransactionListenerFilterInterface
-                  : never
+          : T extends TransactionTypeEnum.COIN
+            ? CoinTransactionListenerFilterInterface
+            : T extends TransactionTypeEnum.TOKEN
+              ? TokenTransactionListenerFilterInterface
+              : T extends TransactionTypeEnum.NFT
+                ? NftTransactionListenerFilterInterface
+                : never
 
 /**
  * 'TransactionListenerProcessIndex' is an object that connects transaction types to their corresponding process methods.
@@ -92,7 +87,6 @@ export type DynamicTransactionListenerFilterType<T extends TransactionTypeEnum> 
 export const TransactionListenerProcessIndex = {
     [TransactionTypeEnum.GENERAL]: 'generalProcess',
     [TransactionTypeEnum.CONTRACT]: 'contractProcess',
-    [TransactionTypeEnum.ASSET]: 'assetProcess',
     [TransactionTypeEnum.COIN]: 'coinProcess',
     [TransactionTypeEnum.TOKEN]: 'tokenProcess',
     [TransactionTypeEnum.NFT]: 'nftProcess'
@@ -147,8 +141,6 @@ export interface TransactionListenerInterface<T extends TransactionTypeEnum> {
     generalProcess: () => void
 
     contractProcess: () => void
-
-    assetProcess: () => void
 
     coinProcess: () => void
 

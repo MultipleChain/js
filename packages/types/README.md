@@ -168,15 +168,13 @@ export type DynamicTransactionType<T extends TransactionTypeEnum> =
         ? TransactionInterface
         : T extends TransactionTypeEnum.CONTRACT
           ? ContractTransactionInterface
-          : T extends TransactionTypeEnum.ASSET
-            ? AssetTransactionInterface
-            : T extends TransactionTypeEnum.COIN
-              ? CoinTransactionInterface
-              : T extends TransactionTypeEnum.TOKEN
-                ? TokenTransactionInterface
-                : T extends TransactionTypeEnum.NFT
-                  ? NftTransactionInterface
-                  : never
+          : T extends TransactionTypeEnum.COIN
+            ? CoinTransactionInterface
+            : T extends TransactionTypeEnum.TOKEN
+              ? TokenTransactionInterface
+              : T extends TransactionTypeEnum.NFT
+                ? NftTransactionInterface
+                : never
 ```
 
 #### [DynamicTransactionListenerFilterType](./packages/types/src/services/TransactionListenerInterface.ts)
