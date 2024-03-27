@@ -24,7 +24,7 @@ export class TransactionSigner implements TransactionSignerInterface {
     /**
      * Transaction type
      */
-    type: TransactionTypeEnum
+    type?: TransactionTypeEnum
 
     /**
      * Signed transaction data
@@ -40,8 +40,8 @@ export class TransactionSigner implements TransactionSignerInterface {
      * @param rawData - Transaction data
      */
     constructor(rawData: TransactionData, type?: TransactionTypeEnum) {
+        this.type = type
         this.rawData = rawData
-        if (type !== undefined) this.type = type
     }
 
     /**
@@ -59,41 +59,24 @@ export class TransactionSigner implements TransactionSignerInterface {
      * @returns Promise of the transaction
      */
     async send(): Promise<Transaction> {
+        const txId = (await ethers.jsonRpc.send('eth_sendRawTransaction', [
+            this.signedData
+        ])) as string
         switch (this.type) {
             case TransactionTypeEnum.COIN:
-                return new CoinTransaction(
-                    (await ethers.jsonRpc.send('eth_sendRawTransaction', [
-                        this.signedData
-                    ])) as string
-                )
+                return new CoinTransaction(txId)
 
             case TransactionTypeEnum.TOKEN:
-                return new TokenTransaction(
-                    (await ethers.jsonRpc.send('eth_sendRawTransaction', [
-                        this.signedData
-                    ])) as string
-                )
+                return new TokenTransaction(txId)
 
             case TransactionTypeEnum.NFT:
-                return new NftTransaction(
-                    (await ethers.jsonRpc.send('eth_sendRawTransaction', [
-                        this.signedData
-                    ])) as string
-                )
+                return new NftTransaction(txId)
 
             case TransactionTypeEnum.CONTRACT:
-                return new ContractTransaction(
-                    (await ethers.jsonRpc.send('eth_sendRawTransaction', [
-                        this.signedData
-                    ])) as string
-                )
+                return new ContractTransaction(txId)
 
             default:
-                return new Transaction(
-                    (await ethers.jsonRpc.send('eth_sendRawTransaction', [
-                        this.signedData
-                    ])) as string
-                )
+                return new Transaction(txId)
         }
     }
 
