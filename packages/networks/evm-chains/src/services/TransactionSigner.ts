@@ -1,70 +1,106 @@
-import { Provider } from '../services/Provider.ts'
-import { Transaction } from '../models/Transaction.ts'
-import type { TransactionRequest, Wallet, BigNumberish } from 'ethers'
-import type { TransactionSignerInterface } from '@multiplechain/types'
+import type {
+    TransactionTypeEnum,
+    DynamicTransactionType,
+    TransactionListenerInterface,
+    TransactionListenerCallbackType,
+    DynamicTransactionListenerFilterType
+} from '@multiplechain/types'
 
-export interface TransactionData extends TransactionRequest {
-    gas?: BigNumberish
-}
+import { TransactionListenerProcessIndex } from '@multiplechain/types'
 
-const { ethers } = Provider.instance
-
-export class TransactionSigner implements TransactionSignerInterface {
+export class TransactionListener<T extends TransactionTypeEnum>
+    implements TransactionListenerInterface<T>
+{
     /**
-     * Transaction data from the blockchain network
+     * Transaction type
      */
-    rawData: TransactionData
-
-    /**
-     * Signed transaction data
-     */
-    signedData: string
+    type: T
 
     /**
-     * Wallet instance from ethers with the private key
+     * Transaction listener callback
      */
-    wallet: Wallet
+    callbacks: TransactionListenerCallbackType[] = []
 
     /**
-     * @param rawData - Transaction data
+     * Transaction listener filter
      */
-    constructor(rawData: TransactionData) {
-        this.rawData = rawData
+    filter: DynamicTransactionListenerFilterType<T>
+
+    /**
+     * @param type - Transaction type
+     * @param filter - Transaction listener filter
+     */
+    constructor(type: T, filter: DynamicTransactionListenerFilterType<T>) {
+        this.type = type
+        this.filter = filter
+        // @ts-expect-error allow dynamic access
+        this[TransactionListenerProcessIndex[type]]()
     }
 
     /**
-     * Sign the transaction
-     * @param privateKey - Transaction data
+     * Close the listener
      */
-    public async sign(privateKey: string): Promise<TransactionSigner> {
-        this.wallet = ethers.wallet(privateKey)
-        this.signedData = await this.wallet.signTransaction(this.rawData)
-        return this
+    stop(): void {
+        // Close the listener
     }
 
     /**
-     * Send the transaction to the blockchain network
-     * @returns Promise of the transaction
+     * Listen to the transaction events
+     * @param callback - Callback function
      */
-    async send(): Promise<Transaction> {
-        return new Transaction(
-            (await ethers.jsonRpc.send('eth_sendRawTransaction', [this.signedData])) as string
-        )
+    on(callback: TransactionListenerCallbackType): void {
+        this.callbacks.push(callback)
     }
 
     /**
-     * Get the raw transaction data
-     * @returns Transaction data
+     * Trigger the event when a transaction is detected
+     * @param transaction - Transaction data
      */
-    getRawData(): any {
-        return this.rawData
+    trigger(transaction: DynamicTransactionType<T>): void {
+        this.callbacks.forEach((callback) => {
+            callback(transaction)
+        })
     }
 
     /**
-     * Get the signed transaction data
-     * @returns Signed transaction data
+     * General transaction process
      */
-    getSignedData(): any {
-        return this.signedData
+    generalProcess(): void {
+        // General transaction process
+    }
+
+    /**
+     * Contract transaction process
+     */
+    contractProcess(): void {
+        // Contract transaction process
+    }
+
+    /**
+     * Asset transaction process
+     */
+    assetProcess(): void {
+        // Asset transaction process
+    }
+
+    /**
+     * Coin transaction process
+     */
+    coinProcess(): void {
+        // Coin transaction process
+    }
+
+    /**
+     * Token transaction process
+     */
+    tokenProcess(): void {
+        // Token transaction process
+    }
+
+    /**
+     * NFT transaction process
+     */
+    nftProcess(): void {
+        // NFT transaction process
     }
 }
