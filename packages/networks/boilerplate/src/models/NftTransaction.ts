@@ -25,13 +25,6 @@ export class NftTransaction extends ContractTransaction implements NftTransactio
     }
 
     /**
-     * @returns Smart contract address of the transaction
-     */
-    async getAddress(): Promise<string> {
-        return 'example'
-    }
-
-    /**
      * @param direction - Direction of the transaction (nft)
      * @param address - Wallet address of the receiver or sender of the transaction, dependant on direction
      * @param nftId ID of the NFT that will be transferred
