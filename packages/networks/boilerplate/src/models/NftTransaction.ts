@@ -2,7 +2,10 @@ import { ContractTransaction } from './ContractTransaction.ts'
 import { TransactionStatusEnum } from '@multiplechain/types'
 import type { NftTransactionInterface, AssetDirectionEnum } from '@multiplechain/types'
 
-export class NftTransaction extends ContractTransaction implements NftTransactionInterface {
+export class NftTransaction
+    extends ContractTransaction
+    implements Omit<NftTransactionInterface, 'getAmount'>
+{
     /**
      * @returns Wallet address of the sender of transaction
      */
