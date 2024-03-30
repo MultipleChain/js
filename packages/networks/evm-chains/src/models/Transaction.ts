@@ -3,6 +3,7 @@ import { ErrorTypeEnum, TransactionStatusEnum } from '@multiplechain/types'
 import type { TransactionInterface } from '@multiplechain/types'
 import type { TransactionReceipt, TransactionResponse } from 'ethers'
 import type { Ethers } from '../services/Ethers.ts'
+import { hexToNumber } from '@multiplechain/utils'
 
 interface TransactionData {
     response: TransactionResponse
@@ -16,12 +17,26 @@ export class Transaction implements TransactionInterface {
     id: string
 
     /**
+     * Blockchain network provider
+     */
+    provider: Provider
+
+    /**
      * Ethers service
      */
     ethers: Ethers
 
+    /**
+     * Transaction data after completed
+     */
+    data: TransactionData
+
+    /**
+     * @param id Transaction ID
+     */
     constructor(id: string) {
         this.id = id
+        this.provider = Provider.instance
         this.ethers = Provider.instance.ethers
     }
 
@@ -29,6 +44,9 @@ export class Transaction implements TransactionInterface {
      * @returns Raw transaction data that is taken by blockchain network via RPC.
      */
     async getData(): Promise<TransactionData | null> {
+        if (this.data !== undefined) {
+            return this.data
+        }
         try {
             const response = await this.ethers.getTransaction(this.id)
             if (response === null) {
@@ -38,7 +56,7 @@ export class Transaction implements TransactionInterface {
             if (receipt === null) {
                 return null
             }
-            return { response, receipt }
+            return (this.data = { response, receipt })
         } catch (error) {
             if (error instanceof Error && String(error.message).includes('timeout')) {
                 throw new Error(ErrorTypeEnum.RPC_TIMEOUT)
@@ -80,42 +98,59 @@ export class Transaction implements TransactionInterface {
      * @returns Blockchain explorer URL of the transaction. Dependant on network.
      */
     getUrl(): string {
-        return 'example'
+        let explorerUrl = this.provider.network.explorerUrl
+        explorerUrl += explorerUrl.endsWith('/') ? '' : '/'
+        explorerUrl += 'tx/' + this.id
+        return explorerUrl
     }
 
     /**
      * @returns Wallet address of the sender of transaction
      */
     async getSender(): Promise<string> {
-        return 'example'
+        const data = await this.getData()
+        return data?.response.from ?? ''
     }
 
     /**
      * @returns Transaction fee as native coin amount
      */
     async getFee(): Promise<number> {
-        return 0
+        const data = await this.getData()
+        if (data === null) {
+            return 0
+        }
+        return hexToNumber(
+            (data?.response.gasPrice * data?.receipt.gasUsed).toString(),
+            this.provider.network.nativeCurrency.decimals
+        )
     }
 
     /**
      * @returns Block ID of the transaction
      */
     async getBlockNumber(): Promise<number> {
-        return 0
+        const data = await this.getData()
+        return data?.response.blockNumber ?? 0
     }
 
     /**
      * @returns UNIX timestamp of the date that block is added to blockchain
      */
     async getBlockTimestamp(): Promise<number> {
-        return 0
+        const blockNumber = await this.getBlockNumber()
+        const block = await this.ethers.getBlock(blockNumber)
+        return block?.timestamp ?? 0
     }
 
     /**
      * @returns Confirmation count of the block that transaction is included
      */
     async getBlockConfirmationCount(): Promise<number> {
-        return 0
+        const blockNumber = await this.getBlockNumber()
+        const blockCount = await this.ethers.getBlockNumber()
+        const confirmations = blockCount - blockNumber
+        return confirmations < 0 ? 0 : confirmations
     }
 
     /**

@@ -39,6 +39,8 @@
     },
     "dependencies": {
         "@multiplechain/types": "^0.1.24",
-        "@multiplechain/utils": "^0.1.9"
+        "@multiplechain/utils": "^0.1.9",
+        "abi-decoder": "^2.4.0",
+        "ethers": "^6.11.1"
     }
 }
