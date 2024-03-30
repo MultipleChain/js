@@ -16,7 +16,7 @@
         "typecheck": "tsc --noEmit",
         "lint": "eslint . --ext .ts",
         "test": "vitest run --dir tests",
-        "prepublishOnly":"pnpm run build"
+        "prepublishOnly": "pnpm run build"
     },
     "keywords": [
         "web3",
@@ -36,7 +36,7 @@
         "url": "https://github.com/MultipleChain/js/issues"
     },
     "dependencies": {
-        "@multiplechain/types": "^0.1.24",
+        "@multiplechain/types": "^0.1.25",
         "@multiplechain/utils": "^0.1.8"
     }
 }
