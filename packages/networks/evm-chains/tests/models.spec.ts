@@ -12,6 +12,19 @@ const etherTransferTx = '0x566002399664e92f82ed654c181095bdd7ff3d3f1921d96325758
 const tokenTransferTx = '0xdabda3905e585db91768f2ef877f7fbef7c0e8612c0a09c7b379981bdbc48975'
 const nftTransferTx = '0x272a4698cd2062f2463481cf9eb78b68b35d59938383679b7642e6d669ac87eb'
 
+const nftId = 7
+const tokenAmount = 1
+const coinAmount = 0.002548
+
+const coinSender = '0x74dBE9cA4F93087A27f23164d4367b8ce66C33e2'
+const coinReceiver = '0xb3C86232c163A988Ce4358B10A2745864Bfaa3Ba'
+
+const tokenSender = '0x110600bF0399174520a159ed425f0D272Ff8b459'
+const tokenReceiver = '0xbBa4d06D1cEf94b35aDeCfDa893523907fdD36DE'
+
+const nftSender = '0xbBa4d06D1cEf94b35aDeCfDa893523907fdD36DE'
+const nftReceiver = '0x110600bF0399174520a159ed425f0D272Ff8b459'
+
 describe('Transaction', () => {
     const tx = new Transaction(etherTransferTx)
     it('Id', async () => {
@@ -29,7 +42,7 @@ describe('Transaction', () => {
     })
 
     it('Sender', async () => {
-        expect(await tx.getSender()).toBe('0x74dBE9cA4F93087A27f23164d4367b8ce66C33e2')
+        expect(await tx.getSender()).toBe(coinSender)
     })
 
     it('Fee', async () => {
@@ -73,39 +86,25 @@ describe('Coin Transaction', () => {
     const tx = new CoinTransaction(etherTransferTx)
 
     it('Receiver', async () => {
-        expect((await tx.getReceiver()).toLowerCase()).toBe(
-            '0xb3C86232c163A988Ce4358B10A2745864Bfaa3Ba'.toLowerCase()
-        )
+        expect((await tx.getReceiver()).toLowerCase()).toBe(coinReceiver.toLowerCase())
     })
 
     it('Amount', async () => {
-        expect(await tx.getAmount()).toBe(0.002548)
+        expect(await tx.getAmount()).toBe(coinAmount)
     })
 
     it('Verify Transfer', async () => {
-        expect(
-            await tx.verifyTransfer(
-                AssetDirectionEnum.INCOMING,
-                '0xb3C86232c163A988Ce4358B10A2745864Bfaa3Ba',
-                0.002548
-            )
-        ).toBe(TransactionStatusEnum.CONFIRMED)
+        expect(await tx.verifyTransfer(AssetDirectionEnum.INCOMING, coinReceiver, coinAmount)).toBe(
+            TransactionStatusEnum.CONFIRMED
+        )
 
-        expect(
-            await tx.verifyTransfer(
-                AssetDirectionEnum.OUTGOING,
-                '0x74dBE9cA4F93087A27f23164d4367b8ce66C33e2',
-                0.002548
-            )
-        ).toBe(TransactionStatusEnum.CONFIRMED)
+        expect(await tx.verifyTransfer(AssetDirectionEnum.OUTGOING, coinSender, coinAmount)).toBe(
+            TransactionStatusEnum.CONFIRMED
+        )
 
-        expect(
-            await tx.verifyTransfer(
-                AssetDirectionEnum.OUTGOING,
-                '0xb3C86232c163A988Ce4358B10A2745864Bfaa3Ba',
-                0.002548
-            )
-        ).toBe(TransactionStatusEnum.FAILED)
+        expect(await tx.verifyTransfer(AssetDirectionEnum.OUTGOING, coinReceiver, coinAmount)).toBe(
+            TransactionStatusEnum.FAILED
+        )
     })
 })
 
@@ -113,38 +112,24 @@ describe('Token Transaction', () => {
     const tx = new TokenTransaction(tokenTransferTx)
 
     it('Receiver', async () => {
-        expect((await tx.getReceiver()).toLowerCase()).toBe(
-            '0xbBa4d06D1cEf94b35aDeCfDa893523907fdD36DE'.toLowerCase()
-        )
+        expect((await tx.getReceiver()).toLowerCase()).toBe(tokenReceiver.toLowerCase())
     })
 
     it('Amount', async () => {
-        expect(await tx.getAmount()).toBe(1)
+        expect(await tx.getAmount()).toBe(tokenAmount)
     })
 
     it('Verify Transfer', async () => {
         expect(
-            await tx.verifyTransfer(
-                AssetDirectionEnum.INCOMING,
-                '0xbBa4d06D1cEf94b35aDeCfDa893523907fdD36DE',
-                1
-            )
+            await tx.verifyTransfer(AssetDirectionEnum.INCOMING, tokenReceiver, tokenAmount)
         ).toBe(TransactionStatusEnum.CONFIRMED)
 
-        expect(
-            await tx.verifyTransfer(
-                AssetDirectionEnum.OUTGOING,
-                '0x110600bF0399174520a159ed425f0D272Ff8b459',
-                1
-            )
-        ).toBe(TransactionStatusEnum.CONFIRMED)
+        expect(await tx.verifyTransfer(AssetDirectionEnum.OUTGOING, tokenSender, tokenAmount)).toBe(
+            TransactionStatusEnum.CONFIRMED
+        )
 
         expect(
-            await tx.verifyTransfer(
-                AssetDirectionEnum.OUTGOING,
-                '0xbBa4d06D1cEf94b35aDeCfDa893523907fdD36DE',
-                1
-            )
+            await tx.verifyTransfer(AssetDirectionEnum.OUTGOING, tokenReceiver, tokenAmount)
         ).toBe(TransactionStatusEnum.FAILED)
     })
 })
@@ -153,50 +138,32 @@ describe('NFT Transaction', () => {
     const tx = new NftTransaction(nftTransferTx)
 
     it('Receiver', async () => {
-        expect((await tx.getReceiver()).toLowerCase()).toBe(
-            '0x110600bF0399174520a159ed425f0D272Ff8b459'.toLowerCase()
-        )
+        expect((await tx.getReceiver()).toLowerCase()).toBe(nftReceiver.toLowerCase())
     })
 
     it('From', async () => {
-        expect((await tx.getFrom()).toLowerCase()).toBe(
-            '0xbBa4d06D1cEf94b35aDeCfDa893523907fdD36DE'.toLowerCase()
-        )
+        expect((await tx.getFrom()).toLowerCase()).toBe(nftSender.toLowerCase())
     })
 
     it('Sender', async () => {
-        expect((await tx.getSender()).toLowerCase()).toBe(
-            '0x110600bF0399174520a159ed425f0D272Ff8b459'.toLowerCase()
-        )
+        expect((await tx.getSender()).toLowerCase()).toBe(nftReceiver.toLowerCase())
     })
 
     it('NFT ID', async () => {
-        expect(await tx.getNftId()).toBe(7)
+        expect(await tx.getNftId()).toBe(nftId)
     })
 
     it('Verify Transfer', async () => {
-        expect(
-            await tx.verifyTransfer(
-                AssetDirectionEnum.INCOMING,
-                '0x110600bF0399174520a159ed425f0D272Ff8b459',
-                7
-            )
-        ).toBe(TransactionStatusEnum.CONFIRMED)
+        expect(await tx.verifyTransfer(AssetDirectionEnum.INCOMING, nftReceiver, nftId)).toBe(
+            TransactionStatusEnum.CONFIRMED
+        )
 
-        expect(
-            await tx.verifyTransfer(
-                AssetDirectionEnum.OUTGOING,
-                '0xbBa4d06D1cEf94b35aDeCfDa893523907fdD36DE',
-                7
-            )
-        ).toBe(TransactionStatusEnum.CONFIRMED)
+        expect(await tx.verifyTransfer(AssetDirectionEnum.OUTGOING, nftSender, nftId)).toBe(
+            TransactionStatusEnum.CONFIRMED
+        )
 
-        expect(
-            await tx.verifyTransfer(
-                AssetDirectionEnum.OUTGOING,
-                '0x110600bF0399174520a159ed425f0D272Ff8b459',
-                7
-            )
-        ).toBe(TransactionStatusEnum.FAILED)
+        expect(await tx.verifyTransfer(AssetDirectionEnum.OUTGOING, nftReceiver, nftId)).toBe(
+            TransactionStatusEnum.FAILED
+        )
     })
 })
