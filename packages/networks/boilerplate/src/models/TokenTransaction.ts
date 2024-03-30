@@ -18,13 +18,6 @@ export class TokenTransaction extends ContractTransaction implements TokenTransa
     }
 
     /**
-     * @returns Token address of the transaction
-     */
-    async getAddress(): Promise<string> {
-        return 'example'
-    }
-
-    /**
      * @param direction - Direction of the transaction (token)
      * @param address - Wallet address of the owner or spender of the transaction, dependant on direction
      * @param amount Amount of tokens that will be approved
