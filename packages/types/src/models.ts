@@ -92,18 +92,7 @@ export interface CoinTransactionInterface extends AssetTransactionInterface {}
 
 export interface TokenTransactionInterface
     extends AssetTransactionInterface,
-        ContractTransactionInterface {
-    /**
-     * @param direction - Direction of the transaction (token)
-     * @param address - Wallet address of the owner or spender of the transaction, dependant on direction
-     * @param amount Amount of tokens that will be approved
-     */
-    verifyApprove: (
-        direction: AssetDirectionEnum,
-        address: string,
-        amount: number
-    ) => Promise<TransactionStatusEnum>
-}
+        ContractTransactionInterface {}
 
 export interface NftTransactionInterface
     extends Omit<AssetTransactionInterface, 'verifyTransfer'>,
@@ -120,17 +109,6 @@ export interface NftTransactionInterface
      * @override verifyTransfer() in AssetTransactionInterface
      */
     verifyTransfer: (
-        direction: AssetDirectionEnum,
-        address: string,
-        nftId: number
-    ) => Promise<TransactionStatusEnum>
-
-    /**
-     * @param direction - Direction of the transaction (nft)
-     * @param address - Wallet address of the owner or spender of the transaction, dependant on direction
-     * @param nftId ID of the NFT that will be approved
-     */
-    verifyApprove: (
         direction: AssetDirectionEnum,
         address: string,
         nftId: number
