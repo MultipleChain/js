@@ -29,17 +29,4 @@ export class TokenTransaction extends ContractTransaction implements TokenTransa
     ): Promise<TransactionStatusEnum> {
         return TransactionStatusEnum.PENDING
     }
-
-    /**
-     * @param direction - Direction of the transaction (token)
-     * @param address - Wallet address of the owner or spender of the transaction, dependant on direction
-     * @param amount Amount of tokens that will be approved
-     */
-    async verifyApprove(
-        direction: AssetDirectionEnum,
-        address: string,
-        amount: number
-    ): Promise<TransactionStatusEnum> {
-        return TransactionStatusEnum.PENDING
-    }
 }
