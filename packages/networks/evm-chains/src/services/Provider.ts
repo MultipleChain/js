@@ -1,5 +1,9 @@
 import { Ethers } from './Ethers.ts'
-import type { NetworkConfigInterface, ProviderInterface } from '@multiplechain/types'
+import {
+    ErrorTypeEnum,
+    type NetworkConfigInterface,
+    type ProviderInterface
+} from '@multiplechain/types'
 
 export interface EvmNetworkConfigInterface extends NetworkConfigInterface {
     id: number
@@ -46,7 +50,7 @@ export class Provider implements Omit<ProviderInterface, 'update'> {
      */
     static get instance(): Provider {
         if (Provider._instance === undefined) {
-            throw new Error('Provider is not initialized')
+            throw new Error(ErrorTypeEnum.PROVIDER_IS_NOT_INITIALIZED)
         }
         return Provider._instance
     }
@@ -57,7 +61,7 @@ export class Provider implements Omit<ProviderInterface, 'update'> {
      */
     static initialize(network: EvmNetworkConfigInterface): void {
         if (Provider._instance !== undefined) {
-            throw new Error('Provider is already initialized')
+            throw new Error(ErrorTypeEnum.PROVIDER_IS_ALREADY_INITIALIZED)
         }
         Provider._instance = new Provider(network)
     }

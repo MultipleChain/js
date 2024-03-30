@@ -2,7 +2,7 @@ import { Provider } from '../services/Provider.ts'
 import { hexToNumber, numberToHex } from '@multiplechain/utils'
 import { TransactionSigner } from '../services/TransactionSigner.ts'
 import type { TransactionData } from '../services/TransactionSigner.ts'
-import type { CoinInterface } from '@multiplechain/types'
+import { ErrorTypeEnum, type CoinInterface } from '@multiplechain/types'
 
 export class Coin implements CoinInterface {
     /**
@@ -45,11 +45,11 @@ export class Coin implements CoinInterface {
      */
     async transfer(sender: string, receiver: string, amount: number): Promise<TransactionSigner> {
         if (amount < 0) {
-            throw new Error('Invalid amount')
+            throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
         }
 
         if (amount > (await this.getBalance(sender))) {
-            throw new Error('Insufficient balance')
+            throw new Error(ErrorTypeEnum.INSUFFICIENT_BALANCE)
         }
 
         const { network, ethers } = Provider.instance

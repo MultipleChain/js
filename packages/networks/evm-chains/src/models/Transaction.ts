@@ -1,5 +1,5 @@
 import { Provider } from '../services/Provider.ts'
-import { TransactionStatusEnum } from '@multiplechain/types'
+import { ErrorTypeEnum, TransactionStatusEnum } from '@multiplechain/types'
 import type { TransactionInterface } from '@multiplechain/types'
 import type { TransactionReceipt, TransactionResponse } from 'ethers'
 import type { Ethers } from '../services/Ethers.ts'
@@ -42,9 +42,9 @@ export class Transaction implements TransactionInterface {
         } catch (error) {
             const e = error as Error
             if (String(e.message).includes('timeout')) {
-                throw new Error('RPC Timeout')
+                throw new Error(ErrorTypeEnum.RPC_TIMEOUT)
             }
-            throw new Error('Transaction not found')
+            throw new Error(ErrorTypeEnum.RPC_REQUEST_ERROR)
         }
     }
 

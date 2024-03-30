@@ -59,13 +59,13 @@ export class Token extends Contract implements TokenInterface {
      */
     async transfer(sender: string, receiver: string, amount: number): Promise<TransactionSigner> {
         if (amount < 0) {
-            throw new Error('Invalid amount')
+            throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
         }
 
         const [balance, decimals] = await Promise.all([this.getBalance(sender), this.getDecimals()])
 
         if (amount > balance) {
-            throw new Error('Insufficient balance')
+            throw new Error(ErrorTypeEnum.INSUFFICIENT_BALANCE)
         }
 
         const { network, ethers } = Provider.instance
