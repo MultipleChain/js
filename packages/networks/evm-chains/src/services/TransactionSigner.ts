@@ -1,6 +1,11 @@
+import type { EthersError } from './Ethers.ts'
 import { Provider } from '../services/Provider.ts'
 import type { TransactionRequest, Wallet, BigNumberish } from 'ethers'
-import { TransactionTypeEnum, type TransactionSignerInterface } from '@multiplechain/types'
+import {
+    ErrorTypeEnum,
+    TransactionTypeEnum,
+    type TransactionSignerInterface
+} from '@multiplechain/types'
 
 // Transactions
 import { Transaction } from '../models/Transaction.ts'
@@ -49,9 +54,18 @@ export class TransactionSigner implements TransactionSignerInterface {
      * @param privateKey - Transaction data
      */
     public async sign(privateKey: string): Promise<TransactionSigner> {
-        this.wallet = ethers.wallet(privateKey)
-        this.signedData = await this.wallet.signTransaction(this.rawData)
-        return this
+        try {
+            this.wallet = ethers.wallet(privateKey)
+            this.signedData = await this.wallet.signTransaction(this.rawData)
+            return this
+        } catch (error) {
+            const e = error as EthersError
+            if (e?.shortMessage.includes('transaction from address mismatch')) {
+                throw new Error(ErrorTypeEnum.INVALID_PRIVATE_KEY)
+            }
+
+            throw error
+        }
     }
 
     /**

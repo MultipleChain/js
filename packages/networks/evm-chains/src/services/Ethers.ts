@@ -11,6 +11,13 @@ import { Wallet, Contract, ContractFactory, JsonRpcProvider, WebSocketProvider }
 import type { EvmNetworkConfigInterface } from './Provider.ts'
 import type { TransactionData } from '../services/TransactionSigner.ts'
 
+export interface EthersError {
+    shortMessage: string
+    code: string
+    value: string
+    args: string
+}
+
 export class Ethers {
     network: EvmNetworkConfigInterface
 

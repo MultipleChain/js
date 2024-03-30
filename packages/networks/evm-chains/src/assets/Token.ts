@@ -37,8 +37,10 @@ export class Token extends Contract implements TokenInterface {
      * @returns Wallet balance as currency of TOKEN or COIN assets
      */
     async getBalance(owner: string): Promise<number> {
-        const decimals = await this.getDecimals()
-        const balance = await this.callMethod('balanceOf', owner)
+        const [decimals, balance] = await Promise.all([
+            this.getDecimals(),
+            this.callMethod('balanceOf', owner)
+        ])
         return hexToNumber(balance as string, decimals)
     }
 
@@ -46,8 +48,10 @@ export class Token extends Contract implements TokenInterface {
      * @returns Total supply of the token
      */
     async getTotalSupply(): Promise<number> {
-        const decimals = await this.getDecimals()
-        const totalSupply = await this.callMethod('totalSupply')
+        const [decimals, totalSupply] = await Promise.all([
+            this.getDecimals(),
+            this.callMethod('totalSupply')
+        ])
         return hexToNumber(totalSupply as string, decimals)
     }
 
@@ -62,7 +66,7 @@ export class Token extends Contract implements TokenInterface {
             throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
         }
 
-        const [balance, decimals] = await Promise.all([this.getBalance(sender), this.getDecimals()])
+        const balance = await this.getBalance(sender)
 
         if (amount > balance) {
             throw new Error(ErrorTypeEnum.INSUFFICIENT_BALANCE)
@@ -70,7 +74,7 @@ export class Token extends Contract implements TokenInterface {
 
         const { network, ethers } = Provider.instance
 
-        const hexAmount = numberToHex(amount, decimals)
+        const hexAmount = numberToHex(amount, await this.getDecimals())
         const [gasPrice, nonce, data, gasLimit] = await Promise.all([
             ethers.getGasPrice(),
             ethers.getNonce(sender),
@@ -91,10 +95,11 @@ export class Token extends Contract implements TokenInterface {
     }
 
     /**
-     * transferFrom() transfers tokens from sender to receiver using allowance
-     * @param sender Sender wallet address
+     * @param spender Address of the spender of transaction
+     * @param owner Sender wallet address
      * @param receiver Receiver wallet address
-     * @param amount Amount of assets that will be transferred
+     * @param amount Amount of tokens that will be transferred
+     * @returns {Promise<TransactionSigner>}
      */
     async transferFrom(
         spender: string,
@@ -106,7 +111,43 @@ export class Token extends Contract implements TokenInterface {
             throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
         }
 
-        //
+        const balance = await this.getBalance(owner)
+
+        if (amount > balance) {
+            throw new Error(ErrorTypeEnum.INSUFFICIENT_BALANCE)
+        }
+
+        const allowance = await this.allowance(owner, spender)
+
+        if (allowance === 0) {
+            throw new Error(ErrorTypeEnum.UNAUTHORIZED_ADDRESS)
+        }
+
+        if (amount > allowance) {
+            throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
+        }
+
+        const { network, ethers } = Provider.instance
+
+        const hexAmount = numberToHex(amount, await this.getDecimals())
+
+        const [gasPrice, nonce, data, gasLimit] = await Promise.all([
+            ethers.getGasPrice(),
+            ethers.getNonce(spender),
+            this.getMethodData('transferFrom', owner, receiver, hexAmount),
+            this.getMethodEstimateGas('transferFrom', spender, owner, receiver, hexAmount)
+        ])
+
+        return new TransactionSigner({
+            data,
+            nonce,
+            gasPrice,
+            gasLimit,
+            value: '0x0',
+            from: spender,
+            chainId: network.id,
+            to: this.getAddress()
+        })
     }
 
     /**
@@ -120,14 +161,14 @@ export class Token extends Contract implements TokenInterface {
             throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
         }
 
-        const [balance, decimals] = await Promise.all([this.getBalance(owner), this.getDecimals()])
+        const balance = await this.getBalance(owner)
 
         if (amount > balance) {
             throw new Error(ErrorTypeEnum.INSUFFICIENT_BALANCE)
         }
 
         const { network, ethers } = Provider.instance
-        const hexAmount = numberToHex(amount, decimals)
+        const hexAmount = numberToHex(amount, await this.getDecimals())
 
         const [gasPrice, nonce, data, gasLimit] = await Promise.all([
             ethers.getGasPrice(),
@@ -154,9 +195,10 @@ export class Token extends Contract implements TokenInterface {
      * @returns Amount of the tokens that is being used by spender
      */
     async allowance(owner: string, spender: string): Promise<number> {
-        return hexToNumber(
-            (await this.callMethod('allowance', owner, spender)) as string,
-            await this.getDecimals()
-        )
+        const [decimals, allowance] = await Promise.all([
+            this.getDecimals(),
+            await this.callMethod('allowance', owner, spender)
+        ])
+        return hexToNumber(allowance as string, decimals)
     }
 }

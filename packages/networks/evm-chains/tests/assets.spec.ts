@@ -16,21 +16,22 @@ const coinBalanceTestAmount = 0.01
 const tokenBalanceTestAmount = 1000
 const tokenApproveTestAmount = 100
 
-const walletPrivateKey = '0x14bd9af4e87981b37b7b2e8a0d1d249b7fcdb7a3bc579c4c31488842d372c0e9'
+const senderPrivateKey = '0x14bd9af4e87981b37b7b2e8a0d1d249b7fcdb7a3bc579c4c31488842d372c0e9'
+const receiverPrivateKey = '0x22ac1009c43f251e0b5a808751990abe77a74fe12f390c0cc95ab179a0b61a5a'
 const senderTestAddress = '0x110600bF0399174520a159ed425f0D272Ff8b459'
 const receiverTestAddress = '0xbBa4d06D1cEf94b35aDeCfDa893523907fdD36DE'
 const tokenTestAddress = '0x4294cb0dD25dC9140B5127f247cBd47Eeb673431'
 const transferTestAmount = 0.0001
 const tokenTransferTestAmount = 1
 
-const checkSigner = async (signer: TransactionSigner): Promise<any> => {
+const checkSigner = async (signer: TransactionSigner, privateKey?: string): Promise<any> => {
     expect(signer).toBeInstanceOf(TransactionSigner)
 
     const rawData = signer.getRawData()
 
     assert.isObject(rawData)
 
-    await signer.sign(walletPrivateKey)
+    await signer.sign(privateKey ?? senderPrivateKey)
 
     assert.isString(signer.getSignedData())
 }
@@ -148,6 +149,25 @@ describe('Token', () => {
         expect(await token.allowance(senderTestAddress, receiverTestAddress)).toBe(
             tokenApproveTestAmount
         )
+    })
+
+    it('Transfer from', async () => {
+        if (!transferTestIsOpen) return
+        const signer = await token.transferFrom(
+            receiverTestAddress,
+            senderTestAddress,
+            receiverTestAddress,
+            2
+        )
+
+        await checkSigner(signer, receiverPrivateKey)
+
+        const beforeBalance = await token.getBalance(receiverTestAddress)
+
+        await checkTx(await signer.send())
+
+        const afterBalance = await token.getBalance(receiverTestAddress)
+        expect(afterBalance).toBe(fixFloat(beforeBalance + 2))
     })
 })
 

@@ -40,8 +40,7 @@ export class Transaction implements TransactionInterface {
             }
             return { response, receipt }
         } catch (error) {
-            const e = error as Error
-            if (String(e.message).includes('timeout')) {
+            if (error instanceof Error && String(error.message).includes('timeout')) {
                 throw new Error(ErrorTypeEnum.RPC_TIMEOUT)
             }
             throw new Error(ErrorTypeEnum.RPC_REQUEST_ERROR)
