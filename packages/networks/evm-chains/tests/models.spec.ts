@@ -2,8 +2,9 @@ import { describe, it, expect } from 'vitest'
 
 import ERC20 from '../resources/erc20.json'
 import { Transaction } from '../src/models/Transaction.ts'
-import { TransactionStatusEnum } from '@multiplechain/types'
+import { AssetDirectionEnum, TransactionStatusEnum } from '@multiplechain/types'
 import { ContractTransaction } from '../src/models/ContractTransaction.ts'
+import { CoinTransaction } from '../src/models/CoinTransaction.ts'
 
 const etherTransferTx = '0x566002399664e92f82ed654c181095bdd7ff3d3f1921d963257585891f622251'
 const tokenTransferTx = '0xdabda3905e585db91768f2ef877f7fbef7c0e8612c0a09c7b379981bdbc48975'
@@ -62,5 +63,45 @@ describe('Contract Transaction', () => {
     it('Decode Data', async () => {
         const result = await tx.decodeData(ERC20)
         expect(result?.args[0]).toBe('0xbBa4d06D1cEf94b35aDeCfDa893523907fdD36DE')
+    })
+})
+
+describe('Coin Transaction', () => {
+    const tx = new CoinTransaction(etherTransferTx)
+
+    it('Receiver', async () => {
+        expect((await tx.getReceiver()).toLowerCase()).toBe(
+            '0xb3C86232c163A988Ce4358B10A2745864Bfaa3Ba'.toLowerCase()
+        )
+    })
+
+    it('Amount', async () => {
+        expect(await tx.getAmount()).toBe(0.002548)
+    })
+
+    it('Verify Transfer', async () => {
+        expect(
+            await tx.verifyTransfer(
+                AssetDirectionEnum.INCOMING,
+                '0xb3C86232c163A988Ce4358B10A2745864Bfaa3Ba',
+                0.002548
+            )
+        ).toBe(TransactionStatusEnum.CONFIRMED)
+
+        expect(
+            await tx.verifyTransfer(
+                AssetDirectionEnum.OUTGOING,
+                '0x74dBE9cA4F93087A27f23164d4367b8ce66C33e2',
+                0.002548
+            )
+        ).toBe(TransactionStatusEnum.CONFIRMED)
+
+        expect(
+            await tx.verifyTransfer(
+                AssetDirectionEnum.OUTGOING,
+                '0xb3C86232c163A988Ce4358B10A2745864Bfaa3Ba',
+                0.002548
+            )
+        ).toBe(TransactionStatusEnum.FAILED)
     })
 })
