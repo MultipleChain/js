@@ -56,13 +56,26 @@ export class Token extends Contract implements TokenInterface {
     }
 
     /**
+     * @param owner Address of owner of the tokens that is being used
+     * @param spender Address of the spender that is using the tokens of owner
+     * @returns Amount of the tokens that is being used by spender
+     */
+    async getAllowance(owner: string, spender: string): Promise<number> {
+        const [decimals, allowance] = await Promise.all([
+            this.getDecimals(),
+            await this.callMethod('allowance', owner, spender)
+        ])
+        return hexToNumber(allowance as string, decimals)
+    }
+
+    /**
      * transfer() method is the main method for processing transfers for fungible assets (TOKEN, COIN)
      * @param sender Sender wallet address
      * @param receiver Receiver wallet address
      * @param amount Amount of assets that will be transferred
      */
     async transfer(sender: string, receiver: string, amount: number): Promise<TransactionSigner> {
-        if (amount < 0) {
+        if (amount <= 0) {
             throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
         }
 
@@ -117,7 +130,7 @@ export class Token extends Contract implements TokenInterface {
             throw new Error(ErrorTypeEnum.INSUFFICIENT_BALANCE)
         }
 
-        const allowance = await this.allowance(owner, spender)
+        const allowance = await this.getAllowance(owner, spender)
 
         if (allowance === 0) {
             throw new Error(ErrorTypeEnum.UNAUTHORIZED_ADDRESS)
@@ -187,18 +200,5 @@ export class Token extends Contract implements TokenInterface {
             chainId: network.id,
             to: this.getAddress()
         })
-    }
-
-    /**
-     * @param owner Address of owner of the tokens that is being used
-     * @param spender Address of the spender that is using the tokens of owner
-     * @returns Amount of the tokens that is being used by spender
-     */
-    async allowance(owner: string, spender: string): Promise<number> {
-        const [decimals, allowance] = await Promise.all([
-            this.getDecimals(),
-            await this.callMethod('allowance', owner, spender)
-        ])
-        return hexToNumber(allowance as string, decimals)
     }
 }
