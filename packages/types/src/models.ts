@@ -77,6 +77,11 @@ export interface AssetTransactionInterface extends TransactionInterface {
     getAmount: () => Promise<number>
 
     /**
+     * @returns Wallet address of the sender of asset
+     */
+    getFrom: () => Promise<string>
+
+    /**
      * @param direction - Direction of the transaction (asset)
      * @param address - Wallet address of the receiver or sender of the transaction, dependant on direction
      * @param amount Amount of assets that will be transferred
@@ -95,7 +100,7 @@ export interface TokenTransactionInterface
         ContractTransactionInterface {}
 
 export interface NftTransactionInterface
-    extends Omit<AssetTransactionInterface, 'verifyTransfer'>,
+    extends Omit<AssetTransactionInterface, 'verifyTransfer' | 'getAmount'>,
         ContractTransactionInterface {
     /**
      * @returns ID of the NFT
