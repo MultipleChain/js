@@ -5,9 +5,12 @@ import { Transaction } from '../src/models/Transaction.ts'
 import { AssetDirectionEnum, TransactionStatusEnum } from '@multiplechain/types'
 import { ContractTransaction } from '../src/models/ContractTransaction.ts'
 import { CoinTransaction } from '../src/models/CoinTransaction.ts'
+import { TokenTransaction } from '../src/models/TokenTransaction.ts'
+import { NftTransaction } from '../src/models/NftTransaction.ts'
 
 const etherTransferTx = '0x566002399664e92f82ed654c181095bdd7ff3d3f1921d963257585891f622251'
 const tokenTransferTx = '0xdabda3905e585db91768f2ef877f7fbef7c0e8612c0a09c7b379981bdbc48975'
+const nftTransferTx = '0x272a4698cd2062f2463481cf9eb78b68b35d59938383679b7642e6d669ac87eb'
 
 describe('Transaction', () => {
     const tx = new Transaction(etherTransferTx)
@@ -101,6 +104,98 @@ describe('Coin Transaction', () => {
                 AssetDirectionEnum.OUTGOING,
                 '0xb3C86232c163A988Ce4358B10A2745864Bfaa3Ba',
                 0.002548
+            )
+        ).toBe(TransactionStatusEnum.FAILED)
+    })
+})
+
+describe('Token Transaction', () => {
+    const tx = new TokenTransaction(tokenTransferTx)
+
+    it('Receiver', async () => {
+        expect((await tx.getReceiver()).toLowerCase()).toBe(
+            '0xbBa4d06D1cEf94b35aDeCfDa893523907fdD36DE'.toLowerCase()
+        )
+    })
+
+    it('Amount', async () => {
+        expect(await tx.getAmount()).toBe(1)
+    })
+
+    it('Verify Transfer', async () => {
+        expect(
+            await tx.verifyTransfer(
+                AssetDirectionEnum.INCOMING,
+                '0xbBa4d06D1cEf94b35aDeCfDa893523907fdD36DE',
+                1
+            )
+        ).toBe(TransactionStatusEnum.CONFIRMED)
+
+        expect(
+            await tx.verifyTransfer(
+                AssetDirectionEnum.OUTGOING,
+                '0x110600bF0399174520a159ed425f0D272Ff8b459',
+                1
+            )
+        ).toBe(TransactionStatusEnum.CONFIRMED)
+
+        expect(
+            await tx.verifyTransfer(
+                AssetDirectionEnum.OUTGOING,
+                '0xbBa4d06D1cEf94b35aDeCfDa893523907fdD36DE',
+                1
+            )
+        ).toBe(TransactionStatusEnum.FAILED)
+    })
+})
+
+describe('NFT Transaction', () => {
+    const tx = new NftTransaction(nftTransferTx)
+
+    it('Receiver', async () => {
+        expect((await tx.getReceiver()).toLowerCase()).toBe(
+            '0x110600bF0399174520a159ed425f0D272Ff8b459'.toLowerCase()
+        )
+    })
+
+    it('From', async () => {
+        expect((await tx.getFrom()).toLowerCase()).toBe(
+            '0xbBa4d06D1cEf94b35aDeCfDa893523907fdD36DE'.toLowerCase()
+        )
+    })
+
+    it('Sender', async () => {
+        expect((await tx.getSender()).toLowerCase()).toBe(
+            '0x110600bF0399174520a159ed425f0D272Ff8b459'.toLowerCase()
+        )
+    })
+
+    it('NFT ID', async () => {
+        expect(await tx.getNftId()).toBe(7)
+    })
+
+    it('Verify Transfer', async () => {
+        expect(
+            await tx.verifyTransfer(
+                AssetDirectionEnum.INCOMING,
+                '0x110600bF0399174520a159ed425f0D272Ff8b459',
+                7
+            )
+        ).toBe(TransactionStatusEnum.CONFIRMED)
+
+        expect(
+            await tx.verifyTransfer(
+                AssetDirectionEnum.OUTGOING,
+                '0xbBa4d06D1cEf94b35aDeCfDa893523907fdD36DE',
+                7
+            )
+        ).toBe(TransactionStatusEnum.CONFIRMED)
+
+        expect(
+            await tx.verifyTransfer(
+                AssetDirectionEnum.OUTGOING,
+                '0x110600bF0399174520a159ed425f0D272Ff8b459',
+                7
             )
         ).toBe(TransactionStatusEnum.FAILED)
     })
