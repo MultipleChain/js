@@ -44,4 +44,18 @@ export class NftTransaction extends ContractTransaction implements NftTransactio
     ): Promise<TransactionStatusEnum> {
         return TransactionStatusEnum.PENDING
     }
+
+    /**
+     * @param direction - Direction of the transaction (nft)
+     * @param address - Wallet address of the owner or spender of the transaction, dependant on direction
+     * @param nftId ID of the NFT that will be approved
+     * @override verifyApprove() in AssetTransactionInterface
+     */
+    async verifyApprove(
+        direction: AssetDirectionEnum,
+        address: string,
+        nftId: number
+    ): Promise<TransactionStatusEnum> {
+        return TransactionStatusEnum.PENDING
+    }
 }

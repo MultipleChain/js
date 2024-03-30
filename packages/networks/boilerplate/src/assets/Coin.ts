@@ -19,7 +19,7 @@ export class Coin implements CoinInterface {
     /**
      * @returns Decimal value of the coin
      */
-    async getDecimals(): Promise<number> {
+    getDecimals(): number {
         return 18
     }
 

@@ -26,10 +26,27 @@ export class NFT extends Contract implements NftInterface {
     }
 
     /**
-     * @returns NFT ID
+     * @param nftId NFT ID
+     * @returns NFT owner wallet address
      */
-    async getNftId(): Promise<number> {
-        return 0
+    async getOwner(nftId: number): Promise<string> {
+        return 'example'
+    }
+
+    /**
+     * @param nftId NFT ID
+     * @returns NFT URI
+     */
+    async getTokenURI(nftId: number): Promise<string> {
+        return 'example'
+    }
+
+    /**
+     * @param nftId NFT ID
+     * @returns NFT URI
+     */
+    async getApproved(nftId: number): Promise<string> {
+        return 'example'
     }
 
     /**
@@ -47,18 +64,32 @@ export class NFT extends Contract implements NftInterface {
     }
 
     /**
+     * @param spender Spender address
+     * @param sender Sender address
+     * @param receiver Receiver address
      * @param nftId NFT ID
-     * @returns NFT owner wallet address
+     * @returns Transaction signer
      */
-    async getOwner(nftId: number): Promise<string> {
-        return 'example'
+    async transferFrom(
+        spender: string,
+        owner: string,
+        receiver: string,
+        nftId: number
+    ): Promise<TransactionSignerInterface> {
+        return new TransactionSigner('example')
     }
 
     /**
+     * @param owner Owner of the nft
+     * @param spender Approved spender
      * @param nftId NFT ID
-     * @returns NFT URI
+     * @returns Transaction signer
      */
-    async getTokenURI(nftId: number): Promise<string> {
-        return 'example'
+    async approve(
+        owner: string,
+        spender: string,
+        nftId: number
+    ): Promise<TransactionSignerInterface> {
+        return new TransactionSigner('example')
     }
 }

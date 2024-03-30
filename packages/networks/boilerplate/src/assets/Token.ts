@@ -40,6 +40,15 @@ export class Token extends Contract implements TokenInterface {
     }
 
     /**
+     * @param owner Address of owner of the tokens that is being used
+     * @param spender Address of the spender that is using the tokens of owner
+     * @returns Amount of the tokens that is being used by spender
+     */
+    async getAllowance(owner: string, spender: string): Promise<number> {
+        return 0
+    }
+
+    /**
      * transfer() method is the main method for processing transfers for fungible assets (TOKEN, COIN)
      * @param sender Sender wallet address
      * @param receiver Receiver wallet address
@@ -47,6 +56,22 @@ export class Token extends Contract implements TokenInterface {
      */
     async transfer(
         sender: string,
+        receiver: string,
+        amount: number
+    ): Promise<TransactionSignerInterface> {
+        return new TransactionSigner('example')
+    }
+
+    /**
+     * @param spender Address of the spender of transaction
+     * @param owner Sender wallet address
+     * @param receiver Receiver wallet address
+     * @param amount Amount of tokens that will be transferred
+     * @override transfer() in AssetInterface
+     */
+    async transferFrom(
+        spender: string,
+        owner: string,
         receiver: string,
         amount: number
     ): Promise<TransactionSignerInterface> {
@@ -65,14 +90,5 @@ export class Token extends Contract implements TokenInterface {
         amount: number
     ): Promise<TransactionSignerInterface> {
         return new TransactionSigner('example')
-    }
-
-    /**
-     * @param owner Address of owner of the tokens that is being used
-     * @param spender Address of the spender that is using the tokens of owner
-     * @returns Amount of the tokens that is being used by spender
-     */
-    async allowance(owner: string, spender: string): Promise<number> {
-        return 0
     }
 }
