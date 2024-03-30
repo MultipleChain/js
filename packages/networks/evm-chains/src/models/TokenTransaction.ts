@@ -11,7 +11,7 @@ export class TokenTransaction extends ContractTransaction implements TokenTransa
      */
     async getReceiver(): Promise<string> {
         const decoded = await this.decodeData(ERC20)
-        console.log(decoded)
+
         if (decoded === null) {
             return ''
         }
@@ -28,6 +28,7 @@ export class TokenTransaction extends ContractTransaction implements TokenTransa
      */
     async getFrom(): Promise<string> {
         const decoded = await this.decodeData(ERC20)
+
         if (decoded === null) {
             return ''
         }

@@ -9,6 +9,7 @@ export class NftTransaction extends ContractTransaction implements NftTransactio
      */
     async getReceiver(): Promise<string> {
         const decoded = await this.decodeData(ERC721)
+
         if (decoded === null) {
             return ''
         }
@@ -25,6 +26,7 @@ export class NftTransaction extends ContractTransaction implements NftTransactio
      */
     async getFrom(): Promise<string> {
         const decoded = await this.decodeData(ERC721)
+
         if (decoded === null) {
             return ''
         }
