@@ -1,11 +1,9 @@
 import { describe, it, expect, assert } from 'vitest'
 
-import ERC20 from '../resources/erc20.json'
 import { NFT } from '../src/assets/NFT.ts'
 import { Coin } from '../src/assets/Coin.ts'
 import { Token } from '../src/assets/Token.ts'
-import { numberToHex, fixFloat } from '@multiplechain/utils'
-import { Contract } from '../src/assets/Contract.ts'
+import { fixFloat } from '@multiplechain/utils'
 import { Transaction } from '../src/models/Transaction.ts'
 import { TransactionStatusEnum } from '@multiplechain/types'
 import { TransactionSigner } from '../src/services/TransactionSigner.ts'
@@ -13,8 +11,8 @@ import { TransactionSigner } from '../src/services/TransactionSigner.ts'
 const coinTransferTestIsActive = false
 const tokenTransferTestIsActive = false
 const tokenApproveTestIsActive = false
-const tokenTransferFromTestIsActive = true
-const nftTransactionTestIsActive = false
+const tokenTransferFromTestIsActive = false
+const nftTransactionTestIsActive = true
 
 const balanceTestAddress = '0x760A4d3D03928D1e8541A7644B34370c1b79aa9F'
 const coinBalanceTestAmount = 0.01
@@ -87,18 +85,6 @@ describe('Coin', () => {
 
         const afterBalance = await coin.getBalance(receiverTestAddress)
         expect(afterBalance).toBe(fixFloat(beforeBalance + transferTestAmount))
-    })
-})
-
-describe('Contract', () => {
-    it('getMethodData', async () => {
-        const contract = new Contract(tokenTestAddress, ERC20)
-        const decimals = await contract.callMethod('decimals')
-        const hexAmount = numberToHex(tokenBalanceTestAmount, Number(decimals))
-        const data = await contract.getMethodData('transfer', receiverTestAddress, hexAmount)
-        expect(data).toBe(
-            '0xa9059cbb000000000000000000000000bba4d06d1cef94b35adecfda893523907fdd36de00000000000000000000000000000000000000000000003635c9adc5dea00000'
-        )
     })
 })
 

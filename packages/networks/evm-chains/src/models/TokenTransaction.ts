@@ -1,32 +1,24 @@
 import { Token } from '../assets/Token.ts'
+import type { InterfaceAbi } from 'ethers'
 import ERC20 from '../../resources/erc20.json'
 import { hexToNumber } from '@multiplechain/utils'
 import type { Provider } from '../services/Provider.ts'
 import { TransactionStatusEnum } from '@multiplechain/types'
 import { ContractTransaction } from './ContractTransaction.ts'
-import type { TransactionDescription, TransactionResponse, InterfaceAbi } from 'ethers'
 import { AssetDirectionEnum, type TokenTransactionInterface } from '@multiplechain/types'
 
 export class TokenTransaction extends ContractTransaction implements TokenTransactionInterface {
     /**
-     * @param {string} hash
-     * @param {Provider} provider
-     * @param {InterfaceAbi} ABI
+     * @param {string} id Transaction id
+     * @param {Provider} provider Blockchain network provider
+     * @param {InterfaceAbi} ABI Contract ABI
      */
-    constructor(hash: string, provider?: Provider, ABI?: InterfaceAbi) {
-        super(hash, provider, ABI ?? ERC20)
+    constructor(id: string, provider?: Provider, ABI?: InterfaceAbi) {
+        super(id, provider, ABI ?? ERC20)
     }
 
     /**
-     * @param {TransactionResponse} response
-     * @returns {Promise<TransactionDescription | null>}
-     */
-    async decodeData(response?: TransactionResponse): Promise<TransactionDescription | null> {
-        return await super.decodeData(response)
-    }
-
-    /**
-     * @returns Wallet address of the sender of transaction
+     * @return {Promise<string>} Receiver wallet address
      */
     async getReceiver(): Promise<string> {
         const decoded = await this.decodeData()
@@ -60,11 +52,7 @@ export class TokenTransaction extends ContractTransaction implements TokenTransa
     }
 
     /**
-     * @returns Wallet address of the sender of transaction
-     */
-
-    /**
-     * @returns Transfer amount of the transaction (token)
+     * @returns {Promise<number>} Amount of tokens that will be transferred
      */
     async getAmount(): Promise<number> {
         const token = new Token(await this.getAddress())
@@ -81,9 +69,10 @@ export class TokenTransaction extends ContractTransaction implements TokenTransa
     }
 
     /**
-     * @param direction - Direction of the transaction (token)
-     * @param address - Wallet address of the owner or spender of the transaction, dependant on direction
-     * @param amount Amount of tokens that will be approved
+     * @param {AssetDirectionEnum} direction - Direction of the transaction (token)
+     * @param {string} address - Wallet address of the owner or spender of the transaction, dependant on direction
+     * @param {number} amount Amount of tokens that will be approved
+     * @returns {Promise<TransactionStatusEnum>} Status of the transaction
      */
     async verifyTransfer(
         direction: AssetDirectionEnum,

@@ -49,7 +49,7 @@ export class TransactionSigner implements TransactionSignerInterface {
      * @param type Transaction type
      * @param provider Blockchain network provider
      */
-    constructor(rawData: TransactionData, type?: TransactionTypeEnum, provider?: Provider) {
+    constructor(rawData: TransactionData, provider?: Provider, type?: TransactionTypeEnum) {
         this.type = type
         this.rawData = rawData
         this.provider = provider ?? Provider.instance

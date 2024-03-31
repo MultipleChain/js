@@ -41,7 +41,7 @@ export class Transaction implements TransactionInterface {
     }
 
     /**
-     * @returns Raw transaction data that is taken by blockchain network via RPC.
+     * @returns {Promise<TransactionData | null>} Transaction data
      */
     async getData(): Promise<TransactionData | null> {
         if (this.data?.response !== undefined && this.data?.receipt !== null) {
@@ -62,6 +62,10 @@ export class Transaction implements TransactionInterface {
         }
     }
 
+    /**
+     * @param {number} ms - Milliseconds to wait for the transaction to be confirmed. Default is 4000ms
+     * @returns {Promise<TransactionStatusEnum>} Status of the transaction
+     */
     async wait(ms: number = 4000): Promise<TransactionStatusEnum> {
         return await new Promise((resolve, reject) => {
             const check = async (): Promise<void> => {
@@ -84,15 +88,14 @@ export class Transaction implements TransactionInterface {
     }
 
     /**
-     * @returns Transaction id from the blockchain network
-     * this can be different names like txid, hash, signature etc.
+     * @returns {string} Transaction id from the blockchain network
      */
     getId(): string {
         return this.id
     }
 
     /**
-     * @returns Blockchain explorer URL of the transaction. Dependant on network.
+     * @returns {string} URL of the transaction on the blockchain explorer
      */
     getUrl(): string {
         let explorerUrl = this.provider.network.explorerUrl
@@ -102,7 +105,7 @@ export class Transaction implements TransactionInterface {
     }
 
     /**
-     * @returns Wallet address of the sender of transaction
+     * @returns {Promise<string>} Signer wallet address of the transaction
      */
     async getSigner(): Promise<string> {
         const data = await this.getData()
@@ -110,7 +113,7 @@ export class Transaction implements TransactionInterface {
     }
 
     /**
-     * @returns Transaction fee as native coin amount
+     * @returns {Promise<number>} Fee of the transaction
      */
     async getFee(): Promise<number> {
         const data = await this.getData()
@@ -124,7 +127,7 @@ export class Transaction implements TransactionInterface {
     }
 
     /**
-     * @returns Block ID of the transaction
+     * @returns {Promise<number>} Block number that transaction
      */
     async getBlockNumber(): Promise<number> {
         const data = await this.getData()
@@ -132,7 +135,7 @@ export class Transaction implements TransactionInterface {
     }
 
     /**
-     * @returns UNIX timestamp of the date that block is added to blockchain
+     * @returns {Promise<number>} Timestamp of the block that transaction
      */
     async getBlockTimestamp(): Promise<number> {
         const blockNumber = await this.getBlockNumber()
@@ -141,7 +144,7 @@ export class Transaction implements TransactionInterface {
     }
 
     /**
-     * @returns Confirmation count of the block that transaction is included
+     * @returns {Promise<number>} Confirmation count of the block that transaction
      */
     async getBlockConfirmationCount(): Promise<number> {
         const blockNumber = await this.getBlockNumber()
@@ -151,7 +154,7 @@ export class Transaction implements TransactionInterface {
     }
 
     /**
-     * @returns Status of the transaction
+     * @returns {Promise<TransactionStatusEnum>} Status of the transaction
      */
     async getStatus(): Promise<TransactionStatusEnum> {
         const data = await this.getData()

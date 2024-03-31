@@ -18,7 +18,7 @@ export class Coin implements CoinInterface {
     }
 
     /**
-     * @returns Coin name
+     * @returns {string} Coin name
      */
     getName(): string {
         return (
@@ -27,22 +27,22 @@ export class Coin implements CoinInterface {
     }
 
     /**
-     * @returns Coin symbol
+     * @returns {string} Coin symbol
      */
     getSymbol(): string {
         return this.provider.network.nativeCurrency.symbol
     }
 
     /**
-     * @returns Decimal value of the coin
+     * @returns {number} Decimal value of the coin
      */
     getDecimals(): number {
         return this.provider.network.nativeCurrency.decimals
     }
 
     /**
-     * @param owner Wallet address
-     * @returns Wallet balance as currency of TOKEN or COIN assets
+     * @param {string} owner Wallet address
+     * @returns {Promise<number>} Wallet balance as currency of COIN
      */
     async getBalance(owner: string): Promise<number> {
         const balance = await this.provider.ethers.getBalance(owner)
@@ -50,9 +50,10 @@ export class Coin implements CoinInterface {
     }
 
     /**
-     * @param sender Sender wallet address
-     * @param receiver Receiver wallet address
-     * @param amount Amount of assets that will be transferred
+     * @param {string} sender Sender wallet address
+     * @param {string} receiver Receiver wallet address
+     * @param {number} amount Amount of assets that will be transferred
+     * @returns {Promise<TransactionSigner>} Transaction signer
      */
     async transfer(sender: string, receiver: string, amount: number): Promise<TransactionSigner> {
         if (amount < 0) {

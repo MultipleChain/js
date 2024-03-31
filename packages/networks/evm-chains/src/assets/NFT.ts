@@ -6,66 +6,78 @@ import { TransactionSigner } from '../services/TransactionSigner.ts'
 import { ErrorTypeEnum, type NftInterface } from '@multiplechain/types'
 
 export class NFT extends Contract implements NftInterface {
+    /**
+     * @param {string} address Contract address
+     * @param {Provider} provider Blockchain network provider
+     * @param {InterfaceAbi} ABI Contract ABI
+     */
     constructor(address: string, provider?: Provider, ABI?: InterfaceAbi) {
         super(address, provider, ABI ?? ERC721)
     }
 
     /**
-     * @returns Contract name
+     * @returns {Promise<string>} NFT name
      */
     async getName(): Promise<string> {
         return await this.callMethod('name')
     }
 
     /**
-     * @returns Contract symbol
+     * @returns {Promise<string>} NFT symbol
      */
     async getSymbol(): Promise<string> {
         return await this.callMethod('symbol')
     }
 
     /**
-     * @param owner Wallet address
-     * @returns Number of tokens of owner
+     * @param {string} owner Wallet address
+     * @returns {Promise<number>} Wallet balance as currency of NFT
      */
     async getBalance(owner: string): Promise<number> {
         return Number(await this.callMethod('balanceOf', owner))
     }
 
     /**
-     * @param nftId NFT ID
-     * @returns NFT owner wallet address
+     * @param {number} nftId NFT ID
+     * @returns {Promise<string>} Wallet address of the owner of the NFT
      */
     async getOwner(nftId: number): Promise<string> {
         return await this.callMethod('ownerOf', nftId)
     }
 
     /**
-     * @param nftId NFT ID
-     * @returns NFT URI
+     * @param {number} nftId NFT ID
+     * @returns {Promise<string>} URI of the NFT
      */
     async getTokenURI(nftId: number): Promise<string> {
         return await this.callMethod('tokenURI', nftId)
     }
 
     /**
-     * @param nftId ID of the NFT that will be transferred
-     * @returns Amount of the tokens that is being used by spender
+     * @param {number} nftId ID of the NFT that will be transferred
+     * @returns {Promise<string>} Wallet address of the approved spender
      */
     async getApproved(nftId: number): Promise<string> {
         return await this.callMethod('getApproved', nftId)
     }
 
     /**
-     * @param sender Sender address
-     * @param receiver Receiver address
-     * @param nftId NFT ID
-     * @returns Transaction signer
+     * @param {string} sender Sender address
+     * @param {string} receiver Receiver address
+     * @param {number} nftId NFT ID
+     * @returns {Promise<TransactionSigner>} Transaction signer
      */
     async transfer(sender: string, receiver: string, nftId: number): Promise<TransactionSigner> {
         return await this.transferFrom(sender, sender, receiver, nftId)
     }
 
+    /**
+     * @param {string} spender Spender address
+     * @param {string} owner Owner address
+     * @param {string} receiver Receiver address
+     * @param {number} nftId NFT ID
+     * @returns {Promise<TransactionSigner>} Transaction signer
+     */
     async transferFrom(
         spender: string,
         owner: string,
@@ -114,9 +126,10 @@ export class NFT extends Contract implements NftInterface {
 
     /**
      * Gives permission to the spender to spend owner's tokens
-     * @param owner Address of owner of the tokens that will be used
-     * @param spender Address of the spender that will use the tokens of owner
-     * @param nftId ID of the NFT that will be transferred
+     * @param {string} owner Address of owner of the tokens that will be used
+     * @param {string} spender Address of the spender that will use the tokens of owner
+     * @param {number} nftId ID of the NFT that will be transferred
+     * @returns {Promise<TransactionSigner>} Transaction signer
      */
     async approve(owner: string, spender: string, nftId: number): Promise<TransactionSigner> {
         // Check if tokens exist

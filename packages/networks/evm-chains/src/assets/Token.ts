@@ -7,34 +7,39 @@ import { TransactionSigner } from '../services/TransactionSigner.ts'
 import { ErrorTypeEnum, type TokenInterface } from '@multiplechain/types'
 
 export class Token extends Contract implements TokenInterface {
+    /**
+     * @param {string} address Contract address
+     * @param {Provider} provider Blockchain network provider
+     * @param {InterfaceAbi} ABI Contract ABI
+     */
     constructor(address: string, provider?: Provider, ABI?: InterfaceAbi) {
         super(address, provider, ABI ?? ERC20)
     }
 
     /**
-     * @returns Token name
+     * @returns {Promise<string>} Token name
      */
     async getName(): Promise<string> {
         return await this.callMethod('name')
     }
 
     /**
-     * @returns Token symbol
+     * @returns {Promise<string>} Token symbol
      */
     async getSymbol(): Promise<string> {
         return await this.callMethod('symbol')
     }
 
     /**
-     * @returns Decimal value of the coin
+     * @returns {Promise<number>} Decimal value of the token
      */
     async getDecimals(): Promise<number> {
         return Number(await this.callMethod('decimals'))
     }
 
     /**
-     * @param owner Wallet address
-     * @returns Wallet balance as currency of TOKEN or COIN assets
+     * @param {string} owner Wallet address
+     * @returns {Promise<number>} Wallet balance as currency of TOKEN
      */
     async getBalance(owner: string): Promise<number> {
         const [decimals, balance] = await Promise.all([
@@ -45,7 +50,7 @@ export class Token extends Contract implements TokenInterface {
     }
 
     /**
-     * @returns Total supply of the token
+     * @returns {Promise<number>} Total supply of the token
      */
     async getTotalSupply(): Promise<number> {
         const [decimals, totalSupply] = await Promise.all([
@@ -56,9 +61,9 @@ export class Token extends Contract implements TokenInterface {
     }
 
     /**
-     * @param owner Address of owner of the tokens that is being used
-     * @param spender Address of the spender that is using the tokens of owner
-     * @returns Amount of the tokens that is being used by spender
+     * @param {string} owner Address of owner of the tokens that is being used
+     * @param {string} spender Address of the spender that is using the tokens of owner
+     * @returns {Promise<number>} Amount of tokens that the spender is allowed to spend
      */
     async getAllowance(owner: string, spender: string): Promise<number> {
         const [decimals, allowance] = await Promise.all([
@@ -70,9 +75,10 @@ export class Token extends Contract implements TokenInterface {
 
     /**
      * transfer() method is the main method for processing transfers for fungible assets (TOKEN, COIN)
-     * @param sender Sender wallet address
-     * @param receiver Receiver wallet address
-     * @param amount Amount of assets that will be transferred
+     * @param {string} sender Sender wallet address
+     * @param {string} receiver Receiver wallet address
+     * @param {number} amount Amount of assets that will be transferred
+     * @returns {Promise<TransactionSigner>} Transaction signer
      */
     async transfer(sender: string, receiver: string, amount: number): Promise<TransactionSigner> {
         if (amount <= 0) {
@@ -106,11 +112,11 @@ export class Token extends Contract implements TokenInterface {
     }
 
     /**
-     * @param spender Address of the spender of transaction
-     * @param owner Sender wallet address
-     * @param receiver Receiver wallet address
-     * @param amount Amount of tokens that will be transferred
-     * @returns {Promise<TransactionSigner>}
+     * @param {string} spender Address of the spender of transaction
+     * @param {string} owner Sender wallet address
+     * @param {string} receiver Receiver wallet address
+     * @param {number} amount Amount of tokens that will be transferred
+     * @returns {Promise<TransactionSigner>} Transaction signer
      */
     async transferFrom(
         spender: string,
@@ -161,9 +167,10 @@ export class Token extends Contract implements TokenInterface {
 
     /**
      * Gives permission to the spender to spend owner's tokens
-     * @param owner Address of owner of the tokens that will be used
-     * @param spender Address of the spender that will use the tokens of owner
-     * @param amount Amount of the tokens that will be used
+     * @param {string} owner Address of owner of the tokens that will be used
+     * @param {string} spender Address of the spender that will use the tokens of owner
+     * @param {number} amount Amount of the tokens that will be used
+     * @returns {Promise<TransactionSigner>} Transaction signer
      */
     async approve(owner: string, spender: string, amount: number): Promise<TransactionSigner> {
         if (amount < 0) {

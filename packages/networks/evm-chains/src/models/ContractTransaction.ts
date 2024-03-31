@@ -15,17 +15,17 @@ export class ContractTransaction extends Transaction implements ContractTransact
     ABI: InterfaceAbi
 
     /**
-     * @param {string} hash
-     * @param {Provider} provider
-     * @param {InterfaceAbi} ABI
+     * @param {string} id Transaction id
+     * @param {Provider} provider Blockchain network provider
+     * @param {InterfaceAbi} ABI Contract ABI
      */
-    constructor(hash: string, provider?: Provider, ABI?: InterfaceAbi) {
-        super(hash, provider)
+    constructor(id: string, provider?: Provider, ABI?: InterfaceAbi) {
+        super(id, provider)
         this.ABI = ABI ?? []
     }
 
     /**
-     * @returns {Promise<string>}
+     * @returns {Promise<string>} Contract address of the transaction
      */
     async getAddress(): Promise<string> {
         const data = await this.getData()
@@ -33,8 +33,8 @@ export class ContractTransaction extends Transaction implements ContractTransact
     }
 
     /**
-     * @param {TransactionResponse} response
-     * @returns {Promise<TransactionDescription | null>}
+     * @param {TransactionResponse} response Transaction response
+     * @returns {Promise<TransactionDescription | null>} Decoded transaction data
      */
     async decodeData(response?: TransactionResponse): Promise<TransactionDescription | null> {
         if (response === undefined) {
