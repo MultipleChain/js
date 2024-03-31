@@ -11,9 +11,9 @@ export class NftTransaction extends ContractTransaction implements NftTransactio
     }
 
     /**
-     * @returns Wallet address of the sender of asset
+     * @returns Wallet address of the sender of transaction
      */
-    async getFrom(): Promise<string> {
+    async getSender(): Promise<string> {
         return 'example'
     }
 

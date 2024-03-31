@@ -11,6 +11,13 @@ export class CoinTransaction extends Transaction implements CoinTransactionInter
     }
 
     /**
+     * @returns Wallet address of the sender of transaction
+     */
+    async getSender(): Promise<string> {
+        return 'example'
+    }
+
+    /**
      * @returns Transfer amount of the transaction (coin)
      */
     async getAmount(): Promise<number> {

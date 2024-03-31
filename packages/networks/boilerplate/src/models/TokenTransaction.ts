@@ -11,6 +11,13 @@ export class TokenTransaction extends ContractTransaction implements TokenTransa
     }
 
     /**
+     * @returns Wallet address of the sender of transaction
+     */
+    async getSender(): Promise<string> {
+        return 'example'
+    }
+
+    /**
      * @returns Transfer amount of the transaction (token)
      */
     async getAmount(): Promise<number> {

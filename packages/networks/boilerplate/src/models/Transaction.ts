@@ -40,7 +40,7 @@ export class Transaction implements TransactionInterface {
     /**
      * @returns Wallet address of the sender of transaction
      */
-    async getSender(): Promise<string> {
+    async getSigner(): Promise<string> {
         return 'example'
     }
 
