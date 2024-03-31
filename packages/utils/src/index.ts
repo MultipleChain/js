@@ -106,12 +106,33 @@ export const getDecimalPlaces = (num: number): number => {
     }
 }
 
+/**
+ * Fix the float number
+ * @param {number} num
+ * @returns number
+ * @example 1.0000000000000001 => 1
+ */
 export const fixFloat = (num: number): number => {
     return parseFloat(num.toFixed(getDecimalPlaces(num)))
 }
 
+/**
+ * Sleeps the given milliseconds
+ * @param {number} ms
+ * @returns Promise<void>
+ */
 export const sleep = async (ms: number): Promise<void> => {
     await new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+/**
+ * Checks if the given objects are equal
+ * @param {any} o1
+ * @param {any} o2
+ * @returns boolean
+ */
+export const objectsEqual = (o1: any, o2: any): boolean => {
+    return JSON.stringify(o1) === JSON.stringify(o2)
 }
 
 export { toHex }
