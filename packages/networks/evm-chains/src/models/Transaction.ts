@@ -47,7 +47,6 @@ export class Transaction implements TransactionInterface {
         if (this.data?.response !== undefined && this.data?.receipt !== null) {
             return this.data
         }
-        console.log('getData', this.id)
         try {
             const response = await this.ethers.getTransaction(this.id)
             if (response === null) {
