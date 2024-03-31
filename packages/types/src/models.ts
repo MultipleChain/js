@@ -28,9 +28,9 @@ export interface TransactionInterface {
     getUrl: () => string
 
     /**
-     * @returns Wallet address of the sender of transaction
+     * @returns Wallet address of the signer of transaction
      */
-    getSender: () => Promise<string>
+    getSigner: () => Promise<string>
 
     /**
      * @returns Transaction fee as native coin amount
@@ -72,14 +72,14 @@ export interface AssetTransactionInterface extends TransactionInterface {
     getReceiver: () => Promise<string>
 
     /**
+     * @returns Wallet address of the sender of asset
+     */
+    getSender: () => Promise<string>
+
+    /**
      * @returns Transfer amount of the transaction (coin)
      */
     getAmount: () => Promise<number>
-
-    /**
-     * @returns Wallet address of the sender of asset
-     */
-    getFrom: () => Promise<string>
 
     /**
      * @param direction - Direction of the transaction (asset)
