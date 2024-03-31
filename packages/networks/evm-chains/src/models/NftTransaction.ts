@@ -1,4 +1,5 @@
 import ERC721 from '../../resources/erc721.json'
+import type { Provider } from '../services/Provider.ts'
 import { ContractTransaction } from './ContractTransaction.ts'
 import type { NftTransactionInterface } from '@multiplechain/types'
 import { TransactionStatusEnum, AssetDirectionEnum } from '@multiplechain/types'
@@ -7,10 +8,11 @@ import type { TransactionDescription, TransactionResponse, InterfaceAbi } from '
 export class NftTransaction extends ContractTransaction implements NftTransactionInterface {
     /**
      * @param {string} hash
+     * @param {Provider} provider
      * @param {InterfaceAbi} ABI
      */
-    constructor(hash: string, ABI?: InterfaceAbi) {
-        super(hash, ABI ?? ERC721)
+    constructor(hash: string, provider?: Provider, ABI?: InterfaceAbi) {
+        super(hash, provider, ABI ?? ERC721)
     }
 
     /**

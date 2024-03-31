@@ -1,12 +1,13 @@
 import { Contract } from './Contract.ts'
+import type { InterfaceAbi } from 'ethers'
 import ERC721 from '../../resources/erc721.json'
-import { Provider } from '../services/Provider.ts'
+import type { Provider } from '../services/Provider.ts'
 import { TransactionSigner } from '../services/TransactionSigner.ts'
 import { ErrorTypeEnum, type NftInterface } from '@multiplechain/types'
 
 export class NFT extends Contract implements NftInterface {
-    constructor(address: string) {
-        super(address, ERC721)
+    constructor(address: string, provider?: Provider, ABI?: InterfaceAbi) {
+        super(address, provider, ABI ?? ERC721)
     }
 
     /**
@@ -92,11 +93,9 @@ export class NFT extends Contract implements NftInterface {
             }
         }
 
-        const { network, ethers } = Provider.instance
-
         const [gasPrice, nonce, data, gasLimit] = await Promise.all([
-            ethers.getGasPrice(),
-            ethers.getNonce(spender),
+            this.provider.ethers.getGasPrice(),
+            this.provider.ethers.getNonce(spender),
             this.getMethodData('transferFrom', owner, receiver, nftId),
             this.getMethodEstimateGas('transferFrom', spender, owner, receiver, nftId)
         ])
@@ -108,8 +107,8 @@ export class NFT extends Contract implements NftInterface {
             gasLimit,
             value: '0x0',
             from: spender,
-            chainId: network.id,
-            to: this.getAddress()
+            to: this.getAddress(),
+            chainId: this.provider.network.id
         })
     }
 
@@ -133,11 +132,9 @@ export class NFT extends Contract implements NftInterface {
             throw new Error(ErrorTypeEnum.UNAUTHORIZED_ADDRESS)
         }
 
-        const { network, ethers } = Provider.instance
-
         const [gasPrice, nonce, data, gasLimit] = await Promise.all([
-            ethers.getGasPrice(),
-            ethers.getNonce(owner),
+            this.provider.ethers.getGasPrice(),
+            this.provider.ethers.getNonce(owner),
             this.getMethodData('approve', spender, nftId),
             this.getMethodEstimateGas('approve', owner, spender, nftId)
         ])
@@ -149,8 +146,8 @@ export class NFT extends Contract implements NftInterface {
             gasLimit,
             value: '0x0',
             from: owner,
-            chainId: network.id,
-            to: this.getAddress()
+            to: this.getAddress(),
+            chainId: this.provider.network.id
         })
     }
 }

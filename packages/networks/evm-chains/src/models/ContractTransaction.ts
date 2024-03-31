@@ -6,6 +6,7 @@ import {
     type TransactionResponse,
     type TransactionDescription
 } from 'ethers'
+import type { Provider } from '../services/Provider.ts'
 
 export class ContractTransaction extends Transaction implements ContractTransactionInterface {
     /**
@@ -15,11 +16,12 @@ export class ContractTransaction extends Transaction implements ContractTransact
 
     /**
      * @param {string} hash
+     * @param {Provider} provider
      * @param {InterfaceAbi} ABI
      */
-    constructor(hash: string, ABI: InterfaceAbi = []) {
-        super(hash)
-        this.ABI = ABI
+    constructor(hash: string, provider?: Provider, ABI?: InterfaceAbi) {
+        super(hash, provider)
+        this.ABI = ABI ?? []
     }
 
     /**

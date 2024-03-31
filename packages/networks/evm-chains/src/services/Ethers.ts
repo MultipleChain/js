@@ -2,16 +2,15 @@ import type {
     Block,
     BlockTag,
     EthersError,
+    InterfaceAbi,
     JsonRpcSigner,
     TransactionReceipt,
     TransactionResponse
 } from 'ethers'
-
-import { Wallet, Contract, ContractFactory, JsonRpcProvider, WebSocketProvider } from 'ethers'
-
 import { sleep } from '@multiplechain/utils'
 import type { EvmNetworkConfigInterface } from './Provider.ts'
 import type { TransactionData } from '../services/TransactionSigner.ts'
+import { Wallet, Contract, ContractFactory, JsonRpcProvider, WebSocketProvider } from 'ethers'
 
 export type { EthersError } from 'ethers'
 
@@ -43,13 +42,13 @@ export class Ethers {
 
     /**
      * @param {String} address
-     * @param {object[]} abi
+     * @param {InterfaceAbi} abi
      * @param {JsonRpcSigner} signer
      * @returns {Promise<Contract>}
      */
     public contract(
         address: string,
-        abi: object[],
+        abi: InterfaceAbi,
         signer?: JsonRpcSigner | JsonRpcProvider
     ): Contract {
         return new Contract(address, abi, signer)
@@ -65,13 +64,13 @@ export class Ethers {
     }
 
     /**
-     * @param {object[]} abi
+     * @param {InterfaceAbi} abi
      * @param {String} bytecode
      * @param {JsonRpcSigner} signer
      * @returns {Promise<ContractFactory>}
      */
     public contractFactory(
-        abi: object[],
+        abi: InterfaceAbi,
         bytecode: string,
         signer?: JsonRpcSigner | JsonRpcProvider
     ): ContractFactory {

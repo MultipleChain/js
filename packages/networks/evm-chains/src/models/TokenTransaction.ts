@@ -1,6 +1,7 @@
 import { Token } from '../assets/Token.ts'
 import ERC20 from '../../resources/erc20.json'
 import { hexToNumber } from '@multiplechain/utils'
+import type { Provider } from '../services/Provider.ts'
 import { TransactionStatusEnum } from '@multiplechain/types'
 import { ContractTransaction } from './ContractTransaction.ts'
 import type { TransactionDescription, TransactionResponse, InterfaceAbi } from 'ethers'
@@ -9,10 +10,11 @@ import { AssetDirectionEnum, type TokenTransactionInterface } from '@multiplecha
 export class TokenTransaction extends ContractTransaction implements TokenTransactionInterface {
     /**
      * @param {string} hash
+     * @param {Provider} provider
      * @param {InterfaceAbi} ABI
      */
-    constructor(hash: string, ABI?: InterfaceAbi) {
-        super(hash, ABI ?? ERC20)
+    constructor(hash: string, provider?: Provider, ABI?: InterfaceAbi) {
+        super(hash, provider, ABI ?? ERC20)
     }
 
     /**

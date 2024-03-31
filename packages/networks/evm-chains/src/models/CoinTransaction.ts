@@ -1,6 +1,5 @@
 import { Transaction } from './Transaction.ts'
 import { hexToNumber } from '@multiplechain/utils'
-import { Provider } from '../services/Provider.ts'
 import { TransactionStatusEnum } from '@multiplechain/types'
 import { AssetDirectionEnum, type CoinTransactionInterface } from '@multiplechain/types'
 
@@ -25,7 +24,7 @@ export class CoinTransaction extends Transaction implements CoinTransactionInter
      */
     async getAmount(): Promise<number> {
         const data = await this.getData()
-        const { decimals } = Provider.instance.network.nativeCurrency
+        const { decimals } = this.provider.network.nativeCurrency
         return hexToNumber((data?.response.value ?? 0).toString(), decimals)
     }
 

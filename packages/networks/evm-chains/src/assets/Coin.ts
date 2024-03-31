@@ -6,12 +6,23 @@ import { ErrorTypeEnum, type CoinInterface } from '@multiplechain/types'
 
 export class Coin implements CoinInterface {
     /**
+     * Blockchain network provider
+     */
+    provider: Provider
+
+    /**
+     * @param {Provider} provider network provider
+     */
+    constructor(provider?: Provider) {
+        this.provider = provider ?? Provider.instance
+    }
+
+    /**
      * @returns Coin name
      */
     getName(): string {
         return (
-            Provider.instance.network.nativeCurrency.name ??
-            Provider.instance.network.nativeCurrency.symbol
+            this.provider.network.nativeCurrency.name ?? this.provider.network.nativeCurrency.symbol
         )
     }
 
@@ -19,14 +30,14 @@ export class Coin implements CoinInterface {
      * @returns Coin symbol
      */
     getSymbol(): string {
-        return Provider.instance.network.nativeCurrency.symbol
+        return this.provider.network.nativeCurrency.symbol
     }
 
     /**
      * @returns Decimal value of the coin
      */
     getDecimals(): number {
-        return Provider.instance.network.nativeCurrency.decimals
+        return this.provider.network.nativeCurrency.decimals
     }
 
     /**
@@ -34,7 +45,7 @@ export class Coin implements CoinInterface {
      * @returns Wallet balance as currency of TOKEN or COIN assets
      */
     async getBalance(owner: string): Promise<number> {
-        const balance = await Provider.instance.ethers.getBalance(owner)
+        const balance = await this.provider.ethers.getBalance(owner)
         return hexToNumber(balance.toString(), this.getDecimals())
     }
 
@@ -52,21 +63,20 @@ export class Coin implements CoinInterface {
             throw new Error(ErrorTypeEnum.INSUFFICIENT_BALANCE)
         }
 
-        const { network, ethers } = Provider.instance
         const hexAmount = numberToHex(amount, this.getDecimals())
 
         const txData: TransactionData = {
             data: '0x',
             to: receiver,
             from: sender,
-            chainId: network.id,
-            value: hexAmount
+            value: hexAmount,
+            chainId: this.provider.network.id
         }
 
         const [gasPrice, nonce, gasLimit] = await Promise.all([
-            ethers.getGasPrice(),
-            ethers.getNonce(sender),
-            ethers.getEstimateGas(txData)
+            this.provider.ethers.getGasPrice(),
+            this.provider.ethers.getNonce(sender),
+            this.provider.ethers.getEstimateGas(txData)
         ])
 
         txData.nonce = nonce

@@ -1,14 +1,14 @@
+import { Contract } from './Contract.ts'
+import type { InterfaceAbi } from 'ethers'
+import ERC20 from '../../resources/erc20.json'
+import type { Provider } from '../services/Provider.ts'
 import { hexToNumber, numberToHex } from '@multiplechain/utils'
+import { TransactionSigner } from '../services/TransactionSigner.ts'
 import { ErrorTypeEnum, type TokenInterface } from '@multiplechain/types'
 
-import { Contract } from './Contract.ts'
-import ERC20 from '../../resources/erc20.json'
-import { Provider } from '../services/Provider.ts'
-import { TransactionSigner } from '../services/TransactionSigner.ts'
-
 export class Token extends Contract implements TokenInterface {
-    constructor(address: string) {
-        super(address, ERC20)
+    constructor(address: string, provider?: Provider, ABI?: InterfaceAbi) {
+        super(address, provider, ABI ?? ERC20)
     }
 
     /**
@@ -85,12 +85,10 @@ export class Token extends Contract implements TokenInterface {
             throw new Error(ErrorTypeEnum.INSUFFICIENT_BALANCE)
         }
 
-        const { network, ethers } = Provider.instance
-
         const hexAmount = numberToHex(amount, await this.getDecimals())
         const [gasPrice, nonce, data, gasLimit] = await Promise.all([
-            ethers.getGasPrice(),
-            ethers.getNonce(sender),
+            this.provider.ethers.getGasPrice(),
+            this.provider.ethers.getNonce(sender),
             this.getMethodData('transfer', receiver, hexAmount),
             this.getMethodEstimateGas('transfer', sender, receiver, hexAmount)
         ])
@@ -102,8 +100,8 @@ export class Token extends Contract implements TokenInterface {
             gasLimit,
             value: '0x0',
             from: sender,
-            chainId: network.id,
-            to: this.getAddress()
+            to: this.getAddress(),
+            chainId: this.provider.network.id
         })
     }
 
@@ -140,13 +138,11 @@ export class Token extends Contract implements TokenInterface {
             throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
         }
 
-        const { network, ethers } = Provider.instance
-
         const hexAmount = numberToHex(amount, await this.getDecimals())
 
         const [gasPrice, nonce, data, gasLimit] = await Promise.all([
-            ethers.getGasPrice(),
-            ethers.getNonce(spender),
+            this.provider.ethers.getGasPrice(),
+            this.provider.ethers.getNonce(spender),
             this.getMethodData('transferFrom', owner, receiver, hexAmount),
             this.getMethodEstimateGas('transferFrom', spender, owner, receiver, hexAmount)
         ])
@@ -158,8 +154,8 @@ export class Token extends Contract implements TokenInterface {
             gasLimit,
             value: '0x0',
             from: spender,
-            chainId: network.id,
-            to: this.getAddress()
+            to: this.getAddress(),
+            chainId: this.provider.network.id
         })
     }
 
@@ -180,12 +176,11 @@ export class Token extends Contract implements TokenInterface {
             throw new Error(ErrorTypeEnum.INSUFFICIENT_BALANCE)
         }
 
-        const { network, ethers } = Provider.instance
         const hexAmount = numberToHex(amount, await this.getDecimals())
 
         const [gasPrice, nonce, data, gasLimit] = await Promise.all([
-            ethers.getGasPrice(),
-            ethers.getNonce(owner),
+            this.provider.ethers.getGasPrice(),
+            this.provider.ethers.getNonce(owner),
             this.getMethodData('approve', spender, hexAmount),
             this.getMethodEstimateGas('approve', owner, spender, hexAmount)
         ])
@@ -197,8 +192,8 @@ export class Token extends Contract implements TokenInterface {
             gasLimit,
             value: '0x0',
             from: owner,
-            chainId: network.id,
-            to: this.getAddress()
+            to: this.getAddress(),
+            chainId: this.provider.network.id
         })
     }
 }

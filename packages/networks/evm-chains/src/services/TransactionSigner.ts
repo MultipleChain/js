@@ -18,8 +18,6 @@ export interface TransactionData extends TransactionRequest {
     gas?: BigNumberish
 }
 
-const { ethers } = Provider.instance
-
 export class TransactionSigner implements TransactionSignerInterface {
     /**
      * Transaction data from the blockchain network
@@ -42,11 +40,19 @@ export class TransactionSigner implements TransactionSignerInterface {
     wallet: Wallet
 
     /**
-     * @param rawData - Transaction data
+     * Blockchain network provider
      */
-    constructor(rawData: TransactionData, type?: TransactionTypeEnum) {
+    provider: Provider
+
+    /**
+     * @param rawData Transaction data
+     * @param type Transaction type
+     * @param provider Blockchain network provider
+     */
+    constructor(rawData: TransactionData, type?: TransactionTypeEnum, provider?: Provider) {
         this.type = type
         this.rawData = rawData
+        this.provider = provider ?? Provider.instance
     }
 
     /**
@@ -55,7 +61,7 @@ export class TransactionSigner implements TransactionSignerInterface {
      */
     public async sign(privateKey: string): Promise<TransactionSigner> {
         try {
-            this.wallet = ethers.wallet(privateKey)
+            this.wallet = this.provider.ethers.wallet(privateKey)
             this.signedData = await this.wallet.signTransaction(this.rawData)
             return this
         } catch (error) {
@@ -73,7 +79,7 @@ export class TransactionSigner implements TransactionSignerInterface {
      * @returns Promise of the transaction
      */
     async send(): Promise<Transaction> {
-        const txId = (await ethers.jsonRpc.send('eth_sendRawTransaction', [
+        const txId = (await this.provider.ethers.jsonRpc.send('eth_sendRawTransaction', [
             this.signedData
         ])) as string
         switch (this.type) {

@@ -34,10 +34,10 @@ export class Transaction implements TransactionInterface {
     /**
      * @param id Transaction ID
      */
-    constructor(id: string) {
+    constructor(id: string, provider?: Provider) {
         this.id = id
-        this.provider = Provider.instance
-        this.ethers = Provider.instance.ethers
+        this.provider = provider ?? Provider.instance
+        this.ethers = this.provider.ethers
     }
 
     /**

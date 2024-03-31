@@ -1,6 +1,7 @@
-import type { ContractInterface } from '@multiplechain/types'
-import type { Contract as EthersContract } from 'ethers'
 import { Provider } from '../services/Provider.ts'
+import type { Ethers } from '../services/Ethers.ts'
+import type { ContractInterface } from '@multiplechain/types'
+import type { Contract as EthersContract, InterfaceAbi } from 'ethers'
 
 export class Contract implements ContractInterface {
     /**
@@ -11,7 +12,7 @@ export class Contract implements ContractInterface {
     /**
      * Contract ABI
      */
-    ABI: object[]
+    ABI: InterfaceAbi
 
     /**
      * Ethers contract
@@ -19,14 +20,26 @@ export class Contract implements ContractInterface {
     ethersContract: EthersContract
 
     /**
+     * Blockchain network provider
+     */
+    provider: Provider
+
+    /**
+     * Ethers service
+     */
+    ethers: Ethers
+
+    /**
      * @param address Contract address
      * @param ABIArray Contract ABI
+     * @param provider Blockchain network provider
      */
-    constructor(address: string, ABI: object[]) {
-        this.ABI = ABI
+    constructor(address: string, provider?: Provider, ABI?: InterfaceAbi) {
+        this.ABI = ABI ?? []
         this.address = address
-        const { ethers } = Provider.instance
-        this.ethersContract = ethers.contract(address, ABI, ethers.jsonRpc)
+        this.provider = provider ?? Provider.instance
+        this.ethers = this.provider.ethers
+        this.ethersContract = this.ethers.contract(address, this.ABI, this.ethers.jsonRpc)
     }
 
     /**
