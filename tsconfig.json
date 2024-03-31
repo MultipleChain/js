@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "declaration": true,
         "types": ["node"],
         "target": "ES2020",
         "useDefineForClassFields": true,
