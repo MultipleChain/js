@@ -1,6 +1,7 @@
 import type {
     Block,
     BlockTag,
+    EthersError,
     JsonRpcSigner,
     TransactionReceipt,
     TransactionResponse
@@ -8,15 +9,9 @@ import type {
 
 import { Wallet, Contract, ContractFactory, JsonRpcProvider, WebSocketProvider } from 'ethers'
 
+import { sleep } from '@multiplechain/utils'
 import type { EvmNetworkConfigInterface } from './Provider.ts'
 import type { TransactionData } from '../services/TransactionSigner.ts'
-
-export interface EthersError {
-    shortMessage: string
-    code: string
-    value: string
-    args: string
-}
 
 export class Ethers {
     network: EvmNetworkConfigInterface
@@ -79,6 +74,24 @@ export class Ethers {
         signer?: JsonRpcSigner | JsonRpcProvider
     ): ContractFactory {
         return new ContractFactory(abi, bytecode, signer)
+    }
+
+    /**
+     * @param {string} address
+     * @returns {Promise<string>}
+     */
+    async getByteCode(address: string): Promise<string> {
+        try {
+            return await this.jsonRpc.getCode(address)
+        } catch (error) {
+            const e = error as EthersError
+            if (e.code === 'UNCONFIGURED_NAME') {
+                await sleep(1000)
+                return await this.getByteCode(address)
+            } else {
+                throw error
+            }
+        }
     }
 
     /**

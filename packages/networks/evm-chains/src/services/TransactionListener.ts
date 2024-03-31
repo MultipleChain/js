@@ -135,10 +135,7 @@ export class TransactionListener<T extends TransactionTypeEnum>
                 this.trigger(new Transaction(transactionId))
             } else {
                 const transaction = await this.ethers.getTransaction(transactionId)
-                if (
-                    transaction !== null &&
-                    transaction.from.toLowerCase() === this.filter.signer.toLowerCase()
-                ) {
+                if (transaction?.from.toLowerCase() === this.filter.signer.toLowerCase()) {
                     this.trigger(new Transaction(transactionId))
                 }
             }
@@ -153,7 +150,40 @@ export class TransactionListener<T extends TransactionTypeEnum>
      * Contract transaction process
      */
     contractProcess(): void {
-        // Contract transaction process
+        const filter = this
+            .filter as DynamicTransactionListenerFilterType<TransactionTypeEnum.CONTRACT>
+
+        const callback = async (transactionId: string): Promise<void> => {
+            const transaction = await this.ethers.getTransaction(transactionId)
+            const contractBytecode = await this.ethers.getByteCode(transaction?.to ?? '')
+
+            if (contractBytecode === '0x' || transaction === null) {
+                return
+            }
+
+            if (filter.address !== undefined && filter.signer !== undefined) {
+                if (
+                    transaction.from.toLowerCase() === filter.signer.toLowerCase() &&
+                    transaction.to?.toLowerCase() === filter.address.toLowerCase()
+                ) {
+                    this.trigger(new Transaction(transactionId))
+                }
+            } else if (filter.address !== undefined) {
+                if (transaction.to?.toLowerCase() === filter.address.toLowerCase()) {
+                    this.trigger(new Transaction(transactionId))
+                }
+            } else if (filter.signer !== undefined) {
+                if (transaction.from.toLowerCase() === filter.signer.toLowerCase()) {
+                    this.trigger(new Transaction(transactionId))
+                }
+            } else {
+                this.trigger(new Transaction(transactionId))
+            }
+        }
+        void this.webSocket.on('pending', callback)
+        this.dynamicStop = () => {
+            void this.webSocket.off('pending', callback)
+        }
     }
 
     /**
