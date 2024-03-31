@@ -7,7 +7,6 @@ import type {
 } from '../models.ts'
 
 import { TransactionTypeEnum } from '../enums.ts'
-import type { AssetDirectionEnum } from '../enums.ts'
 
 /**
  * Filter types for each transaction type in TransactionListenerInterface
@@ -17,17 +16,16 @@ interface TransactionListenerFilterInterface {
 }
 
 interface ContractTransactionListenerFilterInterface extends TransactionListenerFilterInterface {
-    address?: string
+    address: string
 }
 
 interface AssetTransactionListenerFilterInterface extends TransactionListenerFilterInterface {
     sender?: string
     receiver?: string
-    direction?: AssetDirectionEnum
 }
 
 interface CoinTransactionListenerFilterInterface extends AssetTransactionListenerFilterInterface {
-    amount?: string
+    amount?: number
 }
 
 interface TokenTransactionListenerFilterInterface
@@ -39,7 +37,7 @@ interface TokenTransactionListenerFilterInterface
 interface NftTransactionListenerFilterInterface
     extends AssetTransactionListenerFilterInterface,
         ContractTransactionListenerFilterInterface {
-    nftId?: string
+    nftId?: number
 }
 /**
  * Filter types for each transaction type in TransactionListenerInterface
