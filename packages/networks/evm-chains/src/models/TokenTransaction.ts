@@ -3,16 +3,24 @@ import ERC20 from '../../resources/erc20.json'
 import { hexToNumber } from '@multiplechain/utils'
 import { TransactionStatusEnum } from '@multiplechain/types'
 import { ContractTransaction } from './ContractTransaction.ts'
-import type { TransactionDescription, TransactionResponse } from 'ethers'
+import type { TransactionDescription, TransactionResponse, InterfaceAbi } from 'ethers'
 import { AssetDirectionEnum, type TokenTransactionInterface } from '@multiplechain/types'
 
 export class TokenTransaction extends ContractTransaction implements TokenTransactionInterface {
+    /**
+     * @param {string} hash
+     * @param {InterfaceAbi} ABI
+     */
+    constructor(hash: string, ABI?: InterfaceAbi) {
+        super(hash, ABI ?? ERC20)
+    }
+
     /**
      * @param {TransactionResponse} response
      * @returns {Promise<TransactionDescription | null>}
      */
     async decodeData(response?: TransactionResponse): Promise<TransactionDescription | null> {
-        return await super.decodeDataBase(ERC20, response)
+        return await super.decodeData(response)
     }
 
     /**

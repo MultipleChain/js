@@ -11,7 +11,7 @@ export class Contract implements ContractInterface {
     /**
      * Contract ABI
      */
-    abi: object[]
+    ABI: object[]
 
     /**
      * Ethers contract
@@ -20,13 +20,13 @@ export class Contract implements ContractInterface {
 
     /**
      * @param address Contract address
-     * @param abi Contract ABI
+     * @param ABIArray Contract ABI
      */
-    constructor(address: string, abi: object[]) {
-        this.abi = abi
+    constructor(address: string, ABI: object[]) {
+        this.ABI = ABI
         this.address = address
         const { ethers } = Provider.instance
-        this.ethersContract = ethers.contract(address, abi, ethers.jsonRpc)
+        this.ethersContract = ethers.contract(address, ABI, ethers.jsonRpc)
     }
 
     /**

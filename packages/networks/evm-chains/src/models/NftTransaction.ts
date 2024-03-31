@@ -1,16 +1,24 @@
 import ERC721 from '../../resources/erc721.json'
 import { ContractTransaction } from './ContractTransaction.ts'
 import type { NftTransactionInterface } from '@multiplechain/types'
-import type { TransactionDescription, TransactionResponse } from 'ethers'
 import { TransactionStatusEnum, AssetDirectionEnum } from '@multiplechain/types'
+import type { TransactionDescription, TransactionResponse, InterfaceAbi } from 'ethers'
 
 export class NftTransaction extends ContractTransaction implements NftTransactionInterface {
+    /**
+     * @param {string} hash
+     * @param {InterfaceAbi} ABI
+     */
+    constructor(hash: string, ABI?: InterfaceAbi) {
+        super(hash, ABI ?? ERC721)
+    }
+
     /**
      * @param {TransactionResponse} response
      * @returns {Promise<TransactionDescription | null>}
      */
     async decodeData(response?: TransactionResponse): Promise<TransactionDescription | null> {
-        return await super.decodeDataBase(ERC721, response)
+        return await super.decodeData(response)
     }
 
     /**
