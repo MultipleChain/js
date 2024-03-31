@@ -13,7 +13,7 @@ import type { AssetDirectionEnum } from '../enums.ts'
  * Filter types for each transaction type in TransactionListenerInterface
  */
 interface TransactionListenerFilterInterface {
-    sender?: string
+    signer?: string
 }
 
 interface ContractTransactionListenerFilterInterface extends TransactionListenerFilterInterface {
@@ -21,6 +21,7 @@ interface ContractTransactionListenerFilterInterface extends TransactionListener
 }
 
 interface AssetTransactionListenerFilterInterface extends TransactionListenerFilterInterface {
+    sender?: string
     receiver?: string
     direction?: AssetDirectionEnum
 }
@@ -112,6 +113,13 @@ export interface TransactionListenerInterface<T extends TransactionTypeEnum> {
     callbacks: TransactionListenerCallbackType[]
 
     /**
+     * 'status' is a boolean that shows the status of the listener.
+     * If 'status' is true, the listener is active.
+     * If 'status' is false, the listener is inactive.
+     */
+    status: boolean
+
+    /**
      * 'filter' is an object that has values depending on transaction listener type.
      * E.g. no matter which type of transaction is listening, 'filter' has to have a 'sender' value
      */
@@ -121,6 +129,16 @@ export interface TransactionListenerInterface<T extends TransactionTypeEnum> {
      * stop() method closes the corresponding listener of the instance it's called from.
      */
     stop: () => void
+
+    /**
+     * start() method starts the corresponding listener of the instance it's called from.
+     */
+    start: () => void
+
+    /**
+     * getStatus() method returns the status of the listener.
+     */
+    getStatus: () => boolean
 
     /**
      * on() method is a listener that listens to the transaction events.
