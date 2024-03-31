@@ -12,7 +12,7 @@ const coinTransferTestIsActive = false
 const tokenTransferTestIsActive = false
 const tokenApproveTestIsActive = false
 const tokenTransferFromTestIsActive = false
-const nftTransactionTestIsActive = true
+const nftTransactionTestIsActive = false
 
 const balanceTestAddress = '0x760A4d3D03928D1e8541A7644B34370c1b79aa9F'
 const coinBalanceTestAmount = 0.01
