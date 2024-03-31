@@ -11,6 +11,8 @@ import type { Ethers } from './Ethers.ts'
 import { Transaction } from '../models/Transaction.ts'
 import type { WebSocketProvider, JsonRpcApiProvider } from 'ethers'
 import { TransactionListenerProcessIndex } from '@multiplechain/types'
+import { ContractTransaction } from '../models/ContractTransaction.ts'
+import { CoinTransaction } from '../models/CoinTransaction.ts'
 
 export class TransactionListener<T extends TransactionTypeEnum>
     implements TransactionListenerInterface<T>
@@ -140,6 +142,7 @@ export class TransactionListener<T extends TransactionTypeEnum>
                 }
             }
         }
+
         void this.webSocket.on('pending', callback)
         this.dynamicStop = () => {
             void this.webSocket.off('pending', callback)
@@ -166,20 +169,21 @@ export class TransactionListener<T extends TransactionTypeEnum>
                     transaction.from.toLowerCase() === filter.signer.toLowerCase() &&
                     transaction.to?.toLowerCase() === filter.address.toLowerCase()
                 ) {
-                    this.trigger(new Transaction(transactionId))
+                    this.trigger(new ContractTransaction(transactionId))
                 }
             } else if (filter.address !== undefined) {
                 if (transaction.to?.toLowerCase() === filter.address.toLowerCase()) {
-                    this.trigger(new Transaction(transactionId))
+                    this.trigger(new ContractTransaction(transactionId))
                 }
             } else if (filter.signer !== undefined) {
                 if (transaction.from.toLowerCase() === filter.signer.toLowerCase()) {
-                    this.trigger(new Transaction(transactionId))
+                    this.trigger(new ContractTransaction(transactionId))
                 }
             } else {
-                this.trigger(new Transaction(transactionId))
+                this.trigger(new ContractTransaction(transactionId))
             }
         }
+
         void this.webSocket.on('pending', callback)
         this.dynamicStop = () => {
             void this.webSocket.off('pending', callback)
@@ -190,7 +194,65 @@ export class TransactionListener<T extends TransactionTypeEnum>
      * Coin transaction process
      */
     coinProcess(): void {
-        // Coin transaction process
+        const filter = this.filter as DynamicTransactionListenerFilterType<TransactionTypeEnum.COIN>
+
+        const callback = async (transactionId: string): Promise<void> => {
+            if (
+                filter.signer !== undefined &&
+                filter.sender !== undefined &&
+                filter.signer !== filter.sender
+            ) {
+                throw new Error(
+                    'Sender and signer must be the same in coin transactions. Or only one of them can be defined.'
+                )
+            }
+
+            const tx = await this.ethers.getTransaction(transactionId)
+            const contractBytecode = await this.ethers.getByteCode(tx?.to ?? '')
+
+            if (contractBytecode !== '0x' || tx === null) {
+                return
+            }
+
+            let transaction: CoinTransaction | undefined
+            const sender = filter.sender ?? filter.signer
+
+            if (sender !== undefined && filter.receiver !== undefined) {
+                if (
+                    tx.from.toLowerCase() === sender.toLowerCase() &&
+                    tx.to?.toLowerCase() === filter.receiver.toLowerCase()
+                ) {
+                    transaction = new CoinTransaction(transactionId)
+                }
+            } else if (sender !== undefined) {
+                if (tx.from.toLowerCase() === sender.toLowerCase()) {
+                    transaction = new CoinTransaction(transactionId)
+                }
+            } else if (filter.receiver !== undefined) {
+                if (tx.to?.toLowerCase() === filter.receiver.toLowerCase()) {
+                    transaction = new CoinTransaction(transactionId)
+                }
+            } else {
+                transaction = new CoinTransaction(transactionId)
+            }
+
+            if (filter.amount !== undefined && transaction !== undefined) {
+                await transaction.wait()
+                const amount = await transaction.getAmount()
+                if (amount !== filter.amount) {
+                    transaction = undefined
+                }
+            }
+
+            if (transaction !== undefined) {
+                this.trigger(transaction)
+            }
+        }
+
+        void this.webSocket.on('pending', callback)
+        this.dynamicStop = () => {
+            void this.webSocket.off('pending', callback)
+        }
     }
 
     /**
