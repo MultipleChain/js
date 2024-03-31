@@ -16,8 +16,8 @@ export class CoinTransaction extends Transaction implements CoinTransactionInter
     /**
      * @returns Wallet address of the sender of transaction
      */
-    async getFrom(): Promise<string> {
-        return await this.getSender()
+    async getSender(): Promise<string> {
+        return await this.getSigner()
     }
 
     /**
@@ -54,7 +54,7 @@ export class CoinTransaction extends Transaction implements CoinTransactionInter
                 return TransactionStatusEnum.FAILED
             }
         } else {
-            if ((await this.getFrom()).toLowerCase() !== address.toLowerCase()) {
+            if ((await this.getSender()).toLowerCase() !== address.toLowerCase()) {
                 return TransactionStatusEnum.FAILED
             }
         }

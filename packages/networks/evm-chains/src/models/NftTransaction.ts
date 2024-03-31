@@ -24,7 +24,7 @@ export class NftTransaction extends ContractTransaction implements NftTransactio
     /**
      * @returns Wallet address of the sender of transaction
      */
-    async getFrom(): Promise<string> {
+    async getSender(): Promise<string> {
         const decoded = await this.decodeData(ERC721)
 
         if (decoded === null) {
@@ -35,7 +35,7 @@ export class NftTransaction extends ContractTransaction implements NftTransactio
             return decoded.args[0]
         }
 
-        return await this.getSender()
+        return await this.getSigner()
     }
 
     /**
@@ -71,7 +71,7 @@ export class NftTransaction extends ContractTransaction implements NftTransactio
                 return TransactionStatusEnum.FAILED
             }
         } else {
-            if ((await this.getFrom()).toLowerCase() !== address.toLowerCase()) {
+            if ((await this.getSender()).toLowerCase() !== address.toLowerCase()) {
                 return TransactionStatusEnum.FAILED
             }
         }
