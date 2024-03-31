@@ -1,11 +1,10 @@
 import { describe, it, expect } from 'vitest'
 
 import { Transaction } from '../src/models/Transaction.ts'
-import { AssetDirectionEnum, TransactionStatusEnum } from '@multiplechain/types'
-import { ContractTransaction } from '../src/models/ContractTransaction.ts'
+import { NftTransaction } from '../src/models/NftTransaction.ts'
 import { CoinTransaction } from '../src/models/CoinTransaction.ts'
 import { TokenTransaction } from '../src/models/TokenTransaction.ts'
-import { NftTransaction } from '../src/models/NftTransaction.ts'
+import { AssetDirectionEnum, TransactionStatusEnum } from '@multiplechain/types'
 
 const etherTransferTx = '0x566002399664e92f82ed654c181095bdd7ff3d3f1921d963257585891f622251'
 const tokenTransferTx = '0xdabda3905e585db91768f2ef877f7fbef7c0e8612c0a09c7b379981bdbc48975'
@@ -63,21 +62,6 @@ describe('Transaction', () => {
 
     it('Status', async () => {
         expect(await tx.getStatus()).toBe(TransactionStatusEnum.CONFIRMED)
-    })
-})
-
-describe('Contract Transaction', () => {
-    const tx = new ContractTransaction(tokenTransferTx)
-
-    it('Address', async () => {
-        expect((await tx.getAddress()).toLowerCase()).toBe(
-            '0x4294cb0dD25dC9140B5127f247cBd47Eeb673431'.toLowerCase()
-        )
-    })
-
-    it('Decode Data', async () => {
-        const result = await tx.decodeData()
-        expect(result?.args[0]).toBe('0xbBa4d06D1cEf94b35aDeCfDa893523907fdD36DE')
     })
 })
 

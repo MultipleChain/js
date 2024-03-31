@@ -16,6 +16,7 @@ import { TransactionListenerProcessIndex } from '@multiplechain/types'
 import { ContractTransaction } from '../models/ContractTransaction.ts'
 import type { WebSocketProvider, JsonRpcApiProvider, EventFilter, Log } from 'ethers'
 import { TokenTransaction } from '../models/TokenTransaction.ts'
+import { NftTransaction } from '../models/NftTransaction.ts'
 
 export class TransactionListener<T extends TransactionTypeEnum>
     implements TransactionListenerInterface<T>
@@ -64,6 +65,11 @@ export class TransactionListener<T extends TransactionTypeEnum>
      * Dynamic stop method
      */
     dynamicStop: () => void = () => {}
+
+    /**
+     * Triggered transactions
+     */
+    triggeredTransactions: string[] = []
 
     /**
      * @param type - Transaction type
@@ -126,9 +132,12 @@ export class TransactionListener<T extends TransactionTypeEnum>
      * @param transaction - Transaction data
      */
     trigger<T extends TransactionTypeEnum>(transaction: DynamicTransactionType<T>): void {
-        this.callbacks.forEach((callback) => {
-            callback(transaction)
-        })
+        if (!this.triggeredTransactions.includes(transaction.id)) {
+            this.triggeredTransactions.push(transaction.id)
+            this.callbacks.forEach((callback) => {
+                callback(transaction)
+            })
+        }
     }
 
     /**
@@ -353,6 +362,76 @@ export class TransactionListener<T extends TransactionTypeEnum>
      * NFT transaction process
      */
     nftProcess(): void {
-        // NFT transaction process
+        const filter = this.filter as DynamicTransactionListenerFilterType<TransactionTypeEnum.NFT>
+
+        const params: EventFilter = {
+            topics: [id('Transfer(address,address,uint256)')]
+        }
+
+        if (filter.address !== undefined) {
+            params.address = filter.address
+        }
+
+        const callback = async (transactionLog: Log): Promise<void> => {
+            const transaction = new NftTransaction(transactionLog.transactionHash)
+            const data = await transaction.getData()
+
+            if (data === null) {
+                return
+            }
+
+            const decodedData = await transaction.decodeData(data.response)
+
+            if (decodedData === null) {
+                return
+            }
+
+            if (decodedData.name !== 'transferFrom') {
+                return
+            }
+
+            interface ParamsType {
+                signer?: string
+                sender?: string
+                receiver?: string
+            }
+
+            const expectedParams: ParamsType = {}
+            const receivedParams: ParamsType = {}
+
+            if (filter.signer !== undefined) {
+                expectedParams.signer = filter.signer.toLowerCase()
+                receivedParams.signer = data.response.from.toLowerCase()
+            }
+
+            if (filter.sender !== undefined) {
+                expectedParams.sender = filter.sender.toLowerCase()
+                receivedParams.sender = decodedData.args[0].toLowerCase()
+            }
+
+            if (filter.receiver !== undefined) {
+                expectedParams.receiver = filter.receiver.toLowerCase()
+                receivedParams.receiver = decodedData.args[1].toLowerCase()
+            }
+
+            if (!objectsEqual(expectedParams, receivedParams)) {
+                return
+            }
+
+            if (filter.nftId !== undefined) {
+                await transaction.wait()
+                const nftId = await transaction.getNftId()
+                if (nftId !== filter.nftId) {
+                    return
+                }
+            }
+
+            this.trigger(transaction)
+        }
+
+        void this.webSocket.on(params, callback)
+        this.dynamicStop = () => {
+            void this.webSocket.off(params, callback)
+        }
     }
 }
