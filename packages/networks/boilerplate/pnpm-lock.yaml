@@ -9,8 +9,8 @@ dependencies:
     specifier: ^0.1.30
     version: 0.1.30
   '@multiplechain/utils':
-    specifier: ^0.1.8
-    version: 0.1.9
+    specifier: ^0.1.10
+    version: 0.1.10
 
 packages:
 
@@ -18,8 +18,8 @@ packages:
     resolution: {integrity: sha512-j72Ydn1FlEWF4lY6xUjI0ojf0y1JAjqYnddAaUUdzv5sRlFw2zze8VLqxzltFtjFigPbSUa7QHmbgTIXQ60HoQ==}
     dev: false
 
-  /@multiplechain/utils@0.1.9:
-    resolution: {integrity: sha512-52yrmloGDwXrMwOSfEiPJfePPIDeEqGMTE4u5QE2BQPdGe0Bto908pX4IIF1j0Srmv5TJdH9JN3MFEgzgo3qAw==}
+  /@multiplechain/utils@0.1.10:
+    resolution: {integrity: sha512-Ed0YxvRakds1WiREcLWI+fr6YCNB3bSORPD/ZQNqhELtL5uVgYWunIwbx6yZmLNk4MY8Qqyh0iUjuCOBLplmiA==}
     dependencies:
       bignumber.js: 9.1.2
       web3-utils: 4.2.1
