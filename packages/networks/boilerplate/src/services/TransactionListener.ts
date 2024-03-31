@@ -6,6 +6,7 @@ import type {
     DynamicTransactionListenerFilterType
 } from '@multiplechain/types'
 
+import { Provider } from './Provider.ts'
 import { TransactionListenerProcessIndex } from '@multiplechain/types'
 
 export class TransactionListener<T extends TransactionTypeEnum>
@@ -24,26 +25,34 @@ export class TransactionListener<T extends TransactionTypeEnum>
     /**
      * Transaction listener filter
      */
-    filter: DynamicTransactionListenerFilterType<T>
+    filter?: DynamicTransactionListenerFilterType<T>
+
+    /**
+     * Provider
+     */
+    provider: Provider
 
     /**
      * Listener status
      */
-    status: boolean
+    status: boolean = false
 
     /**
-     * @param type - Transaction type
-     * @param filter - Transaction listener filter
+     * @param {T} type - Transaction type
+     * @param {Provider} provider - Provider
+     * @param {DynamicTransactionListenerFilterType<T>} filter - Transaction listener filter
      */
-    constructor(type: T, filter: DynamicTransactionListenerFilterType<T>) {
+    constructor(type: T, provider?: Provider, filter?: DynamicTransactionListenerFilterType<T>) {
         this.type = type
         this.filter = filter
+        this.provider = provider ?? Provider.instance
         // @ts-expect-error allow dynamic access
         this[TransactionListenerProcessIndex[type]]()
     }
 
     /**
      * Close the listener
+     * @returns {void}
      */
     stop(): void {
         // Close the listener
@@ -51,6 +60,7 @@ export class TransactionListener<T extends TransactionTypeEnum>
 
     /**
      * Start the listener
+     * @returns {void}
      */
     start(): void {
         // Start the listener
@@ -58,7 +68,7 @@ export class TransactionListener<T extends TransactionTypeEnum>
 
     /**
      * Get the listener status
-     * @returns boolean
+     * @returns {boolean} Listener status
      */
     getStatus(): boolean {
         return this.status
@@ -66,7 +76,8 @@ export class TransactionListener<T extends TransactionTypeEnum>
 
     /**
      * Listen to the transaction events
-     * @param callback - Callback function
+     * @param {TransactionListenerCallbackType} callback - Transaction listener callback
+     * @returns {void}
      */
     on(callback: TransactionListenerCallbackType): void {
         this.callbacks.push(callback)
@@ -74,7 +85,8 @@ export class TransactionListener<T extends TransactionTypeEnum>
 
     /**
      * Trigger the event when a transaction is detected
-     * @param transaction - Transaction data
+     * @param {DynamicTransactionType<T>} transaction - Transaction data
+     * @returns {void}
      */
     trigger(transaction: DynamicTransactionType<T>): void {
         this.callbacks.forEach((callback) => {
@@ -84,6 +96,7 @@ export class TransactionListener<T extends TransactionTypeEnum>
 
     /**
      * General transaction process
+     * @returns {void}
      */
     generalProcess(): void {
         // General transaction process
@@ -91,6 +104,7 @@ export class TransactionListener<T extends TransactionTypeEnum>
 
     /**
      * Contract transaction process
+     * @returns {void}
      */
     contractProcess(): void {
         // Contract transaction process
@@ -98,6 +112,7 @@ export class TransactionListener<T extends TransactionTypeEnum>
 
     /**
      * Coin transaction process
+     * @returns {void}
      */
     coinProcess(): void {
         // Coin transaction process
@@ -105,6 +120,7 @@ export class TransactionListener<T extends TransactionTypeEnum>
 
     /**
      * Token transaction process
+     * @returns {void}
      */
     tokenProcess(): void {
         // Token transaction process
@@ -112,6 +128,7 @@ export class TransactionListener<T extends TransactionTypeEnum>
 
     /**
      * NFT transaction process
+     * @returns {void}
      */
     nftProcess(): void {
         // NFT transaction process

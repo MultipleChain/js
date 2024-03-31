@@ -4,56 +4,56 @@ import type { NftInterface, TransactionSignerInterface } from '@multiplechain/ty
 
 export class NFT extends Contract implements NftInterface {
     /**
-     * @returns Contract name
+     * @returns {Promise<string>} NFT name
      */
     async getName(): Promise<string> {
         return 'example'
     }
 
     /**
-     * @returns Contract symbol
+     * @returns {Promise<string>} NFT symbol
      */
     async getSymbol(): Promise<string> {
         return 'example'
     }
 
     /**
-     * @param owner Wallet address
-     * @returns Wallet balance as currency of TOKEN or COIN assets
+     * @param {string} owner Wallet address
+     * @returns {Promise<number>} Wallet balance as currency of NFT
      */
     async getBalance(owner: string): Promise<number> {
         return 0
     }
 
     /**
-     * @param nftId NFT ID
-     * @returns NFT owner wallet address
+     * @param {number} nftId NFT ID
+     * @returns {Promise<string>} Wallet address of the owner of the NFT
      */
     async getOwner(nftId: number): Promise<string> {
         return 'example'
     }
 
     /**
-     * @param nftId NFT ID
-     * @returns NFT URI
+     * @param {number} nftId NFT ID
+     * @returns {Promise<string>} URI of the NFT
      */
     async getTokenURI(nftId: number): Promise<string> {
         return 'example'
     }
 
     /**
-     * @param nftId NFT ID
-     * @returns NFT URI
+     * @param {number} nftId ID of the NFT that will be transferred
+     * @returns {Promise<string>} Wallet address of the approved spender
      */
     async getApproved(nftId: number): Promise<string> {
         return 'example'
     }
 
     /**
-     * @param sender Sender address
-     * @param receiver Receiver address
-     * @param nftId NFT ID
-     * @returns Transaction signer
+     * @param {string} sender Sender address
+     * @param {string} receiver Receiver address
+     * @param {number} nftId NFT ID
+     * @returns {Promise<TransactionSigner>} Transaction signer
      */
     async transfer(
         sender: string,
@@ -64,11 +64,11 @@ export class NFT extends Contract implements NftInterface {
     }
 
     /**
-     * @param spender Spender address
-     * @param sender Sender address
-     * @param receiver Receiver address
-     * @param nftId NFT ID
-     * @returns Transaction signer
+     * @param {string} spender Spender address
+     * @param {string} owner Owner address
+     * @param {string} receiver Receiver address
+     * @param {number} nftId NFT ID
+     * @returns {Promise<TransactionSigner>} Transaction signer
      */
     async transferFrom(
         spender: string,
@@ -80,10 +80,11 @@ export class NFT extends Contract implements NftInterface {
     }
 
     /**
-     * @param owner Owner of the nft
-     * @param spender Approved spender
-     * @param nftId NFT ID
-     * @returns Transaction signer
+     * Gives permission to the spender to spend owner's tokens
+     * @param {string} owner Address of owner of the tokens that will be used
+     * @param {string} spender Address of the spender that will use the tokens of owner
+     * @param {number} nftId ID of the NFT that will be transferred
+     * @returns {Promise<TransactionSigner>} Transaction signer
      */
     async approve(
         owner: string,

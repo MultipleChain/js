@@ -32,7 +32,8 @@ export class Transaction implements TransactionInterface {
     data: TransactionData
 
     /**
-     * @param id Transaction ID
+     * @param {string} id Transaction id
+     * @param {Provider} provider Blockchain network provider
      */
     constructor(id: string, provider?: Provider) {
         this.id = id

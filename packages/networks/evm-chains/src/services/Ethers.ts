@@ -15,10 +15,19 @@ import { Wallet, Contract, ContractFactory, JsonRpcProvider, WebSocketProvider }
 export type { EthersError } from 'ethers'
 
 export class Ethers {
+    /**
+     * Network configuration of the provider
+     */
     network: EvmNetworkConfigInterface
 
+    /**
+     * JSON RPC provider
+     */
     jsonRpcProvider: JsonRpcProvider
 
+    /**
+     * WebSocket provider
+     */
     webSocketProvider?: WebSocketProvider
 
     /**
@@ -32,10 +41,16 @@ export class Ethers {
         }
     }
 
+    /**
+     * @returns {JsonRpcProvider}
+     */
     public get jsonRpc(): JsonRpcProvider {
         return this.jsonRpcProvider
     }
 
+    /**
+     * @returns {WebSocketProvider | undefined}
+     */
     public get webSocket(): WebSocketProvider | undefined {
         return this.webSocketProvider
     }
@@ -55,8 +70,8 @@ export class Ethers {
     }
 
     /**
-     * @param privateKey private key of the wallet
-     * @param provider provider of the blockchain network
+     * @param {string} privateKey private key of the wallet
+     * @param {JsonRpcProvider} provider provider of the blockchain network
      * @returns {Wallet}
      */
     public wallet(privateKey: string, provider?: JsonRpcProvider): Wallet {

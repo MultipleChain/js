@@ -33,7 +33,7 @@ export class Provider implements Omit<ProviderInterface, 'update'> {
     /**
      * Static instance of the provider
      */
-    public static _instance: Provider
+    private static _instance: Provider
 
     /**
      * @param network - Network configuration of the provider
@@ -46,7 +46,7 @@ export class Provider implements Omit<ProviderInterface, 'update'> {
 
     /**
      * Get the static instance of the provider
-     * @returns Provider
+     * @returns {Provider} Provider
      */
     static get instance(): Provider {
         if (Provider._instance === undefined) {
@@ -57,7 +57,8 @@ export class Provider implements Omit<ProviderInterface, 'update'> {
 
     /**
      * Initialize the static instance of the provider
-     * @param network - Network configuration of the provider
+     * @param {EvmNetworkConfigInterface} network - Network configuration of the provider
+     * @returns {void}
      */
     static initialize(network: EvmNetworkConfigInterface): void {
         if (Provider._instance !== undefined) {
@@ -68,7 +69,8 @@ export class Provider implements Omit<ProviderInterface, 'update'> {
 
     /**
      * Update network configuration of the provider
-     * @param network - Network configuration of the provider
+     * @param {EvmNetworkConfigInterface} network - Network configuration of the provider
+     * @returns {void}
      */
     update(network: EvmNetworkConfigInterface): void {
         this.network = network
@@ -78,7 +80,7 @@ export class Provider implements Omit<ProviderInterface, 'update'> {
 
     /**
      * Get the current network configuration is testnet or not
-     * @returns boolean
+     * @returns {boolean}
      */
     isTestnet(): boolean {
         return this.network?.testnet ?? false

@@ -72,8 +72,9 @@ export class TransactionListener<T extends TransactionTypeEnum>
     triggeredTransactions: string[] = []
 
     /**
-     * @param type - Transaction type
-     * @param filter - Transaction listener filter
+     * @param {T} type - Transaction type
+     * @param {Provider} provider - Provider
+     * @param {DynamicTransactionListenerFilterType<T>} filter - Transaction listener filter
      */
     constructor(type: T, provider?: Provider, filter?: DynamicTransactionListenerFilterType<T>) {
         this.type = type
@@ -91,6 +92,7 @@ export class TransactionListener<T extends TransactionTypeEnum>
 
     /**
      * Close the listener
+     * @returns {void}
      */
     stop(): void {
         if (this.status) {
@@ -101,6 +103,7 @@ export class TransactionListener<T extends TransactionTypeEnum>
 
     /**
      * Start the listener
+     * @returns {void}
      */
     start(): void {
         if (!this.status) {
@@ -112,7 +115,7 @@ export class TransactionListener<T extends TransactionTypeEnum>
 
     /**
      * Get the listener status
-     * @returns - Listener status
+     * @returns {boolean} - Listener status
      */
     getStatus(): boolean {
         return this.status
@@ -120,7 +123,8 @@ export class TransactionListener<T extends TransactionTypeEnum>
 
     /**
      * Listen to the transaction events
-     * @param callback - Callback function
+     * @param {TransactionListenerCallbackType} callback - Callback function
+     * @returns {void}
      */
     on(callback: TransactionListenerCallbackType): void {
         this.start()
@@ -129,7 +133,8 @@ export class TransactionListener<T extends TransactionTypeEnum>
 
     /**
      * Trigger the event when a transaction is detected
-     * @param transaction - Transaction data
+     * @param {DynamicTransactionType<T>} transaction - Transaction data
+     * @returns {void}
      */
     trigger<T extends TransactionTypeEnum>(transaction: DynamicTransactionType<T>): void {
         if (!this.triggeredTransactions.includes(transaction.id)) {
@@ -142,6 +147,7 @@ export class TransactionListener<T extends TransactionTypeEnum>
 
     /**
      * General transaction process
+     * @returns {void}
      */
     generalProcess(): void {
         const callback = async (transactionId: string): Promise<void> => {
@@ -163,6 +169,7 @@ export class TransactionListener<T extends TransactionTypeEnum>
 
     /**
      * Contract transaction process
+     * @returns {void}
      */
     contractProcess(): void {
         const filter = this
@@ -209,6 +216,7 @@ export class TransactionListener<T extends TransactionTypeEnum>
 
     /**
      * Coin transaction process
+     * @returns {void}
      */
     coinProcess(): void {
         const filter = this.filter as DynamicTransactionListenerFilterType<TransactionTypeEnum.COIN>
@@ -276,6 +284,7 @@ export class TransactionListener<T extends TransactionTypeEnum>
 
     /**
      * Token transaction process
+     * @returns {void}
      */
     tokenProcess(): void {
         const filter = this
@@ -343,6 +352,7 @@ export class TransactionListener<T extends TransactionTypeEnum>
 
     /**
      * NFT transaction process
+     * @returns {void}
      */
     nftProcess(): void {
         const filter = this.filter as DynamicTransactionListenerFilterType<TransactionTypeEnum.NFT>
