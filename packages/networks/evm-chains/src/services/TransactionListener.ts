@@ -6,17 +6,17 @@ import type {
     DynamicTransactionListenerFilterType
 } from '@multiplechain/types'
 
-import { id } from 'ethers'
 import { Provider } from './Provider.ts'
 import type { Ethers } from './Ethers.ts'
+import { id, zeroPadValue } from 'ethers'
 import { objectsEqual } from '@multiplechain/utils'
 import { Transaction } from '../models/Transaction.ts'
+import { NftTransaction } from '../models/NftTransaction.ts'
 import { CoinTransaction } from '../models/CoinTransaction.ts'
+import { TokenTransaction } from '../models/TokenTransaction.ts'
 import { TransactionListenerProcessIndex } from '@multiplechain/types'
 import { ContractTransaction } from '../models/ContractTransaction.ts'
 import type { WebSocketProvider, JsonRpcApiProvider, EventFilter, Log } from 'ethers'
-import { TokenTransaction } from '../models/TokenTransaction.ts'
-import { NftTransaction } from '../models/NftTransaction.ts'
 
 export class TransactionListener<T extends TransactionTypeEnum>
     implements TransactionListenerInterface<T>
@@ -213,17 +213,17 @@ export class TransactionListener<T extends TransactionTypeEnum>
     coinProcess(): void {
         const filter = this.filter as DynamicTransactionListenerFilterType<TransactionTypeEnum.COIN>
 
-        const callback = async (transactionId: string): Promise<void> => {
-            if (
-                filter.signer !== undefined &&
-                filter.sender !== undefined &&
-                filter.signer !== filter.sender
-            ) {
-                throw new Error(
-                    'Sender and signer must be the same in coin transactions. Or only one of them can be defined.'
-                )
-            }
+        if (
+            filter.signer !== undefined &&
+            filter.sender !== undefined &&
+            filter.signer !== filter.sender
+        ) {
+            throw new Error(
+                'Sender and signer must be the same in coin transactions. Or only one of them can be defined.'
+            )
+        }
 
+        const callback = async (transactionId: string): Promise<void> => {
             const tx = await this.ethers.getTransaction(transactionId)
             const contractBytecode = await this.ethers.getByteCode(tx?.to ?? '')
 
@@ -282,11 +282,12 @@ export class TransactionListener<T extends TransactionTypeEnum>
             .filter as DynamicTransactionListenerFilterType<TransactionTypeEnum.TOKEN>
 
         const params: EventFilter = {
-            topics: [id('Transfer(address,address,uint256)')]
-        }
-
-        if (filter.address !== undefined) {
-            params.address = filter.address
+            address: filter.address,
+            topics: [
+                id('Transfer(address,address,uint256)'),
+                filter.sender !== undefined ? zeroPadValue(filter.sender, 32) : null,
+                filter.receiver !== undefined ? zeroPadValue(filter.receiver, 32) : null
+            ]
         }
 
         const callback = async (transactionLog: Log): Promise<void> => {
@@ -309,8 +310,6 @@ export class TransactionListener<T extends TransactionTypeEnum>
 
             interface ParamsType {
                 signer?: string
-                sender?: string
-                receiver?: string
             }
 
             const expectedParams: ParamsType = {}
@@ -319,22 +318,6 @@ export class TransactionListener<T extends TransactionTypeEnum>
             if (filter.signer !== undefined) {
                 expectedParams.signer = filter.signer.toLowerCase()
                 receivedParams.signer = data.response.from.toLowerCase()
-            }
-
-            if (filter.sender !== undefined) {
-                expectedParams.sender = filter.sender.toLowerCase()
-                receivedParams.sender =
-                    decodedData.name === 'transfer'
-                        ? data.response.from.toLowerCase()
-                        : decodedData.args[0].toLowerCase()
-            }
-
-            if (filter.receiver !== undefined) {
-                expectedParams.receiver = filter.receiver.toLowerCase()
-                receivedParams.receiver =
-                    decodedData.name === 'transfer'
-                        ? decodedData.args[0].toLowerCase()
-                        : decodedData.args[1].toLowerCase()
             }
 
             if (!objectsEqual(expectedParams, receivedParams)) {
@@ -365,11 +348,15 @@ export class TransactionListener<T extends TransactionTypeEnum>
         const filter = this.filter as DynamicTransactionListenerFilterType<TransactionTypeEnum.NFT>
 
         const params: EventFilter = {
-            topics: [id('Transfer(address,address,uint256)')]
-        }
-
-        if (filter.address !== undefined) {
-            params.address = filter.address
+            address: filter.address,
+            topics: [
+                id('Transfer(address,address,uint256)'),
+                filter.sender !== undefined ? zeroPadValue(filter.sender, 32) : null,
+                filter.receiver !== undefined ? zeroPadValue(filter.receiver, 32) : null,
+                filter.nftId !== undefined
+                    ? zeroPadValue(`0x0${filter.nftId.toString(16)}`, 32)
+                    : null
+            ]
         }
 
         const callback = async (transactionLog: Log): Promise<void> => {
@@ -392,8 +379,6 @@ export class TransactionListener<T extends TransactionTypeEnum>
 
             interface ParamsType {
                 signer?: string
-                sender?: string
-                receiver?: string
             }
 
             const expectedParams: ParamsType = {}
@@ -404,26 +389,8 @@ export class TransactionListener<T extends TransactionTypeEnum>
                 receivedParams.signer = data.response.from.toLowerCase()
             }
 
-            if (filter.sender !== undefined) {
-                expectedParams.sender = filter.sender.toLowerCase()
-                receivedParams.sender = decodedData.args[0].toLowerCase()
-            }
-
-            if (filter.receiver !== undefined) {
-                expectedParams.receiver = filter.receiver.toLowerCase()
-                receivedParams.receiver = decodedData.args[1].toLowerCase()
-            }
-
             if (!objectsEqual(expectedParams, receivedParams)) {
                 return
-            }
-
-            if (filter.nftId !== undefined) {
-                await transaction.wait()
-                const nftId = await transaction.getNftId()
-                if (nftId !== filter.nftId) {
-                    return
-                }
             }
 
             this.trigger(transaction)
