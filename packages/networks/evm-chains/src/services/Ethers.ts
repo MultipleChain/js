@@ -23,7 +23,7 @@ export class Ethers {
 
     jsonRpcProvider: JsonRpcProvider
 
-    websocketProvider?: WebSocketProvider
+    webSocketProvider?: WebSocketProvider
 
     /**
      * @param {EvmNetworkConfigInterface} network
@@ -32,7 +32,7 @@ export class Ethers {
         this.network = network
         this.jsonRpcProvider = new JsonRpcProvider(network.rpcUrl)
         if (network.wsUrl !== undefined) {
-            this.websocketProvider = new WebSocketProvider(network.wsUrl)
+            this.webSocketProvider = new WebSocketProvider(network.wsUrl)
         }
     }
 
@@ -40,8 +40,8 @@ export class Ethers {
         return this.jsonRpcProvider
     }
 
-    public get websocket(): WebSocketProvider | undefined {
-        return this.websocketProvider
+    public get webSocket(): WebSocketProvider | undefined {
+        return this.webSocketProvider
     }
 
     /**

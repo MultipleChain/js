@@ -42,7 +42,7 @@ describe('Transaction', () => {
     })
 
     it('Sender', async () => {
-        expect(await tx.getSender()).toBe(coinSender)
+        expect(await tx.getSigner()).toBe(coinSender)
     })
 
     it('Fee', async () => {
@@ -142,7 +142,7 @@ describe('NFT Transaction', () => {
     })
 
     it('From', async () => {
-        expect((await tx.getFrom()).toLowerCase()).toBe(nftSender.toLowerCase())
+        expect((await tx.getSender()).toLowerCase()).toBe(nftSender.toLowerCase())
     })
 
     it('Sender', async () => {

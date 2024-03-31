@@ -82,7 +82,7 @@ export class Transaction implements TransactionInterface {
                     reject(TransactionStatusEnum.FAILED)
                 }
             }
-            check() // eslint-disable-line @typescript-eslint/no-floating-promises
+            void check()
         })
     }
 
