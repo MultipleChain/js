@@ -1,9 +1,19 @@
 {
-    "name": "@multiplechain/network-name",
+    "name": "@multiplechain/evm-chains",
     "version": "0.1.0",
     "type": "module",
-    "main": "./dist/esm/index.js",
-    "types": "./dist/types/index.d.ts",
+    "types": "dist/index.d.ts",
+    "main": "dist/index.cjs.js",
+    "module": "dist/index.es.js",
+    "unpkg": "dist/index.umd.js",
+    "browser": "dist/index.umd.js",
+    "jsdelivr": "dist/index.umd.js",
+    "exports": {
+        ".": {
+            "import": "./dist/index.es.js",
+            "require": "./dist/index.cjs.js"
+        }
+    },
     "files": [
         "dist",
         "README.md",
@@ -11,7 +21,7 @@
     ],
     "scripts": {
         "clean": "rm -rf dist",
-        "build": "tsc --build",
+        "build": "vite build",
         "watch": "tsc --watch",
         "typecheck": "tsc --noEmit",
         "lint": "eslint . --ext .ts",
@@ -22,8 +32,7 @@
         "web3",
         "crypto",
         "blockchain",
-        "multiple-chain",
-        "standard"
+        "multiple-chain"
     ],
     "author": "MultipleChain",
     "license": "MIT",
