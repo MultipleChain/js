@@ -16,7 +16,7 @@ interface TransactionListenerFilterInterface {
 }
 
 interface ContractTransactionListenerFilterInterface extends TransactionListenerFilterInterface {
-    address: string
+    address?: string
 }
 
 interface AssetTransactionListenerFilterInterface extends TransactionListenerFilterInterface {
