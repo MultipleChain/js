@@ -6,13 +6,16 @@ import type {
     DynamicTransactionListenerFilterType
 } from '@multiplechain/types'
 
+import { id } from 'ethers'
 import { Provider } from './Provider.ts'
 import type { Ethers } from './Ethers.ts'
+import { objectsEqual } from '@multiplechain/utils'
 import { Transaction } from '../models/Transaction.ts'
-import type { WebSocketProvider, JsonRpcApiProvider } from 'ethers'
+import { CoinTransaction } from '../models/CoinTransaction.ts'
 import { TransactionListenerProcessIndex } from '@multiplechain/types'
 import { ContractTransaction } from '../models/ContractTransaction.ts'
-import { CoinTransaction } from '../models/CoinTransaction.ts'
+import type { WebSocketProvider, JsonRpcApiProvider, EventFilter, Log } from 'ethers'
+import { TokenTransaction } from '../models/TokenTransaction.ts'
 
 export class TransactionListener<T extends TransactionTypeEnum>
     implements TransactionListenerInterface<T>
@@ -133,14 +136,14 @@ export class TransactionListener<T extends TransactionTypeEnum>
      */
     generalProcess(): void {
         const callback = async (transactionId: string): Promise<void> => {
-            if (this.filter?.signer === undefined) {
-                this.trigger(new Transaction(transactionId))
-            } else {
+            if (this.filter?.signer !== undefined) {
                 const transaction = await this.ethers.getTransaction(transactionId)
-                if (transaction?.from.toLowerCase() === this.filter.signer.toLowerCase()) {
-                    this.trigger(new Transaction(transactionId))
+                if (transaction?.from.toLowerCase() !== this.filter.signer.toLowerCase()) {
+                    return
                 }
             }
+
+            this.trigger(new Transaction(transactionId))
         }
 
         void this.webSocket.on('pending', callback)
@@ -164,24 +167,29 @@ export class TransactionListener<T extends TransactionTypeEnum>
                 return
             }
 
-            if (filter.address !== undefined && filter.signer !== undefined) {
-                if (
-                    transaction.from.toLowerCase() === filter.signer.toLowerCase() &&
-                    transaction.to?.toLowerCase() === filter.address.toLowerCase()
-                ) {
-                    this.trigger(new ContractTransaction(transactionId))
-                }
-            } else if (filter.address !== undefined) {
-                if (transaction.to?.toLowerCase() === filter.address.toLowerCase()) {
-                    this.trigger(new ContractTransaction(transactionId))
-                }
-            } else if (filter.signer !== undefined) {
-                if (transaction.from.toLowerCase() === filter.signer.toLowerCase()) {
-                    this.trigger(new ContractTransaction(transactionId))
-                }
-            } else {
-                this.trigger(new ContractTransaction(transactionId))
+            interface ParamsType {
+                address?: string
+                signer?: string
             }
+
+            const expectedParams: ParamsType = {}
+            const receivedParams: ParamsType = {}
+
+            if (filter.address !== undefined) {
+                expectedParams.address = filter.address.toLowerCase()
+                receivedParams.address = transaction.to?.toLowerCase()
+            }
+
+            if (filter.signer !== undefined) {
+                expectedParams.signer = filter.signer.toLowerCase()
+                receivedParams.signer = transaction.from.toLowerCase()
+            }
+
+            if (!objectsEqual(expectedParams, receivedParams)) {
+                return
+            }
+
+            this.trigger(new ContractTransaction(transactionId))
         }
 
         void this.webSocket.on('pending', callback)
@@ -214,39 +222,41 @@ export class TransactionListener<T extends TransactionTypeEnum>
                 return
             }
 
-            let transaction: CoinTransaction | undefined
             const sender = filter.sender ?? filter.signer
 
-            if (sender !== undefined && filter.receiver !== undefined) {
-                if (
-                    tx.from.toLowerCase() === sender.toLowerCase() &&
-                    tx.to?.toLowerCase() === filter.receiver.toLowerCase()
-                ) {
-                    transaction = new CoinTransaction(transactionId)
-                }
-            } else if (sender !== undefined) {
-                if (tx.from.toLowerCase() === sender.toLowerCase()) {
-                    transaction = new CoinTransaction(transactionId)
-                }
-            } else if (filter.receiver !== undefined) {
-                if (tx.to?.toLowerCase() === filter.receiver.toLowerCase()) {
-                    transaction = new CoinTransaction(transactionId)
-                }
-            } else {
-                transaction = new CoinTransaction(transactionId)
+            interface ParamsType {
+                sender?: string
+                receiver?: string
             }
 
-            if (filter.amount !== undefined && transaction !== undefined) {
+            const expectedParams: ParamsType = {}
+            const receivedParams: ParamsType = {}
+
+            if (sender !== undefined) {
+                expectedParams.sender = sender.toLowerCase()
+                receivedParams.sender = tx.from.toLowerCase()
+            }
+
+            if (filter.receiver !== undefined) {
+                expectedParams.receiver = filter.receiver.toLowerCase()
+                receivedParams.receiver = tx.to?.toLowerCase()
+            }
+
+            if (!objectsEqual(expectedParams, receivedParams)) {
+                return
+            }
+
+            const transaction = new CoinTransaction(transactionId)
+
+            if (filter.amount !== undefined) {
                 await transaction.wait()
                 const amount = await transaction.getAmount()
                 if (amount !== filter.amount) {
-                    transaction = undefined
+                    return
                 }
             }
 
-            if (transaction !== undefined) {
-                this.trigger(transaction)
-            }
+            this.trigger(transaction)
         }
 
         void this.webSocket.on('pending', callback)
@@ -259,7 +269,84 @@ export class TransactionListener<T extends TransactionTypeEnum>
      * Token transaction process
      */
     tokenProcess(): void {
-        // Token transaction process
+        const filter = this
+            .filter as DynamicTransactionListenerFilterType<TransactionTypeEnum.TOKEN>
+
+        const params: EventFilter = {
+            topics: [id('Transfer(address,address,uint256)')]
+        }
+
+        if (filter.address !== undefined) {
+            params.address = filter.address
+        }
+
+        const callback = async (transactionLog: Log): Promise<void> => {
+            const transaction = new TokenTransaction(transactionLog.transactionHash)
+            const data = await transaction.getData()
+
+            if (data === null) {
+                return
+            }
+
+            const decodedData = await transaction.decodeData(data.response)
+
+            if (decodedData === null) {
+                return
+            }
+
+            if (decodedData.name !== 'transfer' && decodedData.name !== 'transferFrom') {
+                return
+            }
+
+            interface ParamsType {
+                signer?: string
+                sender?: string
+                receiver?: string
+            }
+
+            const expectedParams: ParamsType = {}
+            const receivedParams: ParamsType = {}
+
+            if (filter.signer !== undefined) {
+                expectedParams.signer = filter.signer.toLowerCase()
+                receivedParams.signer = data.response.from.toLowerCase()
+            }
+
+            if (filter.sender !== undefined) {
+                expectedParams.sender = filter.sender.toLowerCase()
+                receivedParams.sender =
+                    decodedData.name === 'transfer'
+                        ? data.response.from.toLowerCase()
+                        : decodedData.args[0].toLowerCase()
+            }
+
+            if (filter.receiver !== undefined) {
+                expectedParams.receiver = filter.receiver.toLowerCase()
+                receivedParams.receiver =
+                    decodedData.name === 'transfer'
+                        ? decodedData.args[0].toLowerCase()
+                        : decodedData.args[1].toLowerCase()
+            }
+
+            if (!objectsEqual(expectedParams, receivedParams)) {
+                return
+            }
+
+            if (filter.amount !== undefined) {
+                await transaction.wait()
+                const amount = await transaction.getAmount()
+                if (amount !== filter.amount) {
+                    return
+                }
+            }
+
+            this.trigger(transaction)
+        }
+
+        void this.webSocket.on(params, callback)
+        this.dynamicStop = () => {
+            void this.webSocket.off(params, callback)
+        }
     }
 
     /**

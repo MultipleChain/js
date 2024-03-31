@@ -13,6 +13,8 @@ import { sleep } from '@multiplechain/utils'
 import type { EvmNetworkConfigInterface } from './Provider.ts'
 import type { TransactionData } from '../services/TransactionSigner.ts'
 
+export type { EthersError } from 'ethers'
+
 export class Ethers {
     network: EvmNetworkConfigInterface
 

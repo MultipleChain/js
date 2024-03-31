@@ -7,7 +7,7 @@ import { hexToNumber } from '@multiplechain/utils'
 
 interface TransactionData {
     response: TransactionResponse
-    receipt: TransactionReceipt
+    receipt: TransactionReceipt | null
 }
 
 export class Transaction implements TransactionInterface {
@@ -44,7 +44,7 @@ export class Transaction implements TransactionInterface {
      * @returns Raw transaction data that is taken by blockchain network via RPC.
      */
     async getData(): Promise<TransactionData | null> {
-        if (this.data !== undefined) {
+        if (this.data?.response !== undefined && this.data?.receipt !== null) {
             return this.data
         }
         try {
@@ -53,9 +53,6 @@ export class Transaction implements TransactionInterface {
                 return null
             }
             const receipt = await this.ethers.getTransactionReceipt(this.id)
-            if (receipt === null) {
-                return null
-            }
             return (this.data = { response, receipt })
         } catch (error) {
             if (error instanceof Error && String(error.message).includes('timeout')) {
@@ -117,7 +114,7 @@ export class Transaction implements TransactionInterface {
      */
     async getFee(): Promise<number> {
         const data = await this.getData()
-        if (data === null) {
+        if (data?.response?.gasPrice === undefined || data?.receipt?.gasUsed === undefined) {
             return 0
         }
         return hexToNumber(
@@ -160,7 +157,7 @@ export class Transaction implements TransactionInterface {
         const data = await this.getData()
         if (data === null) {
             return TransactionStatusEnum.PENDING
-        } else if (data.response.blockNumber !== null) {
+        } else if (data.response.blockNumber !== null && data.receipt !== null) {
             if (data.receipt.status === 1) {
                 return TransactionStatusEnum.CONFIRMED
             } else {

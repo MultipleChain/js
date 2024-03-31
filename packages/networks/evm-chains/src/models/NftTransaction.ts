@@ -1,14 +1,23 @@
 import ERC721 from '../../resources/erc721.json'
 import { ContractTransaction } from './ContractTransaction.ts'
 import type { NftTransactionInterface } from '@multiplechain/types'
+import type { TransactionDescription, TransactionResponse } from 'ethers'
 import { TransactionStatusEnum, AssetDirectionEnum } from '@multiplechain/types'
 
 export class NftTransaction extends ContractTransaction implements NftTransactionInterface {
     /**
+     * @param {TransactionResponse} response
+     * @returns {Promise<TransactionDescription | null>}
+     */
+    async decodeData(response?: TransactionResponse): Promise<TransactionDescription | null> {
+        return await super.decodeDataBase(ERC721, response)
+    }
+
+    /**
      * @returns Wallet address of the sender of transaction
      */
     async getReceiver(): Promise<string> {
-        const decoded = await this.decodeData(ERC721)
+        const decoded = await this.decodeData()
 
         if (decoded === null) {
             return ''
@@ -25,7 +34,7 @@ export class NftTransaction extends ContractTransaction implements NftTransactio
      * @returns Wallet address of the sender of transaction
      */
     async getSender(): Promise<string> {
-        const decoded = await this.decodeData(ERC721)
+        const decoded = await this.decodeData()
 
         if (decoded === null) {
             return ''
@@ -42,7 +51,7 @@ export class NftTransaction extends ContractTransaction implements NftTransactio
      * @returns ID of the NFT
      */
     async getNftId(): Promise<number> {
-        return Number((await this.decodeData(ERC721))?.args[2] ?? 0)
+        return Number((await this.decodeData())?.args[2] ?? 0)
     }
 
     /**

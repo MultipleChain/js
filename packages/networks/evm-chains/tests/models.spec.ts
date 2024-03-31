@@ -141,12 +141,12 @@ describe('NFT Transaction', () => {
         expect((await tx.getReceiver()).toLowerCase()).toBe(nftReceiver.toLowerCase())
     })
 
-    it('From', async () => {
-        expect((await tx.getSender()).toLowerCase()).toBe(nftSender.toLowerCase())
+    it('Signer', async () => {
+        expect((await tx.getSigner()).toLowerCase()).toBe(nftReceiver.toLowerCase())
     })
 
     it('Sender', async () => {
-        expect((await tx.getSender()).toLowerCase()).toBe(nftReceiver.toLowerCase())
+        expect((await tx.getSender()).toLowerCase()).toBe(nftSender.toLowerCase())
     })
 
     it('NFT ID', async () => {

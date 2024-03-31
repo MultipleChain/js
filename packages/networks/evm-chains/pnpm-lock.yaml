@@ -6,11 +6,11 @@ settings:
 
 dependencies:
   '@multiplechain/types':
-    specifier: ^0.1.29
-    version: 0.1.29
+    specifier: ^0.1.30
+    version: 0.1.30
   '@multiplechain/utils':
-    specifier: ^0.1.9
-    version: 0.1.9
+    specifier: ^0.1.10
+    version: 0.1.10
   ethers:
     specifier: ^6.11.1
     version: 6.11.1
@@ -21,12 +21,12 @@ packages:
     resolution: {integrity: sha512-96Z2IP3mYmF1Xg2cDm8f1gWGf/HUVedQ3FMifV4kG/PQ4yEP51xDtRAEfhVNt5f/uzpNkZHwWQuUcu6D6K+Ekw==}
     dev: false
 
-  /@multiplechain/types@0.1.29:
-    resolution: {integrity: sha512-hp9Upb4XQyxfNHDo8o7F3MUFadxMPCuRuN44ZljwsklSNp4e4ZUWBtFIbVd5mFc1O0dkgD0SYEPthUtEgzIyoA==}
+  /@multiplechain/types@0.1.30:
+    resolution: {integrity: sha512-j72Ydn1FlEWF4lY6xUjI0ojf0y1JAjqYnddAaUUdzv5sRlFw2zze8VLqxzltFtjFigPbSUa7QHmbgTIXQ60HoQ==}
     dev: false
 
-  /@multiplechain/utils@0.1.9:
-    resolution: {integrity: sha512-52yrmloGDwXrMwOSfEiPJfePPIDeEqGMTE4u5QE2BQPdGe0Bto908pX4IIF1j0Srmv5TJdH9JN3MFEgzgo3qAw==}
+  /@multiplechain/utils@0.1.10:
+    resolution: {integrity: sha512-Ed0YxvRakds1WiREcLWI+fr6YCNB3bSORPD/ZQNqhELtL5uVgYWunIwbx6yZmLNk4MY8Qqyh0iUjuCOBLplmiA==}
     dependencies:
       bignumber.js: 9.1.2
       web3-utils: 4.2.2

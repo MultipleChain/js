@@ -1,16 +1,25 @@
 import { Token } from '../assets/Token.ts'
 import ERC20 from '../../resources/erc20.json'
 import { hexToNumber } from '@multiplechain/utils'
-import { ContractTransaction } from './ContractTransaction.ts'
 import { TransactionStatusEnum } from '@multiplechain/types'
+import { ContractTransaction } from './ContractTransaction.ts'
+import type { TransactionDescription, TransactionResponse } from 'ethers'
 import { AssetDirectionEnum, type TokenTransactionInterface } from '@multiplechain/types'
 
 export class TokenTransaction extends ContractTransaction implements TokenTransactionInterface {
     /**
+     * @param {TransactionResponse} response
+     * @returns {Promise<TransactionDescription | null>}
+     */
+    async decodeData(response?: TransactionResponse): Promise<TransactionDescription | null> {
+        return await super.decodeDataBase(ERC20, response)
+    }
+
+    /**
      * @returns Wallet address of the sender of transaction
      */
     async getReceiver(): Promise<string> {
-        const decoded = await this.decodeData(ERC20)
+        const decoded = await this.decodeData()
 
         if (decoded === null) {
             return ''
@@ -27,7 +36,7 @@ export class TokenTransaction extends ContractTransaction implements TokenTransa
      * @returns Wallet address of the sender of transaction
      */
     async getSender(): Promise<string> {
-        const decoded = await this.decodeData(ERC20)
+        const decoded = await this.decodeData()
 
         if (decoded === null) {
             return ''
@@ -49,7 +58,7 @@ export class TokenTransaction extends ContractTransaction implements TokenTransa
      */
     async getAmount(): Promise<number> {
         const token = new Token(await this.getAddress())
-        const decoded = await this.decodeData(ERC20)
+        const decoded = await this.decodeData()
         if (decoded === null) {
             return 0
         }
