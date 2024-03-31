@@ -38,6 +38,11 @@ export class TransactionListener<T extends TransactionTypeEnum>
     status: boolean = false
 
     /**
+     * Triggered transactions
+     */
+    triggeredTransactions: string[] = []
+
+    /**
      * @param {T} type - Transaction type
      * @param {Provider} provider - Provider
      * @param {DynamicTransactionListenerFilterType<T>} filter - Transaction listener filter
@@ -46,8 +51,6 @@ export class TransactionListener<T extends TransactionTypeEnum>
         this.type = type
         this.filter = filter
         this.provider = provider ?? Provider.instance
-        // @ts-expect-error allow dynamic access
-        this[TransactionListenerProcessIndex[type]]()
     }
 
     /**
@@ -55,7 +58,10 @@ export class TransactionListener<T extends TransactionTypeEnum>
      * @returns {void}
      */
     stop(): void {
-        // Close the listener
+        if (this.status) {
+            this.status = false
+            // stop the listener
+        }
     }
 
     /**
@@ -63,7 +69,11 @@ export class TransactionListener<T extends TransactionTypeEnum>
      * @returns {void}
      */
     start(): void {
-        // Start the listener
+        if (!this.status) {
+            this.status = true
+            // @ts-expect-error allow dynamic access
+            this[TransactionListenerProcessIndex[this.type]]()
+        }
     }
 
     /**
@@ -88,10 +98,13 @@ export class TransactionListener<T extends TransactionTypeEnum>
      * @param {DynamicTransactionType<T>} transaction - Transaction data
      * @returns {void}
      */
-    trigger(transaction: DynamicTransactionType<T>): void {
-        this.callbacks.forEach((callback) => {
-            callback(transaction)
-        })
+    trigger<T extends TransactionTypeEnum>(transaction: DynamicTransactionType<T>): void {
+        if (!this.triggeredTransactions.includes(transaction.id)) {
+            this.triggeredTransactions.push(transaction.id)
+            this.callbacks.forEach((callback) => {
+                callback(transaction)
+            })
+        }
     }
 
     /**
