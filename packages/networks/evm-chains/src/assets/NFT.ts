@@ -2,7 +2,7 @@ import { Contract } from './Contract.ts'
 import type { InterfaceAbi } from 'ethers'
 import ERC721 from '../../resources/erc721.json'
 import type { Provider } from '../services/Provider.ts'
-import { TransactionSigner } from '../services/TransactionSigner.ts'
+import { NftTransactionSigner } from '../services/TransactionSigner.ts'
 import { ErrorTypeEnum, type NftInterface } from '@multiplechain/types'
 
 export class NFT extends Contract implements NftInterface {
@@ -67,7 +67,7 @@ export class NFT extends Contract implements NftInterface {
      * @param {number} nftId NFT ID
      * @returns {Promise<TransactionSigner>} Transaction signer
      */
-    async transfer(sender: string, receiver: string, nftId: number): Promise<TransactionSigner> {
+    async transfer(sender: string, receiver: string, nftId: number): Promise<NftTransactionSigner> {
         return await this.transferFrom(sender, sender, receiver, nftId)
     }
 
@@ -83,7 +83,7 @@ export class NFT extends Contract implements NftInterface {
         owner: string,
         receiver: string,
         nftId: number
-    ): Promise<TransactionSigner> {
+    ): Promise<NftTransactionSigner> {
         // Check if tokens exist
         const balance = await this.getBalance(owner)
 
@@ -112,7 +112,7 @@ export class NFT extends Contract implements NftInterface {
             this.getMethodEstimateGas('transferFrom', spender, owner, receiver, nftId)
         ])
 
-        return new TransactionSigner({
+        return new NftTransactionSigner({
             data,
             nonce,
             gasPrice,
@@ -131,7 +131,7 @@ export class NFT extends Contract implements NftInterface {
      * @param {number} nftId ID of the NFT that will be transferred
      * @returns {Promise<TransactionSigner>} Transaction signer
      */
-    async approve(owner: string, spender: string, nftId: number): Promise<TransactionSigner> {
+    async approve(owner: string, spender: string, nftId: number): Promise<NftTransactionSigner> {
         // Check if tokens exist
         const balance = await this.getBalance(owner)
 
@@ -152,7 +152,7 @@ export class NFT extends Contract implements NftInterface {
             this.getMethodEstimateGas('approve', owner, spender, nftId)
         ])
 
-        return new TransactionSigner({
+        return new NftTransactionSigner({
             data,
             nonce,
             gasPrice,

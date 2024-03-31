@@ -1,6 +1,6 @@
 import { Provider } from '../services/Provider.ts'
 import { hexToNumber, numberToHex } from '@multiplechain/utils'
-import { TransactionSigner } from '../services/TransactionSigner.ts'
+import { CoinTransactionSigner } from '../services/TransactionSigner.ts'
 import type { TransactionData } from '../services/TransactionSigner.ts'
 import { ErrorTypeEnum, type CoinInterface } from '@multiplechain/types'
 
@@ -55,7 +55,11 @@ export class Coin implements CoinInterface {
      * @param {number} amount Amount of assets that will be transferred
      * @returns {Promise<TransactionSigner>} Transaction signer
      */
-    async transfer(sender: string, receiver: string, amount: number): Promise<TransactionSigner> {
+    async transfer(
+        sender: string,
+        receiver: string,
+        amount: number
+    ): Promise<CoinTransactionSigner> {
         if (amount < 0) {
             throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
         }
@@ -84,6 +88,6 @@ export class Coin implements CoinInterface {
         txData.gasPrice = gasPrice
         txData.gasLimit = gasLimit
 
-        return new TransactionSigner(txData)
+        return new CoinTransactionSigner(txData)
     }
 }

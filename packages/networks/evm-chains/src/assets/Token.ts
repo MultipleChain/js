@@ -3,7 +3,7 @@ import type { InterfaceAbi } from 'ethers'
 import ERC20 from '../../resources/erc20.json'
 import type { Provider } from '../services/Provider.ts'
 import { hexToNumber, numberToHex } from '@multiplechain/utils'
-import { TransactionSigner } from '../services/TransactionSigner.ts'
+import { TokenTransactionSigner } from '../services/TransactionSigner.ts'
 import { ErrorTypeEnum, type TokenInterface } from '@multiplechain/types'
 
 export class Token extends Contract implements TokenInterface {
@@ -80,7 +80,11 @@ export class Token extends Contract implements TokenInterface {
      * @param {number} amount Amount of assets that will be transferred
      * @returns {Promise<TransactionSigner>} Transaction signer
      */
-    async transfer(sender: string, receiver: string, amount: number): Promise<TransactionSigner> {
+    async transfer(
+        sender: string,
+        receiver: string,
+        amount: number
+    ): Promise<TokenTransactionSigner> {
         if (amount <= 0) {
             throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
         }
@@ -99,7 +103,7 @@ export class Token extends Contract implements TokenInterface {
             this.getMethodEstimateGas('transfer', sender, receiver, hexAmount)
         ])
 
-        return new TransactionSigner({
+        return new TokenTransactionSigner({
             data,
             nonce,
             gasPrice,
@@ -123,7 +127,7 @@ export class Token extends Contract implements TokenInterface {
         owner: string,
         receiver: string,
         amount: number
-    ): Promise<TransactionSigner> {
+    ): Promise<TokenTransactionSigner> {
         if (amount < 0) {
             throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
         }
@@ -153,7 +157,7 @@ export class Token extends Contract implements TokenInterface {
             this.getMethodEstimateGas('transferFrom', spender, owner, receiver, hexAmount)
         ])
 
-        return new TransactionSigner({
+        return new TokenTransactionSigner({
             data,
             nonce,
             gasPrice,
@@ -172,7 +176,7 @@ export class Token extends Contract implements TokenInterface {
      * @param {number} amount Amount of the tokens that will be used
      * @returns {Promise<TransactionSigner>} Transaction signer
      */
-    async approve(owner: string, spender: string, amount: number): Promise<TransactionSigner> {
+    async approve(owner: string, spender: string, amount: number): Promise<TokenTransactionSigner> {
         if (amount < 0) {
             throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
         }
@@ -192,7 +196,7 @@ export class Token extends Contract implements TokenInterface {
             this.getMethodEstimateGas('approve', owner, spender, hexAmount)
         ])
 
-        return new TransactionSigner({
+        return new TokenTransactionSigner({
             data,
             nonce,
             gasPrice,
