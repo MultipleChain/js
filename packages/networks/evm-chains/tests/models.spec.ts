@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest'
 
-import ERC20 from '../resources/erc20.json'
 import { Transaction } from '../src/models/Transaction.ts'
 import { AssetDirectionEnum, TransactionStatusEnum } from '@multiplechain/types'
 import { ContractTransaction } from '../src/models/ContractTransaction.ts'
@@ -77,7 +76,7 @@ describe('Contract Transaction', () => {
     })
 
     it('Decode Data', async () => {
-        const result = await tx.decodeData(ERC20)
+        const result = await tx.decodeData()
         expect(result?.args[0]).toBe('0xbBa4d06D1cEf94b35aDeCfDa893523907fdD36DE')
     })
 })
