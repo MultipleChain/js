@@ -6,16 +6,16 @@ settings:
 
 dependencies:
   '@multiplechain/types':
-    specifier: ^0.1.29
-    version: 0.1.29
+    specifier: ^0.1.30
+    version: 0.1.30
   '@multiplechain/utils':
     specifier: ^0.1.8
     version: 0.1.9
 
 packages:
 
-  /@multiplechain/types@0.1.29:
-    resolution: {integrity: sha512-hp9Upb4XQyxfNHDo8o7F3MUFadxMPCuRuN44ZljwsklSNp4e4ZUWBtFIbVd5mFc1O0dkgD0SYEPthUtEgzIyoA==}
+  /@multiplechain/types@0.1.30:
+    resolution: {integrity: sha512-j72Ydn1FlEWF4lY6xUjI0ojf0y1JAjqYnddAaUUdzv5sRlFw2zze8VLqxzltFtjFigPbSUa7QHmbgTIXQ60HoQ==}
     dev: false
 
   /@multiplechain/utils@0.1.9:
