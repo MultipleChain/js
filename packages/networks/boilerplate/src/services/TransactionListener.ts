@@ -27,6 +27,11 @@ export class TransactionListener<T extends TransactionTypeEnum>
     filter: DynamicTransactionListenerFilterType<T>
 
     /**
+     * Listener status
+     */
+    status: boolean
+
+    /**
      * @param type - Transaction type
      * @param filter - Transaction listener filter
      */
@@ -42,6 +47,21 @@ export class TransactionListener<T extends TransactionTypeEnum>
      */
     stop(): void {
         // Close the listener
+    }
+
+    /**
+     * Start the listener
+     */
+    start(): void {
+        // Start the listener
+    }
+
+    /**
+     * Get the listener status
+     * @returns boolean
+     */
+    getStatus(): boolean {
+        return this.status
     }
 
     /**
