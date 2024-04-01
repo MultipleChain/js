@@ -1,5 +1,6 @@
 import { toHex } from 'web3-utils'
 import BigNumber from 'bignumber.js'
+import { WebSocket as NodeWebSocket } from 'ws'
 
 const BASE58_ALPHABET: string = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
 
@@ -141,24 +142,23 @@ export const objectsEqual = (o1: any, o2: any): boolean => {
  * @returns {Promise<boolean>}
  */
 export const checkWebSocket = async (url: string): Promise<boolean> => {
-    return await new Promise((resolve, reject) => {
-        const socket = new WebSocket(url)
+    return await new Promise((resolve) => {
+        let socket
 
-        socket.onopen = function () {
-            socket.close()
+        if (typeof window !== 'undefined') {
+            socket = new WebSocket(url)
+        } else {
+            socket = new NodeWebSocket(url)
+        }
+
+        socket.onopen = () => {
             resolve(true)
+            socket.close()
         }
 
-        socket.onerror = function () {
-            reject(false) // eslint-disable-line
-        }
-
-        socket.onclose = function (event) {
-            if (event.wasClean) {
-                resolve(false)
-            } else {
-                resolve(false)
-            }
+        socket.onerror = () => {
+            resolve(false)
+            socket.close()
         }
     })
 }

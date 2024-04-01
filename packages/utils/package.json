@@ -1,6 +1,6 @@
 {
     "name": "@multiplechain/utils",
-    "version": "0.1.11",
+    "version": "0.1.12",
     "type": "module",
     "main": "./src/index.ts",
     "types": "./src/index.ts",
@@ -32,6 +32,10 @@
     },
     "dependencies": {
         "bignumber.js": "^9.1.2",
-        "web3-utils": "^4.2.0"
+        "web3-utils": "^4.2.0",
+        "ws": "^8.16.0"
+    },
+    "devDependencies": {
+        "@types/ws": "^8.5.10"
     }
 }
