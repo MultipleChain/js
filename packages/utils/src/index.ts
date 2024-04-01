@@ -143,7 +143,7 @@ export const objectsEqual = (o1: any, o2: any): boolean => {
  */
 export const checkWebSocket = async (url: string): Promise<boolean> => {
     return await new Promise((resolve) => {
-        let socket
+        let socket: WebSocket | NodeWebSocket
 
         if (typeof window !== 'undefined') {
             socket = new WebSocket(url)
