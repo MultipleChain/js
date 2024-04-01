@@ -7,7 +7,7 @@ import type {
     TransactionReceipt,
     TransactionResponse
 } from 'ethers'
-import { sleep } from '@multiplechain/utils'
+import { sleep, checkWebSocket } from '@multiplechain/utils'
 import type { EvmNetworkConfigInterface } from './Provider.ts'
 import type { TransactionData } from '../services/TransactionSigner.ts'
 import { Wallet, Contract, ContractFactory, JsonRpcProvider, WebSocketProvider } from 'ethers'
@@ -36,9 +36,6 @@ export class Ethers {
     constructor(network: EvmNetworkConfigInterface) {
         this.network = network
         this.jsonRpcProvider = new JsonRpcProvider(network.rpcUrl)
-        if (network.wsUrl !== undefined) {
-            this.webSocketProvider = new WebSocketProvider(network.wsUrl)
-        }
     }
 
     /**
@@ -53,6 +50,28 @@ export class Ethers {
      */
     public get webSocket(): WebSocketProvider | undefined {
         return this.webSocketProvider
+    }
+
+    /**
+     * @returns {WebSocketProvider | undefined}
+     */
+    public async connectWebSocket(): Promise<WebSocketProvider | undefined> {
+        return await new Promise((resolve, reject) => {
+            if (this.network.wsUrl === undefined) {
+                resolve(undefined)
+            } else {
+                const url = this.network.wsUrl
+                checkWebSocket(url)
+                    .then((status) => {
+                        if (status) {
+                            resolve((this.webSocketProvider = new WebSocketProvider(url)))
+                        } else {
+                            resolve(undefined)
+                        }
+                    })
+                    .catch(reject)
+            }
+        })
     }
 
     /**

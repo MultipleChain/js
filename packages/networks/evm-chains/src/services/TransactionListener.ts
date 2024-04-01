@@ -82,12 +82,6 @@ export class TransactionListener<T extends TransactionTypeEnum>
         this.provider = provider ?? Provider.instance
         this.ethers = this.provider.ethers
         this.jsonRpc = this.provider.ethers.jsonRpc
-        // Check if the WebSocket URL is defined
-        if (this.provider.ethers.webSocket === undefined) {
-            throw new Error('WebSocket URL is not defined')
-        } else {
-            this.webSocket = this.provider.ethers.webSocket
-        }
     }
 
     /**
@@ -126,9 +120,20 @@ export class TransactionListener<T extends TransactionTypeEnum>
      * @param {TransactionListenerCallbackType} callback - Callback function
      * @returns {void}
      */
-    on(callback: TransactionListenerCallbackType): void {
+    async on(callback: TransactionListenerCallbackType): Promise<boolean> {
+        if (this.webSocket === undefined) {
+            const socket = await this.provider.ethers.connectWebSocket()
+            if (socket === undefined) {
+                throw new Error('WebSocket connection is not available')
+            } else {
+                this.webSocket = socket
+            }
+        }
+
         this.start()
         this.callbacks.push(callback)
+
+        return true
     }
 
     /**
