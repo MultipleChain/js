@@ -11,7 +11,7 @@ export default defineConfig({
         sourcemap: true,
         lib: {
             entry: './src/index.ts',
-            formats: ['es', 'cjs', 'umd'],
+            formats: ['es', 'umd'],
             fileName: (format: string) => `index.${format}.js`
         }
     },

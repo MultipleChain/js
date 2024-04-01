@@ -20,12 +20,14 @@
     ],
     "scripts": {
         "clean": "rm -rf dist",
-        "build": "vite build",
         "watch": "tsc --watch",
+        "build:vite": "vite build",
         "typecheck": "tsc --noEmit",
         "lint": "eslint . --ext .ts",
         "test": "vitest run --dir tests",
-        "prepublishOnly": "pnpm run build"
+        "prepublishOnly": "pnpm run build",
+        "build": "pnpm run build:vite && pnpm run build:node",
+        "build:node": "esbuild src/index.ts --bundle --platform=node --format=cjs --outfile=dist/index.cjs.js"
     },
     "keywords": [
         "web3",
