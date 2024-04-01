@@ -16,10 +16,16 @@ import { CoinTransaction } from '../models/CoinTransaction.ts'
 import { TokenTransaction } from '../models/TokenTransaction.ts'
 import { TransactionListenerProcessIndex } from '@multiplechain/types'
 import { ContractTransaction } from '../models/ContractTransaction.ts'
-import type { WebSocketProvider, JsonRpcApiProvider, EventFilter, Log } from 'ethers'
+import type {
+    WebSocketProvider,
+    JsonRpcApiProvider,
+    EventFilter,
+    Log,
+    TransactionResponse
+} from 'ethers'
 
 export class TransactionListener<T extends TransactionTypeEnum>
-    implements TransactionListenerInterface<T>
+    implements Omit<TransactionListenerInterface<T>, 'filter'>
 {
     /**
      * Transaction type
@@ -34,7 +40,7 @@ export class TransactionListener<T extends TransactionTypeEnum>
     /**
      * Transaction listener filter
      */
-    filter?: DynamicTransactionListenerFilterType<T>
+    filter?: DynamicTransactionListenerFilterType<T> | Record<string, never>
 
     /**
      * Provider
@@ -78,7 +84,7 @@ export class TransactionListener<T extends TransactionTypeEnum>
      */
     constructor(type: T, provider?: Provider, filter?: DynamicTransactionListenerFilterType<T>) {
         this.type = type
-        this.filter = filter
+        this.filter = filter ?? {}
         this.provider = provider ?? Provider.instance
         this.ethers = this.provider.ethers
         this.jsonRpc = this.provider.ethers.jsonRpc
@@ -180,26 +186,38 @@ export class TransactionListener<T extends TransactionTypeEnum>
         const filter = this
             .filter as DynamicTransactionListenerFilterType<TransactionTypeEnum.CONTRACT>
 
-        const callback = async (transactionId: string): Promise<void> => {
-            const transaction = await this.ethers.getTransaction(transactionId)
-            const contractBytecode = await this.ethers.getByteCode(transaction?.to ?? '')
+        let params: string | EventFilter
+        if (filter.address === undefined) {
+            params = 'pending'
+        } else {
+            params = {
+                address: filter.address
+            }
+        }
 
-            if (contractBytecode === '0x' || transaction === null) {
+        const callback = async (transactionIdOrLog: string | Log): Promise<void> => {
+            let transaction: TransactionResponse | null
+            if (typeof transactionIdOrLog === 'string') {
+                transaction = await this.ethers.getTransaction(transactionIdOrLog)
+                const contractBytecode = await this.ethers.getByteCode(transaction?.to ?? '')
+
+                if (contractBytecode === '0x') {
+                    return
+                }
+            } else {
+                transaction = await this.ethers.getTransaction(transactionIdOrLog.transactionHash)
+            }
+
+            if (transaction === null) {
                 return
             }
 
             interface ParamsType {
-                address?: string
                 signer?: string
             }
 
             const expectedParams: ParamsType = {}
             const receivedParams: ParamsType = {}
-
-            if (filter.address !== undefined) {
-                expectedParams.address = filter.address.toLowerCase()
-                receivedParams.address = transaction.to?.toLowerCase()
-            }
 
             if (filter.signer !== undefined) {
                 expectedParams.signer = filter.signer.toLowerCase()
@@ -210,12 +228,12 @@ export class TransactionListener<T extends TransactionTypeEnum>
                 return
             }
 
-            this.trigger(new ContractTransaction(transactionId))
+            this.trigger(new ContractTransaction(transaction.hash))
         }
 
-        void this.webSocket.on('pending', callback)
+        void this.webSocket.on(params, callback)
         this.dynamicStop = () => {
-            void this.webSocket.off('pending', callback)
+            void this.webSocket.off(params, callback)
         }
     }
 
