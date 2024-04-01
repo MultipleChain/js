@@ -15,6 +15,7 @@ dist-ssr
 index.html
 test*.ts
 test*.js
+test*.cjs
 
 # Editor directories and files
 .vscode/*

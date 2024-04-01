@@ -8,6 +8,7 @@ export default defineConfig({
         })
     ],
     build: {
+        minify: true,
         sourcemap: true,
         lib: {
             entry: './src/index.ts',
