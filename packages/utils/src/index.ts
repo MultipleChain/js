@@ -135,4 +135,32 @@ export const objectsEqual = (o1: any, o2: any): boolean => {
     return JSON.stringify(o1) === JSON.stringify(o2)
 }
 
+/**
+ * checks if the given url is a valid websocket url
+ * @param {string} url
+ * @returns {Promise<boolean>}
+ */
+export const checkWebSocket = async (url: string): Promise<boolean> => {
+    return await new Promise((resolve, reject) => {
+        const socket = new WebSocket(url)
+
+        socket.onopen = function () {
+            socket.close()
+            resolve(true)
+        }
+
+        socket.onerror = function () {
+            reject(false) // eslint-disable-line
+        }
+
+        socket.onclose = function (event) {
+            if (event.wasClean) {
+                resolve(false)
+            } else {
+                resolve(false)
+            }
+        }
+    })
+}
+
 export { toHex }
