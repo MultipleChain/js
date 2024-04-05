@@ -12,7 +12,7 @@ export class NftTransaction extends ContractTransaction implements NftTransactio
      * @param {InterfaceAbi} ABI Contract ABI
      */
     constructor(id: string, provider?: Provider, ABI?: InterfaceAbi) {
-        super(id, provider, ABI ?? ERC721)
+        super(id, provider, ABI ?? (ERC721 as InterfaceAbi))
     }
 
     /**

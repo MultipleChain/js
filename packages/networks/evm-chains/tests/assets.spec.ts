@@ -8,27 +8,29 @@ import { Transaction } from '../src/models/Transaction.ts'
 import { TransactionStatusEnum } from '@multiplechain/types'
 import { TransactionSigner } from '../src/services/TransactionSigner.ts'
 
-const coinTransferTestIsActive = false
-const tokenTransferTestIsActive = false
-const tokenApproveTestIsActive = false
-const tokenTransferFromTestIsActive = false
-const nftTransactionTestIsActive = false
+const coinBalanceTestAmount = Number(process.env.COIN_BALANCE_TEST_AMOUNT)
+const tokenBalanceTestAmount = Number(process.env.TOKEN_BALANCE_TEST_AMOUNT)
+const nftBalanceTestAmount = Number(process.env.NFT_BALANCE_TEST_AMOUNT)
+const transferTestAmount = Number(process.env.TRANSFER_TEST_AMOUNT)
+const tokenTransferTestAmount = Number(process.env.TOKEN_TRANSFER_TEST_AMOUNT)
+const tokenApproveTestAmount = Number(process.env.TOKEN_APPROVE_TEST_AMOUNT)
+const nftTransferId = Number(process.env.NFT_TRANSFER_ID)
 
-const balanceTestAddress = '0x760A4d3D03928D1e8541A7644B34370c1b79aa9F'
-const coinBalanceTestAmount = 0.01
-const tokenBalanceTestAmount = 1000
-const nftBalanceTestAmount = 2
+const coinTransferTestIsActive = Boolean(process.env.COIN_TRANSFER_TEST_IS_ACTIVE !== 'false')
+const tokenTransferTestIsActive = Boolean(process.env.TOKEN_TRANSFER_TEST_IS_ACTIVE !== 'false')
+const tokenApproveTestIsActive = Boolean(process.env.TOKEN_APPROVE_TEST_IS_ACTIVE !== 'false')
+const nftTransactionTestIsActive = Boolean(process.env.NFT_TRANSACTION_TEST_IS_ACTIVE !== 'false')
+const tokenTransferFromTestIsActive = Boolean(
+    process.env.TOKEN_TRANSFER_FROM_TEST_IS_ACTIVE !== 'false'
+)
 
-const senderPrivateKey = '0x14bd9af4e87981b37b7b2e8a0d1d249b7fcdb7a3bc579c4c31488842d372c0e9'
-const receiverPrivateKey = '0x22ac1009c43f251e0b5a808751990abe77a74fe12f390c0cc95ab179a0b61a5a'
-const senderTestAddress = '0x110600bF0399174520a159ed425f0D272Ff8b459'
-const receiverTestAddress = '0xbBa4d06D1cEf94b35aDeCfDa893523907fdD36DE'
-const tokenTestAddress = '0x4294cb0dD25dC9140B5127f247cBd47Eeb673431'
-const nftTestAddress = '0x06B8B36e4feD2206E980445C0f0829fc6B2aA91F'
-const transferTestAmount = 0.0001
-const tokenTransferTestAmount = 1
-const tokenApproveTestAmount = 100
-const nftTransferId = 7
+const balanceTestAddress = String(process.env.BALANCE_TEST_ADDRESS)
+const senderPrivateKey = String(process.env.SENDER_PRIVATE_KEY)
+const receiverPrivateKey = String(process.env.RECEIVER_PRIVATE_KEY)
+const senderTestAddress = String(process.env.SENDER_TEST_ADDRESS)
+const receiverTestAddress = String(process.env.RECEIVER_TEST_ADDRESS)
+const tokenTestAddress = String(process.env.TOKEN_TEST_ADDRESS)
+const nftTestAddress = String(process.env.NFT_TEST_ADDRESS)
 
 const waitSecondsBeforeThanNewTx = async (seconds: number): Promise<any> => {
     return await new Promise((resolve) => setTimeout(resolve, seconds * 1000))

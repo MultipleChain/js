@@ -6,22 +6,22 @@ import { CoinTransaction } from '../src/models/CoinTransaction.ts'
 import { TokenTransaction } from '../src/models/TokenTransaction.ts'
 import { AssetDirectionEnum, TransactionStatusEnum } from '@multiplechain/types'
 
-const etherTransferTx = '0x566002399664e92f82ed654c181095bdd7ff3d3f1921d963257585891f622251'
-const tokenTransferTx = '0xdabda3905e585db91768f2ef877f7fbef7c0e8612c0a09c7b379981bdbc48975'
-const nftTransferTx = '0x272a4698cd2062f2463481cf9eb78b68b35d59938383679b7642e6d669ac87eb'
+const nftId = Number(process.env.NFT_ID)
+const tokenAmount = Number(process.env.TOKEN_AMOUNT)
+const coinAmount = Number(process.env.COIN_AMOUNT)
 
-const nftId = 7
-const tokenAmount = 1
-const coinAmount = 0.002548
+const etherTransferTx = String(process.env.ETHER_TRANSFER_TX)
+const tokenTransferTx = String(process.env.TOKEN_TRANSFER_TX)
+const nftTransferTx = String(process.env.NFT_TRANSFER_TX)
 
-const coinSender = '0x74dBE9cA4F93087A27f23164d4367b8ce66C33e2'
-const coinReceiver = '0xb3C86232c163A988Ce4358B10A2745864Bfaa3Ba'
+const coinSender = String(process.env.COIN_SENDER)
+const coinReceiver = String(process.env.COIN_RECEIVER)
 
-const tokenSender = '0x110600bF0399174520a159ed425f0D272Ff8b459'
-const tokenReceiver = '0xbBa4d06D1cEf94b35aDeCfDa893523907fdD36DE'
+const tokenSender = String(process.env.TOKEN_SENDER)
+const tokenReceiver = String(process.env.TOKEN_RECEIVER)
 
-const nftSender = '0xbBa4d06D1cEf94b35aDeCfDa893523907fdD36DE'
-const nftReceiver = '0x110600bF0399174520a159ed425f0D272Ff8b459'
+const nftSender = String(process.env.NFT_SENDER)
+const nftReceiver = String(process.env.NFT_RECEIVER)
 
 describe('Transaction', () => {
     const tx = new Transaction(etherTransferTx)

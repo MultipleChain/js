@@ -59,6 +59,9 @@ devDependencies:
   vite-plugin-dts:
     specifier: ^3.8.1
     version: 3.8.1(@types/node@20.11.20)(typescript@5.3.3)(vite@5.1.4)
+  vite-plugin-env-compatible:
+    specifier: ^2.0.1
+    version: 2.0.1
   vite-plugin-node-polyfills:
     specifier: ^0.21.0
     version: 0.21.0(vite@5.1.4)
@@ -1680,6 +1683,15 @@ packages:
   /domain-browser@4.23.0:
     resolution: {integrity: sha512-ArzcM/II1wCCujdCNyQjXrAFwS4mrLh4C7DZWlaI8mdh7h3BfKdNd3bKXITfl2PT9FtfQqaGvhi1vPRQPimjGA==}
     engines: {node: '>=10'}
+    dev: true
+
+  /dotenv-expand@5.1.0:
+    resolution: {integrity: sha512-YXQl1DSa4/PQyRfgrv6aoNjhasp/p4qs9FjJ4q4cQk+8m4r6k4ZSiEyytKG8f8W9gi8WsQtIObNmKd+tMzNTmA==}
+    dev: true
+
+  /dotenv@8.2.0:
+    resolution: {integrity: sha512-8sJ78ElpbDJBHNeBzUbUVLsqKdccaa/BXF1uPTw3GrvQTBgrQrtObr2mUrE38vzYd8cEv+m/JBfDLioYcfXoaw==}
+    engines: {node: '>=8'}
     dev: true
 
   /elliptic@6.5.4:
@@ -4014,6 +4026,13 @@ packages:
       - '@types/node'
       - rollup
       - supports-color
+    dev: true
+
+  /vite-plugin-env-compatible@2.0.1:
+    resolution: {integrity: sha512-DRrOZTg/W44ojVQQfGSMPEgYQGzp5TeIpt9cpaK35hTOC/b2D7Ffl8/RIgK8vQ0mlnDIUgETcA173bnMEkyzdw==}
+    dependencies:
+      dotenv: 8.2.0
+      dotenv-expand: 5.1.0
     dev: true
 
   /vite-plugin-node-polyfills@0.21.0(vite@5.1.4):

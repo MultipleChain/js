@@ -14,7 +14,7 @@ export class TokenTransaction extends ContractTransaction implements TokenTransa
      * @param {InterfaceAbi} ABI Contract ABI
      */
     constructor(id: string, provider?: Provider, ABI?: InterfaceAbi) {
-        super(id, provider, ABI ?? ERC20)
+        super(id, provider, ABI ?? (ERC20 as InterfaceAbi))
     }
 
     /**

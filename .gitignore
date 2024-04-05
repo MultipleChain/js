@@ -16,6 +16,7 @@ index.html
 test*.ts
 test*.js
 test*.cjs
+.env
 
 # Editor directories and files
 .vscode/*

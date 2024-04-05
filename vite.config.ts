@@ -1,11 +1,13 @@
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
+import envCompatible from 'vite-plugin-env-compatible'
 
 export default defineConfig({
     plugins: [
         dts({
             entryRoot: './src'
-        })
+        }),
+        envCompatible()
     ],
     build: {
         minify: true,
