@@ -51,7 +51,7 @@
     },
     "dependencies": {
         "@multiplechain/types": "^0.1.35",
-        "@multiplechain/utils": "^0.1.15",
+        "@multiplechain/utils": "^0.1.16",
         "@wagmi/chains": "^1.8.0",
         "ethers": "^6.11.1"
     }

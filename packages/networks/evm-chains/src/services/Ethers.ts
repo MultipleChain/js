@@ -62,11 +62,11 @@ export class Ethers {
             } else {
                 const url = this.network.wsUrl
                 checkWebSocket(url)
-                    .then((status) => {
-                        if (status === true) {
-                            resolve((this.webSocketProvider = new WebSocketProvider(url)))
+                    .then((status: any) => {
+                        if (status instanceof Error) {
+                            reject(status)
                         } else {
-                            reject(new Error('WebSocket is not available'))
+                            resolve((this.webSocketProvider = new WebSocketProvider(url)))
                         }
                     })
                     .catch(reject)

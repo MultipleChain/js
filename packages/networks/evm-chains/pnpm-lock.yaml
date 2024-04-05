@@ -9,8 +9,8 @@ dependencies:
     specifier: ^0.1.35
     version: 0.1.35
   '@multiplechain/utils':
-    specifier: ^0.1.15
-    version: 0.1.15
+    specifier: ^0.1.16
+    version: 0.1.16
   '@wagmi/chains':
     specifier: ^1.8.0
     version: 1.8.0
@@ -28,8 +28,8 @@ packages:
     resolution: {integrity: sha512-szg+arayBvT3WivUa9l6ZYjS6tNjhFMDpQCcAUL94s5yWpDM73OnHMA861XVVVY0xIUgJpzCj32PlJU+CARYow==}
     dev: false
 
-  /@multiplechain/utils@0.1.15:
-    resolution: {integrity: sha512-52jI4QAR3zNvk59TDvZ93xWNp96Vnx6fqXd4/XaVWcfITHwKJgfupnk/QqwaZsJ0a4IPxyz5AVtZ3pESwL7X+Q==}
+  /@multiplechain/utils@0.1.16:
+    resolution: {integrity: sha512-wJPLuHRt2r8DZt0S6YkeRZRRcy/bc20/Y0xolESOIWfLdBy/N5YKBMJaAwEV+pOWuP77Mx+rzZBlfeOBmvZBXw==}
     dependencies:
       '@types/ws': 8.5.10
       bignumber.js: 9.1.2
