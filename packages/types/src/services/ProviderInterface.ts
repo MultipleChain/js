@@ -24,4 +24,9 @@ export interface ProviderInterface {
      * Get the current network configuration is testnet or not
      */
     isTestnet: () => boolean
+
+    /**
+     * Check RPC connection
+     */
+    checkConnection: (url: string) => Promise<boolean | Error>
 }

@@ -121,7 +121,7 @@ export interface TransactionListenerInterface<T extends TransactionTypeEnum> {
      * 'filter' is an object that has values depending on transaction listener type.
      * E.g. no matter which type of transaction is listening, 'filter' has to have a 'sender' value
      */
-    filter?: DynamicTransactionListenerFilterType<T>
+    filter?: DynamicTransactionListenerFilterType<T> | Record<string, never>
 
     /**
      * stop() method closes the corresponding listener of the instance it's called from.
