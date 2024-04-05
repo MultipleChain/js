@@ -128,20 +128,20 @@ export const sleep = async (ms: number): Promise<void> => {
 
 /**
  * Checks if the given objects are equal
- * @param {any} o1
- * @param {any} o2
+ * @param {object} o1
+ * @param {object} o2
  * @returns boolean
  */
-export const objectsEqual = (o1: any, o2: any): boolean => {
+export const objectsEqual = (o1: object, o2: object): boolean => {
     return JSON.stringify(o1) === JSON.stringify(o2)
 }
 
 /**
  * checks if the given url is a valid websocket url
  * @param {string} url
- * @returns {Promise<boolean | string>}
+ * @returns {Promise<boolean>}
  */
-export const checkWebSocket = async (url: string): Promise<boolean | string> => {
+export const checkWebSocket = async (url: string): Promise<boolean> => {
     return await new Promise((resolve, reject) => {
         let socket: WebSocket | NodeWebSocket
 
@@ -157,7 +157,7 @@ export const checkWebSocket = async (url: string): Promise<boolean | string> => 
         }
 
         socket.onerror = (error: ErrorEvent) => {
-            reject(error.message)
+            reject(new Error(error.message))
             socket.close()
         }
     })
