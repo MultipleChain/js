@@ -48,6 +48,6 @@
     },
     "dependencies": {
         "@multiplechain/types": "^0.1.35",
-        "@multiplechain/utils": "^0.1.15"
+        "@multiplechain/utils": "^0.1.16"
     }
 }
