@@ -28,7 +28,7 @@
         "lint": "eslint . --ext .ts",
         "test": "vitest run --dir tests",
         "prepublishOnly": "pnpm run build",
-        "build": "pnpm run build:vite && pnpm run build:node"
+        "build": "pnpm run build:vite && pnpm run build:node && tsx cdt.ts"
     },
     "keywords": [
         "web3",

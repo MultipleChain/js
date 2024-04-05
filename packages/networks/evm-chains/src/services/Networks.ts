@@ -42,24 +42,31 @@ Object.keys(wagmiChains).forEach((key) => {
     networks[key === 'mainnet' ? 'ethereum' : key] = network
 })
 
-export const findByKey = (key: string): EvmNetworkConfigInterface | undefined => {
-    return networks[key]
-}
-
-export const findByName = (name: string): EvmNetworkConfigInterface | undefined => {
-    return Object.values(networks).find((network) => network.name?.includes(name))
-}
-
-export const findById = (id: number): EvmNetworkConfigInterface | undefined => {
+const findById = (id: number): EvmNetworkConfigInterface | undefined => {
     return Object.values(networks).find((network) => network.id === id)
 }
 
-export const findByHexId = (hexId: string): EvmNetworkConfigInterface | undefined => {
+const findByKey = (key: string): EvmNetworkConfigInterface | undefined => {
+    return networks[key]
+}
+
+const findByName = (name: string): EvmNetworkConfigInterface | undefined => {
+    return Object.values(networks).find((network) => network.name?.includes(name))
+}
+
+const findByHexId = (hexId: string): EvmNetworkConfigInterface | undefined => {
     return Object.values(networks).find((network) => network.hexId === hexId)
 }
 
-export const findBySymbol = (symbol: string): EvmNetworkConfigInterface | undefined => {
+const findBySymbol = (symbol: string): EvmNetworkConfigInterface | undefined => {
     return Object.values(networks).find((network) => network.nativeCurrency.symbol === symbol)
 }
 
-export default networks
+export default {
+    findById,
+    findByKey,
+    findByName,
+    findByHexId,
+    findBySymbol,
+    ...networks
+}
