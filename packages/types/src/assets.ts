@@ -13,20 +13,20 @@ export interface ContractInterface {
     address: string
 
     /**
-     * @returns Given contract address
+     * @returns {string} Given contract address
      */
     getAddress: () => string
 
     /**
-     * @param method Method name
-     * @param args Method parameters
+     * @param {string} method Method name
+     * @param {any[]} args Method parameters
      * Runs the contract methods dynamically
      */
     callMethod: (method: string, ...args: any[]) => Promise<any>
 
     /**
-     * @param method Method name
-     * @param args Method parameters
+     * @param {string} method Method name
+     * @param {any[]} args Method parameters
      * To get information from called method
      * @returns Data used in transaction
      */
@@ -35,26 +35,27 @@ export interface ContractInterface {
 
 export interface AssetInterface {
     /**
-     * @returns Name of the asset (long name)
+     * @returns {string} Name of the asset (long name)
      */
     getName: () => string
 
     /**
-     * @returns Symbol of the asset (short name)
+     * @returns {string} Symbol of the asset (short name)
      */
     getSymbol: () => string
 
     /**
-     * @param owner Address of the wallet
-     * @returns Wallet balance as currency of TOKEN or COIN assets
+     * @param {string} owner Address of the wallet
+     * @returns {Promise<number>} Wallet balance as currency of TOKEN or COIN assets
      */
     getBalance: (owner: string) => Promise<number>
 
     /**
      * transfer() method is the main method for processing transfers for fungible assets (TOKEN, COIN)
-     * @param sender Sender wallet address
-     * @param receiver Receiver wallet address
-     * @param amount Amount of assets that will be transferred
+     * @param {string} sender Sender wallet address
+     * @param {string} receiver Receiver wallet address
+     * @param {number} amount Amount of assets that will be transferred
+     * @returns {Promise<TransactionSignerInterface>} Transaction signer interface
      */
     transfer: (
         sender: string,
@@ -66,7 +67,7 @@ export interface AssetInterface {
 // Sub Interfaces
 export interface CoinInterface extends AssetInterface {
     /**
-     * @returns Decimal value of the coin
+     * @returns {number} Decimal value of the coin
      */
     getDecimals: () => number
 }
@@ -75,38 +76,38 @@ export interface TokenInterface
     extends Omit<AssetInterface, 'getName' | 'getSymbol'>,
         ContractInterface {
     /**
-     * @returns Name of the asset (long name)
+     * @returns {Promise<string>} Name of the asset (long name)
      */
     getName: () => Promise<string>
 
     /**
-     * @returns Symbol of the asset (short name)
+     * @returns {Promise<string>} Symbol of the asset (short name)
      */
     getSymbol: () => Promise<string>
 
     /**
-     * @returns Decimal value of the token
+     * @returns {Promise<number>} Decimal value of the token
      */
     getDecimals: () => Promise<number>
 
     /**
-     * @returns Total supply of the token
+     * @returns {Promise<number>} Total supply of the token
      */
     getTotalSupply: () => Promise<number>
 
     /**
-     * @param owner Address of owner of the tokens that is being used
-     * @param spender Address of the spender that is using the tokens of owner
-     * @returns Amount of the tokens that is being used by spender
+     * @param {string} owner Address of owner of the tokens that is being used
+     * @param {string} spender Address of the spender that is using the tokens of owner
+     * @returns {Promise<number>} Amount of the tokens that is being used by spender
      */
     getAllowance: (owner: string, spender: string) => Promise<number>
 
     /**
-     * @param spender Address of the spender of transaction
-     * @param owner Sender wallet address
-     * @param receiver Receiver wallet address
-     * @param amount Amount of tokens that will be transferred
-     * @override transfer() in AssetInterface
+     * @param {string} spender Address of the spender of transaction
+     * @param {string} owner Sender wallet address
+     * @param {string} receiver Receiver wallet address
+     * @param {number} amount Amount of tokens that will be transferred
+     * @returns {Promise<TransactionSignerInterface>} Transaction signer interface
      */
     transferFrom: (
         spender: string,
@@ -117,9 +118,10 @@ export interface TokenInterface
 
     /**
      * Gives permission to the spender to spend owner's tokens
-     * @param owner Address of owner of the tokens that will be used
-     * @param spender Address of the spender that is using the tokens of owner
-     * @param amount Amount of the tokens that will be used
+     * @param {string} owner Address of owner of the tokens that will be used
+     * @param {string} spender Address of the spender that is using the tokens of owner
+     * @param {number} amount Amount of the tokens that will be used
+     * @returns {Promise<TransactionSignerInterface>} Transaction signer interface
      */
     approve: (owner: string, spender: string, amount: number) => Promise<TransactionSignerInterface>
 }
@@ -128,64 +130,70 @@ export interface NftInterface
     extends Omit<AssetInterface, 'transfer' | 'getName' | 'getSymbol'>,
         ContractInterface {
     /**
-     * @returns Name of the asset (long name)
+     * @returns {Promise<string>} Name of the asset (long name)
      */
     getName: () => Promise<string>
 
     /**
-     * @returns Symbol of the asset (short name)
+     * @returns {Promise<string>} Symbol of the asset (short name)
      */
     getSymbol: () => Promise<string>
 
     /**
-     * @param nftId ID of the NFT
-     * @returns Wallet address of owner of the NFT
+     * @param {number | string} nftId ID of the NFT
+     * @returns  {Promise<string>} Wallet address of owner of the NFT
      */
-    getOwner: (nftId: number) => Promise<string>
+    getOwner: (nftId: number | string) => Promise<string>
 
     /**
-     * @param nftId ID of the NFT
-     * @returns URL of the metadata
+     * @param {number | string} nftId ID of the NFT
+     * @returns {Promise<string>} URL of the metadata
      */
-    getTokenURI: (nftId: number) => Promise<string | URL>
+    getTokenURI: (nftId: number | string) => Promise<string>
 
     /**
-     * @param nftId ID of the NFT that will be transferred
-     * @returns Amount of the tokens that is being used by spender
+     * @param {number | string} nftId ID of the NFT that will be transferred
+     * @returns {Promise<string>} Amount of the tokens that is being used by spender
      */
-    getApproved: (nftId: number) => Promise<string>
+    getApproved: (nftId: number | string) => Promise<string>
 
     /**
      * Transfers an NFT
-     * @param sender Sender wallet address
-     * @param receiver Receiver wallet address
-     * @param nftId ID of the NFT that will be transferred
+     * @param {string} sender Sender wallet address
+     * @param {string} receiver Receiver wallet address
+     * @param {number | string} nftId ID of the NFT that will be transferred
      * @override transfer() in AssetInterface
+     * @returns {Promise<TransactionSignerInterface>} Transaction signer interface
      */
     transfer: (
         sender: string,
         receiver: string,
-        nftId: number
+        nftId: number | string
     ) => Promise<TransactionSignerInterface>
 
     /**
-     * @param spender Address of the spender of transaction
-     * @param owner Address of owner of the nfts that will be used
-     * @param receiver Address of the receiver that will receive the nfts
-     * @param nftId ID of the NFT that will be transferred
+     * @param {string} spender Address of the spender of transaction
+     * @param {string} owner Address of owner of the nfts that will be used
+     * @param {string} receiver Address of the receiver that will receive the nfts
+     * @param {number | string} nftId ID of the NFT that will be transferred
+     * @returns {Promise<TransactionSignerInterface>} Transaction signer interface
      */
     transferFrom: (
         spender: string,
         owner: string,
         receiver: string,
-        nftId: number
+        nftId: number | string
     ) => Promise<TransactionSignerInterface>
 
     /**
      * Gives permission to the spender to spend owner's tokens
-     * @param owner Address of owner of the tokens that will be used
-     * @param spender Address of the spender that will use the tokens of owner
-     * @param nftId ID of the NFT that will be transferred
+     * @param {string} owner Address of owner of the tokens that will be used
+     * @param {string} spender Address of the spender that will use the tokens of owner
+     * @param {number | string} nftId ID of the NFT that will be transferred
      */
-    approve: (owner: string, spender: string, nftId: number) => Promise<TransactionSignerInterface>
+    approve: (
+        owner: string,
+        spender: string,
+        nftId: number | string
+    ) => Promise<TransactionSignerInterface>
 }

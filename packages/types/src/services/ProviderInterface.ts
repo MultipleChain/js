@@ -17,16 +17,27 @@ export interface ProviderInterface {
 
     /**
      * Update network configuration of the provider
+     * @param {NetworkConfigInterface} network - Network configuration
      */
     update: (network: NetworkConfigInterface) => void
 
     /**
      * Get the current network configuration is testnet or not
+     * @returns {boolean}
      */
     isTestnet: () => boolean
 
     /**
      * Check RPC connection
+     * @param {string} url - RPC URL
+     * @returns {Promise<boolean | Error>}
      */
-    checkConnection: (url: string) => Promise<boolean | Error>
+    checkRpcConnection: (url?: string) => Promise<boolean | Error>
+
+    /**
+     * Check WS connection
+     * @param {string} url - Websocket URL
+     * @returns {Promise<boolean | Error>}
+     */
+    checkWsConnection: (url?: string) => Promise<boolean | Error>
 }

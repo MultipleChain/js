@@ -37,7 +37,7 @@ interface TokenTransactionListenerFilterInterface
 interface NftTransactionListenerFilterInterface
     extends AssetTransactionListenerFilterInterface,
         ContractTransactionListenerFilterInterface {
-    nftId?: number
+    nftId?: number | string
 }
 /**
  * Filter types for each transaction type in TransactionListenerInterface
@@ -125,29 +125,34 @@ export interface TransactionListenerInterface<T extends TransactionTypeEnum> {
 
     /**
      * stop() method closes the corresponding listener of the instance it's called from.
+     * @returns {void}
      */
     stop: () => void
 
     /**
      * start() method starts the corresponding listener of the instance it's called from.
+     * @returns {void}
      */
     start: () => void
 
     /**
      * getStatus() method returns the status of the listener.
+     * @returns {boolean}
      */
     getStatus: () => boolean
 
     /**
      * on() method is a listener that listens to the transaction events.
      * When a transaction is detected, it triggers the event.
-     * @param callback - a function that is triggered when a transaction is detected.
+     * @param {TransactionListenerCallbackType} callback - a function that is triggered when a transaction is detected.
+     * @return {Promise<boolean>}
      */
-    on: (callback: TransactionListenerCallbackType) => void
+    on: (callback: TransactionListenerCallbackType) => Promise<boolean>
 
     /**
      * trigger() method triggers the event when a transaction is detected.
-     * @param transaction - the transaction that is detected
+     * @param {DynamicTransactionType<T>} transaction - a transaction that is detected.
+     * @return {void}
      */
     trigger: (transaction: DynamicTransactionType<T>) => void
 

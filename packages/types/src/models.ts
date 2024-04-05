@@ -7,84 +7,85 @@ export interface TransactionInterface {
     id: string
 
     /**
-     * @returns Promise of the transaction status
+     * @returns {Promise<TransactionStatusEnum>} Promise of the transaction status
      */
     wait: () => Promise<TransactionStatusEnum>
 
     /**
-     * @returns Raw transaction data that is taken by blockchain network via RPC.
+     * @returns {Promise<object | null>} Raw transaction data that is taken by blockchain network via RPC.
      */
     getData: () => Promise<object | null>
 
     /**
-     * @returns Transaction id from the blockchain network
+     * @returns {string} ID of the transaction
      * this can be different names like txid, hash, signature etc.
      */
     getId: () => string
 
     /**
-     * @returns Blockchain explorer URL of the transaction. Dependant on network.
+     * @returns {string} Blockchain explorer URL of the transaction. Dependant on network.
      */
     getUrl: () => string
 
     /**
-     * @returns Wallet address of the signer of transaction
+     * @returns {Promise<string>} Wallet address of the signer of transaction
      */
     getSigner: () => Promise<string>
 
     /**
-     * @returns Transaction fee as native coin amount
+     * @returns {Promise<number>} Transaction fee as native coin amount
      */
     getFee: () => Promise<number>
 
     /**
-     * @returns Block ID of the transaction
+     * @returns {Promise<number>} Block ID of the transaction
      */
     getBlockNumber: () => Promise<number>
 
     /**
-     * @returns UNIX timestamp of the date that block is added to blockchain
+     * @returns {Promise<number>} UNIX timestamp of the date that block is added to blockchain
      */
     getBlockTimestamp: () => Promise<number>
 
     /**
-     * @returns Block confirmation amount
+     * @returns {Promise<number>} Block confirmation amount
      */
     getBlockConfirmationCount: () => Promise<number>
 
     /**
-     * @returns Status of the transaction.
+     * @returns {Promise<TransactionStatusEnum>} Status of the transaction.
      */
     getStatus: () => Promise<TransactionStatusEnum>
 }
 
 export interface ContractTransactionInterface extends TransactionInterface {
     /**
-     * @returns Smart contract address of the transaction
+     * @returns {Promise<string>} Smart contract address of the transaction
      */
     getAddress: () => Promise<string>
 }
 
 export interface AssetTransactionInterface extends TransactionInterface {
     /**
-     * @returns Receiver wallet address of the transaction (asset)
+     * @returns {Promise<string>} Receiver wallet address of the transaction (asset)
      */
     getReceiver: () => Promise<string>
 
     /**
-     * @returns Wallet address of the sender of asset
+     * @returns {Promise<string>} Wallet address of the sender of asset
      */
     getSender: () => Promise<string>
 
     /**
-     * @returns Transfer amount of the transaction (coin)
+     * @returns {Promise<number>} Transfer amount of the transaction (coin)
      */
     getAmount: () => Promise<number>
 
     /**
-     * @param direction - Direction of the transaction (asset)
-     * @param address - Wallet address of the receiver or sender of the transaction, dependant on direction
-     * @param amount Amount of assets that will be transferred
+     * @param {AssetDirectionEnum} direction - Direction of the transaction (asset)
+     * @param {string} address - Wallet address of the receiver or sender of the transaction, dependant on direction
+     * @param {number} amount Amount of assets that will be transferred
+     * @returns {Promise<TransactionStatusEnum>} Status of the transaction
      */
     verifyTransfer: (
         direction: AssetDirectionEnum,
@@ -103,19 +104,20 @@ export interface NftTransactionInterface
     extends Omit<AssetTransactionInterface, 'verifyTransfer' | 'getAmount'>,
         ContractTransactionInterface {
     /**
-     * @returns ID of the NFT
+     * @returns {Promise<number | string>} ID of the NFT
      */
-    getNftId: () => Promise<number>
+    getNftId: () => Promise<number | string>
 
     /**
-     * @param direction - Direction of the transaction (nft)
-     * @param address - Wallet address of the receiver or sender of the transaction, dependant on direction
-     * @param nftId ID of the NFT that will be transferred
+     * @param {AssetDirectionEnum} direction - Direction of the transaction (nft)
+     * @param {string} address - Wallet address of the receiver or sender of the transaction, dependant on direction
+     * @param {number | string} nftId ID of the NFT that will be transferred
      * @override verifyTransfer() in AssetTransactionInterface
+     * @returns {Promise<TransactionStatusEnum>} Status of the transaction
      */
     verifyTransfer: (
         direction: AssetDirectionEnum,
         address: string,
-        nftId: number
+        nftId: number | string
     ) => Promise<TransactionStatusEnum>
 }
