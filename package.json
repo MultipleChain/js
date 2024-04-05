@@ -3,10 +3,6 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
-    "build:watch": "vite build --watch",
     "test": "vitest",
     "format": "prettier --write packages/",
     "lint": "eslint . --ext .ts --ignore-path .gitignore"

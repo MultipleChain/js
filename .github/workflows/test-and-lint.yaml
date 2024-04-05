@@ -1,0 +1,49 @@
+name: Test and Lint Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+    branches:
+      - alpha
+      - master
+
+jobs:
+  test_and_lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Create .env file
+        run: cp .env.example .env
+
+      - name: Install dependencies
+        run: |
+          npm install -g pnpm
+
+          for dir in packages/*/ packages/networks/*/; do
+            if [ -d "$dir" ] && [ "$(basename "$dir")" != "boilerplate" ]; then
+              cd "$dir" || exit
+              pnpm install
+              cd - || exit
+            fi
+          done
+
+      - name: Run test
+        run: npm run test
+
+      - name: Runt lint
+        run: npm run lint
+
+      - name: Set PR status
+        if: ${{ github.event_name == 'pull_request' }}
+        run: |
+          TOKEN="${{ secrets.GITHUB_TOKEN }}"
+          STATUS_URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}"
+          STATUS="{\"state\":\"success\",\"context\":\"Test Process\",\"description\":\"Test Process passed\"}"
+          curl -X POST -H "Authorization: token $TOKEN" -d "$STATUS" "$STATUS_URL"
