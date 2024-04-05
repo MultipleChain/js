@@ -20,3 +20,5 @@ const updatedContent =
     content.slice(0, insertIndex) + networkTypes.join('\n') + '\n' + content.slice(insertIndex)
 
 fs.writeFileSync('./dist/services/Networks.d.ts', updatedContent)
+
+console.log('Dynamic types created successfully!')

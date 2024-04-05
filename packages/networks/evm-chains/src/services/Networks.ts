@@ -62,11 +62,21 @@ const findBySymbol = (symbol: string): EvmNetworkConfigInterface | undefined => 
     return Object.values(networks).find((network) => network.nativeCurrency.symbol === symbol)
 }
 
+const getTestnets = (): EvmNetworkConfigInterface[] => {
+    return Object.values(networks).filter((network) => network.testnet ?? false)
+}
+
+const getMainnets = (): EvmNetworkConfigInterface[] => {
+    return Object.values(networks).filter((network) => !(network.testnet ?? false))
+}
+
 export default {
     findById,
     findByKey,
     findByName,
     findByHexId,
     findBySymbol,
+    getTestnets,
+    getMainnets,
     ...networks
 }
