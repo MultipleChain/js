@@ -124,7 +124,7 @@ export class TransactionListener<T extends TransactionTypeEnum>
     /**
      * Listen to the transaction events
      * @param {TransactionListenerCallbackType} callback - Callback function
-     * @returns {void}
+     * @returns {Promise<boolean>}
      */
     async on(callback: TransactionListenerCallbackType): Promise<boolean> {
         if (this.webSocket === undefined) {

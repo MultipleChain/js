@@ -50,23 +50,23 @@ export class NftTransaction extends ContractTransaction implements NftTransactio
     }
 
     /**
-     * @returns {Promise<number>} NFT ID
+     * @returns {Promise<number | string>} NFT ID
      */
-    async getNftId(): Promise<number> {
+    async getNftId(): Promise<number | string> {
         return Number((await this.decodeData())?.args[2] ?? 0)
     }
 
     /**
      * @param {AssetDirectionEnum} direction - Direction of the transaction (nft)
      * @param {string} address - Wallet address of the receiver or sender of the transaction, dependant on direction
-     * @param {number} nftId ID of the NFT that will be transferred
+     * @param {number | string} nftId ID of the NFT that will be transferred
      * @override verifyTransfer() in AssetTransactionInterface
      * @returns {Promise<TransactionStatusEnum>} Status of the transaction
      */
     async verifyTransfer(
         direction: AssetDirectionEnum,
         address: string,
-        nftId: number
+        nftId: number | string
     ): Promise<TransactionStatusEnum> {
         const status = await this.getStatus()
 

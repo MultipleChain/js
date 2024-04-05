@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "rootDir": "./",
         "declaration": true,
         "types": ["node"],
         "target": "ES2020",
@@ -23,12 +24,13 @@
         "strictPropertyInitialization": false
     },
     "include": [
+        "packages/networks/**/*.ts",
         "packages/**/*.ts",
         ".eslintrc.json",
         "vite.config.ts",
         "vitest.config.ts",
         "vite-env.d.ts",
-        "esbuild.ts"
+        "esbuild.ts",
     ],
-    "exclude": ["node_modules", "dist", "packages/**/*.d.ts"]
+    "exclude": ["node_modules", "dist", "packages/**/*.d.ts", "test*.ts"]
 }

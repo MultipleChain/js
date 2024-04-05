@@ -5,6 +5,8 @@ import {
     type ProviderInterface
 } from '@multiplechain/types'
 
+import { checkWebSocket } from '@multiplechain/utils'
+
 export interface EvmNetworkConfigInterface extends NetworkConfigInterface {
     id: number
     hexId?: string
@@ -72,9 +74,9 @@ export class Provider implements Omit<ProviderInterface, 'update'> {
      * @param {string} url - RPC URL
      * @returns {Promise<boolean | Error>}
      */
-    async checkConnection(url: string): Promise<boolean | Error> {
+    async checkRpcConnection(url?: string): Promise<boolean | Error> {
         try {
-            const response = await fetch(url, {
+            const response = await fetch(url ?? this.network.rpcUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -94,6 +96,25 @@ export class Provider implements Omit<ProviderInterface, 'update'> {
             return true
         } catch (error) {
             return error as any
+        }
+    }
+
+    /**
+     * Check WS connection
+     * @param {string} url - Websocket URL
+     * @returns {Promise<boolean | Error>}
+     */
+    async checkWsConnection(url?: string): Promise<boolean | Error> {
+        try {
+            const result = await checkWebSocket(url ?? this.network.rpcUrl)
+
+            if (result === true) {
+                return true
+            }
+
+            return new Error(result as string)
+        } catch (error) {
+            return error as Error
         }
     }
 

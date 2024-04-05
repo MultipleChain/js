@@ -50,7 +50,7 @@
         "url": "https://github.com/MultipleChain/js/issues"
     },
     "dependencies": {
-        "@multiplechain/types": "^0.1.31",
+        "@multiplechain/types": "^0.1.35",
         "@multiplechain/utils": "^0.1.15",
         "@wagmi/chains": "^1.8.0",
         "ethers": "^6.11.1"
