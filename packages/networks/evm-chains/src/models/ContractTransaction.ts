@@ -8,10 +8,7 @@ import {
 } from 'ethers'
 import type { Provider } from '../services/Provider.ts'
 
-export abstract class ContractTransaction
-    extends Transaction
-    implements ContractTransactionInterface
-{
+export class ContractTransaction extends Transaction implements ContractTransactionInterface {
     /**
      * @type {InterfaceAbi}
      */
