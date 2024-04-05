@@ -1,0 +1,48 @@
+name: NPM Auto Publish
+
+on:
+  release:
+    types:
+      - released
+    branches: 
+      - master
+
+jobs:
+  check-packages:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Login to npm registry
+        run: npm config set //registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN
+        env:
+          NPM_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
+
+      - name: Check if version changed
+        run: |
+          npm install -g pnpm
+
+          for dir in packages/*/ packages/networks/*/; do
+            if [ -d "$dir" ] && [ "$(basename "$dir")" != "boilerplate" ]; then
+              cd "$dir" || exit
+
+              PACKAGE_INFO=$(node -p "JSON.stringify(require('./package.json'))")
+              PACKAGE_NAME=$(echo "$PACKAGE_INFO" | jq -r '.name')
+              CURRENT_VERSION=$(echo "$PACKAGE_INFO" | jq -r '.version')
+
+              PREVIOUS_VERSION=$(npm show "$PACKAGE_NAME" version)
+
+              if [ "$PREVIOUS_VERSION" != "$CURRENT_VERSION" ]; then
+                echo "Version changed for $PACKAGE_NAME from $PREVIOUS_VERSION to $CURRENT_VERSION"
+                pnpm install && npm publish
+              fi
+
+              cd - || exit
+            fi
+          done
