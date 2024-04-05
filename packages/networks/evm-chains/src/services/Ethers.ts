@@ -53,20 +53,20 @@ export class Ethers {
     }
 
     /**
-     * @returns {WebSocketProvider | undefined}
+     * @returns {WebSocketProvider}
      */
-    public async connectWebSocket(): Promise<WebSocketProvider | undefined> {
+    public async connectWebSocket(): Promise<WebSocketProvider> {
         return await new Promise((resolve, reject) => {
             if (this.network.wsUrl === undefined) {
-                resolve(undefined)
+                reject(new Error('WebSocket URL is not defined'))
             } else {
                 const url = this.network.wsUrl
                 checkWebSocket(url)
                     .then((status) => {
-                        if (status) {
+                        if (status === true) {
                             resolve((this.webSocketProvider = new WebSocketProvider(url)))
                         } else {
-                            resolve(undefined)
+                            reject(new Error('WebSocket is not available'))
                         }
                     })
                     .catch(reject)

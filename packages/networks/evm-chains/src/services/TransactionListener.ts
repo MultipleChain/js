@@ -16,16 +16,16 @@ import { CoinTransaction } from '../models/CoinTransaction.ts'
 import { TokenTransaction } from '../models/TokenTransaction.ts'
 import { TransactionListenerProcessIndex } from '@multiplechain/types'
 import { ContractTransaction } from '../models/ContractTransaction.ts'
-import type {
-    WebSocketProvider,
-    JsonRpcApiProvider,
-    EventFilter,
-    Log,
-    TransactionResponse
+import {
+    type WebSocketProvider,
+    type JsonRpcApiProvider,
+    type EventFilter,
+    type Log,
+    type TransactionResponse
 } from 'ethers'
 
 export class TransactionListener<T extends TransactionTypeEnum>
-    implements Omit<TransactionListenerInterface<T>, 'filter'>
+    implements TransactionListenerInterface<T>
 {
     /**
      * Transaction type
@@ -129,7 +129,7 @@ export class TransactionListener<T extends TransactionTypeEnum>
     async on(callback: TransactionListenerCallbackType): Promise<boolean> {
         if (this.webSocket === undefined) {
             const socket = await this.provider.ethers.connectWebSocket()
-            if (socket === undefined) {
+            if (typeof socket === 'string') {
                 throw new Error('WebSocket connection is not available')
             } else {
                 this.webSocket = socket

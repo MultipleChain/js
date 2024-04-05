@@ -68,6 +68,36 @@ export class Provider implements Omit<ProviderInterface, 'update'> {
     }
 
     /**
+     * Check RPC connection
+     * @param {string} url - RPC URL
+     * @returns {Promise<boolean | Error>}
+     */
+    async checkConnection(url: string): Promise<boolean | Error> {
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    jsonrpc: '2.0',
+                    method: 'eth_getChainId',
+                    params: [],
+                    id: 1
+                })
+            })
+
+            if (!response.ok) {
+                return new Error(response.statusText + ': ' + (await response.text()))
+            }
+
+            return true
+        } catch (error) {
+            return error as any
+        }
+    }
+
+    /**
      * Update network configuration of the provider
      * @param {EvmNetworkConfigInterface} network - Network configuration of the provider
      * @returns {void}
