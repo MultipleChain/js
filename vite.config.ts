@@ -1,25 +1,21 @@
 import { defineConfig } from 'vite'
-import { nodePolyfills } from 'vite-plugin-node-polyfills'
+import dts from 'vite-plugin-dts'
+import envCompatible from 'vite-plugin-env-compatible'
 
-// https://vitejs.dev/config/
 export default defineConfig({
-    plugins: [nodePolyfills()],
+    plugins: [
+        dts({
+            entryRoot: './src'
+        }),
+        envCompatible()
+    ],
     build: {
-        commonjsOptions: {
-            transformMixedEsModules: true
-        },
-        assetsDir: '.',
-        assetsInlineLimit: 0,
-        rollupOptions: {
-            input: {
-                main: 'packages/main.ts'
-            },
-            output: {
-                format: 'umd',
-                entryFileNames: 'app.min.js',
-                chunkFileNames: '[name].js',
-                assetFileNames: '[name].[ext]'
-            }
+        minify: true,
+        sourcemap: true,
+        lib: {
+            entry: './src/index.ts',
+            formats: ['es', 'umd'],
+            fileName: (format: string) => `index.${format}.js`
         }
     },
     server: {

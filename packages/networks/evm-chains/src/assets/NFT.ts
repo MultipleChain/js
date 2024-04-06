@@ -1,67 +1,174 @@
 import { Contract } from './Contract.ts'
-import { TransactionSigner } from '../services/TransactionSigner.ts'
-import type { NftInterface, TransactionSignerInterface } from '@multiplechain/types'
+import type { InterfaceAbi } from 'ethers'
+import ERC721 from '../../resources/erc721.json'
+import type { Provider } from '../services/Provider.ts'
+import { NftTransactionSigner } from '../services/TransactionSigner.ts'
+import { ErrorTypeEnum, type NftInterface } from '@multiplechain/types'
 
 export class NFT extends Contract implements NftInterface {
     /**
-     * @returns Contract name
+     * @param {string} address Contract address
+     * @param {Provider} provider Blockchain network provider
+     * @param {InterfaceAbi} ABI Contract ABI
      */
-    getName(): string {
-        return 'example'
+    constructor(address: string, provider?: Provider, ABI?: InterfaceAbi) {
+        super(address, provider, ABI ?? ERC721)
     }
 
     /**
-     * @returns Contract symbol
+     * @returns {Promise<string>} NFT name
      */
-    getSymbol(): string {
-        return 'example'
+    async getName(): Promise<string> {
+        return await this.callMethod('name')
     }
 
     /**
-     * @param owner Wallet address
-     * @returns Wallet balance as currency of TOKEN or COIN assets
+     * @returns {Promise<string>} NFT symbol
      */
-    getBalance(owner: string): number {
-        return 0
+    async getSymbol(): Promise<string> {
+        return await this.callMethod('symbol')
     }
 
     /**
-     * @returns Contract address
+     * @param {string} owner Wallet address
+     * @returns {Promise<number>} Wallet balance as currency of NFT
      */
-    getAddress(): string {
-        return 'example'
+    async getBalance(owner: string): Promise<number> {
+        return Number(await this.callMethod('balanceOf', owner))
     }
 
     /**
-     * @returns NFT ID
+     * @param {number | string} nftId NFT ID
+     * @returns {Promise<string>} Wallet address of the owner of the NFT
      */
-    getNftId(): number {
-        return 0
+    async getOwner(nftId: number | string): Promise<string> {
+        return await this.callMethod('ownerOf', nftId)
     }
 
     /**
-     * @param sender Sender address
-     * @param receiver Receiver address
-     * @param nftId NFT ID
-     * @returns Transaction signer
+     * @param {number | string} nftId NFT ID
+     * @returns {Promise<string>} URI of the NFT
      */
-    transfer(sender: string, receiver: string, nftId: number): TransactionSignerInterface {
-        return new TransactionSigner('example')
+    async getTokenURI(nftId: number | string): Promise<string> {
+        return await this.callMethod('tokenURI', nftId)
     }
 
     /**
-     * @param nftId NFT ID
-     * @returns NFT owner wallet address
+     * @param {number | string} nftId ID of the NFT that will be transferred
+     * @returns {Promise<string>} Wallet address of the approved spender
      */
-    getOwner(nftId: number): string {
-        return 'example'
+    async getApproved(nftId: number | string): Promise<string> {
+        return await this.callMethod('getApproved', nftId)
     }
 
     /**
-     * @param nftId NFT ID
-     * @returns NFT URI
+     * @param {string} sender Sender address
+     * @param {string} receiver Receiver address
+     * @param {number | string} nftId NFT ID
+     * @returns {Promise<TransactionSigner>} Transaction signer
      */
-    getTokenURI(nftId: number): string {
-        return 'example'
+    async transfer(
+        sender: string,
+        receiver: string,
+        nftId: number | string
+    ): Promise<NftTransactionSigner> {
+        return await this.transferFrom(sender, sender, receiver, nftId)
+    }
+
+    /**
+     * @param {string} spender Spender address
+     * @param {string} owner Owner address
+     * @param {string} receiver Receiver address
+     * @param {number | string} nftId NFT ID
+     * @returns {Promise<TransactionSigner>} Transaction signer
+     */
+    async transferFrom(
+        spender: string,
+        owner: string,
+        receiver: string,
+        nftId: number | string
+    ): Promise<NftTransactionSigner> {
+        // Check if tokens exist
+        const balance = await this.getBalance(owner)
+
+        if (balance <= 0) {
+            throw new Error(ErrorTypeEnum.INSUFFICIENT_BALANCE)
+        }
+
+        // Check ownership
+        const originalOwner = await this.getOwner(nftId)
+        if (originalOwner !== owner) {
+            throw new Error(ErrorTypeEnum.UNAUTHORIZED_ADDRESS)
+        }
+
+        // check if spender different from owner
+        if (spender !== owner) {
+            const approved = await this.getApproved(nftId)
+            if (approved !== spender) {
+                throw new Error(ErrorTypeEnum.UNAUTHORIZED_ADDRESS)
+            }
+        }
+
+        const [gasPrice, nonce, data, gasLimit] = await Promise.all([
+            this.provider.ethers.getGasPrice(),
+            this.provider.ethers.getNonce(spender),
+            this.getMethodData('transferFrom', owner, receiver, nftId),
+            this.getMethodEstimateGas('transferFrom', spender, owner, receiver, nftId)
+        ])
+
+        return new NftTransactionSigner({
+            data,
+            nonce,
+            gasPrice,
+            gasLimit,
+            value: '0x0',
+            from: spender,
+            to: this.getAddress(),
+            chainId: this.provider.network.id
+        })
+    }
+
+    /**
+     * Gives permission to the spender to spend owner's tokens
+     * @param {string} owner Address of owner of the tokens that will be used
+     * @param {string} spender Address of the spender that will use the tokens of owner
+     * @param {number | string} nftId ID of the NFT that will be transferred
+     * @returns {Promise<TransactionSigner>} Transaction signer
+     */
+    async approve(
+        owner: string,
+        spender: string,
+        nftId: number | string
+    ): Promise<NftTransactionSigner> {
+        // Check if tokens exist
+        const balance = await this.getBalance(owner)
+
+        if (balance <= 0) {
+            throw new Error(ErrorTypeEnum.INSUFFICIENT_BALANCE)
+        }
+
+        // Check ownership
+        const originalOwner = await this.getOwner(nftId)
+        if (originalOwner !== owner) {
+            throw new Error(ErrorTypeEnum.UNAUTHORIZED_ADDRESS)
+        }
+
+        const [gasPrice, nonce, data, gasLimit] = await Promise.all([
+            this.provider.ethers.getGasPrice(),
+            this.provider.ethers.getNonce(owner),
+            this.getMethodData('approve', spender, nftId),
+            this.getMethodEstimateGas('approve', owner, spender, nftId)
+        ])
+
+        return new NftTransactionSigner({
+            data,
+            nonce,
+            gasPrice,
+            gasLimit,
+            value: '0x0',
+            from: owner,
+            to: this.getAddress(),
+            chainId: this.provider.network.id
+        })
     }
 }

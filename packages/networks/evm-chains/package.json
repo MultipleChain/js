@@ -1,9 +1,19 @@
 {
     "name": "@multiplechain/evm-chains",
-    "version": "0.3.5",
+    "version": "0.3.38",
     "type": "module",
-    "main": "./dist/esm/index.js",
-    "types": "./dist/types/index.d.ts",
+    "types": "dist/index.d.ts",
+    "main": "dist/index.cjs",
+    "module": "dist/index.es.js",
+    "unpkg": "dist/index.umd.js",
+    "browser": "dist/index.umd.js",
+    "jsdelivr": "dist/index.umd.js",
+    "exports": {
+        ".": {
+            "import": "./dist/index.es.js",
+            "require": "./dist/index.cjs"
+        }
+    },
     "files": [
         "dist",
         "README.md",
@@ -11,12 +21,14 @@
     ],
     "scripts": {
         "clean": "rm -rf dist",
-        "build": "tsc --build",
         "watch": "tsc --watch",
+        "build:vite": "vite build",
+        "build:node": "tsx esbuild.ts",
         "typecheck": "tsc --noEmit",
         "lint": "eslint . --ext .ts",
         "test": "vitest run --dir tests",
-        "prepublishOnly": "pnpm run build"
+        "prepublishOnly": "pnpm run build",
+        "build": "pnpm run build:vite && pnpm run build:node && tsx cdt.ts"
     },
     "keywords": [
         "web3",
@@ -38,7 +50,9 @@
         "url": "https://github.com/MultipleChain/js/issues"
     },
     "dependencies": {
-        "@multiplechain/types": "^0.1.13",
-        "@multiplechain/utils": "^0.1.7"
+        "@multiplechain/types": "^0.1.35",
+        "@multiplechain/utils": "^0.1.16",
+        "@wagmi/chains": "^1.8.0",
+        "ethers": "^6.11.1"
     }
 }

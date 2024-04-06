@@ -6,6 +6,7 @@ import type {
     DynamicTransactionListenerFilterType
 } from '@multiplechain/types'
 
+import { Provider } from './Provider.ts'
 import { TransactionListenerProcessIndex } from '@multiplechain/types'
 
 export class TransactionListener<T extends TransactionTypeEnum>
@@ -24,29 +25,69 @@ export class TransactionListener<T extends TransactionTypeEnum>
     /**
      * Transaction listener filter
      */
-    filter: DynamicTransactionListenerFilterType<T>
+    filter?: DynamicTransactionListenerFilterType<T>
 
     /**
-     * @param type - Transaction type
-     * @param filter - Transaction listener filter
+     * Provider
      */
-    constructor(type: T, filter: DynamicTransactionListenerFilterType<T>) {
+    provider: Provider
+
+    /**
+     * Listener status
+     */
+    status: boolean = false
+
+    /**
+     * Triggered transactions
+     */
+    triggeredTransactions: string[] = []
+
+    /**
+     * @param {T} type - Transaction type
+     * @param {Provider} provider - Provider
+     * @param {DynamicTransactionListenerFilterType<T>} filter - Transaction listener filter
+     */
+    constructor(type: T, provider?: Provider, filter?: DynamicTransactionListenerFilterType<T>) {
         this.type = type
         this.filter = filter
-        // @ts-expect-error allow dynamic access
-        this[TransactionListenerProcessIndex[type]]()
+        this.provider = provider ?? Provider.instance
     }
 
     /**
      * Close the listener
+     * @returns {void}
      */
     stop(): void {
-        // Close the listener
+        if (this.status) {
+            this.status = false
+            // stop the listener
+        }
+    }
+
+    /**
+     * Start the listener
+     * @returns {void}
+     */
+    start(): void {
+        if (!this.status) {
+            this.status = true
+            // @ts-expect-error allow dynamic access
+            this[TransactionListenerProcessIndex[this.type]]()
+        }
+    }
+
+    /**
+     * Get the listener status
+     * @returns {boolean} Listener status
+     */
+    getStatus(): boolean {
+        return this.status
     }
 
     /**
      * Listen to the transaction events
-     * @param callback - Callback function
+     * @param {TransactionListenerCallbackType} callback - Transaction listener callback
+     * @returns {void}
      */
     on(callback: TransactionListenerCallbackType): void {
         this.callbacks.push(callback)
@@ -54,16 +95,21 @@ export class TransactionListener<T extends TransactionTypeEnum>
 
     /**
      * Trigger the event when a transaction is detected
-     * @param transaction - Transaction data
+     * @param {DynamicTransactionType<T>} transaction - Transaction data
+     * @returns {void}
      */
-    trigger(transaction: DynamicTransactionType<T>): void {
-        this.callbacks.forEach((callback) => {
-            callback(transaction)
-        })
+    trigger<T extends TransactionTypeEnum>(transaction: DynamicTransactionType<T>): void {
+        if (!this.triggeredTransactions.includes(transaction.id)) {
+            this.triggeredTransactions.push(transaction.id)
+            this.callbacks.forEach((callback) => {
+                callback(transaction)
+            })
+        }
     }
 
     /**
      * General transaction process
+     * @returns {void}
      */
     generalProcess(): void {
         // General transaction process
@@ -71,20 +117,15 @@ export class TransactionListener<T extends TransactionTypeEnum>
 
     /**
      * Contract transaction process
+     * @returns {void}
      */
     contractProcess(): void {
         // Contract transaction process
     }
 
     /**
-     * Asset transaction process
-     */
-    assetProcess(): void {
-        // Asset transaction process
-    }
-
-    /**
      * Coin transaction process
+     * @returns {void}
      */
     coinProcess(): void {
         // Coin transaction process
@@ -92,6 +133,7 @@ export class TransactionListener<T extends TransactionTypeEnum>
 
     /**
      * Token transaction process
+     * @returns {void}
      */
     tokenProcess(): void {
         // Token transaction process
@@ -99,6 +141,7 @@ export class TransactionListener<T extends TransactionTypeEnum>
 
     /**
      * NFT transaction process
+     * @returns {void}
      */
     nftProcess(): void {
         // NFT transaction process

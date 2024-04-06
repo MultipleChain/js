@@ -1,5 +1,7 @@
 {
     "compilerOptions": {
+        "rootDir": "./",
+        "declaration": true,
         "types": ["node"],
         "target": "ES2020",
         "useDefineForClassFields": true,
@@ -18,8 +20,17 @@
         "strict": true,
         "noUnusedLocals": true,
         "noUnusedParameters": true,
-        "noFallthroughCasesInSwitch": true
+        "noFallthroughCasesInSwitch": true,
+        "strictPropertyInitialization": false
     },
-    "include": ["packages/**/*.ts", ".eslintrc.json", "vite.config.ts", "vitest.config.ts", "vite-env.d.ts"],
-    "exclude": ["node_modules", "dist", "packages/**/*.d.ts"]
+    "include": [
+        "packages/networks/**/*.ts",
+        "packages/**/*.ts",
+        ".eslintrc.json",
+        "vite.config.ts",
+        "vitest.config.ts",
+        "vite-env.d.ts",
+        "esbuild.ts",
+    ],
+    "exclude": ["node_modules", "dist", "packages/**/*.d.ts", "test*.ts"]
 }

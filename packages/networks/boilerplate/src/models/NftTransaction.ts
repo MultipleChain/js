@@ -4,44 +4,38 @@ import type { NftTransactionInterface, AssetDirectionEnum } from '@multiplechain
 
 export class NftTransaction extends ContractTransaction implements NftTransactionInterface {
     /**
-     * @returns Wallet address of the sender of transaction
+     * @returns {Promise<string>} Receiver wallet address
      */
-    getReceiver(): string {
+    async getReceiver(): Promise<string> {
         return 'example'
     }
 
     /**
-     * @returns Transfer amount of the transaction (token)
+     * @returns {Promise<string>} Wallet address of the sender of transaction
      */
-    getAmount(): number {
-        return 0
-    }
-
-    /**
-     * @returns ID of the NFT
-     */
-    getNftId(): number {
-        return 0
-    }
-
-    /**
-     * @returns Smart contract address of the transaction
-     */
-    getAddress(): string {
+    async getSender(): Promise<string> {
         return 'example'
     }
 
     /**
-     * @param direction - Direction of the transaction (nft)
-     * @param address - Wallet address of the receiver or sender of the transaction, dependant on direction
-     * @param nftId ID of the NFT that will be transferred
+     * @returns {Promise<number>} NFT ID
+     */
+    async getNftId(): Promise<number> {
+        return 0
+    }
+
+    /**
+     * @param {AssetDirectionEnum} direction - Direction of the transaction (nft)
+     * @param {string} address - Wallet address of the receiver or sender of the transaction, dependant on direction
+     * @param {number} nftId ID of the NFT that will be transferred
      * @override verifyTransfer() in AssetTransactionInterface
+     * @returns {Promise<TransactionStatusEnum>} Status of the transaction
      */
-    verifyTransfer(
+    async verifyTransfer(
         direction: AssetDirectionEnum,
         address: string,
         nftId: number
-    ): TransactionStatusEnum {
+    ): Promise<TransactionStatusEnum> {
         return TransactionStatusEnum.PENDING
     }
 }

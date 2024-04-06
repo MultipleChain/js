@@ -7,5 +7,17 @@
         "declarationDir": "./dist/types"
     },
     "extends": "../../../tsconfig.json",
-    "include": ["src", ".eslintrc.json", "tests"]
+    "include": [
+        "src",
+        "cdt.ts",
+        ".eslintrc.json",
+        "tests",
+        "resources/*.json",
+        "vite.config.ts",
+        "esbuild.ts",
+        "vitest.config.ts",
+        "../../../esbuild.ts",
+        "../../../vite.config.ts",
+        "../../../vitest.config.ts",
+    ]
 }

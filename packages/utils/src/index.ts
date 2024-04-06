@@ -1,5 +1,6 @@
 import { toHex } from 'web3-utils'
 import BigNumber from 'bignumber.js'
+import { WebSocket as NodeWebSocket, type ErrorEvent } from 'ws'
 
 const BASE58_ALPHABET: string = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
 
@@ -86,6 +87,80 @@ export const stringToBuffer = (input: string): Buffer => {
  */
 export const isNumeric = (value: string | number): boolean => {
     return !isNaN(Number(value))
+}
+
+/**
+ * Get the number of decimal places
+ */
+export const getDecimalPlaces = (num: number): number => {
+    const match = ('' + num).match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/)
+    if (match === null) {
+        return num
+    } else {
+        return Math.max(
+            0,
+            // Number of digits right of decimal point.
+            (match[1] !== undefined && match[1] !== null ? match[1].length : 0) -
+                // Adjust for scientific notation.
+                (match[2] !== undefined && match[2] !== null ? +match[2] : 0)
+        )
+    }
+}
+
+/**
+ * Fix the float number
+ * @param {number} num
+ * @returns number
+ * @example 1.0000000000000001 => 1
+ */
+export const fixFloat = (num: number): number => {
+    return parseFloat(num.toFixed(getDecimalPlaces(num)))
+}
+
+/**
+ * Sleeps the given milliseconds
+ * @param {number} ms
+ * @returns Promise<void>
+ */
+export const sleep = async (ms: number): Promise<void> => {
+    await new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+/**
+ * Checks if the given objects are equal
+ * @param {object} o1
+ * @param {object} o2
+ * @returns boolean
+ */
+export const objectsEqual = (o1: object, o2: object): boolean => {
+    return JSON.stringify(o1) === JSON.stringify(o2)
+}
+
+/**
+ * checks if the given url is a valid websocket url
+ * @param {string} url
+ * @returns {Promise<boolean>}
+ */
+export const checkWebSocket = async (url: string): Promise<boolean> => {
+    return await new Promise((resolve, reject) => {
+        let socket: WebSocket | NodeWebSocket
+
+        if (typeof window !== 'undefined') {
+            socket = new WebSocket(url)
+        } else {
+            socket = new NodeWebSocket(url)
+        }
+
+        socket.onopen = () => {
+            resolve(true)
+            socket.close()
+        }
+
+        socket.onerror = (error: ErrorEvent) => {
+            reject(new Error(error.message))
+            socket.close()
+        }
+    })
 }
 
 export { toHex }

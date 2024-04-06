@@ -1,29 +1,34 @@
 import type {
     Block,
     BlockTag,
+    EthersError,
+    InterfaceAbi,
     JsonRpcSigner,
     TransactionReceipt,
     TransactionResponse
 } from 'ethers'
-
-import { Contract, ContractFactory, JsonRpcProvider, WebSocketProvider } from 'ethers'
-
-import { toHex } from '@multiplechain/utils'
-
+import { sleep, checkWebSocket } from '@multiplechain/utils'
 import type { EvmNetworkConfigInterface } from './Provider.ts'
+import type { TransactionData } from '../services/TransactionSigner.ts'
+import { Wallet, Contract, ContractFactory, JsonRpcProvider, WebSocketProvider } from 'ethers'
 
-declare module 'ethers' {
-    interface JsonRpcProvider {
-        getGasPrice: () => Promise<number>
-    }
-}
+export type { EthersError } from 'ethers'
 
 export class Ethers {
+    /**
+     * Network configuration of the provider
+     */
     network: EvmNetworkConfigInterface
 
+    /**
+     * JSON RPC provider
+     */
     jsonRpcProvider: JsonRpcProvider
 
-    websocketProvider?: WebSocketProvider
+    /**
+     * WebSocket provider
+     */
+    webSocketProvider?: WebSocketProvider
 
     /**
      * @param {EvmNetworkConfigInterface} network
@@ -31,56 +36,120 @@ export class Ethers {
     constructor(network: EvmNetworkConfigInterface) {
         this.network = network
         this.jsonRpcProvider = new JsonRpcProvider(network.rpcUrl)
-        if (network.wsUrl !== undefined) {
-            this.websocketProvider = new WebSocketProvider(network.wsUrl)
-        }
     }
 
+    /**
+     * @returns {JsonRpcProvider}
+     */
     public get jsonRpc(): JsonRpcProvider {
         return this.jsonRpcProvider
     }
 
-    public get websocket(): WebSocketProvider | undefined {
-        return this.websocketProvider
+    /**
+     * @returns {WebSocketProvider | undefined}
+     */
+    public get webSocket(): WebSocketProvider | undefined {
+        return this.webSocketProvider
+    }
+
+    /**
+     * @returns {WebSocketProvider}
+     */
+    public async connectWebSocket(): Promise<WebSocketProvider> {
+        return await new Promise((resolve, reject) => {
+            if (this.network.wsUrl === undefined) {
+                reject(new Error('WebSocket URL is not defined'))
+            } else {
+                const url = this.network.wsUrl
+                checkWebSocket(url)
+                    .then((status: any) => {
+                        if (status instanceof Error) {
+                            reject(status)
+                        } else {
+                            resolve((this.webSocketProvider = new WebSocketProvider(url)))
+                        }
+                    })
+                    .catch(reject)
+            }
+        })
     }
 
     /**
      * @param {String} address
-     * @param {object[]} abi
-     * @param {JsonRpcSigner} provider
-     * @returns {Object}
+     * @param {InterfaceAbi} abi
+     * @param {JsonRpcSigner} signer
+     * @returns {Promise<Contract>}
      */
-    public contract(address: string, abi: object[], provider?: JsonRpcSigner): Contract {
-        return new Contract(address, abi, provider)
+    public contract(
+        address: string,
+        abi: InterfaceAbi,
+        signer?: JsonRpcSigner | JsonRpcProvider
+    ): Contract {
+        return new Contract(address, abi, signer)
     }
 
     /**
-     * @param {object[]} abi
+     * @param {string} privateKey private key of the wallet
+     * @param {JsonRpcProvider} provider provider of the blockchain network
+     * @returns {Wallet}
+     */
+    public wallet(privateKey: string, provider?: JsonRpcProvider): Wallet {
+        return new Wallet(privateKey, provider ?? this.jsonRpc)
+    }
+
+    /**
+     * @param {InterfaceAbi} abi
      * @param {String} bytecode
-     * @param {JsonRpcSigner} provider
-     * @returns {Object}
+     * @param {JsonRpcSigner} signer
+     * @returns {Promise<ContractFactory>}
      */
     public contractFactory(
-        abi: object[],
+        abi: InterfaceAbi,
         bytecode: string,
-        provider?: JsonRpcSigner
+        signer?: JsonRpcSigner | JsonRpcProvider
     ): ContractFactory {
-        return new ContractFactory(abi, bytecode, provider)
+        return new ContractFactory(abi, bytecode, signer)
+    }
+
+    /**
+     * @param {string} address
+     * @returns {Promise<string>}
+     */
+    async getByteCode(address: string): Promise<string> {
+        try {
+            return await this.jsonRpc.getCode(address)
+        } catch (error) {
+            const e = error as EthersError
+            if (e.code === 'UNCONFIGURED_NAME') {
+                await sleep(1000)
+                return await this.getByteCode(address)
+            } else {
+                throw error
+            }
+        }
     }
 
     /**
      * @param {Object} data
-     * @returns {Promise<string>}
+     * @returns {Promise<number>}
      */
-    public async getEstimateGas(data: object): Promise<string> {
-        return toHex((await this.jsonRpcProvider.estimateGas(data)).toString())
+    public async getEstimateGas(data: TransactionData): Promise<number> {
+        return Number(await this.jsonRpcProvider.estimateGas(data))
     }
 
     /**
      * @returns {Promise<string>}
      */
     public async getGasPrice(): Promise<string> {
-        return toHex((await this.jsonRpcProvider.getGasPrice()).toString())
+        return (await this.jsonRpc.send('eth_gasPrice', [])).toString() as string
+    }
+
+    /**
+     * @param {String} address
+     * @returns {Promise<number>}
+     */
+    public async getNonce(address: string): Promise<number> {
+        return await this.jsonRpcProvider.getTransactionCount(address)
     }
 
     /**

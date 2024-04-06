@@ -4,49 +4,37 @@ import type { AssetDirectionEnum, TokenTransactionInterface } from '@multiplecha
 
 export class TokenTransaction extends ContractTransaction implements TokenTransactionInterface {
     /**
-     * @returns Wallet address of the sender of transaction
+     * @returns {Promise<string>} Wallet address of the receiver of transaction
      */
-    getReceiver(): string {
+    async getReceiver(): Promise<string> {
         return 'example'
     }
 
     /**
-     * @returns Transfer amount of the transaction (token)
+     * @returns {Promise<string>} Wallet address of the sender of transaction
      */
-    getAmount(): number {
+    async getSender(): Promise<string> {
+        return 'example'
+    }
+
+    /**
+     * @returns {Promise<number>} Amount of tokens that will be transferred
+     */
+    async getAmount(): Promise<number> {
         return 0
     }
 
     /**
-     * @returns Token address of the transaction
+     * @param {AssetDirectionEnum} direction - Direction of the transaction (token)
+     * @param {string} address - Wallet address of the owner or spender of the transaction, dependant on direction
+     * @param {number} amount Amount of tokens that will be approved
+     * @returns {Promise<TransactionStatusEnum>} Status of the transaction
      */
-    getAddress(): string {
-        return 'example'
-    }
-
-    /**
-     * @param direction - Direction of the transaction (token)
-     * @param address - Wallet address of the owner or spender of the transaction, dependant on direction
-     * @param amount Amount of tokens that will be approved
-     */
-    verifyTransfer(
+    async verifyTransfer(
         direction: AssetDirectionEnum,
         address: string,
         amount: number
-    ): TransactionStatusEnum {
-        return TransactionStatusEnum.PENDING
-    }
-
-    /**
-     * @param direction - Direction of the transaction (token)
-     * @param address - Wallet address of the owner or spender of the transaction, dependant on direction
-     * @param amount Amount of tokens that will be approved
-     */
-    verifyApprove(
-        direction: AssetDirectionEnum,
-        address: string,
-        amount: number
-    ): TransactionStatusEnum {
+    ): Promise<TransactionStatusEnum> {
         return TransactionStatusEnum.PENDING
     }
 }

@@ -1,5 +1,11 @@
 import { Ethers } from './Ethers.ts'
-import type { NetworkConfigInterface, ProviderInterface } from '@multiplechain/types'
+import {
+    ErrorTypeEnum,
+    type NetworkConfigInterface,
+    type ProviderInterface
+} from '@multiplechain/types'
+
+import { checkWebSocket } from '@multiplechain/utils'
 
 export interface EvmNetworkConfigInterface extends NetworkConfigInterface {
     id: number
@@ -15,16 +21,16 @@ export interface EvmNetworkConfigInterface extends NetworkConfigInterface {
     }
 }
 
-export class Provider implements Omit<ProviderInterface, 'update' | 'network'> {
+export class Provider implements Omit<ProviderInterface, 'update'> {
     /**
      * Network configuration of the provider
      */
-    private network: EvmNetworkConfigInterface
+    public network: EvmNetworkConfigInterface
 
     /**
      * Ethers service
      */
-    private _ethers: Ethers
+    public ethers: Ethers
 
     /**
      * Static instance of the provider
@@ -37,48 +43,95 @@ export class Provider implements Omit<ProviderInterface, 'update' | 'network'> {
     constructor(network: EvmNetworkConfigInterface) {
         this.network = network
         Provider._instance = this
-        this._ethers = new Ethers(network)
-    }
-
-    /**
-     * @returns Ethers service instance
-     */
-    get ethers(): Ethers {
-        return this._ethers
+        this.ethers = new Ethers(network)
     }
 
     /**
      * Get the static instance of the provider
-     * @returns Provider
+     * @returns {Provider} Provider
      */
     static get instance(): Provider {
         if (Provider._instance === undefined) {
-            throw new Error('Provider is not initialized')
+            throw new Error(ErrorTypeEnum.PROVIDER_IS_NOT_INITIALIZED)
         }
         return Provider._instance
     }
 
     /**
      * Initialize the static instance of the provider
-     * @param network - Network configuration of the provider
+     * @param {EvmNetworkConfigInterface} network - Network configuration of the provider
+     * @returns {void}
      */
     static initialize(network: EvmNetworkConfigInterface): void {
+        if (Provider._instance !== undefined) {
+            throw new Error(ErrorTypeEnum.PROVIDER_IS_ALREADY_INITIALIZED)
+        }
         Provider._instance = new Provider(network)
     }
 
     /**
+     * Check RPC connection
+     * @param {string} url - RPC URL
+     * @returns {Promise<boolean | Error>}
+     */
+    async checkRpcConnection(url?: string): Promise<boolean | Error> {
+        try {
+            const response = await fetch(url ?? this.network.rpcUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    jsonrpc: '2.0',
+                    method: 'eth_getChainId',
+                    params: [],
+                    id: 1
+                })
+            })
+
+            if (!response.ok) {
+                return new Error(response.statusText + ': ' + (await response.text()))
+            }
+
+            return true
+        } catch (error) {
+            return error as any
+        }
+    }
+
+    /**
+     * Check WS connection
+     * @param {string} url - Websocket URL
+     * @returns {Promise<boolean | Error>}
+     */
+    async checkWsConnection(url?: string): Promise<boolean | Error> {
+        try {
+            const result: any = await checkWebSocket(url ?? this.network.rpcUrl)
+
+            if (result instanceof Error) {
+                return result
+            }
+
+            return true
+        } catch (error) {
+            return error as Error
+        }
+    }
+
+    /**
      * Update network configuration of the provider
-     * @param network - Network configuration of the provider
+     * @param {EvmNetworkConfigInterface} network - Network configuration of the provider
+     * @returns {void}
      */
     update(network: EvmNetworkConfigInterface): void {
         this.network = network
         Provider._instance = this
-        this._ethers = new Ethers(network)
+        this.ethers = new Ethers(network)
     }
 
     /**
      * Get the current network configuration is testnet or not
-     * @returns boolean
+     * @returns {boolean}
      */
     isTestnet(): boolean {
         return this.network?.testnet ?? false

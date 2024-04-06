@@ -1,6 +1,14 @@
-import type { TransactionInterface } from '@multiplechain/types'
-import { TransactionStatusEnum } from '@multiplechain/types'
 import { Provider } from '../services/Provider.ts'
+import { ErrorTypeEnum, TransactionStatusEnum } from '@multiplechain/types'
+import type { TransactionInterface } from '@multiplechain/types'
+import type { TransactionReceipt, TransactionResponse } from 'ethers'
+import type { Ethers } from '../services/Ethers.ts'
+import { hexToNumber } from '@multiplechain/utils'
+
+interface TransactionData {
+    response: TransactionResponse
+    receipt: TransactionReceipt | null
+}
 
 export class Transaction implements TransactionInterface {
     /**
@@ -9,87 +17,157 @@ export class Transaction implements TransactionInterface {
     id: string
 
     /**
-     * Provider instance
+     * Blockchain network provider
      */
-    private readonly provider: Provider
+    provider: Provider
 
-    constructor(id: string) {
+    /**
+     * Ethers service
+     */
+    ethers: Ethers
+
+    /**
+     * Transaction data after completed
+     */
+    data: TransactionData
+
+    /**
+     * @param {string} id Transaction id
+     * @param {Provider} provider Blockchain network provider
+     */
+    constructor(id: string, provider?: Provider) {
         this.id = id
-        this.provider = Provider.instance
+        this.provider = provider ?? Provider.instance
+        this.ethers = this.provider.ethers
     }
 
     /**
-     * @returns Raw transaction data that is taken by blockchain network via RPC.
+     * @returns {Promise<TransactionData | null>} Transaction data
      */
-    async getData(): Promise<object | null> {
+    async getData(): Promise<TransactionData | null> {
+        if (this.data?.response !== undefined && this.data?.receipt !== null) {
+            return this.data
+        }
         try {
-            const data = (await this.provider.ethers.getTransaction(this.id)) ?? {}
-            const receipt = (await this.provider.ethers.getTransactionReceipt(this.id)) ?? {}
-            const result: object = { ...data, ...receipt }
-            return Object.keys(result).length !== 0 ? result : null
-        } catch (error) {
-            const e = error as Error
-            if (String(e.message).includes('timeout')) {
-                throw new Error('rpc-timeout')
+            const response = await this.ethers.getTransaction(this.id)
+            if (response === null) {
+                return null
             }
-            throw new Error('data-request-failed')
+            const receipt = await this.ethers.getTransactionReceipt(this.id)
+            return (this.data = { response, receipt })
+        } catch (error) {
+            if (error instanceof Error && String(error.message).includes('timeout')) {
+                throw new Error(ErrorTypeEnum.RPC_TIMEOUT)
+            }
+            throw new Error(ErrorTypeEnum.RPC_REQUEST_ERROR)
         }
     }
 
     /**
-     * @returns Transaction id from the blockchain network
-     * this can be different names like txid, hash, signature etc.
+     * @param {number} ms - Milliseconds to wait for the transaction to be confirmed. Default is 4000ms
+     * @returns {Promise<TransactionStatusEnum>} Status of the transaction
+     */
+    async wait(ms: number = 4000): Promise<TransactionStatusEnum> {
+        return await new Promise((resolve, reject) => {
+            const check = async (): Promise<void> => {
+                try {
+                    const status = await this.getStatus()
+                    if (status === TransactionStatusEnum.CONFIRMED) {
+                        resolve(TransactionStatusEnum.CONFIRMED)
+                        return
+                    } else if (status === TransactionStatusEnum.FAILED) {
+                        reject(TransactionStatusEnum.FAILED)
+                        return
+                    }
+                    setTimeout(check, ms)
+                } catch (error) {
+                    reject(TransactionStatusEnum.FAILED)
+                }
+            }
+            void check()
+        })
+    }
+
+    /**
+     * @returns {string} Transaction id from the blockchain network
      */
     getId(): string {
         return this.id
     }
 
     /**
-     * @returns Blockchain explorer URL of the transaction. Dependant on network.
+     * @returns {string} URL of the transaction on the blockchain explorer
      */
     getUrl(): string {
-        return 'example'
+        let explorerUrl = this.provider.network.explorerUrl
+        explorerUrl += explorerUrl.endsWith('/') ? '' : '/'
+        explorerUrl += 'tx/' + this.id
+        return explorerUrl
     }
 
     /**
-     * @returns Wallet address of the sender of transaction
+     * @returns {Promise<string>} Signer wallet address of the transaction
      */
-    getSender(): string {
-        return 'example'
+    async getSigner(): Promise<string> {
+        const data = await this.getData()
+        return data?.response.from ?? ''
     }
 
     /**
-     * @returns Transaction fee as native coin amount
+     * @returns {Promise<number>} Fee of the transaction
      */
-    getFee(): number {
-        return 0
+    async getFee(): Promise<number> {
+        const data = await this.getData()
+        if (data?.response?.gasPrice === undefined || data?.receipt?.gasUsed === undefined) {
+            return 0
+        }
+        return hexToNumber(
+            (data?.response.gasPrice * data?.receipt.gasUsed).toString(),
+            this.provider.network.nativeCurrency.decimals
+        )
     }
 
     /**
-     * @returns Block ID of the transaction
+     * @returns {Promise<number>} Block number that transaction
      */
-    getBlockNumber(): number {
-        return 0
+    async getBlockNumber(): Promise<number> {
+        const data = await this.getData()
+        return data?.response.blockNumber ?? 0
     }
 
     /**
-     * @returns UNIX timestamp of the date that block is added to blockchain
+     * @returns {Promise<number>} Timestamp of the block that transaction
      */
-    getBlockTimestamp(): number {
-        return 0
+    async getBlockTimestamp(): Promise<number> {
+        const blockNumber = await this.getBlockNumber()
+        const block = await this.ethers.getBlock(blockNumber)
+        return block?.timestamp ?? 0
     }
 
     /**
-     * @returns Confirmation count of the block that transaction is included
+     * @returns {Promise<number>} Confirmation count of the block that transaction
      */
-    getBlockConfirmationCount(): number {
-        return 0
+    async getBlockConfirmationCount(): Promise<number> {
+        const blockNumber = await this.getBlockNumber()
+        const blockCount = await this.ethers.getBlockNumber()
+        const confirmations = blockCount - blockNumber
+        return confirmations < 0 ? 0 : confirmations
     }
 
     /**
-     * @returns Status of the transaction
+     * @returns {Promise<TransactionStatusEnum>} Status of the transaction
      */
-    getStatus(): TransactionStatusEnum {
-        return TransactionStatusEnum.CONFIRMED
+    async getStatus(): Promise<TransactionStatusEnum> {
+        const data = await this.getData()
+        if (data === null) {
+            return TransactionStatusEnum.PENDING
+        } else if (data.response.blockNumber !== null && data.receipt !== null) {
+            if (data.receipt.status === 1) {
+                return TransactionStatusEnum.CONFIRMED
+            } else {
+                return TransactionStatusEnum.FAILED
+            }
+        }
+        return TransactionStatusEnum.PENDING
     }
 }

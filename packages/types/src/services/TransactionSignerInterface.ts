@@ -16,22 +16,22 @@ export interface TransactionSignerInterface {
     signedData?: any
 
     /**
-     * @param privateKey - Private key of the wallet to sign the transaction
+     * @param {string} privateKey - Private key of the wallet to sign the transaction
      */
-    sign: (privateKey: string) => TransactionSignerInterface
+    sign: (privateKey: string) => Promise<TransactionSignerInterface>
 
     /**
-     * @returns Send the transaction to the blockchain network, returns a promise of the transaction
+     * @returns {Promise<TransactionInterface | Error>} Send the transaction to the blockchain network, returns a promise of the transaction
      */
     send: () => Promise<TransactionInterface | Error>
 
     /**
-     * @returns Unsigned transaction raw data
+     * @returns {any} Unsigned transaction raw data
      */
     getRawData: () => any
 
     /**
-     * @returns Signed transaction data
+     * @returns {any} Signed transaction data
      */
     getSignedData: () => any
 }

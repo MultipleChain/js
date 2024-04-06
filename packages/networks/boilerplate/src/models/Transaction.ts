@@ -1,3 +1,4 @@
+import { Provider } from '../services/Provider.ts'
 import type { TransactionInterface } from '@multiplechain/types'
 import { TransactionStatusEnum } from '@multiplechain/types'
 
@@ -7,71 +8,87 @@ export class Transaction implements TransactionInterface {
      */
     id: string
 
-    constructor(id: string) {
+    /**
+     * Blockchain network provider
+     */
+    provider: Provider
+
+    /**
+     * @param {string} id Transaction id
+     * @param {Provider} provider Blockchain network provider
+     */
+    constructor(id: string, provider?: Provider) {
         this.id = id
+        this.provider = provider ?? Provider.instance
     }
 
     /**
-     * @returns Raw transaction data that is taken by blockchain network via RPC.
+     * @returns {Promise<object | null>} Transaction data
      */
-    getData(): object {
+    async getData(): Promise<object | null> {
         return {}
     }
 
     /**
-     * @returns Transaction id from the blockchain network
-     * this can be different names like txid, hash, signature etc.
+     * @returns {Promise<TransactionStatusEnum>} Wait for the transaction to be confirmed
+     */
+    async wait(): Promise<TransactionStatusEnum> {
+        return await Promise.resolve(TransactionStatusEnum.CONFIRMED)
+    }
+
+    /**
+     * @returns {string} Transaction ID
      */
     getId(): string {
         return this.id
     }
 
     /**
-     * @returns Blockchain explorer URL of the transaction. Dependant on network.
+     * @returns {string} Transaction URL
      */
     getUrl(): string {
         return 'example'
     }
 
     /**
-     * @returns Wallet address of the sender of transaction
+     * @returns {Promise<string>} Wallet address of the sender of transaction
      */
-    getSender(): string {
+    async getSigner(): Promise<string> {
         return 'example'
     }
 
     /**
-     * @returns Transaction fee as native coin amount
+     * @returns {Promise<number>} Transaction fee
      */
-    getFee(): number {
+    async getFee(): Promise<number> {
         return 0
     }
 
     /**
-     * @returns Block ID of the transaction
+     * @returns {Promise<number>} Block number that transaction
      */
-    getBlockNumber(): number {
+    async getBlockNumber(): Promise<number> {
         return 0
     }
 
     /**
-     * @returns UNIX timestamp of the date that block is added to blockchain
+     * @returns {Promise<number>} Block timestamp that transaction
      */
-    getBlockTimestamp(): number {
+    async getBlockTimestamp(): Promise<number> {
         return 0
     }
 
     /**
-     * @returns Confirmation count of the block that transaction is included
+     * @returns {Promise<number>} Confirmation count of the block
      */
-    getBlockConfirmationCount(): number {
+    async getBlockConfirmationCount(): Promise<number> {
         return 0
     }
 
     /**
-     * @returns Status of the transaction
+     * @returns {Promise<TransactionStatusEnum>} Status of the transaction
      */
-    getStatus(): TransactionStatusEnum {
+    async getStatus(): Promise<TransactionStatusEnum> {
         return TransactionStatusEnum.CONFIRMED
     }
 }

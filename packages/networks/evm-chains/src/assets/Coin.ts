@@ -1,42 +1,93 @@
-import { TransactionSigner } from '../services/TransactionSigner.ts'
-import type { CoinInterface, TransactionSignerInterface } from '@multiplechain/types'
+import { Provider } from '../services/Provider.ts'
+import { hexToNumber, numberToHex } from '@multiplechain/utils'
+import { CoinTransactionSigner } from '../services/TransactionSigner.ts'
+import type { TransactionData } from '../services/TransactionSigner.ts'
+import { ErrorTypeEnum, type CoinInterface } from '@multiplechain/types'
 
 export class Coin implements CoinInterface {
     /**
-     * @returns Coin name
+     * Blockchain network provider
+     */
+    provider: Provider
+
+    /**
+     * @param {Provider} provider network provider
+     */
+    constructor(provider?: Provider) {
+        this.provider = provider ?? Provider.instance
+    }
+
+    /**
+     * @returns {string} Coin name
      */
     getName(): string {
-        return 'example'
+        return (
+            this.provider.network.nativeCurrency.name ?? this.provider.network.nativeCurrency.symbol
+        )
     }
 
     /**
-     * @returns Coin symbol
+     * @returns {string} Coin symbol
      */
     getSymbol(): string {
-        return 'example'
+        return this.provider.network.nativeCurrency.symbol
     }
 
     /**
-     * @returns Decimal value of the coin
+     * @returns {number} Decimal value of the coin
      */
     getDecimals(): number {
-        return 18
+        return this.provider.network.nativeCurrency.decimals
     }
 
     /**
-     * @param owner Wallet address
-     * @returns Wallet balance as currency of TOKEN or COIN assets
+     * @param {string} owner Wallet address
+     * @returns {Promise<number>} Wallet balance as currency of COIN
      */
-    getBalance(owner: string): number {
-        return 0
+    async getBalance(owner: string): Promise<number> {
+        const balance = await this.provider.ethers.getBalance(owner)
+        return hexToNumber(balance.toString(), this.getDecimals())
     }
 
     /**
-     * @param sender Sender wallet address
-     * @param receiver Receiver wallet address
-     * @param amount Amount of assets that will be transferred
+     * @param {string} sender Sender wallet address
+     * @param {string} receiver Receiver wallet address
+     * @param {number} amount Amount of assets that will be transferred
+     * @returns {Promise<TransactionSigner>} Transaction signer
      */
-    transfer(sender: string, receiver: string, amount: number): TransactionSignerInterface {
-        return new TransactionSigner('example')
+    async transfer(
+        sender: string,
+        receiver: string,
+        amount: number
+    ): Promise<CoinTransactionSigner> {
+        if (amount < 0) {
+            throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
+        }
+
+        if (amount > (await this.getBalance(sender))) {
+            throw new Error(ErrorTypeEnum.INSUFFICIENT_BALANCE)
+        }
+
+        const hexAmount = numberToHex(amount, this.getDecimals())
+
+        const txData: TransactionData = {
+            data: '0x',
+            to: receiver,
+            from: sender,
+            value: hexAmount,
+            chainId: this.provider.network.id
+        }
+
+        const [gasPrice, nonce, gasLimit] = await Promise.all([
+            this.provider.ethers.getGasPrice(),
+            this.provider.ethers.getNonce(sender),
+            this.provider.ethers.getEstimateGas(txData)
+        ])
+
+        txData.nonce = nonce
+        txData.gasPrice = gasPrice
+        txData.gasLimit = gasLimit
+
+        return new CoinTransactionSigner(txData)
     }
 }
