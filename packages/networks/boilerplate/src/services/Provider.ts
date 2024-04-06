@@ -46,6 +46,24 @@ export class Provider implements ProviderInterface {
     }
 
     /**
+     * Check RPC connection
+     * @param {string} url - RPC URL
+     * @returns {Promise<boolean | Error>}
+     */
+    async checkRpcConnection(url?: string): Promise<boolean | Error> {
+        return true
+    }
+
+    /**
+     * Check WS connection
+     * @param {string} url - Websocket URL
+     * @returns {Promise<boolean | Error>}
+     */
+    async checkWsConnection(url?: string): Promise<boolean | Error> {
+        return true
+    }
+
+    /**
      * Update network configuration of the provider
      * @param network - Network configuration of the provider
      */

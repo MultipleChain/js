@@ -25,5 +25,11 @@
     "rules": {
         "filenames/match-exported": ["error", "pascal"]
     },
-    "ignorePatterns": ["**/*.d.ts", "dist/", "node_modules/", "test*.ts"]
+    "ignorePatterns": [
+        "**/*.d.ts",
+        "dist/",
+        "node_modules/",
+        "test*.ts",
+        "packages/networks/boilerplate/"
+    ]
 }
