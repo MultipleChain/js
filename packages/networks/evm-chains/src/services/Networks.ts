@@ -3,7 +3,7 @@ import type { EvmNetworkConfigInterface } from './Provider.ts'
 
 const networks: Record<string, EvmNetworkConfigInterface> = {}
 
-Object.keys(wagmiChains).forEach((key) => {
+for (const key of Object.keys(wagmiChains)) {
     const wagmiChain: wagmiChains.Chain = wagmiChains[key as keyof typeof wagmiChains]
 
     let backupRpcUrl = ''
@@ -40,7 +40,7 @@ Object.keys(wagmiChains).forEach((key) => {
     }
 
     networks[key === 'mainnet' ? 'ethereum' : key] = network
-})
+}
 
 const findById = (id: number): EvmNetworkConfigInterface | undefined => {
     return Object.values(networks).find((network) => network.id === id)

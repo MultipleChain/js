@@ -150,9 +150,9 @@ export class TransactionListener<T extends TransactionTypeEnum>
     trigger<T extends TransactionTypeEnum>(transaction: DynamicTransactionType<T>): void {
         if (!this.triggeredTransactions.includes(transaction.id)) {
             this.triggeredTransactions.push(transaction.id)
-            this.callbacks.forEach((callback) => {
+            for (const callback of this.callbacks) {
                 callback(transaction)
-            })
+            }
         }
     }
 
