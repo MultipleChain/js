@@ -185,6 +185,47 @@ export class Ethers {
     }
 
     /**
+     * @param {string} address
+     * @param {number} limit how many block to go back
+     * @returns {Promise<TransactionResponse[]>}
+     */
+    async getLastTransactions(address: string, limit: number = 0): Promise<TransactionResponse[]> {
+        const txPromises = []
+        const blockPromises = []
+        const transactions: TransactionResponse[] = []
+
+        const block = await this.getBlock('pending')
+        const blockNumber = block?.number ?? (await this.getBlockNumber())
+
+        for (let i = blockNumber; i > blockNumber - limit; i--) {
+            const block = await this.getBlock(i, true)
+            if (block === null) {
+                continue
+            }
+            blockPromises.push(block)
+        }
+
+        const blocks = await Promise.all(blockPromises)
+        for (const block of blocks) {
+            for (const txHash of block.transactions) {
+                txPromises.push(this.getTransaction(txHash))
+            }
+        }
+
+        const txs = await Promise.all(txPromises)
+        for (const tx of txs) {
+            if (
+                tx?.from.toLowerCase() === address.toLowerCase() ||
+                tx?.to?.toLowerCase() === address.toLowerCase()
+            ) {
+                transactions.push(tx)
+            }
+        }
+
+        return transactions
+    }
+
+    /**
      * @param {String} address
      * @returns {Promise<bigint>}
      */
