@@ -227,6 +227,36 @@ export class Ethers {
 
     /**
      * @param {String} address
+     * @param {number} limit
+     * @returns {Promise<TransactionResponse | null>}
+     */
+    async getLastTransaction(
+        address: string,
+        limit: number = 0
+    ): Promise<TransactionResponse | null> {
+        const block = await this.getBlock('pending')
+        const blockNumber = block?.number ?? (await this.getBlockNumber())
+        for (let i = blockNumber; i > blockNumber - limit; i--) {
+            const block = await this.getBlock(i, true)
+            if (block === null) {
+                continue
+            }
+            for (const txId of block.transactions) {
+                const tx = await this.getTransaction(txId)
+                if (
+                    tx?.from.toLowerCase() === address.toLowerCase() ||
+                    tx?.to?.toLowerCase() === address.toLowerCase()
+                ) {
+                    return tx
+                }
+            }
+        }
+
+        return null
+    }
+
+    /**
+     * @param {String} address
      * @returns {Promise<bigint>}
      */
     async getBalance(address: string): Promise<bigint> {

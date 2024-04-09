@@ -195,21 +195,9 @@ export class TransactionListener<T extends TransactionTypeEnum>
             }
         }
 
-        const callback = async (transactionIdOrLog: string | Log): Promise<void> => {
-            let transaction: TransactionResponse | null
-            if (typeof transactionIdOrLog === 'string') {
-                transaction = await this.ethers.getTransaction(transactionIdOrLog)
-                const contractBytecode = await this.ethers.getByteCode(transaction?.to ?? '')
-
-                if (contractBytecode === '0x') {
-                    return
-                }
-            } else {
-                transaction = await this.ethers.getTransaction(transactionIdOrLog.transactionHash)
-            }
-
+        const checkSigner = (transaction: TransactionResponse | null): boolean => {
             if (transaction === null) {
-                return
+                return false
             }
 
             interface ParamsType {
@@ -225,9 +213,35 @@ export class TransactionListener<T extends TransactionTypeEnum>
             }
 
             if (!objectsEqual(expectedParams, receivedParams)) {
+                return false
+            }
+
+            return true
+        }
+
+        const callback = async (transactionIdOrLog: string | Log): Promise<void> => {
+            let transaction: TransactionResponse | null
+            if (typeof transactionIdOrLog === 'string') {
+                transaction = await this.ethers.getTransaction(transactionIdOrLog)
+
+                if (!checkSigner(transaction)) {
+                    return
+                }
+
+                const contractBytecode = await this.ethers.getByteCode(transaction?.to ?? '')
+
+                if (contractBytecode === '0x') {
+                    return
+                }
+            } else {
+                transaction = await this.ethers.getTransaction(transactionIdOrLog.transactionHash)
+            }
+
+            if (!checkSigner(transaction)) {
                 return
             }
 
+            // @ts-expect-error already checking ing checkSigner
             this.trigger(new ContractTransaction(transaction.hash))
         }
 
@@ -256,9 +270,8 @@ export class TransactionListener<T extends TransactionTypeEnum>
 
         const callback = async (transactionId: string): Promise<void> => {
             const tx = await this.ethers.getTransaction(transactionId)
-            const contractBytecode = await this.ethers.getByteCode(tx?.to ?? '')
 
-            if (contractBytecode !== '0x' || tx === null) {
+            if (tx === null) {
                 return
             }
 
@@ -283,6 +296,12 @@ export class TransactionListener<T extends TransactionTypeEnum>
             }
 
             if (!objectsEqual(expectedParams, receivedParams)) {
+                return
+            }
+
+            const contractBytecode = await this.ethers.getByteCode(tx?.to ?? '')
+
+            if (contractBytecode !== '0x') {
                 return
             }
 
