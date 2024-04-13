@@ -163,4 +163,37 @@ export const checkWebSocket = async (url: string): Promise<boolean> => {
     })
 }
 
+export const math = {
+    div: (a: number, b: number, decimals: number = 18): number => {
+        return (a * 10 ** decimals - b * 10 ** decimals) / 10 ** decimals
+    },
+    add: (a: number, b: number, decimals: number = 18): number => {
+        return (a * 10 ** decimals + b * 10 ** decimals) / 10 ** decimals
+    },
+    mul: (a: number, b: number, decimals: number = 18): number => {
+        return (a * 10 ** decimals * (b * 10 ** decimals)) / 10 ** (decimals * 2)
+    },
+    sub: (a: number, b: number, decimals: number = 18): number => {
+        return (a * 10 ** decimals - b * 10 ** decimals) / 10 ** decimals
+    },
+    pow: (a: number, b: number, decimals: number = 18): number => {
+        return (a * 10 ** decimals) ** b / 10 ** (decimals * b)
+    },
+    sqrt: (a: number, decimals: number = 18): number => {
+        return Math.sqrt(a * 10 ** decimals) / 10 ** (decimals / 2)
+    },
+    abs: (a: number, decimals: number = 18): number => {
+        return Math.abs(a * 10 ** decimals) / 10 ** decimals
+    },
+    ceil: (a: number, decimals: number = 18): number => {
+        return Math.ceil(a * 10 ** decimals) / 10 ** decimals
+    },
+    floor: (a: number, decimals: number = 18): number => {
+        return Math.floor(a * 10 ** decimals) / 10 ** decimals
+    },
+    round: (a: number, decimals: number = 18): number => {
+        return Math.round(a * 10 ** decimals) / 10 ** decimals
+    }
+}
+
 export { toHex }
