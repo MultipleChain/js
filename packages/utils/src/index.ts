@@ -165,7 +165,7 @@ export const checkWebSocket = async (url: string): Promise<boolean> => {
 
 export const math = {
     div: (a: number, b: number, decimals: number = 18): number => {
-        return (a * 10 ** decimals - b * 10 ** decimals) / 10 ** decimals
+        return (((a * 10 ** decimals) / b) * 10 ** decimals) / 10 ** decimals
     },
     add: (a: number, b: number, decimals: number = 18): number => {
         return (a * 10 ** decimals + b * 10 ** decimals) / 10 ** decimals
