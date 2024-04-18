@@ -164,35 +164,35 @@ export const checkWebSocket = async (url: string): Promise<boolean> => {
 }
 
 export const math = {
-    div: (a: number, b: number, decimals: number = 18): number => {
-        return (((a * 10 ** decimals) / b) * 10 ** decimals) / 10 ** decimals
-    },
     add: (a: number, b: number, decimals: number = 18): number => {
-        return (a * 10 ** decimals + b * 10 ** decimals) / 10 ** decimals
-    },
-    mul: (a: number, b: number, decimals: number = 18): number => {
-        return (a * 10 ** decimals * (b * 10 ** decimals)) / 10 ** (decimals * 2)
+        return parseFloat(new BigNumber(a).plus(new BigNumber(b)).toFixed(decimals))
     },
     sub: (a: number, b: number, decimals: number = 18): number => {
-        return (a * 10 ** decimals - b * 10 ** decimals) / 10 ** decimals
+        return parseFloat(new BigNumber(a).minus(new BigNumber(b)).toFixed(decimals))
+    },
+    mul: (a: number, b: number, decimals: number = 18): number => {
+        return parseFloat(new BigNumber(a).times(new BigNumber(b)).toFixed(decimals))
+    },
+    div: (a: number, b: number, decimals: number = 18): number => {
+        return parseFloat(new BigNumber(a).div(new BigNumber(b)).toFixed(decimals))
     },
     pow: (a: number, b: number, decimals: number = 18): number => {
-        return (a * 10 ** decimals) ** b / 10 ** (decimals * b)
+        return parseFloat(new BigNumber(a).pow(b).toFixed(decimals))
     },
     sqrt: (a: number, decimals: number = 18): number => {
-        return Math.sqrt(a * 10 ** decimals) / 10 ** (decimals / 2)
+        return parseFloat(new BigNumber(a).sqrt().toFixed(decimals))
     },
     abs: (a: number, decimals: number = 18): number => {
-        return Math.abs(a * 10 ** decimals) / 10 ** decimals
+        return parseFloat(new BigNumber(a).absoluteValue().toFixed(decimals))
     },
     ceil: (a: number, decimals: number = 18): number => {
-        return Math.ceil(a * 10 ** decimals) / 10 ** decimals
+        return parseFloat(new BigNumber(a).integerValue(BigNumber.ROUND_CEIL).toFixed(decimals))
     },
     floor: (a: number, decimals: number = 18): number => {
-        return Math.floor(a * 10 ** decimals) / 10 ** decimals
+        return parseFloat(new BigNumber(a).integerValue(BigNumber.ROUND_FLOOR).toFixed(decimals))
     },
     round: (a: number, decimals: number = 18): number => {
-        return Math.round(a * 10 ** decimals) / 10 ** decimals
+        return parseFloat(new BigNumber(a).integerValue(BigNumber.ROUND_HALF_UP).toFixed(decimals))
     }
 }
 

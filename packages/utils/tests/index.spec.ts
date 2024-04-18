@@ -6,7 +6,8 @@ import {
     base58Encode,
     base58Decode,
     bufferToString,
-    stringToBuffer
+    stringToBuffer,
+    math
 } from '../src/index.js'
 
 describe('Helper methods', () => {
@@ -42,5 +43,47 @@ describe('Helper methods', () => {
         expect(stringToBuffer('example')).toStrictEqual(
             Buffer.from([101, 120, 97, 109, 112, 108, 101])
         )
+    })
+})
+
+describe('Math', () => {
+    it('add', () => {
+        expect(math.add(0.2, 0.1)).toBe(0.3)
+    })
+
+    it('subtract', () => {
+        expect(math.sub(0.3, 0.1)).toBe(0.2)
+    })
+
+    it('multiply', () => {
+        expect(math.mul(10, 20)).toBe(200)
+    })
+
+    it('divide', () => {
+        expect(math.div(10, 20)).toBe(0.5)
+    })
+
+    it('pow', () => {
+        expect(math.pow(2, 3)).toBe(8)
+    })
+
+    it('sqrt', () => {
+        expect(math.sqrt(9)).toBe(3)
+    })
+
+    it('abs', () => {
+        expect(math.abs(-10)).toBe(10)
+    })
+
+    it('ceil', () => {
+        expect(math.ceil(0.1)).toBe(1)
+    })
+
+    it('floor', () => {
+        expect(math.floor(0.9)).toBe(0)
+    })
+
+    it('round', () => {
+        expect(math.round(0.5)).toBe(1)
     })
 })
