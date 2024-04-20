@@ -6,11 +6,11 @@ settings:
 
 dependencies:
   '@multiplechain/types':
-    specifier: ^0.1.42
-    version: 0.1.42
+    specifier: ^0.1.43
+    version: 0.1.43
   '@multiplechain/utils':
-    specifier: ^0.1.17
-    version: 0.1.17
+    specifier: ^0.1.18
+    version: 0.1.18
   '@wagmi/chains':
     specifier: ^1.8.0
     version: 1.8.0
@@ -24,12 +24,12 @@ packages:
     resolution: {integrity: sha512-96Z2IP3mYmF1Xg2cDm8f1gWGf/HUVedQ3FMifV4kG/PQ4yEP51xDtRAEfhVNt5f/uzpNkZHwWQuUcu6D6K+Ekw==}
     dev: false
 
-  /@multiplechain/types@0.1.42:
-    resolution: {integrity: sha512-CIx1fatpwCaGifqcHIN+ijLAzIA0AzPigYNMHXaJcBPuHuKKeMWw3oLOWbL4C6fW/J1rXYm9dVQYRp0dqFCvYg==}
+  /@multiplechain/types@0.1.43:
+    resolution: {integrity: sha512-nMI+0cL+DmegWSpF/31u+iqgrTppzy4bQoksli2S/YSpmhAyzRlqbrNzTnqB8/OffxkCWgfFGeMXUG9M0ggbXQ==}
     dev: false
 
-  /@multiplechain/utils@0.1.17:
-    resolution: {integrity: sha512-n9DhdgZ1DtawCZMcBPcnx0GcGq9P0HkvixZ0zd7MQNyj4nMdv5BKjLAX4whK+bewPKVWUVYemSY4o979CPrt2w==}
+  /@multiplechain/utils@0.1.18:
+    resolution: {integrity: sha512-UCoOOBJrawp/lInepxuoEiYwId0wMPg7rX8p78FLqzGl8f/b93sAtv7sP87/VVKwhdoEuNZ/uQjckycmNeks/w==}
     dependencies:
       '@types/ws': 8.5.10
       bignumber.js: 9.1.2
