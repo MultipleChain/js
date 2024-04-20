@@ -21,8 +21,8 @@ export const switcher = async (wallet: any, provider?: ProviderInterface): Promi
         return res
     }
 
-    const addNetwork = async (network: EvmNetworkConfigInterface): Promise<void> => {
-        void new Promise((resolve, reject) => {
+    const addNetwork = async (network: EvmNetworkConfigInterface): Promise<boolean> => {
+        return await new Promise((resolve, reject) => {
             try {
                 request({
                     method: 'wallet_addEthereumChain',
