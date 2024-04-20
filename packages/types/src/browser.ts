@@ -12,8 +12,8 @@ export interface WalletAdapterInterface {
     icon: string
     downloadLink: string
     platforms: WalletPlatformEnum[]
-    isDetected: () => boolean
-    isConnected: () => boolean
+    isDetected: () => boolean | Promise<boolean>
+    isConnected: () => boolean | Promise<boolean>
     createDeepLink: (url: string, ops?: object) => string
     connect: (provider?: ProviderInterface, ops?: object) => Promise<object>
 }
