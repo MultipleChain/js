@@ -1,5 +1,5 @@
 import networks from '../../services/Networks.ts'
-import type { ProviderInterface } from '@multiplechain/types'
+import { ErrorTypeEnum, type ProviderInterface } from '@multiplechain/types'
 import type { EvmNetworkConfigInterface } from '../../services/Provider.ts'
 
 export const switcher = async (wallet: any, provider?: ProviderInterface): Promise<boolean> => {
@@ -13,7 +13,7 @@ export const switcher = async (wallet: any, provider?: ProviderInterface): Promi
                 message: string
             }
             if (error.code === -32000) {
-                throw new Error('rpc-timeout')
+                throw new Error(ErrorTypeEnum.RPC_TIMEOUT)
             }
             throw new Error(error.message)
         }
