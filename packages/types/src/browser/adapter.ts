@@ -1,11 +1,11 @@
 import type { WalletPlatformEnum } from '../enums.ts'
 import type { ProviderInterface } from '../services/ProviderInterface.ts'
 
-export type RegisterWalletAdapter = (walletAdapter: WalletAdapter) => void
+export type RegisterWalletAdapterType = (walletAdapter: WalletAdapterInterface) => void
 
-export type WalletAdapterList = Record<string, WalletAdapter>
+export type WalletAdapterListType = Record<string, WalletAdapterInterface>
 
-export interface WalletAdapter {
+export interface WalletAdapterInterface {
     id: string
     name: string
     icon: string

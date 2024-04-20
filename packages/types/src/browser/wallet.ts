@@ -1,9 +1,9 @@
-import type { WalletAdapter } from './adapter.ts'
 import type { WalletPlatformEnum } from '../enums.ts'
+import type { WalletAdapterInterface } from './adapter.ts'
 import type { TransactionSignerInterface } from '../services/TransactionSignerInterface.ts'
 
-export interface Wallet {
-    adapter: WalletAdapter
+export interface WalletInterface {
+    adapter: WalletAdapterInterface
 
     /**
      * @returns {String}
