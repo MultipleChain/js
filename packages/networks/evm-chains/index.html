@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="./vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browser Tests</title>
+</head>
+<body>
+    <div id="wallets"></div>
+    <script type="module">
+        import * as EvmChains from './src/browser/index.ts'
+
+        const provider = new EvmChains.Provider({
+            id: 11155111,
+            hexId: '0xaa36a7',
+            mainnetId: 1,
+            rpcUrl: 'https://sepolia.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
+            wsUrl: 'wss://sepolia.infura.io/ws/v3/9aa3d95b3bc440fa88ea12eaa4456161',
+            name: 'Ethereum Sepolia Testnet (QR)',
+            explorerUrl: 'https://sepolia.etherscan.io/',
+            nativeCurrency: {
+                symbol: 'ETH',
+                name: 'Ethereum',
+                decimals: 18
+            }
+        });
+
+        ;(async () => {
+            console.log(await EvmChains.browser.adapters.MetaMask.connect(provider))
+        })();
+    </script>
+</body>
+</html>

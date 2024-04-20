@@ -21,6 +21,7 @@
         "!tsconfig.tsbuildinfo"
     ],
     "scripts": {
+        "dev": "vite",
         "clean": "rm -rf dist",
         "watch": "tsc --watch",
         "build:vite": "vite build",
@@ -51,8 +52,8 @@
         "url": "https://github.com/MultipleChain/js/issues"
     },
     "dependencies": {
-        "@multiplechain/types": "^0.1.35",
-        "@multiplechain/utils": "^0.1.16",
+        "@multiplechain/types": "^0.1.42",
+        "@multiplechain/utils": "^0.1.17",
         "@wagmi/chains": "^1.8.0",
         "ethers": "^6.11.1"
     }
