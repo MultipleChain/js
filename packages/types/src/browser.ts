@@ -10,7 +10,8 @@ export interface WalletAdapterInterface {
     id: string
     name: string
     icon: string
-    downloadLink: string
+    provider: any
+    downloadLink?: string
     platforms: WalletPlatformEnum[]
     isDetected: () => boolean | Promise<boolean>
     isConnected: () => boolean | Promise<boolean>
