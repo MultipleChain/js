@@ -83,7 +83,7 @@ export interface WalletInterface {
     /**
      * @param {string} eventName
      * @param {Function} callback
-     * @returns {Promise<void>}
+     * @returns {void}
      */
-    on: (eventName: string, callback: (...args: any[]) => void) => Promise<void>
+    on: (eventName: string, callback: (...args: any[]) => void) => void
 }
