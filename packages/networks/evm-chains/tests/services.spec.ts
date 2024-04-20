@@ -59,7 +59,7 @@ describe('Transaction Listener', () => {
     }
 
     it('General', async () => {
-        const listener = new TransactionListener(TransactionTypeEnum.GENERAL, provider, {
+        const listener = new TransactionListener(TransactionTypeEnum.GENERAL, {
             signer: senderTestAddress
         })
 
@@ -80,7 +80,7 @@ describe('Transaction Listener', () => {
     it('Contract', async () => {
         await waitSecondsBeforeThanNewTx(10)
 
-        const listener = new TransactionListener(TransactionTypeEnum.CONTRACT, provider, {
+        const listener = new TransactionListener(TransactionTypeEnum.CONTRACT, {
             signer: senderTestAddress,
             address: tokenTestAddress
         })
@@ -106,7 +106,7 @@ describe('Transaction Listener', () => {
     it('Coin', async () => {
         await waitSecondsBeforeThanNewTx(10)
 
-        const listener = new TransactionListener(TransactionTypeEnum.COIN, provider, {
+        const listener = new TransactionListener(TransactionTypeEnum.COIN, {
             signer: senderTestAddress,
             receiver: receiverTestAddress
         })
@@ -128,7 +128,7 @@ describe('Transaction Listener', () => {
     it('Token', async () => {
         await waitSecondsBeforeThanNewTx(10)
 
-        const listener = new TransactionListener(TransactionTypeEnum.TOKEN, provider, {
+        const listener = new TransactionListener(TransactionTypeEnum.TOKEN, {
             signer: senderTestAddress,
             receiver: receiverTestAddress,
             address: tokenTestAddress
@@ -155,7 +155,7 @@ describe('Transaction Listener', () => {
     it('NFT', async () => {
         await waitSecondsBeforeThanNewTx(10)
 
-        const listener = new TransactionListener(TransactionTypeEnum.NFT, provider, {
+        const listener = new TransactionListener(TransactionTypeEnum.NFT, {
             signer: senderTestAddress,
             receiver: receiverTestAddress,
             address: nftTestAddress
