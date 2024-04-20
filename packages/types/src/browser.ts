@@ -32,6 +32,11 @@ export interface WalletInterface {
     getName: () => string
 
     /**
+     * @returns {String}
+     */
+    getIcon: () => string
+
+    /**
      * @returns {WalletPlatformEnum[]}
      */
     getPlatforms: () => WalletPlatformEnum[]
