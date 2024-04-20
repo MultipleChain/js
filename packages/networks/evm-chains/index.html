@@ -111,6 +111,7 @@
     <script type="module">
         import * as EvmChains from './src/browser/index.ts'
         import { isMobile } from '@multiplechain/utils'
+        window.EvmChains = EvmChains
 
         const provider = new EvmChains.Provider({
             id: 11155111,
@@ -138,7 +139,6 @@
             window.adapters[adapter.id] = adapter;
 
             const statuses = {
-                undefined: `<span></span>`,
                 detected: `<span class="detected">Detected</span>`,
                 download: `<span class="download">Download</span>`,
                 onlyDesktop: `<span class="onlyDesktop">Only Desktop</span>`,
@@ -147,9 +147,7 @@
             }
     
             const getStatus = () => {
-                if (typeof adapter.isDetected() == 'undefined') {
-                    return statuses.undefined;
-                } else if (adapter.isDetected() === true) {
+                if (adapter.isDetected() === true) {
                     return statuses.detected;
                 } else if (!isMobile() && adapter.isDetected() === false) {
                     return statuses.download;
