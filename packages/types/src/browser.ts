@@ -19,7 +19,7 @@ export interface WalletAdapterInterface {
     connect: (provider?: ProviderInterface, ops?: object) => Promise<object>
 }
 
-interface WalletConnectOps {
+export interface WalletConnectOps {
     projectId: string
     themeMode?: 'dark' | 'light'
 }
