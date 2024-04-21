@@ -52,6 +52,10 @@ const fromEIP6963ProviderDetail = (detail: EIP6963ProviderDetail): WalletAdapter
 }
 
 const toEIP6963ProviderDetail = (adapter: WalletAdapterInterface): EIP6963ProviderDetail => {
+    if (adapter.provider === undefined) {
+        throw new Error('Cannot convert adapter without provider to EIP6963ProviderDetail')
+    }
+
     return {
         info: {
             uuid: adapter.id,

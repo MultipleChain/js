@@ -131,8 +131,14 @@
         window.adapters = {}
         // TODO: later test Wallet class
         window.connectAdapter = async (adapter) => {
-            console.log(await adapter.connect(provider))
-            console.log(await adapter.provider.request({ method: 'eth_accounts' }))
+            if (adapter.disconnect) {
+                await adapter.disconnect()
+            }
+
+            const adapterProvider = await adapter.connect(provider, {
+                projectId: '113d9f5689edd84ff230c2a6d679c80c'
+            })
+            console.log(await adapterProvider.request({ method: 'eth_accounts' }))
         }
 
         const adapterTemplate = (adapter) => {
@@ -140,6 +146,7 @@
             window.adapters[adapter.id] = adapter;
 
             const statuses = {
+                universal: `<span></span>`,
                 detected: `<span class="detected">Detected</span>`,
                 download: `<span class="download">Download</span>`,
                 onlyDesktop: `<span class="onlyDesktop">Only Desktop</span>`,
@@ -148,11 +155,13 @@
             }
     
             const getStatus = () => {
-                if (adapter.isDetected() === true) {
+                if (adapter.platforms.includes('UNIVERSAL')) {
+                    return statuses.universal;
+                } if (adapter.isDetected() === true) {
                     return statuses.detected;
                 } else if (!isMobile() && adapter.isDetected() === false) {
                     return statuses.download;
-                } else if (isMobile() && !adapter.getPlatforms().includes('MOBILE')) {
+                } else if (isMobile() && !adapter.platforms.includes('MOBILE')) {
                     return statuses.onlyDesktop;
                 } else if (isMobile() && adapter.createDeepLink) {
                     return statuses.openInApp;
