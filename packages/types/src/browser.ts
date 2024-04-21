@@ -6,32 +6,27 @@ export type RegisterWalletAdapterType = (walletAdapter: WalletAdapterInterface) 
 
 export type WalletAdapterListType = Record<string, WalletAdapterInterface>
 
-export interface WalletAdapterInterface {
-    id: string
-    name: string
-    icon: string
-    provider: any
-    downloadLink?: string
-    platforms: WalletPlatformEnum[]
-    isDetected: () => boolean | Promise<boolean>
-    isConnected: () => boolean | Promise<boolean>
-    createDeepLink?: (url: string, ops?: object) => string
-    connect: (provider?: ProviderInterface, ops?: object) => Promise<object>
-}
-
 export interface WalletConnectOps {
     projectId: string
     themeMode?: 'dark' | 'light'
 }
 
-export interface WalletConnectAdapterInterface
-    extends Omit<WalletAdapterInterface, 'connect' | 'provider'> {
-    connect: (provider: ProviderInterface, ops: WalletConnectOps) => Promise<object>
+export interface WalletAdapterInterface {
+    id: string
+    name: string
+    icon: string
+    provider?: any
+    downloadLink?: string
+    platforms: WalletPlatformEnum[]
     disconnect?: () => void
+    isDetected: () => boolean | Promise<boolean>
+    isConnected: () => boolean | Promise<boolean>
+    createDeepLink?: (url: string, ops?: object) => string
+    connect: (provider?: ProviderInterface, ops?: object | WalletConnectOps) => Promise<object>
 }
 
 export interface WalletInterface {
-    adapter: WalletAdapterInterface | WalletConnectAdapterInterface
+    adapter: WalletAdapterInterface
 
     /**
      * @returns {String}
