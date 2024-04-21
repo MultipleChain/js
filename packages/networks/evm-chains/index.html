@@ -110,7 +110,7 @@
         </ul>
     <script type="module">
         import * as EvmChains from './src/browser/index.ts'
-        import { isMobile } from '@multiplechain/utils'
+        import { isMobile, isWebview } from '@multiplechain/utils'
         window.EvmChains = EvmChains
 
         const provider = new EvmChains.Provider({
@@ -172,7 +172,34 @@
             `
         }
 
-        Object.values(EvmChains.browser.adapters).forEach(adapter => {
+        let adapters = EvmChains.browser.adapters
+
+        const sortedKeys = Object.keys(adapters).sort(function(a, b) {
+            const order = { true: 1, undefined: 2, false: 3 };
+            const valueA = adapters[a].isDetected();
+            const valueB = adapters[b].isDetected();
+            
+            return order[valueA] - order[valueB];                     
+        });
+    
+        // set sorted adapters
+        adapters = sortedKeys.reduce((sortedObj, key) => {
+            sortedObj[key] = adapters[key];
+            return sortedObj;
+        }, {});
+    
+        // if one wallet detected, remove other adapters
+        if (isWebview()) {
+            Object.values(adapters).forEach(wallet => {
+                if (wallet.isDetected()) {
+                    adapters = {}
+                    adapters[wallet.key] = wallet;
+                    return true;
+                }
+            });
+        }
+
+        Object.values(adapters).forEach(adapter => {
             document.querySelector('.wallet-list-container').innerHTML += adapterTemplate(adapter)
         })
     </script>
