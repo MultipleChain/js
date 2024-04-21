@@ -19,8 +19,19 @@ export interface WalletAdapterInterface {
     connect: (provider?: ProviderInterface, ops?: object) => Promise<object>
 }
 
+interface WalletConnectOps {
+    projectId: string
+    themeMode?: 'dark' | 'light'
+}
+
+export interface WalletConnectAdapterInterface
+    extends Omit<WalletAdapterInterface, 'connect' | 'provider'> {
+    connect: (provider: ProviderInterface, ops: WalletConnectOps) => Promise<object>
+    disconnect?: () => void
+}
+
 export interface WalletInterface {
-    adapter: WalletAdapterInterface
+    adapter: WalletAdapterInterface | WalletConnectAdapterInterface
 
     /**
      * @returns {String}
