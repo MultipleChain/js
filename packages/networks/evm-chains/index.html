@@ -132,6 +132,7 @@
         // TODO: later test Wallet class
         window.connectAdapter = async (adapter) => {
             console.log(await adapter.connect(provider))
+            console.log(await adapter.provider.request({ method: 'eth_accounts' }))
         }
 
         const adapterTemplate = (adapter) => {
