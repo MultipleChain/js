@@ -108,6 +108,7 @@
     <div class="wallet-list-wrapper">
         <ul class="wallet-list-container">
         </ul>
+    </div>
     <script type="module">
         import * as EvmChains from './src/browser/index.ts'
         import { isMobile, isWebview } from '@multiplechain/utils'
@@ -181,36 +182,48 @@
             `
         }
 
-        let adapters = EvmChains.browser.adapters
+        const updateWalletList = () => {
+            const container = document.querySelector('.wallet-list-container')
+            container.innerHTML = ''
 
-        const sortedKeys = Object.keys(adapters).sort(function(a, b) {
-            const order = { true: 1, undefined: 2, false: 3 };
-            const valueA = adapters[a].isDetected();
-            const valueB = adapters[b].isDetected();
-            
-            return order[valueA] - order[valueB];                     
-        });
-    
-        // set sorted adapters
-        adapters = sortedKeys.reduce((sortedObj, key) => {
-            sortedObj[key] = adapters[key];
-            return sortedObj;
-        }, {});
-    
-        // if one wallet detected, remove other adapters
-        if (isWebview()) {
-            Object.values(adapters).forEach(wallet => {
-                if (wallet.isDetected()) {
-                    adapters = {}
-                    adapters[wallet.key] = wallet;
-                    return true;
-                }
+            let adapters = EvmChains.browser.adapters
+
+            const sortedKeys = Object.keys(adapters).sort(function(a, b) {
+                const order = { true: 1, universal: 2, false: 3 };
+                
+                const valueA = adapters[a].platforms.includes('UNIVERSAL') ? 'universal' : adapters[a].isDetected();
+                const valueB = adapters[b].platforms.includes('UNIVERSAL') ? 'universal' : adapters[b].isDetected();
+                
+                return order[valueA] - order[valueB];                     
             });
+        
+            // set sorted adapters
+            adapters = sortedKeys.reduce((sortedObj, key) => {
+                sortedObj[key] = adapters[key];
+                return sortedObj;
+            }, {});
+        
+            // if one wallet detected, remove other adapters
+            if (isWebview()) {
+                Object.values(adapters).forEach(wallet => {
+                    if (wallet.isDetected()) {
+                        adapters = {}
+                        adapters[wallet.key] = wallet;
+                        return true;
+                    }
+                });
+            }
+
+            Object.values(adapters).forEach(adapter => {
+                container.innerHTML += adapterTemplate(adapter)
+            })
         }
 
-        Object.values(adapters).forEach(adapter => {
-            document.querySelector('.wallet-list-container').innerHTML += adapterTemplate(adapter)
-        })
+        window.addEventListener("eip6963:announceProvider", (event) => {
+            EvmChains.browser.registerAdapter(EvmChains.browser.fromEIP6963ProviderDetail(event.detail))
+            updateWalletList()
+        });
+        window.dispatchEvent(new Event("eip6963:requestProvider"));
     </script>
 </body>
 </html>

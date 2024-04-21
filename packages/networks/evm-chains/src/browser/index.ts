@@ -9,11 +9,27 @@ import type {
     RegisterWalletAdapterType
 } from '@multiplechain/types'
 
+const EIP6963AdapterUUIDIndex: Record<string, string> = {
+    'app.phantom': 'phantom',
+    'io.metamask': 'metamask',
+    'com.bitget.web3': 'bitgetwallet',
+    'com.okex.wallet': 'okxwallet',
+    'com.trustwallet.app': 'trustwallet',
+    'io.xdefi': 'xdefiwallet'
+}
+
 const adapters: WalletAdapterListType = {
     ...adapterList
 }
 
 const registerAdapter: RegisterWalletAdapterType = (adapter: WalletAdapterInterface): void => {
+    if (EIP6963AdapterUUIDIndex[adapter.id] !== undefined) {
+        console.warn(
+            `Adapter is not registered, because it is already registered defualtly: ${adapter.id}`
+        )
+        return
+    }
+
     if (Object.values(adapters).find((a) => a.id === adapter.id) !== undefined) {
         throw new Error(`Adapter with id ${adapter.id} already exists`)
     }
@@ -23,10 +39,10 @@ const registerAdapter: RegisterWalletAdapterType = (adapter: WalletAdapterInterf
 
 const fromEIP6963ProviderDetail = (detail: EIP6963ProviderDetail): WalletAdapterInterface => {
     return {
-        id: detail.info.uuid,
         name: detail.info.name,
         icon: detail.info.icon,
         provider: detail.provider,
+        id: detail.info.rdns ?? detail.info.uuid,
         platforms: [WalletPlatformEnum.BROWSER, WalletPlatformEnum.MOBILE],
         isDetected: () => true,
         isConnected: async () => {
