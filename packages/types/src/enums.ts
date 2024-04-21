@@ -57,5 +57,5 @@ export enum WalletPlatformEnum {
     BROWSER = 'BROWSER',
     MOBILE = 'MOBILE',
     DESKTOP = 'DESKTOP',
-    ALL = 'ALL'
+    UNIVERSAL = 'UNIVERSAL'
 }
