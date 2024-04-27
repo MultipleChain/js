@@ -61,9 +61,11 @@ export interface WalletInterface {
     createDeepLink: (url: string, ops?: object) => string | null
 
     /**
+     * @param {ProviderInterface} provider
+     * @param {Object | WalletConnectOps} ops
      * @returns {Promise<string>}
      */
-    connect: () => Promise<string>
+    connect: (provider?: ProviderInterface, ops?: object | WalletConnectOps) => Promise<string>
 
     /**
      * @returns {Boolean | Promise<Boolean>}
