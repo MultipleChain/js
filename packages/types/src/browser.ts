@@ -18,7 +18,7 @@ export interface WalletAdapterInterface {
     provider?: any
     downloadLink?: string
     platforms: WalletPlatformEnum[]
-    disconnect?: () => void
+    disconnect?: () => void | Promise<void>
     isDetected: () => boolean | Promise<boolean>
     isConnected: () => boolean | Promise<boolean>
     createDeepLink?: (url: string, ops?: object) => string
@@ -49,16 +49,16 @@ export interface WalletInterface {
     getPlatforms: () => WalletPlatformEnum[]
 
     /**
-     * @returns {String}
+     * @returns {String | undefined}
      */
-    getDownloadLink: () => string
+    getDownloadLink: () => string | undefined
 
     /**
      * @param {String} url
      * @param {Object} ops
-     * @returns {String}
+     * @returns {String | null}
      */
-    createDeepLink: (url: string, ops?: object) => string
+    createDeepLink: (url: string, ops?: object) => string | null
 
     /**
      * @returns {Promise<string>}
@@ -66,14 +66,14 @@ export interface WalletInterface {
     connect: () => Promise<string>
 
     /**
-     * @returns {Boolean}
+     * @returns {Boolean | Promise<Boolean>}
      */
-    isDetected: () => boolean
+    isDetected: () => boolean | Promise<boolean>
 
     /**
-     * @returns {Boolean}
+     * @returns {Boolean | Promise<Boolean>}
      */
-    isConnected: () => boolean
+    isConnected: () => boolean | Promise<boolean>
 
     /**
      * @returns {Promise<string>}
