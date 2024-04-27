@@ -102,6 +102,56 @@
         .wallet-list-container.disabled > li {
             pointer-events: none;
         }
+
+        .methods {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 8px 30px rgba(74,58,150, .2);
+            max-width: 400px;
+            width: 100%;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .info {
+            margin-bottom: 20px;
+        }
+
+        .info span {
+            font-size: 16px;
+            font-weight: 500;
+            color: #000;
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 10px;
+            background: #4099ff;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 500;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .action-result {
+            font-size: 16px;
+            font-weight: 500;
+            color: #000;
+            margin-bottom: 20px;
+        }
+
+        .action-result span {
+            word-wrap: break-word;
+        }
     </style>
 </head>
 <body>
@@ -109,6 +159,52 @@
         <ul class="wallet-list-container">
         </ul>
     </div>
+
+    <div class="methods">
+        <div class="info">
+            <span>Adapter id: </span> <span class="adapter-id"></span>
+        </div>
+        <div class="info">
+            <span>Adapter name: </span> <span class="adapter-name"></span>
+        </div>
+        <div class="info">
+            <span>Adapter icon: </span> <span class="adapter-icon"><img src="" alt="icon"></span>
+        </div>
+        <div class="info">
+            <span>Platforms: </span> <span class="platforms"></span>
+        </div>
+        <div class="info">
+            <span>Download link: </span> <span class="download-link"></span>
+        </div>
+        <div class="info">
+            <span>Deep link: </span> <span class="deep-link"></span>
+        </div>
+        <div class="info">
+            <span>Chain id: </span> <span class="chain-id"></span>
+        </div>
+        <div class="info">
+            <span>Connected address: </span> <span class="connected-address"></span>
+        </div>
+        <button class="action-btn sign-message">
+            Sign Message (Personal Sign)
+        </button>
+        <div class="action-result">
+            <span>Result:</span> <span class="sign-message"></span>
+        </div>
+        <button class="action-btn send-coin">
+            Send Coin
+        </button>
+        <div class="action-result">
+            <span>Result:</span> <span class="send-coin"></span>
+        </div>
+        <button class="action-btn send-token">
+            Send Token
+        </button>
+        <div class="action-result">
+            <span>Result:</span> <span class="send-token"></span>
+        </div>
+    </div>
+
     <script type="module">
         import * as EvmChains from './src/browser/index.ts'
         import { isMobile, isWebview } from '@multiplechain/utils'
@@ -130,16 +226,50 @@
         });
 
         window.adapters = {}
-        // TODO: later test Wallet class
         window.connectAdapter = async (adapter) => {
             if (adapter.disconnect) {
                 await adapter.disconnect()
             }
 
-            const adapterProvider = await adapter.connect(provider, {
+            const wallet = new EvmChains.browser.Wallet(adapter)
+            const adapterProvider = await wallet.connect(provider, {
                 projectId: '113d9f5689edd84ff230c2a6d679c80c'
             })
-            console.log(await adapterProvider.request({ method: 'eth_accounts' }))
+            
+            document.querySelector('.methods').style.display = 'block'
+            document.querySelector('.wallet-list-wrapper').style.display = 'none'
+
+            const sender = await wallet.getAddress()
+            document.querySelector('.adapter-id').innerText = wallet.getId()
+            document.querySelector('.adapter-name').innerText = wallet.getName()
+            document.querySelector('.adapter-icon img').src = wallet.getIcon()
+            document.querySelector('.platforms').innerText = wallet.getPlatforms().join(', ')
+            document.querySelector('.download-link').innerText = wallet.getDownloadLink()
+            document.querySelector('.deep-link').innerText = wallet.createDeepLink('https://google.com')
+            document.querySelector('.chain-id').innerText = await wallet.getChainId()
+            document.querySelector('.connected-address').innerText = sender
+
+            document.querySelector('.action-btn.sign-message').onclick = async () => {
+                const result = await wallet.signMessage('Hello World')
+                document.querySelector('.action-result .sign-message').innerText = result
+            }
+
+            const receiver = '0xbBa4d06D1cEf94b35aDeCfDa893523907fdD36DE';
+            const tokenAddress = '0x4294cb0dD25dC9140B5127f247cBd47Eeb673431';
+
+            document.querySelector('.action-btn.send-coin').onclick = async () => {
+                const coin = new EvmChains.assets.Coin();
+                const signer = await coin.transfer(sender, receiver, 0.00001)
+                const result = await wallet.sendTransaction(signer)
+                document.querySelector('.action-result .send-coin').innerText = result
+            }
+
+            document.querySelector('.action-btn.send-token').onclick = async () => {
+                const token = new EvmChains.assets.Token(tokenAddress);
+                const signer = await token.transfer(sender, receiver, 0.1)
+                const result = await wallet.sendTransaction(signer)
+                document.querySelector('.action-result .send-token').innerText = result
+            }
         }
 
         const adapterTemplate = (adapter) => {
