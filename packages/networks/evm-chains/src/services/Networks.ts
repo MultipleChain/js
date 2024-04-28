@@ -70,7 +70,17 @@ const getMainnets = (): EvmNetworkConfigInterface[] => {
     return Object.values(networks).filter((network) => !(network.testnet ?? false))
 }
 
+const getAll = (): EvmNetworkConfigInterface[] => {
+    return Object.values(networks)
+}
+
+const add = (key: string, network: EvmNetworkConfigInterface): void => {
+    networks[key] = network
+}
+
 export default {
+    add,
+    getAll,
     findById,
     findByKey,
     findByName,

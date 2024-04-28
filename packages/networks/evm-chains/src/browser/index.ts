@@ -3,11 +3,8 @@ import { switcher } from './adapters/switcher.ts'
 import * as adapterList from './adapters/index.ts'
 import { WalletPlatformEnum } from '@multiplechain/types'
 import type { EIP6963ProviderDetail, EIP1193Provider } from './adapters/EIP6963.ts'
-import type {
-    WalletAdapterListType,
-    WalletAdapterInterface,
-    RegisterWalletAdapterType
-} from '@multiplechain/types'
+import type { WalletAdapterInterface, RegisterWalletAdapterType } from '@multiplechain/types'
+import type { Web3ModalAdapterInterface } from './adapters/Web3Modal.ts'
 
 const EIP6963AdapterUUIDIndex: Record<string, string> = {
     'app.phantom': 'phantom',
@@ -18,7 +15,7 @@ const EIP6963AdapterUUIDIndex: Record<string, string> = {
     'io.xdefi': 'xdefiwallet'
 }
 
-const adapters: WalletAdapterListType = {
+const adapters: Record<string, WalletAdapterInterface | Web3ModalAdapterInterface> = {
     ...adapterList
 }
 

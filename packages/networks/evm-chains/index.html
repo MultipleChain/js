@@ -10,8 +10,8 @@
         .wallet-list-wrapper {
             position: absolute;
             top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            left: 20%;
+            transform: translate(0, -50%);
             background: #fff;
             border-radius: 10px;
             padding: 20px;
@@ -108,15 +108,17 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
+            transform: translate(0, -50%);
             background: #fff;
             border-radius: 10px;
             padding: 20px;
             box-shadow: 0 8px 30px rgba(74,58,150, .2);
-            max-width: 400px;
+            max-width: 450px;
             width: 100%;
             box-sizing: border-box;
             font-family: Arial, Helvetica, sans-serif;
+            max-height: 400px;
+            overflow-y: auto;
         }
 
         .info {
@@ -127,6 +129,12 @@
             font-size: 16px;
             font-weight: 500;
             color: #000;
+        }
+
+        .info span img {
+            width: 20px;
+            height: 20px;
+            margin-left: 10px;
         }
 
         .action-btn {
@@ -233,11 +241,16 @@
 
             const wallet = new EvmChains.browser.Wallet(adapter)
             const adapterProvider = await wallet.connect(provider, {
-                projectId: '113d9f5689edd84ff230c2a6d679c80c'
+                projectId: '113d9f5689edd84ff230c2a6d679c80c',
+                metadata: {
+                    name: 'MultipleChain',
+                    description: 'MultipleChain is a best standard',
+                    url: 'http://localhost:3000/',
+                    icons: []
+                }
             })
             
             document.querySelector('.methods').style.display = 'block'
-            document.querySelector('.wallet-list-wrapper').style.display = 'none'
 
             const sender = await wallet.getAddress()
             document.querySelector('.adapter-id').innerText = wallet.getId()
@@ -249,6 +262,7 @@
             document.querySelector('.chain-id').innerText = await wallet.getChainId()
             document.querySelector('.connected-address').innerText = sender
 
+            document.querySelector('.action-result .sign-message').innerText = ''
             document.querySelector('.action-btn.sign-message').onclick = async () => {
                 const result = await wallet.signMessage('Hello World')
                 document.querySelector('.action-result .sign-message').innerText = result
@@ -257,6 +271,7 @@
             const receiver = '0xbBa4d06D1cEf94b35aDeCfDa893523907fdD36DE';
             const tokenAddress = '0x4294cb0dD25dC9140B5127f247cBd47Eeb673431';
 
+            document.querySelector('.action-result .send-coin').innerText = ''
             document.querySelector('.action-btn.send-coin').onclick = async () => {
                 const coin = new EvmChains.assets.Coin();
                 const signer = await coin.transfer(sender, receiver, 0.00001)
@@ -264,6 +279,7 @@
                 document.querySelector('.action-result .send-coin').innerText = result
             }
 
+            document.querySelector('.action-result .send-token').innerText = ''
             document.querySelector('.action-btn.send-token').onclick = async () => {
                 const token = new EvmChains.assets.Token(tokenAddress);
                 const signer = await token.transfer(sender, receiver, 0.1)
