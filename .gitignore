@@ -12,7 +12,6 @@ node_modules
 dist
 dist-ssr
 *.local
-index.html
 test*.ts
 test*.js
 test*.cjs

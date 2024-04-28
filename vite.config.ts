@@ -13,8 +13,8 @@ export default defineConfig({
         minify: true,
         sourcemap: true,
         lib: {
-            entry: './src/index.ts',
             formats: ['es', 'umd'],
+            entry: './src/browser/index.ts',
             fileName: (format: string) => `index.${format}.js`
         }
     },

@@ -9,9 +9,9 @@ export default mergeConfig(
             watch: false,
             testTimeout: 180000,
             environment: 'node',
-            setupFiles: ['./packages/networks/evm-chains/tests/setup.ts'],
             exclude: [...configDefaults.exclude, 'e2e/*'],
-            root: fileURLToPath(new URL('./', import.meta.url))
+            root: fileURLToPath(new URL('./', import.meta.url)),
+            setupFiles: ['./packages/networks/evm-chains/tests/setup.ts']
         }
     })
 )

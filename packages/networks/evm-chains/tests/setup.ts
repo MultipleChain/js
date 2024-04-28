@@ -12,8 +12,8 @@ try {
         testnet: true,
         name: 'Ethereum Sepolia Testnet (QR)',
         explorerUrl: 'https://sepolia.etherscan.io/',
-        rpcUrl: process.env.RPC_URL as unknown as string,
-        wsUrl: process.env.WS_URL as unknown as string,
+        rpcUrl: process.env.EVM_RPC_URL as unknown as string,
+        wsUrl: process.env.EVM_WS_URL as unknown as string,
         nativeCurrency: {
             symbol: 'ETH',
             name: 'Ethereum',

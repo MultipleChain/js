@@ -2,6 +2,7 @@ import { Provider } from '../services/Provider.ts'
 import type { Ethers } from '../services/Ethers.ts'
 import type { ContractInterface } from '@multiplechain/types'
 import type { Contract as EthersContract, InterfaceAbi } from 'ethers'
+import type { TransactionData } from '../services/TransactionSigner.ts'
 
 export class Contract implements ContractInterface {
     /**
@@ -75,5 +76,35 @@ export class Contract implements ContractInterface {
      */
     async getMethodEstimateGas(method: string, from: string, ...args: any[]): Promise<number> {
         return Number(await this.ethersContract[method].estimateGas(...args, { from })) // eslint-disable-line
+    }
+
+    /**
+     * @param {string} method Method name
+     * @param {string} from Sender wallet address
+     * @param {any[]} args Method parameters
+     * @returns {Promise<TransactionData>} Transaction data
+     */
+    async createTransactionData(
+        method: string,
+        from: string,
+        ...args: any[]
+    ): Promise<TransactionData> {
+        const [gasPrice, nonce, data, gasLimit] = await Promise.all([
+            this.provider.ethers.getGasPrice(),
+            this.provider.ethers.getNonce(from),
+            this.getMethodData(method, ...args), // eslint-disable-line
+            this.getMethodEstimateGas(method, from, ...args) // eslint-disable-line
+        ])
+
+        return {
+            from,
+            data,
+            nonce,
+            gasPrice,
+            gasLimit,
+            value: '0x0',
+            to: this.getAddress(),
+            chainId: this.provider.network.id
+        }
     }
 }

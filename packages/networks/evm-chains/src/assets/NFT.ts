@@ -109,23 +109,9 @@ export class NFT extends Contract implements NftInterface {
             }
         }
 
-        const [gasPrice, nonce, data, gasLimit] = await Promise.all([
-            this.provider.ethers.getGasPrice(),
-            this.provider.ethers.getNonce(spender),
-            this.getMethodData('transferFrom', owner, receiver, nftId),
-            this.getMethodEstimateGas('transferFrom', spender, owner, receiver, nftId)
-        ])
-
-        return new NftTransactionSigner({
-            data,
-            nonce,
-            gasPrice,
-            gasLimit,
-            value: '0x0',
-            from: spender,
-            to: this.getAddress(),
-            chainId: this.provider.network.id
-        })
+        return new NftTransactionSigner(
+            await this.createTransactionData('transferFrom', spender, owner, receiver, nftId)
+        )
     }
 
     /**
@@ -153,22 +139,8 @@ export class NFT extends Contract implements NftInterface {
             throw new Error(ErrorTypeEnum.UNAUTHORIZED_ADDRESS)
         }
 
-        const [gasPrice, nonce, data, gasLimit] = await Promise.all([
-            this.provider.ethers.getGasPrice(),
-            this.provider.ethers.getNonce(owner),
-            this.getMethodData('approve', spender, nftId),
-            this.getMethodEstimateGas('approve', owner, spender, nftId)
-        ])
-
-        return new NftTransactionSigner({
-            data,
-            nonce,
-            gasPrice,
-            gasLimit,
-            value: '0x0',
-            from: owner,
-            to: this.getAddress(),
-            chainId: this.provider.network.id
-        })
+        return new NftTransactionSigner(
+            await this.createTransactionData('approve', owner, spender, nftId)
+        )
     }
 }

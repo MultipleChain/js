@@ -1,0 +1,44 @@
+import icons from './icons.ts'
+import { switcher } from './switcher.ts'
+import type { EIP1193Provider } from './EIP6963.ts'
+import { WalletPlatformEnum } from '@multiplechain/types'
+import type { WalletAdapterInterface, ProviderInterface } from '@multiplechain/types'
+
+const OkxWallet: WalletAdapterInterface = {
+    id: 'okxwallet',
+    name: 'OkxWallet',
+    icon: icons.okxWallet,
+    provider: window?.okxwallet,
+    downloadLink: 'https://www.okx.com/download',
+    platforms: [WalletPlatformEnum.BROWSER, WalletPlatformEnum.MOBILE],
+    createDeepLink: (url: string): string => `okx://wallet/dapp/details?dappUrl=${url}`,
+    isDetected: () => Boolean(window?.okxwallet),
+    isConnected: async () => {
+        return Boolean((await window?.okxwallet?.request({ method: 'eth_accounts' })).length)
+    },
+    connect: async (provider?: ProviderInterface): Promise<EIP1193Provider> => {
+        return await new Promise((resolve, reject) => {
+            const okx = window?.okxwallet
+            try {
+                okx
+                    ?.request({ method: 'eth_requestAccounts' })
+                    .then(() => {
+                        switcher(okx, provider)
+                            .then(() => {
+                                resolve(okx)
+                            })
+                            .catch((error: any) => {
+                                reject(error)
+                            })
+                    })
+                    .catch((error: any) => {
+                        reject(error)
+                    })
+            } catch (error) {
+                reject(error)
+            }
+        })
+    }
+}
+
+export default OkxWallet

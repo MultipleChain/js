@@ -11,7 +11,8 @@
     "exports": {
         ".": {
             "import": "./dist/index.es.js",
-            "require": "./dist/index.cjs"
+            "require": "./dist/index.cjs",
+            "types": "./dist/index.d.ts"
         }
     },
     "files": [
@@ -47,7 +48,7 @@
         "url": "https://github.com/MultipleChain/js/issues"
     },
     "dependencies": {
-        "@multiplechain/types": "^0.1.35",
-        "@multiplechain/utils": "^0.1.16"
+        "@multiplechain/types": "^0.1.53",
+        "@multiplechain/utils": "^0.1.18"
     }
 }
