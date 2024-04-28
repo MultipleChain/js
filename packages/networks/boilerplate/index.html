@@ -10,8 +10,8 @@
         .wallet-list-wrapper {
             position: absolute;
             top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            left: 20%;
+            transform: translate(0, -50%);
             background: #fff;
             border-radius: 10px;
             padding: 20px;
@@ -108,7 +108,7 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
+            transform: translate(0, -50%);
             background: #fff;
             border-radius: 10px;
             padding: 20px;
@@ -234,7 +234,6 @@
             })
             
             document.querySelector('.methods').style.display = 'block'
-            document.querySelector('.wallet-list-wrapper').style.display = 'none'
 
             const sender = await wallet.getAddress()
             document.querySelector('.adapter-id').innerText = wallet.getId()
@@ -246,6 +245,7 @@
             document.querySelector('.chain-id').innerText = await wallet.getChainId()
             document.querySelector('.connected-address').innerText = sender
 
+            document.querySelector('.action-result .sign-message').innerText = ''
             document.querySelector('.action-btn.sign-message').onclick = async () => {
                 const result = await wallet.signMessage('Hello World')
                 document.querySelector('.action-result .sign-message').innerText = result
@@ -254,6 +254,7 @@
             const receiver = '0xbBa4d06D1cEf94b35aDeCfDa893523907fdD36DE';
             const tokenAddress = '0x4294cb0dD25dC9140B5127f247cBd47Eeb673431';
 
+            document.querySelector('.action-result .send-coin').innerText = ''
             document.querySelector('.action-btn.send-coin').onclick = async () => {
                 const coin = new Boilerplate.assets.Coin();
                 const signer = await coin.transfer(sender, receiver, 0.00001)
@@ -261,6 +262,7 @@
                 document.querySelector('.action-result .send-coin').innerText = result
             }
 
+            document.querySelector('.action-result .send-token').innerText = ''
             document.querySelector('.action-btn.send-token').onclick = async () => {
                 const token = new Boilerplate.assets.Token(tokenAddress);
                 const signer = await token.transfer(sender, receiver, 0.1)
@@ -310,6 +312,7 @@
         }
 
         const container = document.querySelector('.wallet-list-container')
+        container.innerHTML = ''
 
         let adapters = Boilerplate.browser.adapters
 
@@ -342,7 +345,6 @@
         Object.values(adapters).forEach(adapter => {
             container.innerHTML += adapterTemplate(adapter)
         })
-
     </script>
 </body>
 </html>
