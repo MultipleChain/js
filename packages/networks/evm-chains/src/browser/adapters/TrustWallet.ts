@@ -1,11 +1,12 @@
 import icons from './icons.ts'
 import { switcher } from './switcher.ts'
+import type { WindowEthereum } from './types.ts'
 import type { EIP1193Provider } from './EIP6963.ts'
 import { WalletPlatformEnum } from '@multiplechain/types'
 import type { WalletAdapterInterface, ProviderInterface } from '@multiplechain/types'
 
 // eslint-disable-next-line
-const trustWalletProvider = window?.ethereum?.isTrust ? window.ethereum : window.trustwallet
+const trustWalletProvider = (window?.ethereum?.isTrust ? window.ethereum : window.trustwallet) as unknown as WindowEthereum
 
 const TrustWallet: WalletAdapterInterface = {
     id: 'trustwallet',

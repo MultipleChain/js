@@ -8,7 +8,7 @@ import { ErrorTypeEnum, WalletPlatformEnum } from '@multiplechain/types'
 import { networks, type EvmNetworkConfigInterface } from '../../index.ts'
 import type { WalletAdapterInterface, ProviderInterface } from '@multiplechain/types'
 
-interface Web3ModalOps {
+export interface Web3ModalOps {
     projectId: string
     themeMode?: 'dark' | 'light'
     enableEIP6963?: boolean
@@ -21,7 +21,7 @@ interface Web3ModalOps {
 }
 
 export interface Web3ModalAdapterInterface extends Omit<WalletAdapterInterface, 'connect'> {
-    connect: (provider?: ProviderInterface, ops?: Web3ModalOps) => Promise<EIP1193Provider>
+    connect: (provider?: ProviderInterface, ops?: Web3ModalOps | object) => Promise<EIP1193Provider>
 }
 
 let modal: Web3ModalType
@@ -86,7 +86,7 @@ const web3Modal = (ops: Web3ModalOps): Web3ModalType => {
             return
         }
         if (currentNetwork.chainId !== chainId) {
-            await modal.switchNetwork(currentNetwork.chainId as number).catch(() => {
+            await modal.switchNetwork(currentNetwork.chainId).catch(() => {
                 connectRejectMethod(new Error(ErrorTypeEnum.WALLET_CONNECT_REJECTED))
             })
         }
@@ -126,7 +126,12 @@ const Web3Modal: Web3ModalAdapterInterface = {
             await modal.disconnect()
         }
     },
-    connect: async (provider?: ProviderInterface, ops?: Web3ModalOps): Promise<EIP1193Provider> => {
+    connect: async (
+        provider?: ProviderInterface,
+        _ops?: Web3ModalOps | object
+    ): Promise<EIP1193Provider> => {
+        const ops = _ops as Web3ModalOps
+
         if (provider === undefined) {
             throw new Error('Provider is required')
         }

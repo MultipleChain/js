@@ -1,8 +1,11 @@
 import icons from './icons.ts'
 import { switcher } from './switcher.ts'
+import type { WindowEthereum } from './types.ts'
 import type { EIP1193Provider } from './EIP6963.ts'
 import { WalletPlatformEnum } from '@multiplechain/types'
 import type { WalletAdapterInterface, ProviderInterface } from '@multiplechain/types'
+
+const metamaskProvider = window?.ethereum as unknown as WindowEthereum
 
 const MetaMask: WalletAdapterInterface = {
     id: 'metamask',
@@ -11,21 +14,20 @@ const MetaMask: WalletAdapterInterface = {
     provider: window.ethereum,
     downloadLink: 'https://metamask.io/download/',
     platforms: [WalletPlatformEnum.BROWSER, WalletPlatformEnum.MOBILE],
-    isDetected: () => Boolean(window?.ethereum?.isMetaMask),
+    isDetected: () => Boolean(metamaskProvider.isMetaMask),
     createDeepLink: (url: string): string => `https://metamask.app.link/dapp/${url}`,
     isConnected: async () => {
-        return Boolean((await window?.ethereum?.request({ method: 'eth_accounts' })).length)
+        return Boolean((await metamaskProvider.request({ method: 'eth_accounts' })).length)
     },
     connect: async (provider?: ProviderInterface): Promise<EIP1193Provider> => {
-        const metamask = window.ethereum
         return await new Promise((resolve, reject) => {
             try {
-                metamask
+                metamaskProvider
                     ?.request({ method: 'eth_requestAccounts' })
                     .then(() => {
-                        switcher(metamask, provider)
+                        switcher(metamaskProvider, provider)
                             .then(() => {
-                                resolve(metamask)
+                                resolve(metamaskProvider)
                             })
                             .catch((error: any) => {
                                 reject(error)
