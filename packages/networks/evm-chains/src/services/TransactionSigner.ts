@@ -4,6 +4,7 @@ import { Transaction } from '../models/Transaction.ts'
 import { NftTransaction } from '../models/NftTransaction.ts'
 import { CoinTransaction } from '../models/CoinTransaction.ts'
 import { TokenTransaction } from '../models/TokenTransaction.ts'
+import { ContractTransaction } from '../models/ContractTransaction.ts'
 import type { TransactionRequest, Wallet, BigNumberish } from 'ethers'
 import { ErrorTypeEnum, type TransactionSignerInterface } from '@multiplechain/types'
 
@@ -86,6 +87,16 @@ export class TransactionSigner implements TransactionSignerInterface {
      */
     getSignedData(): any {
         return this.signedData
+    }
+}
+
+export class ContractTransactionSigner extends TransactionSigner {
+    /**
+     * Send the transaction to the blockchain network
+     * @returns {Promise<ContractTransaction>} Transaction data
+     */
+    async send(): Promise<ContractTransaction> {
+        return new ContractTransaction((await super.send()).getId())
     }
 }
 

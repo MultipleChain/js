@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@multiplechain/types':
-    specifier: ^0.1.52
-    version: 0.1.52
+    specifier: ^0.1.53
+    version: 0.1.53
   '@multiplechain/utils':
     specifier: ^0.1.18
     version: 0.1.18
@@ -102,8 +102,8 @@ packages:
       tslib: 2.4.0
     dev: false
 
-  /@multiplechain/types@0.1.52:
-    resolution: {integrity: sha512-Uf+XVYX5n71c9leXDS3QTSkqemy9g8M1mgoaulsGJbjYrRfGOwWOGsVsQxpapkCx3lWM/zZkUq5n3HrkGt6FFg==}
+  /@multiplechain/types@0.1.53:
+    resolution: {integrity: sha512-brF6CtNDUwTChwZBy0pTEvf4QdwAK3sL2kvVXE9rARAroK8qUU4Skn5NAHpr2W1ubmuhDezgHDS4XhEdr8BsgA==}
     dev: false
 
   /@multiplechain/utils@0.1.18:

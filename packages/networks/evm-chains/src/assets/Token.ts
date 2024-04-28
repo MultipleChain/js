@@ -96,23 +96,10 @@ export class Token extends Contract implements TokenInterface {
         }
 
         const hexAmount = numberToHex(amount, await this.getDecimals())
-        const [gasPrice, nonce, data, gasLimit] = await Promise.all([
-            this.provider.ethers.getGasPrice(),
-            this.provider.ethers.getNonce(sender),
-            this.getMethodData('transfer', receiver, hexAmount),
-            this.getMethodEstimateGas('transfer', sender, receiver, hexAmount)
-        ])
 
-        return new TokenTransactionSigner({
-            data,
-            nonce,
-            gasPrice,
-            gasLimit,
-            value: '0x0',
-            from: sender,
-            to: this.getAddress(),
-            chainId: this.provider.network.id
-        })
+        return new TokenTransactionSigner(
+            await this.createTransactionData('transfer', sender, receiver, hexAmount)
+        )
     }
 
     /**
@@ -150,23 +137,9 @@ export class Token extends Contract implements TokenInterface {
 
         const hexAmount = numberToHex(amount, await this.getDecimals())
 
-        const [gasPrice, nonce, data, gasLimit] = await Promise.all([
-            this.provider.ethers.getGasPrice(),
-            this.provider.ethers.getNonce(spender),
-            this.getMethodData('transferFrom', owner, receiver, hexAmount),
-            this.getMethodEstimateGas('transferFrom', spender, owner, receiver, hexAmount)
-        ])
-
-        return new TokenTransactionSigner({
-            data,
-            nonce,
-            gasPrice,
-            gasLimit,
-            value: '0x0',
-            from: spender,
-            to: this.getAddress(),
-            chainId: this.provider.network.id
-        })
+        return new TokenTransactionSigner(
+            await this.createTransactionData('transferFrom', spender, owner, receiver, hexAmount)
+        )
     }
 
     /**
@@ -189,22 +162,8 @@ export class Token extends Contract implements TokenInterface {
 
         const hexAmount = numberToHex(amount, await this.getDecimals())
 
-        const [gasPrice, nonce, data, gasLimit] = await Promise.all([
-            this.provider.ethers.getGasPrice(),
-            this.provider.ethers.getNonce(owner),
-            this.getMethodData('approve', spender, hexAmount),
-            this.getMethodEstimateGas('approve', owner, spender, hexAmount)
-        ])
-
-        return new TokenTransactionSigner({
-            data,
-            nonce,
-            gasPrice,
-            gasLimit,
-            value: '0x0',
-            from: owner,
-            to: this.getAddress(),
-            chainId: this.provider.network.id
-        })
+        return new TokenTransactionSigner(
+            await this.createTransactionData('approve', owner, spender, hexAmount)
+        )
     }
 }
