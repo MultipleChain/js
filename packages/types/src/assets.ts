@@ -31,6 +31,14 @@ export interface ContractInterface {
      * @returns Data used in transaction
      */
     getMethodData: (method: string, ...args: any[]) => Promise<any>
+
+    /**
+     * @param {string} method Method name
+     * @param {string} from Sender wallet address
+     * @param {any[]} args Method parameters
+     * @returns {Promise<any>} Transaction data
+     */
+    createTransactionData: (method: string, from: string, ...args: any[]) => Promise<any>
 }
 
 export interface AssetInterface {
