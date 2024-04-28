@@ -7,9 +7,7 @@ import type {
 } from '@multiplechain/types'
 
 
-const adapters: WalletAdapterListType = {
-    ...adapterList
-}
+const adapters: WalletAdapterListType = {}
 
 const registerAdapter: RegisterWalletAdapterType = (adapter: WalletAdapterInterface): void => {
     if (Object.values(adapters).find((a) => a.id === adapter.id) !== undefined) {
@@ -23,6 +21,6 @@ export * from '../index.ts'
 
 export const browser = {
     Wallet,
-    adapters,
-    registerAdapter
+    registerAdapter,
+    adapters: Object.assign(adapters, adapterList)
 }

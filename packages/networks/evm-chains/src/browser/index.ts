@@ -3,8 +3,11 @@ import { switcher } from './adapters/switcher.ts'
 import * as adapterList from './adapters/index.ts'
 import { WalletPlatformEnum } from '@multiplechain/types'
 import type { EIP6963ProviderDetail, EIP1193Provider } from './adapters/EIP6963.ts'
-import type { WalletAdapterInterface, RegisterWalletAdapterType } from '@multiplechain/types'
-import type { Web3ModalAdapterInterface } from './adapters/Web3Modal.ts'
+import type {
+    WalletAdapterInterface,
+    WalletAdapterListType,
+    RegisterWalletAdapterType
+} from '@multiplechain/types'
 
 const EIP6963AdapterUUIDIndex: Record<string, string> = {
     'app.phantom': 'phantom',
@@ -15,9 +18,7 @@ const EIP6963AdapterUUIDIndex: Record<string, string> = {
     'io.xdefi': 'xdefiwallet'
 }
 
-const adapters: Record<string, WalletAdapterInterface | Web3ModalAdapterInterface> = {
-    ...adapterList
-}
+const adapters: WalletAdapterListType = {}
 
 const registerAdapter: RegisterWalletAdapterType = (adapter: WalletAdapterInterface): void => {
     if (EIP6963AdapterUUIDIndex[adapter.id] !== undefined) {
@@ -84,8 +85,8 @@ export * from '../index.ts'
 export const browser = {
     Wallet,
     switcher,
-    adapters,
     registerAdapter,
     toEIP6963ProviderDetail,
-    fromEIP6963ProviderDetail
+    fromEIP6963ProviderDetail,
+    adapters: Object.assign(adapters, adapterList)
 }
