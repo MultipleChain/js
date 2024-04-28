@@ -1,8 +1,7 @@
 {
     "name": "@multiplechain/evm-chains",
-    "version": "0.3.38",
+    "version": "0.3.42",
     "type": "module",
-    "types": "dist/index.d.ts",
     "main": "dist/index.cjs",
     "module": "dist/index.es.js",
     "unpkg": "dist/index.umd.js",
@@ -10,9 +9,14 @@
     "jsdelivr": "dist/index.umd.js",
     "exports": {
         ".": {
-            "import": "./dist/index.es.js",
-            "require": "./dist/index.cjs",
-            "types": "./dist/index.d.ts"
+            "import": {
+                "default": "./dist/index.es.js",
+                "types": "./dist/browser/index.d.ts"
+            },
+            "require": {
+                "default": "./dist/index.cjs",
+                "types": "./dist/index.d.ts"
+            }
         }
     },
     "files": [
