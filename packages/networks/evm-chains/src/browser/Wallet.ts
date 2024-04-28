@@ -203,7 +203,8 @@ export class Wallet implements WalletInterface {
      * @returns {Promise<number>}
      */
     async getChainId(): Promise<number> {
-        return parseInt((await this.request({ method: 'eth_chainId' })) as string, 16)
+        const chainId = await this.request({ method: 'eth_chainId' })
+        return typeof chainId === 'number' ? chainId : parseInt(chainId as string, 16)
     }
 
     /**

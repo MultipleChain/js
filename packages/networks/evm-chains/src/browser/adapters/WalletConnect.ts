@@ -50,6 +50,7 @@ const WalletConnect: WalletAdapterInterface = {
             relayUrl: 'wss://relay.walletconnect.com',
             optionalChains: [network.id],
             rpcMap: rpcIdMapping,
+            chains: [network.id],
             showQrModal: true,
             qrModalOptions: {
                 themeMode: ops.themeMode,
