@@ -23,7 +23,7 @@ const adapters: WalletAdapterListType = {}
 const registerAdapter: RegisterWalletAdapterType = (adapter: WalletAdapterInterface): void => {
     if (EIP6963AdapterUUIDIndex[adapter.id] !== undefined) {
         console.warn(
-            `Adapter is not registered, because it is already registered defualtly: ${adapter.id}`
+            `Adapter is not registered, because it is already registered default: ${adapter.id}`
         )
         return
     }
