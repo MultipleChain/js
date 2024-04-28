@@ -3,34 +3,36 @@ import { describe, it, expect, assert } from 'vitest'
 import { NFT } from '../src/assets/NFT.ts'
 import { Coin } from '../src/assets/Coin.ts'
 import { Token } from '../src/assets/Token.ts'
-import { fixFloat } from '@multiplechain/utils'
+import { math } from '@multiplechain/utils'
 import { Transaction } from '../src/models/Transaction.ts'
 import { TransactionStatusEnum } from '@multiplechain/types'
 import { TransactionSigner } from '../src/services/TransactionSigner.ts'
 
-const coinBalanceTestAmount = Number(process.env.COIN_BALANCE_TEST_AMOUNT)
-const tokenBalanceTestAmount = Number(process.env.TOKEN_BALANCE_TEST_AMOUNT)
-const nftBalanceTestAmount = Number(process.env.NFT_BALANCE_TEST_AMOUNT)
-const transferTestAmount = Number(process.env.TRANSFER_TEST_AMOUNT)
-const tokenTransferTestAmount = Number(process.env.TOKEN_TRANSFER_TEST_AMOUNT)
-const tokenApproveTestAmount = Number(process.env.TOKEN_APPROVE_TEST_AMOUNT)
-const nftTransferId = Number(process.env.NFT_TRANSFER_ID)
+const coinBalanceTestAmount = Number(process.env.EVM_COIN_BALANCE_TEST_AMOUNT)
+const tokenBalanceTestAmount = Number(process.env.EVM_TOKEN_BALANCE_TEST_AMOUNT)
+const nftBalanceTestAmount = Number(process.env.EVM_NFT_BALANCE_TEST_AMOUNT)
+const transferTestAmount = Number(process.env.EVM_TRANSFER_TEST_AMOUNT)
+const tokenTransferTestAmount = Number(process.env.EVM_TOKEN_TRANSFER_TEST_AMOUNT)
+const tokenApproveTestAmount = Number(process.env.EVM_TOKEN_APPROVE_TEST_AMOUNT)
+const nftTransferId = Number(process.env.EVM_NFT_TRANSFER_ID)
 
-const coinTransferTestIsActive = Boolean(process.env.COIN_TRANSFER_TEST_IS_ACTIVE !== 'false')
-const tokenTransferTestIsActive = Boolean(process.env.TOKEN_TRANSFER_TEST_IS_ACTIVE !== 'false')
-const tokenApproveTestIsActive = Boolean(process.env.TOKEN_APPROVE_TEST_IS_ACTIVE !== 'false')
-const nftTransactionTestIsActive = Boolean(process.env.NFT_TRANSACTION_TEST_IS_ACTIVE !== 'false')
+const coinTransferTestIsActive = Boolean(process.env.EVM_COIN_TRANSFER_TEST_IS_ACTIVE !== 'false')
+const tokenTransferTestIsActive = Boolean(process.env.EVM_TOKEN_TRANSFER_TEST_IS_ACTIVE !== 'false')
+const tokenApproveTestIsActive = Boolean(process.env.EVM_TOKEN_APPROVE_TEST_IS_ACTIVE !== 'false')
+const nftTransactionTestIsActive = Boolean(
+    process.env.EVM_NFT_TRANSACTION_TEST_IS_ACTIVE !== 'false'
+)
 const tokenTransferFromTestIsActive = Boolean(
-    process.env.TOKEN_TRANSFER_FROM_TEST_IS_ACTIVE !== 'false'
+    process.env.EVM_TOKEN_TRANSFER_FROM_TEST_IS_ACTIVE !== 'false'
 )
 
-const balanceTestAddress = String(process.env.BALANCE_TEST_ADDRESS)
-const senderPrivateKey = String(process.env.SENDER_PRIVATE_KEY)
-const receiverPrivateKey = String(process.env.RECEIVER_PRIVATE_KEY)
-const senderTestAddress = String(process.env.SENDER_TEST_ADDRESS)
-const receiverTestAddress = String(process.env.RECEIVER_TEST_ADDRESS)
-const tokenTestAddress = String(process.env.TOKEN_TEST_ADDRESS)
-const nftTestAddress = String(process.env.NFT_TEST_ADDRESS)
+const balanceTestAddress = String(process.env.EVM_BALANCE_TEST_ADDRESS)
+const senderPrivateKey = String(process.env.EVM_SENDER_PRIVATE_KEY)
+const receiverPrivateKey = String(process.env.EVM_RECEIVER_PRIVATE_KEY)
+const senderTestAddress = String(process.env.EVM_SENDER_TEST_ADDRESS)
+const receiverTestAddress = String(process.env.EVM_RECEIVER_TEST_ADDRESS)
+const tokenTestAddress = String(process.env.EVM_TOKEN_TEST_ADDRESS)
+const nftTestAddress = String(process.env.EVM_NFT_TEST_ADDRESS)
 
 const waitSecondsBeforeThanNewTx = async (seconds: number): Promise<any> => {
     return await new Promise((resolve) => setTimeout(resolve, seconds * 1000))
@@ -86,7 +88,7 @@ describe('Coin', () => {
         await checkTx(await signer.send())
 
         const afterBalance = await coin.getBalance(receiverTestAddress)
-        expect(afterBalance).toBe(fixFloat(beforeBalance + transferTestAmount))
+        expect(afterBalance).toBe(math.add(beforeBalance, transferTestAmount))
     })
 })
 
@@ -130,7 +132,7 @@ describe('Token', () => {
         await checkTx(await signer.send())
 
         const afterBalance = await token.getBalance(receiverTestAddress)
-        expect(afterBalance).toBe(fixFloat(beforeBalance + tokenTransferTestAmount))
+        expect(afterBalance).toBe(math.add(beforeBalance, tokenTransferTestAmount))
     })
 
     it('Approve and Allowance', async () => {
@@ -172,7 +174,7 @@ describe('Token', () => {
         await checkTx(await signer.send())
 
         const afterBalance = await token.getBalance(receiverTestAddress)
-        expect(afterBalance).toBe(fixFloat(beforeBalance + 2))
+        expect(afterBalance).toBe(math.add(beforeBalance, 2))
     })
 })
 
