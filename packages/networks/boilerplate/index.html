@@ -102,24 +102,163 @@
         .wallet-list-container.disabled > li {
             pointer-events: none;
         }
+
+        .methods {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 8px 30px rgba(74,58,150, .2);
+            max-width: 400px;
+            width: 100%;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .info {
+            margin-bottom: 20px;
+        }
+
+        .info span {
+            font-size: 16px;
+            font-weight: 500;
+            color: #000;
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 10px;
+            background: #4099ff;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 500;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .action-result {
+            font-size: 16px;
+            font-weight: 500;
+            color: #000;
+            margin-bottom: 20px;
+        }
+
+        .action-result span {
+            word-wrap: break-word;
+        }
     </style>
 </head>
 <body>
     <div class="wallet-list-wrapper">
         <ul class="wallet-list-container">
         </ul>
-    <script type="module">
-        import * as Example from './src/browser/index.ts'
-        import { isMobile } from '@multiplechain/utils'
+    </div>
 
-        const provider = new Example.Provider({
+    <div class="methods">
+        <div class="info">
+            <span>Adapter id: </span> <span class="adapter-id"></span>
+        </div>
+        <div class="info">
+            <span>Adapter name: </span> <span class="adapter-name"></span>
+        </div>
+        <div class="info">
+            <span>Adapter icon: </span> <span class="adapter-icon"><img src="" alt="icon"></span>
+        </div>
+        <div class="info">
+            <span>Platforms: </span> <span class="platforms"></span>
+        </div>
+        <div class="info">
+            <span>Download link: </span> <span class="download-link"></span>
+        </div>
+        <div class="info">
+            <span>Deep link: </span> <span class="deep-link"></span>
+        </div>
+        <div class="info">
+            <span>Chain id: </span> <span class="chain-id"></span>
+        </div>
+        <div class="info">
+            <span>Connected address: </span> <span class="connected-address"></span>
+        </div>
+        <button class="action-btn sign-message">
+            Sign Message (Personal Sign)
+        </button>
+        <div class="action-result">
+            <span>Result:</span> <span class="sign-message"></span>
+        </div>
+        <button class="action-btn send-coin">
+            Send Coin
+        </button>
+        <div class="action-result">
+            <span>Result:</span> <span class="send-coin"></span>
+        </div>
+        <button class="action-btn send-token">
+            Send Token
+        </button>
+        <div class="action-result">
+            <span>Result:</span> <span class="send-token"></span>
+        </div>
+    </div>
+
+    <script type="module">
+        import * as Boilerplate from './src/browser/index.ts'
+        import { isMobile, isWebview } from '@multiplechain/utils'
+        window.Boilerplate = Boilerplate
+
+        const provider = new Boilerplate.Provider({
             // options
         });
 
         window.adapters = {}
-        // TODO: later test Wallet class
         window.connectAdapter = async (adapter) => {
-            console.log(await adapter.connect(provider))
+            if (adapter.disconnect) {
+                await adapter.disconnect()
+            }
+
+            const wallet = new Boilerplate.browser.Wallet(adapter)
+            const adapterProvider = await wallet.connect(provider, {
+                projectId: '113d9f5689edd84ff230c2a6d679c80c'
+            })
+            
+            document.querySelector('.methods').style.display = 'block'
+            document.querySelector('.wallet-list-wrapper').style.display = 'none'
+
+            const sender = await wallet.getAddress()
+            document.querySelector('.adapter-id').innerText = wallet.getId()
+            document.querySelector('.adapter-name').innerText = wallet.getName()
+            document.querySelector('.adapter-icon img').src = wallet.getIcon()
+            document.querySelector('.platforms').innerText = wallet.getPlatforms().join(', ')
+            document.querySelector('.download-link').innerText = wallet.getDownloadLink()
+            document.querySelector('.deep-link').innerText = wallet.createDeepLink('https://google.com')
+            document.querySelector('.chain-id').innerText = await wallet.getChainId()
+            document.querySelector('.connected-address').innerText = sender
+
+            document.querySelector('.action-btn.sign-message').onclick = async () => {
+                const result = await wallet.signMessage('Hello World')
+                document.querySelector('.action-result .sign-message').innerText = result
+            }
+
+            const receiver = '0xbBa4d06D1cEf94b35aDeCfDa893523907fdD36DE';
+            const tokenAddress = '0x4294cb0dD25dC9140B5127f247cBd47Eeb673431';
+
+            document.querySelector('.action-btn.send-coin').onclick = async () => {
+                const coin = new Boilerplate.assets.Coin();
+                const signer = await coin.transfer(sender, receiver, 0.00001)
+                const result = await wallet.sendTransaction(signer)
+                document.querySelector('.action-result .send-coin').innerText = result
+            }
+
+            document.querySelector('.action-btn.send-token').onclick = async () => {
+                const token = new Boilerplate.assets.Token(tokenAddress);
+                const signer = await token.transfer(sender, receiver, 0.1)
+                const result = await wallet.sendTransaction(signer)
+                document.querySelector('.action-result .send-token').innerText = result
+            }
         }
 
         const adapterTemplate = (adapter) => {
@@ -127,7 +266,7 @@
             window.adapters[adapter.id] = adapter;
 
             const statuses = {
-                undefined: `<span></span>`,
+                universal: `<span></span>`,
                 detected: `<span class="detected">Detected</span>`,
                 download: `<span class="download">Download</span>`,
                 onlyDesktop: `<span class="onlyDesktop">Only Desktop</span>`,
@@ -136,13 +275,13 @@
             }
     
             const getStatus = () => {
-                if (typeof adapter.isDetected() == 'undefined') {
-                    return statuses.undefined;
-                } else if (adapter.isDetected() === true) {
+                if (adapter.platforms.includes('UNIVERSAL')) {
+                    return statuses.universal;
+                } if (adapter.isDetected() === true) {
                     return statuses.detected;
                 } else if (!isMobile() && adapter.isDetected() === false) {
                     return statuses.download;
-                } else if (isMobile() && !adapter.getPlatforms().includes('MOBILE')) {
+                } else if (isMobile() && !adapter.platforms.includes('MOBILE')) {
                     return statuses.onlyDesktop;
                 } else if (isMobile() && adapter.createDeepLink) {
                     return statuses.openInApp;
@@ -162,9 +301,40 @@
             `
         }
 
-        Object.values(Example.browser.adapters).forEach(adapter => {
-            document.querySelector('.wallet-list-container').innerHTML += adapterTemplate(adapter)
+        const container = document.querySelector('.wallet-list-container')
+
+        let adapters = Boilerplate.browser.adapters
+
+        const sortedKeys = Object.keys(adapters).sort(function(a, b) {
+            const order = { true: 1, universal: 2, false: 3 };
+            
+            const valueA = adapters[a].platforms.includes('UNIVERSAL') ? 'universal' : adapters[a].isDetected();
+            const valueB = adapters[b].platforms.includes('UNIVERSAL') ? 'universal' : adapters[b].isDetected();
+            
+            return order[valueA] - order[valueB];                     
+        });
+    
+        // set sorted adapters
+        adapters = sortedKeys.reduce((sortedObj, key) => {
+            sortedObj[key] = adapters[key];
+            return sortedObj;
+        }, {});
+    
+        // if one wallet detected, remove other adapters
+        if (isWebview()) {
+            Object.values(adapters).forEach(wallet => {
+                if (wallet.isDetected()) {
+                    adapters = {}
+                    adapters[wallet.key] = wallet;
+                    return true;
+                }
+            });
+        }
+
+        Object.values(adapters).forEach(adapter => {
+            container.innerHTML += adapterTemplate(adapter)
         })
+
     </script>
 </body>
 </html>
