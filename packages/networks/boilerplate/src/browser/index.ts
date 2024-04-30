@@ -6,7 +6,6 @@ import type {
     RegisterWalletAdapterType
 } from '@multiplechain/types'
 
-
 const adapters: WalletAdapterListType = {}
 
 const registerAdapter: RegisterWalletAdapterType = (adapter: WalletAdapterInterface): void => {

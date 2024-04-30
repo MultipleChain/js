@@ -4,15 +4,22 @@ import type {
     WalletPlatformEnum,
     TransactionSignerInterface
 } from '@multiplechain/types'
+import { Provider } from '../services/Provider'
 
 export class Wallet implements WalletInterface {
     adapter: WalletAdapterInterface
 
+    walletProvider: object
+
+    networkProvider: Provider
+
     /**
      * @param {WalletAdapterInterface} adapter
+     * @param {Provider} provider
      */
-    constructor(adapter: WalletAdapterInterface) {
+    constructor(adapter: WalletAdapterInterface, provider?: Provider) {
         this.adapter = adapter
+        this.networkProvider = provider ?? Provider.instance
     }
 
     /**
@@ -46,7 +53,7 @@ export class Wallet implements WalletInterface {
     /**
      * @returns {string}
      */
-    getDownloadLink(): string {
+    getDownloadLink(): string | undefined {
         return this.adapter.downloadLink
     }
 
@@ -55,7 +62,11 @@ export class Wallet implements WalletInterface {
      * @param {object} ops
      * @returns {string}
      */
-    createDeepLink(url: string, ops?: object): string {
+    createDeepLink(url: string, ops?: object): string | null {
+        if (this.adapter.createDeepLink === undefined) {
+            return null
+        }
+
         return this.adapter.createDeepLink(url, ops)
     }
 
@@ -71,15 +82,15 @@ export class Wallet implements WalletInterface {
     /**
      * @returns {boolean}
      */
-    isDetected(): boolean {
-        return this.adapter.isDetected()
+    async isDetected(): Promise<boolean> {
+        return await this.adapter.isDetected()
     }
 
     /**
      * @returns {boolean}
      */
-    isConnected(): boolean {
-        return this.adapter.isConnected()
+    async isConnected(): Promise<boolean> {
+        return await this.adapter.isConnected()
     }
 
     /**
