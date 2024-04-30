@@ -11,12 +11,12 @@ npm install @multiplechain/types
 ## Usage
 
 You can import all of the types at once:
-```javascript
+```typescript
 import type * as types from '@multiplechain/types';
 ```
 
 Or you import the types one by one:
-```javascript
+```typescript
 import type {
     // Providers
     ProviderInterface,

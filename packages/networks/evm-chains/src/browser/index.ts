@@ -4,8 +4,8 @@ import * as adapterList from './adapters/index.ts'
 import { WalletPlatformEnum } from '@multiplechain/types'
 import type { EIP6963ProviderDetail, EIP1193Provider } from './adapters/EIP6963.ts'
 import type {
-    WalletAdapterListType,
     WalletAdapterInterface,
+    WalletAdapterListType,
     RegisterWalletAdapterType
 } from '@multiplechain/types'
 
@@ -18,14 +18,12 @@ const EIP6963AdapterUUIDIndex: Record<string, string> = {
     'io.xdefi': 'xdefiwallet'
 }
 
-const adapters: WalletAdapterListType = {
-    ...adapterList
-}
+const adapters: WalletAdapterListType = {}
 
 const registerAdapter: RegisterWalletAdapterType = (adapter: WalletAdapterInterface): void => {
     if (EIP6963AdapterUUIDIndex[adapter.id] !== undefined) {
         console.warn(
-            `Adapter is not registered, because it is already registered defualtly: ${adapter.id}`
+            `Adapter is not registered, because it is already registered default: ${adapter.id}`
         )
         return
     }
@@ -87,8 +85,8 @@ export * from '../index.ts'
 export const browser = {
     Wallet,
     switcher,
-    adapters,
     registerAdapter,
     toEIP6963ProviderDetail,
-    fromEIP6963ProviderDetail
+    fromEIP6963ProviderDetail,
+    adapters: Object.assign(adapters, adapterList)
 }

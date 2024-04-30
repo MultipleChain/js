@@ -10,6 +10,7 @@ import {
 import { Provider } from '../services/Provider.ts'
 import type { EIP1193Provider } from './adapters/EIP6963.ts'
 import { toHex } from '@multiplechain/utils'
+import type { Web3ModalAdapterInterface, Web3ModalOps } from './adapters/Web3Modal.ts'
 
 const rejectMap = (error: any, reject: (a: any) => any): any => {
     console.error('MultipleChain EVM Wallet Error:', error)
@@ -68,8 +69,8 @@ const rejectMap = (error: any, reject: (a: any) => any): any => {
     return reject(error)
 }
 
-export class Wallet implements WalletInterface {
-    adapter: WalletAdapterInterface
+export class Wallet implements Omit<WalletInterface, 'adapter'> {
+    adapter: WalletAdapterInterface | Web3ModalAdapterInterface
 
     walletProvider: EIP1193Provider
 
@@ -79,7 +80,7 @@ export class Wallet implements WalletInterface {
      * @param {WalletAdapterInterface} adapter
      * @param {Provider} provider
      */
-    constructor(adapter: WalletAdapterInterface, provider?: Provider) {
+    constructor(adapter: WalletAdapterInterface | Web3ModalAdapterInterface, provider?: Provider) {
         this.adapter = adapter
         this.networkProvider = provider ?? Provider.instance
     }
@@ -153,10 +154,13 @@ export class Wallet implements WalletInterface {
 
     /**
      * @param {ProviderInterface} provider
-     * @param {Object | WalletConnectOps} ops
+     * @param {Object | WalletConnectOps | Web3ModalOps} ops
      * @returns {Promise<string>}
      */
-    async connect(provider?: ProviderInterface, ops?: object | WalletConnectOps): Promise<string> {
+    async connect(
+        provider?: ProviderInterface,
+        ops?: object | WalletConnectOps | Web3ModalOps
+    ): Promise<string> {
         return await new Promise((resolve, reject) => {
             this.adapter
                 .connect(provider, ops)

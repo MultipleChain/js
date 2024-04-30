@@ -1,5 +1,10 @@
 import type { EIP1193Provider } from './EIP6963.ts'
 
+export interface WindowEthereum extends EIP1193Provider {
+    isTrust?: boolean
+    isMetaMask?: boolean
+}
+
 declare global {
     interface Window {
         okxwallet?: EIP1193Provider
@@ -11,10 +16,6 @@ declare global {
         }
         phantom?: {
             ethereum?: EIP1193Provider
-        }
-        ethereum?: EIP1193Provider & {
-            isTrust?: boolean
-            isMetaMask?: boolean
         }
         trustwallet?: EIP1193Provider
     }
