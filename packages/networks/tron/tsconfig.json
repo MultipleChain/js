@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "noEmit": true,
+        "composite": true,
+        "declaration": true,
+        "outDir": "./dist/esm",
+        "declarationDir": "./dist/types"
+    },
+    "extends": "../../../tsconfig.json",
+    "include": [
+        "src",
+        ".eslintrc.json",
+        "tests",
+        "vite.config.ts",
+        "esbuild.ts",
+        "vitest.config.ts",
+        "../../../esbuild.ts",
+        "../../../vite.config.ts",
+        "../../../vitest.config.ts",
+    ]
+}
