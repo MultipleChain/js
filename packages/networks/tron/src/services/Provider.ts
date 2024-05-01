@@ -3,12 +3,56 @@ import {
     type NetworkConfigInterface,
     type ProviderInterface
 } from '@multiplechain/types'
+import { TronWeb } from './TronWeb.ts'
+
+export interface TronNodeInfoInterface {
+    id: string
+    node: string
+    name: string
+    host: string
+    event: string
+    explorer: string
+}
+
+export type TronNodeInfoListInterface = Record<string, TronNodeInfoInterface>
 
 export class Provider implements ProviderInterface {
     /**
      * Network configuration of the provider
      */
     network: NetworkConfigInterface
+
+    /**
+     * Node list
+     */
+    nodes: TronNodeInfoListInterface = {
+        mainnet: {
+            id: '0x2b6653dc',
+            node: 'mainnet',
+            name: 'TronGrid Mainnet',
+            host: 'https://api.trongrid.io',
+            event: 'https://api.trongrid.io',
+            explorer: 'https://tronscan.org/'
+        },
+        testnet: {
+            id: '0xcd8690dc',
+            node: 'testnet',
+            name: 'TronGrid Nile Testnet',
+            host: 'https://nile.trongrid.io',
+            event: 'https://event.nileex.io',
+            explorer: 'https://nile.tronscan.org/'
+        }
+    }
+
+    /**
+     * Node information
+     */
+    node: TronNodeInfoInterface
+
+    /**
+     * TronWeb instance
+     */
+    tronWeb: TronWeb
 
     /**
      * Static instance of the provider
@@ -20,6 +64,7 @@ export class Provider implements ProviderInterface {
      */
     constructor(network: NetworkConfigInterface) {
         this.network = network
+        this.update(network)
     }
 
     /**
@@ -47,20 +92,20 @@ export class Provider implements ProviderInterface {
 
     /**
      * Check RPC connection
-     * @param {string} url - RPC URL
+     * @param {string} _url - RPC URL
      * @returns {Promise<boolean | Error>}
      */
-    async checkRpcConnection(url?: string): Promise<boolean | Error> {
-        return true
+    async checkRpcConnection(_url?: string): Promise<boolean | Error> {
+        return this.tronWeb.isConnected()
     }
 
     /**
      * Check WS connection
-     * @param {string} url - Websocket URL
+     * @param {string} _url - Websocket URL
      * @returns {Promise<boolean | Error>}
      */
-    async checkWsConnection(url?: string): Promise<boolean | Error> {
-        return true
+    async checkWsConnection(_url?: string): Promise<boolean | Error> {
+        return this.tronWeb.isConnected()
     }
 
     /**
@@ -69,6 +114,13 @@ export class Provider implements ProviderInterface {
      */
     update(network: NetworkConfigInterface): void {
         this.network = network
+        Provider._instance = this
+        this.node = this.nodes[network.testnet ?? false ? 'testnet' : 'mainnet']
+        this.tronWeb = new TronWeb({
+            fullNode: this.node.host,
+            solidityNode: this.node.host,
+            eventServer: this.node.event
+        })
     }
 
     /**

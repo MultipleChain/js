@@ -7,6 +7,9 @@
         "declarationDir": "./dist/types"
     },
     "extends": "../../../tsconfig.json",
+    "files": [
+        "src/services/tronweb.d.ts",
+    ],
     "include": [
         "src",
         ".eslintrc.json",

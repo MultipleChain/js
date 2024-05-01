@@ -87,10 +87,11 @@ export class TransactionListener<T extends TransactionTypeEnum>
     /**
      * Listen to the transaction events
      * @param {TransactionListenerCallbackType} callback - Transaction listener callback
-     * @returns {void}
+     * @returns {Promise<boolean>}
      */
-    on(callback: TransactionListenerCallbackType): void {
+    async on(callback: TransactionListenerCallbackType): Promise<boolean> {
         this.callbacks.push(callback)
+        return true
     }
 
     /**

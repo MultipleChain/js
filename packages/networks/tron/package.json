@@ -25,6 +25,7 @@
         "!tsconfig.tsbuildinfo"
     ],
     "scripts": {
+        "dev": "vite",
         "clean": "rm -rf dist",
         "watch": "tsc --watch",
         "build:vite": "vite build",
@@ -52,7 +53,10 @@
         "url": "https://github.com/MultipleChain/js/issues"
     },
     "dependencies": {
+        "@beycandeveloper/tron-tx-decoder": "^2.0.5",
         "@multiplechain/types": "^0.1.53",
-        "@multiplechain/utils": "^0.1.18"
+        "@multiplechain/utils": "^0.1.18",
+        "@noble/secp256k1": "^2.1.0",
+        "tronweb": "^5.3.2"
     }
 }
