@@ -25,6 +25,7 @@
         "!tsconfig.tsbuildinfo"
     ],
     "scripts": {
+        "dev": "vite",
         "clean": "rm -rf dist",
         "watch": "tsc --watch",
         "build:vite": "vite build",
