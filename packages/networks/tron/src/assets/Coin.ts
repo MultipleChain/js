@@ -1,5 +1,5 @@
 import { Provider } from '../services/Provider.ts'
-import { CoinTransactionSigner } from '../services/TransactionSigner.ts'
+import { CoinTransactionSigner, type TransactionData } from '../services/TransactionSigner.ts'
 import { ErrorTypeEnum, type CoinInterface } from '@multiplechain/types'
 
 export class Coin implements CoinInterface {
@@ -71,7 +71,11 @@ export class Coin implements CoinInterface {
         const sunFormat = this.provider.tronWeb.toSun(amount)
 
         return new CoinTransactionSigner(
-            await this.provider.tronWeb.transactionBuilder.sendTrx(receiver, sunFormat, sender)
+            (await this.provider.tronWeb.transactionBuilder.sendTrx(
+                receiver,
+                sunFormat,
+                sender
+            )) as TransactionData
         )
     }
 }
