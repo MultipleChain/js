@@ -96,7 +96,7 @@ export class Provider implements ProviderInterface {
      * @returns {Promise<boolean | Error>}
      */
     async checkRpcConnection(_url?: string): Promise<boolean | Error> {
-        return this.tronWeb.isConnected()
+        return (await this.tronWeb.isConnected()).fullNode
     }
 
     /**
@@ -105,7 +105,7 @@ export class Provider implements ProviderInterface {
      * @returns {Promise<boolean | Error>}
      */
     async checkWsConnection(_url?: string): Promise<boolean | Error> {
-        return this.tronWeb.isConnected()
+        return (await this.tronWeb.isConnected()).eventServer
     }
 
     /**

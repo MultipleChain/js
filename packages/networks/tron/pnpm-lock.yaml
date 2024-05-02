@@ -15,8 +15,8 @@ dependencies:
     specifier: ^0.1.18
     version: 0.1.18
   '@noble/secp256k1':
-    specifier: ^2.1.0
-    version: 2.1.0
+    specifier: ^1.7.1
+    version: 1.7.1
   tronweb:
     specifier: ^5.3.2
     version: 5.3.2
@@ -240,8 +240,8 @@ packages:
     engines: {node: '>= 16'}
     dev: false
 
-  /@noble/secp256k1@2.1.0:
-    resolution: {integrity: sha512-XLEQQNdablO0XZOIniFQimiXsZDNwaYgL96dZwC54Q30imSbAOFf3NKtepc+cXyuZf5Q1HCgbqgZ2UFFuHVcEw==}
+  /@noble/secp256k1@1.7.1:
+    resolution: {integrity: sha512-hOUk6AyBFmqVrv7k5WAw/LpszxVbj9gGN4JRkIX52fdFAj1UA61KXmZDvqVEm+pOyec3+fIeZB02LYa/pWOArw==}
     dev: false
 
   /@scure/base@1.1.6:
