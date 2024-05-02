@@ -34,7 +34,7 @@ export class NftTransaction extends ContractTransaction implements NftTransactio
     async verifyTransfer(
         direction: AssetDirectionEnum,
         address: string,
-        nftId: number
+        nftId: number | string
     ): Promise<TransactionStatusEnum> {
         return TransactionStatusEnum.PENDING
     }
