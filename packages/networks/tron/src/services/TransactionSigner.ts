@@ -3,18 +3,52 @@ import { Transaction } from '../models/Transaction.ts'
 import { NftTransaction } from '../models/NftTransaction.ts'
 import { CoinTransaction } from '../models/CoinTransaction.ts'
 import { TokenTransaction } from '../models/TokenTransaction.ts'
-import type { TransactionSignerInterface } from '@multiplechain/types'
+import { ErrorTypeEnum, type TransactionSignerInterface } from '@multiplechain/types'
+
+interface ParameterInterface {
+    value: {
+        data: string
+        token_id: number
+        owner_address: string
+        call_token_value: number
+        contract_address: string
+    }
+    type_url: string
+}
+
+interface ContractDataInterface {
+    parameter: ParameterInterface
+    type: string
+}
+
+export interface TransactionData {
+    visible: boolean
+    txID: string
+    raw_data: {
+        contract: ContractDataInterface[]
+        ref_block_bytes: string
+        ref_block_hash: string
+        expiration: number
+        fee_limit: number
+        timestamp: number
+    }
+    raw_data_hex: string
+}
+
+export interface SignedTransactionData extends TransactionData {
+    signature: string[]
+}
 
 export class TransactionSigner implements TransactionSignerInterface {
     /**
      * Transaction data from the blockchain network
      */
-    rawData: any
+    rawData: TransactionData
 
     /**
      * Signed transaction data
      */
-    signedData?: any
+    signedData: SignedTransactionData
 
     /**
      * Blockchain network provider
@@ -22,9 +56,9 @@ export class TransactionSigner implements TransactionSignerInterface {
     provider: Provider
 
     /**
-     * @param {any} rawData - Transaction data
+     * @param {TransactionData} rawData - Transaction data
      */
-    constructor(rawData: any, provider?: Provider) {
+    constructor(rawData: TransactionData, provider?: Provider) {
         this.rawData = rawData
         this.provider = provider ?? Provider.instance
     }
@@ -45,6 +79,7 @@ export class TransactionSigner implements TransactionSignerInterface {
      */
     async send(): Promise<Transaction> {
         const { transaction } = await this.provider.tronWeb.trx.sendRawTransaction(this.signedData)
+        if (transaction === undefined) throw new Error(ErrorTypeEnum.TRANSACTION_CREATION_FAILED)
         return new Transaction(transaction.txID as string)
     }
 
@@ -52,7 +87,7 @@ export class TransactionSigner implements TransactionSignerInterface {
      * Get the raw transaction data
      * @returns Transaction data
      */
-    getRawData(): any {
+    getRawData(): TransactionData {
         return this.rawData
     }
 
@@ -60,7 +95,7 @@ export class TransactionSigner implements TransactionSignerInterface {
      * Get the signed transaction data
      * @returns Signed transaction data
      */
-    getSignedData(): any {
+    getSignedData(): SignedTransactionData {
         return this.signedData
     }
 }

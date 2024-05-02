@@ -17,6 +17,7 @@
         "vite.config.ts",
         "esbuild.ts",
         "vitest.config.ts",
+        "resources/*.json",
         "../../../esbuild.ts",
         "../../../vite.config.ts",
         "../../../vitest.config.ts",

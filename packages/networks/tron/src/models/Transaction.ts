@@ -51,10 +51,13 @@ export interface TransactionData {
             result?: string
             net_fee: number
             net_usage?: number
+            energy_fee?: number
             energy_usage?: number
             energy_usage_total?: number
             energy_penalty_total?: number
         }
+        result?: string
+        resMessage?: string
         log?: LogObject[]
     }
 }
@@ -201,7 +204,7 @@ export class Transaction implements TransactionInterface {
             if (this.data.info?.blockNumber !== undefined) {
                 if (this.data.ret[0].contractRet === 'REVERT') {
                     return TransactionStatusEnum.FAILED
-                } else if (this.data.info.receipt.result === 'FAILED') {
+                } else if (this.data.info.result === 'FAILED') {
                     return TransactionStatusEnum.FAILED
                 } else {
                     return TransactionStatusEnum.CONFIRMED

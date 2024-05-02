@@ -1,9 +1,20 @@
-import { Contract } from './Contract.ts'
+import { Contract, type InterfaceAbi } from './Contract.ts'
 import { TokenTransactionSigner } from '../services/TransactionSigner.ts'
 import { ErrorTypeEnum, type TokenInterface } from '@multiplechain/types'
 import { hexToNumber, numberToHex } from '@multiplechain/utils'
+import type { Provider } from '../services/Provider.ts'
+import TRC20 from '../../resources/TRC20.json'
 
 export class Token extends Contract implements TokenInterface {
+    /**
+     * @param {string} address Contract address
+     * @param {Provider} provider Blockchain network provider
+     * @param {InterfaceAbi} ABI Contract ABI
+     */
+    constructor(address: string, provider?: Provider, ABI?: InterfaceAbi) {
+        super(address, provider, ABI ?? TRC20)
+    }
+
     /**
      * @returns {Promise<string>} Token name
      */
@@ -86,8 +97,15 @@ export class Token extends Contract implements TokenInterface {
         const hexAmount = numberToHex(amount, await this.getDecimals())
 
         const data = await this.createTransactionData('transfer', sender, receiver, hexAmount)
+        data.options.feeLimit = 100000000
 
-        return new TokenTransactionSigner(data)
+        const result = await this.provider.tronWeb.triggerContract(data)
+
+        if (result === false) {
+            throw new Error(ErrorTypeEnum.TRANSACTION_CREATION_FAILED)
+        }
+
+        return new TokenTransactionSigner(result)
     }
 
     /**
@@ -133,7 +151,15 @@ export class Token extends Contract implements TokenInterface {
             hexAmount
         )
 
-        return new TokenTransactionSigner(data)
+        data.options.feeLimit = 100000000
+
+        const result = await this.provider.tronWeb.triggerContract(data)
+
+        if (result === false) {
+            throw new Error(ErrorTypeEnum.TRANSACTION_CREATION_FAILED)
+        }
+
+        return new TokenTransactionSigner(result)
     }
 
     /**
@@ -157,7 +183,14 @@ export class Token extends Contract implements TokenInterface {
         const hexAmount = numberToHex(amount, await this.getDecimals())
 
         const data = await this.createTransactionData('approve', owner, spender, hexAmount)
+        data.options.feeLimit = 100000000
 
-        return new TokenTransactionSigner(data)
+        const result = await this.provider.tronWeb.triggerContract(data)
+
+        if (result === false) {
+            throw new Error(ErrorTypeEnum.TRANSACTION_CREATION_FAILED)
+        }
+
+        return new TokenTransactionSigner(result)
     }
 }

@@ -35,6 +35,10 @@ const receiverTestAddress = String(process.env.TRON_RECEIVER_TEST_ADDRESS)
 const tokenTestAddress = String(process.env.TRON_TOKEN_TEST_ADDRESS)
 const nftTestAddress = String(process.env.TRON_NFT_TEST_ADDRESS)
 
+const waitSecondsBeforeThanNewTx = async (seconds: number): Promise<any> => {
+    return await new Promise((resolve) => setTimeout(resolve, seconds * 1000))
+}
+
 const checkSigner = async (signer: TransactionSigner, privateKey?: string): Promise<any> => {
     expect(signer).toBeInstanceOf(TransactionSigner)
 
@@ -114,6 +118,8 @@ describe('Token', () => {
     it('Transfer', async () => {
         if (!tokenTransferTestIsActive) return
 
+        await waitSecondsBeforeThanNewTx(5)
+
         const signer = await token.transfer(
             senderTestAddress,
             receiverTestAddress,
@@ -133,6 +139,8 @@ describe('Token', () => {
     it('Approve and Allowance', async () => {
         if (!tokenApproveTestIsActive) return
 
+        await waitSecondsBeforeThanNewTx(5)
+
         const signer = await token.approve(
             senderTestAddress,
             receiverTestAddress,
@@ -150,6 +158,8 @@ describe('Token', () => {
 
     it('Transfer from', async () => {
         if (!tokenTransferFromTestIsActive) return
+
+        await waitSecondsBeforeThanNewTx(5)
 
         const signer = await token.transferFrom(
             receiverTestAddress,

@@ -108,7 +108,12 @@ declare module 'tronweb' {
             injectExchangeTokens(exchangeID: any, tokenName: any, tokenAmount: any, ownerAddress: any, callback?: any): Promise<any>;
             withdrawExchangeTokens(exchangeID: any, tokenName: any, tokenAmount: any, ownerAddress: any, callback?: any): Promise<any>;
             tradeExchangeTokens(exchangeID: any, tokenName: any, tokenAmountSold: any, tokenAmountExpected: any, ownerAddress: any, callback?: any): Promise<any>;
-            triggerSmartContract(...args: any[]): Promise<any>;
+            triggerSmartContract(...args: any[]): Promise<{
+                transaction: any;
+                result: {
+                    result: boolean;
+                };
+            }>;
         }
         address: {
             fromHex(e: any): any;

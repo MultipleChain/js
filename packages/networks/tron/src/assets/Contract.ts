@@ -24,44 +24,14 @@ export type InterfaceAbi = FunctionInterface[]
 
 type TronContract = Record<string, (...args: any[]) => { call: () => any }>
 
-interface ParameterInterface {
-    value: {
-        data: string
-        token_id: number
-        owner_address: string
-        call_token_value: number
-        contract_address: string
-    }
-    type_url: string
-}
-
-interface ContractDataInterface {
-    parameter: ParameterInterface
-    type: string
-}
-
-export interface TransactionData {
-    visible: boolean
-    txID: string
-    raw_data: {
-        contract: ContractDataInterface[]
-        ref_block_bytes: string
-        ref_block_hash: string
-        expiration: number
-        fee_limit: number
-        timestamp: number
-    }
-    raw_data_hex: string
-}
-
-interface TransactionDataOptions {
+export interface TransactionDataOptions {
     feeLimit?: number
     callValue?: number
     tokenValue?: number
     tokenId?: number
 }
 
-type TransactionDataParameters = ReadonlyArray<{
+export type TransactionDataParameters = ReadonlyArray<{
     type: string
     value: string | number
 }>
