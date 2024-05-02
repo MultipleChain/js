@@ -26,10 +26,10 @@ export class NFT extends Contract implements NftInterface {
     }
 
     /**
-     * @param {number} nftId NFT ID
+     * @param {number | string} nftId NFT ID
      * @returns {Promise<string>} Wallet address of the owner of the NFT
      */
-    async getOwner(nftId: number): Promise<string> {
+    async getOwner(nftId: number | string): Promise<string> {
         return 'example'
     }
 
