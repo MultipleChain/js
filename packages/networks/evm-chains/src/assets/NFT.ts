@@ -55,10 +55,11 @@ export class NFT extends Contract implements NftInterface {
 
     /**
      * @param {number | string} nftId ID of the NFT that will be transferred
-     * @returns {Promise<string>} Wallet address of the approved spender
+     * @returns {Promise<string | null>} Wallet address of the approved spender
      */
-    async getApproved(nftId: number | string): Promise<string> {
-        return await this.callMethod('getApproved', nftId)
+    async getApproved(nftId: number | string): Promise<string | null> {
+        const address = await this.callMethod('getApproved', nftId)
+        return address === '0x0000000000000000000000000000000000000000' ? null : address
     }
 
     /**

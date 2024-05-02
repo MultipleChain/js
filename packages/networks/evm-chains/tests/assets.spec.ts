@@ -200,7 +200,7 @@ describe('Nft', () => {
     })
 
     it('Approved', async () => {
-        expect(await nft.getApproved(5)).toBe('0x0000000000000000000000000000000000000000')
+        expect(await nft.getApproved(5)).toBe(null)
     })
 
     it('Transfer', async () => {
