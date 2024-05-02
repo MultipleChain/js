@@ -1,27 +1,28 @@
 import { Contract } from './Contract.ts'
-import { TransactionSigner } from '../services/TransactionSigner.ts'
-import type { TokenInterface, TransactionSignerInterface } from '@multiplechain/types'
+import { TokenTransactionSigner } from '../services/TransactionSigner.ts'
+import { ErrorTypeEnum, type TokenInterface } from '@multiplechain/types'
+import { hexToNumber, numberToHex } from '@multiplechain/utils'
 
 export class Token extends Contract implements TokenInterface {
     /**
      * @returns {Promise<string>} Token name
      */
     async getName(): Promise<string> {
-        return 'example'
+        return await this.callMethod('name')
     }
 
     /**
      * @returns {Promise<string>} Token symbol
      */
     async getSymbol(): Promise<string> {
-        return 'example'
+        return await this.callMethod('symbol')
     }
 
     /**
      * @returns {Promise<number>} Decimal value of the token
      */
     async getDecimals(): Promise<number> {
-        return 18
+        return await this.callMethod('decimals')
     }
 
     /**
@@ -29,14 +30,22 @@ export class Token extends Contract implements TokenInterface {
      * @returns {Promise<number>} Wallet balance as currency of TOKEN
      */
     async getBalance(owner: string): Promise<number> {
-        return 0
+        const [decimals, balance] = await Promise.all([
+            this.getDecimals(),
+            this.callMethod('balanceOf', owner)
+        ])
+        return hexToNumber(balance as string, decimals)
     }
 
     /**
      * @returns {Promise<number>} Total supply of the token
      */
     async getTotalSupply(): Promise<number> {
-        return 0
+        const [decimals, totalSupply] = await Promise.all([
+            this.getDecimals(),
+            this.callMethod('totalSupply')
+        ])
+        return hexToNumber(totalSupply as string, decimals)
     }
 
     /**
@@ -45,7 +54,11 @@ export class Token extends Contract implements TokenInterface {
      * @returns {Promise<number>} Amount of tokens that the spender is allowed to spend
      */
     async getAllowance(owner: string, spender: string): Promise<number> {
-        return 0
+        const [decimals, allowance] = await Promise.all([
+            this.getDecimals(),
+            await this.callMethod('allowance', owner, spender)
+        ])
+        return hexToNumber(allowance as string, decimals)
     }
 
     /**
@@ -59,8 +72,22 @@ export class Token extends Contract implements TokenInterface {
         sender: string,
         receiver: string,
         amount: number
-    ): Promise<TransactionSignerInterface> {
-        return new TransactionSigner('example')
+    ): Promise<TokenTransactionSigner> {
+        if (amount <= 0) {
+            throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
+        }
+
+        const balance = await this.getBalance(sender)
+
+        if (amount > balance) {
+            throw new Error(ErrorTypeEnum.INSUFFICIENT_BALANCE)
+        }
+
+        const hexAmount = numberToHex(amount, await this.getDecimals())
+
+        const data = await this.createTransactionData('transfer', sender, receiver, hexAmount)
+
+        return new TokenTransactionSigner(data)
     }
 
     /**
@@ -75,8 +102,38 @@ export class Token extends Contract implements TokenInterface {
         owner: string,
         receiver: string,
         amount: number
-    ): Promise<TransactionSignerInterface> {
-        return new TransactionSigner('example')
+    ): Promise<TokenTransactionSigner> {
+        if (amount < 0) {
+            throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
+        }
+
+        const balance = await this.getBalance(owner)
+
+        if (amount > balance) {
+            throw new Error(ErrorTypeEnum.INSUFFICIENT_BALANCE)
+        }
+
+        const allowance = await this.getAllowance(owner, spender)
+
+        if (allowance === 0) {
+            throw new Error(ErrorTypeEnum.UNAUTHORIZED_ADDRESS)
+        }
+
+        if (amount > allowance) {
+            throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
+        }
+
+        const hexAmount = numberToHex(amount, await this.getDecimals())
+
+        const data = await this.createTransactionData(
+            'transferFrom',
+            spender,
+            owner,
+            receiver,
+            hexAmount
+        )
+
+        return new TokenTransactionSigner(data)
     }
 
     /**
@@ -86,11 +143,21 @@ export class Token extends Contract implements TokenInterface {
      * @param {number} amount Amount of the tokens that will be used
      * @returns {Promise<TransactionSigner>} Transaction signer
      */
-    async approve(
-        owner: string,
-        spender: string,
-        amount: number
-    ): Promise<TransactionSignerInterface> {
-        return new TransactionSigner('example')
+    async approve(owner: string, spender: string, amount: number): Promise<TokenTransactionSigner> {
+        if (amount < 0) {
+            throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
+        }
+
+        const balance = await this.getBalance(owner)
+
+        if (amount > balance) {
+            throw new Error(ErrorTypeEnum.INSUFFICIENT_BALANCE)
+        }
+
+        const hexAmount = numberToHex(amount, await this.getDecimals())
+
+        const data = await this.createTransactionData('approve', owner, spender, hexAmount)
+
+        return new TokenTransactionSigner(data)
     }
 }

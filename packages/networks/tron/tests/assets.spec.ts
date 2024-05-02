@@ -2,6 +2,7 @@ import { describe, it, expect, assert } from 'vitest'
 
 import { Coin } from '../src/assets/Coin.ts'
 import { math } from '@multiplechain/utils'
+import { Token } from '../src/assets/Token.ts'
 import { Transaction } from '../src/models/Transaction.ts'
 import { TransactionStatusEnum } from '@multiplechain/types'
 import { TransactionSigner } from '../src/services/TransactionSigner.ts'
@@ -85,5 +86,85 @@ describe('Coin', () => {
 
         const afterBalance = await coin.getBalance(receiverTestAddress)
         expect(afterBalance).toBe(math.add(beforeBalance, transferTestAmount))
+    })
+})
+
+describe('Token', () => {
+    const token = new Token(tokenTestAddress)
+
+    it('Name and symbol', async () => {
+        expect(await token.getName()).toBe('SampleToken')
+        expect(await token.getSymbol()).toBe('SMP')
+    })
+
+    it('Decimals', async () => {
+        expect(await token.getDecimals()).toBe(18)
+    })
+
+    it('Balance', async () => {
+        const balance = await token.getBalance(balanceTestAddress)
+        expect(balance).toBe(tokenBalanceTestAmount)
+    })
+
+    it('Total supply', async () => {
+        const totalSupply = await token.getTotalSupply()
+        expect(totalSupply).toBe(1000000)
+    })
+
+    it('Transfer', async () => {
+        if (!tokenTransferTestIsActive) return
+
+        const signer = await token.transfer(
+            senderTestAddress,
+            receiverTestAddress,
+            tokenTransferTestAmount
+        )
+
+        await checkSigner(signer)
+
+        const beforeBalance = await token.getBalance(receiverTestAddress)
+
+        await checkTx(await signer.send())
+
+        const afterBalance = await token.getBalance(receiverTestAddress)
+        expect(afterBalance).toBe(math.add(beforeBalance, tokenTransferTestAmount))
+    })
+
+    it('Approve and Allowance', async () => {
+        if (!tokenApproveTestIsActive) return
+
+        const signer = await token.approve(
+            senderTestAddress,
+            receiverTestAddress,
+            tokenApproveTestAmount
+        )
+
+        await checkSigner(signer)
+
+        await checkTx(await signer.send())
+
+        expect(await token.getAllowance(senderTestAddress, receiverTestAddress)).toBe(
+            tokenApproveTestAmount
+        )
+    })
+
+    it('Transfer from', async () => {
+        if (!tokenTransferFromTestIsActive) return
+
+        const signer = await token.transferFrom(
+            receiverTestAddress,
+            senderTestAddress,
+            receiverTestAddress,
+            2
+        )
+
+        await checkSigner(signer, receiverPrivateKey)
+
+        const beforeBalance = await token.getBalance(receiverTestAddress)
+
+        await checkTx(await signer.send())
+
+        const afterBalance = await token.getBalance(receiverTestAddress)
+        expect(afterBalance).toBe(math.add(beforeBalance, 2))
     })
 })
