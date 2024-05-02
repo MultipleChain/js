@@ -35,7 +35,8 @@ export class TransactionSigner implements TransactionSignerInterface {
      * @returns {Promise<TransactionSigner>} Signed transaction data
      */
     async sign(privateKey: string): Promise<TransactionSigner> {
-        return await Promise.resolve(this)
+        this.signedData = await this.provider.tronWeb.trx.sign(this.rawData, privateKey)
+        return this
     }
 
     /**
@@ -43,7 +44,8 @@ export class TransactionSigner implements TransactionSignerInterface {
      * @returns {Promise<Transaction>}
      */
     async send(): Promise<Transaction> {
-        return await Promise.resolve(new Transaction('example'))
+        const { transaction } = await this.provider.tronWeb.trx.sendRawTransaction(this.signedData)
+        return new Transaction(transaction.txID as string)
     }
 
     /**

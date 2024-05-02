@@ -1,6 +1,6 @@
 import { Provider } from '../services/Provider.ts'
-import { TransactionSigner } from '../services/TransactionSigner.ts'
-import type { CoinInterface, TransactionSignerInterface } from '@multiplechain/types'
+import { CoinTransactionSigner } from '../services/TransactionSigner.ts'
+import { ErrorTypeEnum, type CoinInterface } from '@multiplechain/types'
 
 export class Coin implements CoinInterface {
     /**
@@ -19,21 +19,21 @@ export class Coin implements CoinInterface {
      * @returns {string} Coin name
      */
     getName(): string {
-        return 'example'
+        return 'Tron'
     }
 
     /**
      * @returns {string} Coin symbol
      */
     getSymbol(): string {
-        return 'example'
+        return 'TRX'
     }
 
     /**
      * @returns {number} Decimal value of the coin
      */
     getDecimals(): number {
-        return 18
+        return 6
     }
 
     /**
@@ -41,20 +41,37 @@ export class Coin implements CoinInterface {
      * @returns {Promise<number>} Wallet balance as currency of COIN
      */
     async getBalance(owner: string): Promise<number> {
-        return 0
+        const balance = await this.provider.tronWeb.trx.getBalance(owner)
+        return parseFloat(this.provider.tronWeb.fromSun(balance) as unknown as string)
     }
 
     /**
      * @param {string} sender Sender wallet address
      * @param {string} receiver Receiver wallet address
      * @param {number} amount Amount of assets that will be transferred
-     * @returns {Promise<TransactionSigner>} Transaction signer
+     * @returns {Promise<CoinTransactionSigner>} Transaction signer
      */
     async transfer(
         sender: string,
         receiver: string,
         amount: number
-    ): Promise<TransactionSignerInterface> {
-        return new TransactionSigner('example')
+    ): Promise<CoinTransactionSigner> {
+        if (amount < 0) {
+            throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
+        }
+
+        if (amount > (await this.getBalance(sender))) {
+            throw new Error(ErrorTypeEnum.INSUFFICIENT_BALANCE)
+        }
+
+        if (sender === receiver) {
+            throw new Error(ErrorTypeEnum.INVALID_ADDRESS)
+        }
+
+        const sunFormat = this.provider.tronWeb.toSun(amount)
+
+        return new CoinTransactionSigner(
+            await this.provider.tronWeb.transactionBuilder.sendTrx(receiver, sunFormat, sender)
+        )
     }
 }
