@@ -9,9 +9,11 @@ interface RetObject {
 interface ContractObject {
     parameter: {
         value: {
-            data: string
+            data?: string
             owner_address: string
-            contract_address: string
+            contract_address?: string
+            to_address?: string
+            amount?: number
         }
         type_url: string
     }
@@ -24,7 +26,7 @@ interface LogObject {
     data: string
 }
 
-interface TransactionData {
+export interface TransactionData {
     ret: RetObject[]
     signature: string[]
     txID: string
@@ -148,35 +150,44 @@ export class Transaction implements TransactionInterface {
      * @returns {Promise<string>} Wallet address of the sender of transaction
      */
     async getSigner(): Promise<string> {
-        return 'example'
+        const data = await this.getData()
+        return this.provider.tronWeb.address.fromHex(
+            data?.raw_data.contract[0].parameter.value.owner_address ?? ''
+        )
     }
 
     /**
      * @returns {Promise<number>} Transaction fee
      */
     async getFee(): Promise<number> {
-        return 0
+        const data = await this.getData()
+        return parseFloat(this.provider.tronWeb.fromSun(data?.info?.fee ?? 0) as unknown as string)
     }
 
     /**
      * @returns {Promise<number>} Block number that transaction
      */
     async getBlockNumber(): Promise<number> {
-        return 0
+        const data = await this.getData()
+        return data?.info?.blockNumber ?? 0
     }
 
     /**
      * @returns {Promise<number>} Block timestamp that transaction
      */
     async getBlockTimestamp(): Promise<number> {
-        return 0
+        const data = await this.getData()
+        return parseInt((data?.info?.blockTimeStamp ?? 0).toString().replace(/0+$/, ''))
     }
 
     /**
      * @returns {Promise<number>} Confirmation count of the block
      */
     async getBlockConfirmationCount(): Promise<number> {
-        return 0
+        const data = await this.getData()
+        const blockNumber = data?.info?.blockNumber ?? 0
+        const latestBlock = await this.provider.tronWeb.trx.getCurrentBlock()
+        return latestBlock.block_header.raw_data.number - blockNumber
     }
 
     /**

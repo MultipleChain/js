@@ -14,6 +14,18 @@ const tokenTransferTestAmount = Number(process.env.TRON_TOKEN_TRANSFER_TEST_AMOU
 const tokenApproveTestAmount = Number(process.env.TRON_TOKEN_APPROVE_TEST_AMOUNT)
 const nftTransferId = Number(process.env.TRON_NFT_TRANSFER_ID)
 
+const coinTransferTestIsActive = Boolean(process.env.TRON_COIN_TRANSFER_TEST_IS_ACTIVE !== 'false')
+const tokenTransferTestIsActive = Boolean(
+    process.env.TRON_TOKEN_TRANSFER_TEST_IS_ACTIVE !== 'false'
+)
+const tokenApproveTestIsActive = Boolean(process.env.TRON_TOKEN_APPROVE_TEST_IS_ACTIVE !== 'false')
+const nftTransactionTestIsActive = Boolean(
+    process.env.TRON_NFT_TRANSACTION_TEST_IS_ACTIVE !== 'false'
+)
+const tokenTransferFromTestIsActive = Boolean(
+    process.env.TRON_TOKEN_TRANSFER_FROM_TEST_IS_ACTIVE !== 'false'
+)
+
 const balanceTestAddress = String(process.env.TRON_BALANCE_TEST_ADDRESS)
 const senderPrivateKey = String(process.env.TRON_SENDER_PRIVATE_KEY)
 const receiverPrivateKey = String(process.env.TRON_RECEIVER_PRIVATE_KEY)
@@ -57,6 +69,8 @@ describe('Coin', () => {
     })
 
     it('Transfer', async () => {
+        if (!coinTransferTestIsActive) return
+
         const signer = await coin.transfer(
             senderTestAddress,
             receiverTestAddress,
