@@ -1,5 +1,6 @@
 import { describe, it, expect, assert } from 'vitest'
 
+import { NFT } from '../src/assets/NFT.ts'
 import { Coin } from '../src/assets/Coin.ts'
 import { math } from '@multiplechain/utils'
 import { Token } from '../src/assets/Token.ts'
@@ -176,5 +177,78 @@ describe('Token', () => {
 
         const afterBalance = await token.getBalance(receiverTestAddress)
         expect(afterBalance).toBe(math.add(beforeBalance, 2))
+    })
+})
+
+describe('Nft', () => {
+    const nft = new NFT(nftTestAddress)
+
+    it('Name and symbol', async () => {
+        expect(await nft.getName()).toBe('MyNFT')
+        expect(await nft.getSymbol()).toBe('MNFT')
+    })
+
+    it('Balance', async () => {
+        const balance = await nft.getBalance(balanceTestAddress)
+        expect(balance).toBe(nftBalanceTestAmount)
+    })
+
+    it('Owner', async () => {
+        expect(await nft.getOwner(5)).toBe(senderTestAddress)
+    })
+
+    it('Token URI', async () => {
+        expect(await nft.getTokenURI(5)).toBe('')
+    })
+
+    it('Approved', async () => {
+        expect(await nft.getApproved(5)).toBe(null)
+    })
+
+    it('Transfer', async () => {
+        if (!nftTransactionTestIsActive) return
+
+        await waitSecondsBeforeThanNewTx(5)
+
+        const signer = await nft.transfer(senderTestAddress, receiverTestAddress, nftTransferId)
+
+        await checkSigner(signer)
+
+        await checkTx(await signer.send())
+
+        expect(await nft.getOwner(nftTransferId)).toBe(receiverTestAddress)
+    })
+
+    it('Approve', async () => {
+        if (!nftTransactionTestIsActive) return
+
+        await waitSecondsBeforeThanNewTx(5)
+
+        const signer = await nft.approve(receiverTestAddress, senderTestAddress, nftTransferId)
+
+        await checkSigner(signer, receiverPrivateKey)
+
+        await checkTx(await signer.send())
+
+        expect(await nft.getApproved(nftTransferId)).toBe(senderTestAddress)
+    })
+
+    it('Transfer from', async () => {
+        if (!nftTransactionTestIsActive) return
+
+        await waitSecondsBeforeThanNewTx(5)
+
+        const signer = await nft.transferFrom(
+            senderTestAddress,
+            receiverTestAddress,
+            senderTestAddress,
+            nftTransferId
+        )
+
+        await checkSigner(signer)
+
+        await checkTx(await signer.send())
+
+        expect(await nft.getOwner(nftTransferId)).toBe(senderTestAddress)
     })
 })

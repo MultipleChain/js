@@ -9,8 +9,8 @@ dependencies:
     specifier: ^2.0.5
     version: 2.0.5
   '@multiplechain/types':
-    specifier: ^0.1.53
-    version: 0.1.53
+    specifier: ^0.1.55
+    version: 0.1.55
   '@multiplechain/utils':
     specifier: ^0.1.18
     version: 0.1.18
@@ -202,8 +202,8 @@ packages:
       '@ethersproject/strings': 5.7.0
     dev: false
 
-  /@multiplechain/types@0.1.53:
-    resolution: {integrity: sha512-brF6CtNDUwTChwZBy0pTEvf4QdwAK3sL2kvVXE9rARAroK8qUU4Skn5NAHpr2W1ubmuhDezgHDS4XhEdr8BsgA==}
+  /@multiplechain/types@0.1.55:
+    resolution: {integrity: sha512-9fYrLaDxX2pj9zfIbmvk1hPF3FH/bK+Q3uTF+k3zdsitP/HzQ1S9zImNz20Tvoqkk1ns+/8ecE0Y6GNowsDOQA==}
     dev: false
 
   /@multiplechain/utils@0.1.18:
