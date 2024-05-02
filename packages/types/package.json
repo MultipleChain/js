@@ -1,6 +1,6 @@
 {
     "name": "@multiplechain/types",
-    "version": "0.1.53",
+    "version": "0.1.55",
     "type": "module",
     "main": "./src/index.ts",
     "types": "./src/index.ts",

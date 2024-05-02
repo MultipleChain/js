@@ -161,9 +161,9 @@ export interface NftInterface
 
     /**
      * @param {number | string} nftId ID of the NFT that will be transferred
-     * @returns {Promise<string>} Amount of the tokens that is being used by spender
+     * @returns {Promise<string | null>} Amount of the tokens that is being used by spender
      */
-    getApproved: (nftId: number | string) => Promise<string>
+    getApproved: (nftId: number | string) => Promise<string | null>
 
     /**
      * Transfers an NFT
