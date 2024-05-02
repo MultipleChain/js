@@ -12,7 +12,7 @@ const Example: WalletAdapterInterface = {
     name: 'Example',
     icon: 'icon base64 string here',
     platforms: [WalletPlatformEnum.BROWSER, WalletPlatformEnum.MOBILE],
-    downloadLink: 'wallet download link here', 
+    downloadLink: 'wallet download link here',
     createDeepLink(url: string, ops?: object): string {
         return `https://example.com/dapp/${url}`
     },
