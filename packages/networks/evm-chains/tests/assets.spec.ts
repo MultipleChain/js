@@ -117,7 +117,7 @@ describe('Token', () => {
     it('Transfer', async () => {
         if (!tokenTransferTestIsActive) return
 
-        await waitSecondsBeforeThanNewTx(30)
+        await waitSecondsBeforeThanNewTx(5)
 
         const signer = await token.transfer(
             senderTestAddress,
@@ -138,7 +138,7 @@ describe('Token', () => {
     it('Approve and Allowance', async () => {
         if (!tokenApproveTestIsActive) return
 
-        await waitSecondsBeforeThanNewTx(30)
+        await waitSecondsBeforeThanNewTx(5)
 
         const signer = await token.approve(
             senderTestAddress,
@@ -158,7 +158,7 @@ describe('Token', () => {
     it('Transfer from', async () => {
         if (!tokenTransferFromTestIsActive) return
 
-        await waitSecondsBeforeThanNewTx(30)
+        await waitSecondsBeforeThanNewTx(5)
 
         const signer = await token.transferFrom(
             receiverTestAddress,
@@ -206,7 +206,7 @@ describe('Nft', () => {
     it('Transfer', async () => {
         if (!nftTransactionTestIsActive) return
 
-        await waitSecondsBeforeThanNewTx(30)
+        await waitSecondsBeforeThanNewTx(5)
 
         const signer = await nft.transfer(senderTestAddress, receiverTestAddress, nftTransferId)
 
@@ -220,7 +220,7 @@ describe('Nft', () => {
     it('Approve', async () => {
         if (!nftTransactionTestIsActive) return
 
-        await waitSecondsBeforeThanNewTx(30)
+        await waitSecondsBeforeThanNewTx(5)
 
         const signer = await nft.approve(receiverTestAddress, senderTestAddress, nftTransferId)
 
@@ -234,7 +234,7 @@ describe('Nft', () => {
     it('Transfer from', async () => {
         if (!nftTransactionTestIsActive) return
 
-        await waitSecondsBeforeThanNewTx(30)
+        await waitSecondsBeforeThanNewTx(5)
 
         const signer = await nft.transferFrom(
             senderTestAddress,
