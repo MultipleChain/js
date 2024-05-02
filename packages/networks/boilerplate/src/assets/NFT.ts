@@ -1,6 +1,6 @@
 import { Contract } from './Contract.ts'
-import { TransactionSigner } from '../services/TransactionSigner.ts'
-import type { NftInterface, TransactionSignerInterface } from '@multiplechain/types'
+import type { NftInterface } from '@multiplechain/types'
+import { NftTransactionSigner } from '../services/TransactionSigner.ts'
 
 export class NFT extends Contract implements NftInterface {
     /**
@@ -53,14 +53,14 @@ export class NFT extends Contract implements NftInterface {
      * @param {string} sender Sender address
      * @param {string} receiver Receiver address
      * @param {number | string} nftId NFT ID
-     * @returns {Promise<TransactionSigner>} Transaction signer
+     * @returns {Promise<NftTransactionSigner>} Transaction signer
      */
     async transfer(
         sender: string,
         receiver: string,
         nftId: number | string
-    ): Promise<TransactionSignerInterface> {
-        return new TransactionSigner('example')
+    ): Promise<NftTransactionSigner> {
+        return new NftTransactionSigner('example')
     }
 
     /**
@@ -68,15 +68,15 @@ export class NFT extends Contract implements NftInterface {
      * @param {string} owner Owner address
      * @param {string} receiver Receiver address
      * @param {number | string} nftId NFT ID
-     * @returns {Promise<TransactionSigner>} Transaction signer
+     * @returns {Promise<NftTransactionSigner>} Transaction signer
      */
     async transferFrom(
         spender: string,
         owner: string,
         receiver: string,
         nftId: number | string
-    ): Promise<TransactionSignerInterface> {
-        return new TransactionSigner('example')
+    ): Promise<NftTransactionSigner> {
+        return new NftTransactionSigner('example')
     }
 
     /**
@@ -90,7 +90,7 @@ export class NFT extends Contract implements NftInterface {
         owner: string,
         spender: string,
         nftId: number | string
-    ): Promise<TransactionSignerInterface> {
-        return new TransactionSigner('example')
+    ): Promise<NftTransactionSigner> {
+        return new NftTransactionSigner('example')
     }
 }

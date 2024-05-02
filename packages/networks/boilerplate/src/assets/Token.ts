@@ -1,6 +1,6 @@
 import { Contract } from './Contract.ts'
-import { TransactionSigner } from '../services/TransactionSigner.ts'
-import type { TokenInterface, TransactionSignerInterface } from '@multiplechain/types'
+import type { TokenInterface } from '@multiplechain/types'
+import { TokenTransactionSigner } from '../services/TransactionSigner.ts'
 
 export class Token extends Contract implements TokenInterface {
     /**
@@ -59,8 +59,8 @@ export class Token extends Contract implements TokenInterface {
         sender: string,
         receiver: string,
         amount: number
-    ): Promise<TransactionSignerInterface> {
-        return new TransactionSigner('example')
+    ): Promise<TokenTransactionSigner> {
+        return new TokenTransactionSigner('example')
     }
 
     /**
@@ -68,15 +68,15 @@ export class Token extends Contract implements TokenInterface {
      * @param {string} owner Sender wallet address
      * @param {string} receiver Receiver wallet address
      * @param {number} amount Amount of tokens that will be transferred
-     * @returns {Promise<TransactionSigner>} Transaction signer
+     * @returns {Promise<TokenTransactionSigner>} Transaction signer
      */
     async transferFrom(
         spender: string,
         owner: string,
         receiver: string,
         amount: number
-    ): Promise<TransactionSignerInterface> {
-        return new TransactionSigner('example')
+    ): Promise<TokenTransactionSigner> {
+        return new TokenTransactionSigner('example')
     }
 
     /**
@@ -90,7 +90,7 @@ export class Token extends Contract implements TokenInterface {
         owner: string,
         spender: string,
         amount: number
-    ): Promise<TransactionSignerInterface> {
-        return new TransactionSigner('example')
+    ): Promise<TokenTransactionSigner> {
+        return new TokenTransactionSigner('example')
     }
 }
