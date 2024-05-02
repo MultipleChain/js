@@ -33,25 +33,27 @@ interface TransactionData {
         ref_block_bytes: string
         ref_block_hash: string
         expiration: number
-        fee_limit: number
         timestamp: number
+        fee_limit?: number
     }
     raw_data_hex: string
     info?: {
         id: string
         fee: number
+        packingFee: number
         blockNumber: number
         blockTimeStamp: number
         contractResult: string[]
-        contract_address: string
+        contract_address?: string
         receipt: {
-            net_usage: number
-            energy_usage: number
-            energy_usage_total: number
-            energy_penalty_total: number
-            result: string
+            result?: string
+            net_fee: number
+            net_usage?: number
+            energy_usage?: number
+            energy_usage_total?: number
+            energy_penalty_total?: number
         }
-        log: LogObject[]
+        log?: LogObject[]
     }
 }
 
@@ -81,18 +83,19 @@ export class Transaction implements TransactionInterface {
     }
 
     /**
-     * @returns {Promise<object | null>} Transaction data
+     * @returns {Promise<TransactionData | null>} Transaction data
      */
     async getData(): Promise<TransactionData | null> {
         try {
             if (this.data?.info !== undefined) {
                 return this.data
             }
-            this.data = await this.provider.tronWeb.trx.getTransaction(this.id)
-            if (this.data === null) {
+            this.data = (await this.provider.tronWeb.trx.getTransaction(this.id)) ?? undefined
+            if (this.data === undefined) {
                 return null
             }
-            this.data.info = await this.provider.tronWeb.trx.getTransactionInfo(this.id)
+            const result = await this.provider.tronWeb.trx.getTransactionInfo(this.id)
+            this.data.info = result?.id !== undefined ? result : undefined
             return this.data
         } catch (error) {
             throw new Error(ErrorTypeEnum.RPC_REQUEST_ERROR)
@@ -183,7 +186,7 @@ export class Transaction implements TransactionInterface {
         const data = await this.getData()
         if (data === null) {
             return TransactionStatusEnum.PENDING
-        } else if (data?.ret.length > 0 && data.info !== null) {
+        } else if (data?.ret.length > 0 && data.info !== undefined) {
             if (this.data.info?.blockNumber !== undefined) {
                 if (this.data.ret[0].contractRet === 'REVERT') {
                     return TransactionStatusEnum.FAILED

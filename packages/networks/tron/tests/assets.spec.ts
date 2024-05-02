@@ -36,7 +36,7 @@ const checkSigner = async (signer: TransactionSigner, privateKey?: string): Prom
 
 const checkTx = async (transaction: Transaction): Promise<any> => {
     expect(transaction).toBeInstanceOf(Transaction)
-    const status = await transaction.wait(10)
+    const status = await transaction.wait(10 * 1000)
     expect(status).toBe(TransactionStatusEnum.CONFIRMED)
 }
 
