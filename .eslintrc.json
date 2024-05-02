@@ -23,6 +23,12 @@
     },
     "plugins": ["prettier", "filenames"],
     "rules": {
+        "@typescript-eslint/no-misused-promises": [
+            "error",
+            {
+                "checksVoidReturn": false
+            }
+        ],
         "filenames/match-exported": ["error", "pascal"]
     },
     "ignorePatterns": [
