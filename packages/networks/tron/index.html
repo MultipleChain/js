@@ -219,7 +219,7 @@
         window.Tron = Tron
 
         const provider = new Tron.Provider({
-            // options
+            testnet: true
         });
 
         window.adapters = {}
@@ -242,7 +242,7 @@
             document.querySelector('.platforms').innerText = wallet.getPlatforms().join(', ')
             document.querySelector('.download-link').innerText = wallet.getDownloadLink()
             document.querySelector('.deep-link').innerText = wallet.createDeepLink('https://google.com')
-            document.querySelector('.chain-id').innerText = await wallet.getChainId()
+            document.querySelector('.chain-id').innerText = wallet.getChainId ? await wallet.getChainId() : 'N/A'
             document.querySelector('.connected-address').innerText = sender
 
             document.querySelector('.action-result .sign-message').innerText = ''
@@ -251,8 +251,8 @@
                 document.querySelector('.action-result .sign-message').innerText = result
             }
 
-            const receiver = '0xbBa4d06D1cEf94b35aDeCfDa893523907fdD36DE';
-            const tokenAddress = '0x4294cb0dD25dC9140B5127f247cBd47Eeb673431';
+            const receiver = 'TSVufyvTBhWPMbvAaZr6ESYszpzXfBs8WA';
+            const tokenAddress = 'TJkmHT9gWNyELDaCbz9ui5PPQ6EPezgegu';
 
             document.querySelector('.action-result .send-coin').innerText = ''
             document.querySelector('.action-btn.send-coin').onclick = async () => {

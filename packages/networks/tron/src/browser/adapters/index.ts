@@ -1,1 +1,1 @@
-export { default as Example } from './Example.ts'
+export { default as TronLink } from './TronLink.ts'
