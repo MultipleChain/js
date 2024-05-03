@@ -17,6 +17,14 @@
                 "default": "./dist/index.cjs",
                 "types": "./dist/index.d.ts"
             }
+        },
+        "./node": {
+            "require": "./dist/index.cjs",
+            "types": "./dist/index.d.ts"
+        },
+        "./browser": {
+            "require": "./dist/index.umd.js",
+            "types": "./dist/browser/index.d.ts"
         }
     },
     "files": [
