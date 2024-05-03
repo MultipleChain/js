@@ -25,6 +25,7 @@ jobs:
       - name: Install dependencies
         run: |
           npm install -g pnpm
+          pnpm install
 
           for dir in packages/*/ packages/networks/*/; do
             if [ -d "$dir" ] && [ "$(basename "$dir")" != "boilerplate" ]; then
@@ -39,6 +40,12 @@ jobs:
 
       - name: Runt lint
         run: npm run lint
+
+      - name: Code coverage
+        uses: codecov/codecov-action@v4.0.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: MultipleChain/js
 
       - name: Set PR status
         if: ${{ github.event_name == 'pull_request' }}
