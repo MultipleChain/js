@@ -6,10 +6,14 @@ export default mergeConfig(
     viteConfig,
     defineConfig({
         test: {
+            coverage: {
+                provider: 'istanbul',
+                exclude: ['**/boilerplate/**']
+            },
             watch: false,
             testTimeout: 180000,
             environment: 'node',
-            exclude: [...configDefaults.exclude, 'e2e/*'],
+            exclude: [...configDefaults.exclude, 'e2e/*', '**/boilerplate/**'],
             root: fileURLToPath(new URL('./', import.meta.url)),
             setupFiles: [
                 './packages/networks/evm-chains/tests/setup.ts',
