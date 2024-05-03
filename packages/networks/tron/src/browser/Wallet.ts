@@ -7,7 +7,7 @@ import {
     type ProviderInterface
 } from '@multiplechain/types'
 import { Provider } from '../services/Provider.ts'
-import type { Adapter, AdapterEvents } from '@tronweb3/tronwallet-abstract-adapter'
+import type { Adapter, AdapterEvents, Transaction } from '@tronweb3/tronwallet-abstract-adapter'
 
 export interface CustomAdapter extends Adapter {
     network?: () => Promise<any>
@@ -169,7 +169,7 @@ export class Wallet implements WalletInterface {
      * @returns {Promise<string>}
      */
     async getAddress(): Promise<string> {
-        return (this.walletProvider.address as string).trim()
+        return this.walletProvider.address ?? ''
     }
 
     /**
@@ -193,7 +193,9 @@ export class Wallet implements WalletInterface {
      * @returns {Promise<string>}
      */
     async sendTransaction(transactionSigner: TransactionSignerInterface): Promise<string> {
-        const signedTx = await this.walletProvider.signTransaction(transactionSigner.getRawData())
+        const signedTx = await this.walletProvider.signTransaction(
+            transactionSigner.getRawData() as Transaction
+        )
         const { transaction } = await this.networkProvider.tronWeb.trx.sendRawTransaction(signedTx)
         if (transaction === undefined) throw new Error(ErrorTypeEnum.TRANSACTION_CREATION_FAILED)
         return transaction.txID as string
