@@ -78,7 +78,7 @@ export class Wallet implements WalletInterface {
      * @returns {string}
      */
     getIcon(): string {
-        return this.adapter.name
+        return this.adapter.icon
     }
 
     /**

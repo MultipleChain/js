@@ -34,10 +34,7 @@ const TronLink: WalletAdapterInterface = {
                 walletProvider
                     .connect()
                     .then(async () => {
-                        if (
-                            walletProvider.switchChain !== undefined &&
-                            provider.node.id !== (await walletProvider.network()).chainId
-                        ) {
+                        if (provider.node.id !== (await walletProvider.network()).chainId) {
                             await walletProvider.switchChain(provider.node.id)
                         }
                         await sleep(500)
