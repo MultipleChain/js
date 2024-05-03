@@ -11,7 +11,10 @@ export default mergeConfig(
             environment: 'node',
             exclude: [...configDefaults.exclude, 'e2e/*'],
             root: fileURLToPath(new URL('./', import.meta.url)),
-            setupFiles: ['./packages/networks/evm-chains/tests/setup.ts']
+            setupFiles: [
+                './packages/networks/evm-chains/tests/setup.ts',
+                './packages/networks/tron/tests/setup.ts'
+            ]
         }
     })
 )

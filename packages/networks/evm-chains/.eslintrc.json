@@ -1,12 +1,4 @@
 {
-    "rules": {
-        "@typescript-eslint/no-misused-promises": [
-            "error",
-            {
-                "checksVoidReturn": false
-            }
-        ]
-    },
     "extends": ["plugin:require-extensions/recommended", "../../../.eslintrc.json"],
     "plugins": ["require-extensions"]
 }

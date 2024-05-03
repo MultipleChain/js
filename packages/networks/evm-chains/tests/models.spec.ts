@@ -51,10 +51,9 @@ describe('Transaction', () => {
         expect(await tx.getBlockNumber()).toBe(5461884)
     })
 
-    // Not give any response in vitest environment
-    // it('Block Timestamp', async () => {
-    //     expect(await tx.getBlockTimestamp()).toBe(1710141144)
-    // })
+    it('Block Timestamp', async () => {
+        expect(await tx.getBlockTimestamp()).toBe(1710141144)
+    })
 
     it('Block Confirmation Count', async () => {
         expect(await tx.getBlockConfirmationCount()).toBeGreaterThan(129954)

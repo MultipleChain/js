@@ -44,10 +44,10 @@ export class TransactionListener<T extends TransactionTypeEnum>
 
     /**
      * @param {T} type - Transaction type
-     * @param {Provider} provider - Provider
      * @param {DynamicTransactionListenerFilterType<T>} filter - Transaction listener filter
+     * @param {Provider} provider - Provider
      */
-    constructor(type: T, provider?: Provider, filter?: DynamicTransactionListenerFilterType<T>) {
+    constructor(type: T, filter?: DynamicTransactionListenerFilterType<T>, provider?: Provider) {
         this.type = type
         this.filter = filter
         this.provider = provider ?? Provider.instance
@@ -87,10 +87,11 @@ export class TransactionListener<T extends TransactionTypeEnum>
     /**
      * Listen to the transaction events
      * @param {TransactionListenerCallbackType} callback - Transaction listener callback
-     * @returns {void}
+     * @returns {Promise<boolean>}
      */
-    on(callback: TransactionListenerCallbackType): void {
+    async on(callback: TransactionListenerCallbackType): Promise<boolean> {
         this.callbacks.push(callback)
+        return true
     }
 
     /**

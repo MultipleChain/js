@@ -5,23 +5,31 @@ import type { EIP1193Provider } from './EIP6963.ts'
 import { WalletPlatformEnum } from '@multiplechain/types'
 import type { WalletAdapterInterface, ProviderInterface } from '@multiplechain/types'
 
-// eslint-disable-next-line
-const trustWalletProvider = (window?.ethereum?.isTrust ? window.ethereum : window.trustwallet) as unknown as WindowEthereum
-
 const TrustWallet: WalletAdapterInterface = {
     id: 'trustwallet',
     name: 'TrustWallet',
     icon: icons.trustWallet,
-    provider: trustWalletProvider,
+    // eslint-disable-next-line
+    provider: (window?.ethereum?.isTrust
+        ? window.ethereum
+        : window.trustwallet) as unknown as WindowEthereum,
     downloadLink: 'https://trustwallet.com/download',
     platforms: [WalletPlatformEnum.BROWSER, WalletPlatformEnum.MOBILE],
     isDetected: () => Boolean(window?.ethereum?.isTrust ?? window?.trustwallet),
     isConnected: async () => {
+        // eslint-disable-next-line
+        const trustWalletProvider = (window?.ethereum?.isTrust
+            ? window.ethereum
+            : window.trustwallet) as unknown as WindowEthereum
         return Boolean((await trustWalletProvider?.request({ method: 'eth_accounts' })).length)
     },
     connect: async (provider?: ProviderInterface): Promise<EIP1193Provider> => {
         return await new Promise((resolve, reject) => {
             try {
+                // eslint-disable-next-line
+                const trustWalletProvider = (window?.ethereum?.isTrust
+                    ? window.ethereum
+                    : window.trustwallet) as unknown as WindowEthereum
                 trustWalletProvider
                     ?.request({ method: 'eth_requestAccounts' })
                     .then(() => {

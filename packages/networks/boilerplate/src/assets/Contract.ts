@@ -45,4 +45,14 @@ export class Contract implements ContractInterface {
     async getMethodData(method: string, ...args: any[]): Promise<any> {
         return {}
     }
+
+    /**
+     * @param {string} method Method name
+     * @param {string} from Sender wallet address
+     * @param {any[]} args Method parameters
+     * @returns {Promise<any>} Encoded method data
+     */
+    async createTransactionData(method: string, from: string, ...args: any[]): Promise<any> {
+        return ''
+    }
 }

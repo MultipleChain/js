@@ -52,7 +52,7 @@ const checkSigner = async (signer: TransactionSigner, privateKey?: string): Prom
 
 const checkTx = async (transaction: Transaction): Promise<any> => {
     expect(transaction).toBeInstanceOf(Transaction)
-    const status = await transaction.wait(10)
+    const status = await transaction.wait(10 * 1000)
     expect(status).toBe(TransactionStatusEnum.CONFIRMED)
 }
 
@@ -117,7 +117,7 @@ describe('Token', () => {
     it('Transfer', async () => {
         if (!tokenTransferTestIsActive) return
 
-        await waitSecondsBeforeThanNewTx(30)
+        await waitSecondsBeforeThanNewTx(5)
 
         const signer = await token.transfer(
             senderTestAddress,
@@ -138,7 +138,7 @@ describe('Token', () => {
     it('Approve and Allowance', async () => {
         if (!tokenApproveTestIsActive) return
 
-        await waitSecondsBeforeThanNewTx(30)
+        await waitSecondsBeforeThanNewTx(5)
 
         const signer = await token.approve(
             senderTestAddress,
@@ -158,7 +158,7 @@ describe('Token', () => {
     it('Transfer from', async () => {
         if (!tokenTransferFromTestIsActive) return
 
-        await waitSecondsBeforeThanNewTx(30)
+        await waitSecondsBeforeThanNewTx(5)
 
         const signer = await token.transferFrom(
             receiverTestAddress,
@@ -200,13 +200,13 @@ describe('Nft', () => {
     })
 
     it('Approved', async () => {
-        expect(await nft.getApproved(5)).toBe('0x0000000000000000000000000000000000000000')
+        expect(await nft.getApproved(5)).toBe(null)
     })
 
     it('Transfer', async () => {
         if (!nftTransactionTestIsActive) return
 
-        await waitSecondsBeforeThanNewTx(30)
+        await waitSecondsBeforeThanNewTx(5)
 
         const signer = await nft.transfer(senderTestAddress, receiverTestAddress, nftTransferId)
 
@@ -220,7 +220,7 @@ describe('Nft', () => {
     it('Approve', async () => {
         if (!nftTransactionTestIsActive) return
 
-        await waitSecondsBeforeThanNewTx(30)
+        await waitSecondsBeforeThanNewTx(5)
 
         const signer = await nft.approve(receiverTestAddress, senderTestAddress, nftTransferId)
 
@@ -234,7 +234,7 @@ describe('Nft', () => {
     it('Transfer from', async () => {
         if (!nftTransactionTestIsActive) return
 
-        await waitSecondsBeforeThanNewTx(30)
+        await waitSecondsBeforeThanNewTx(5)
 
         const signer = await nft.transferFrom(
             senderTestAddress,

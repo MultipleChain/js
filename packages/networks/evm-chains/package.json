@@ -1,6 +1,6 @@
 {
     "name": "@multiplechain/evm-chains",
-    "version": "0.3.42",
+    "version": "0.3.45",
     "type": "module",
     "main": "dist/index.cjs",
     "module": "dist/index.es.js",
@@ -17,6 +17,14 @@
                 "default": "./dist/index.cjs",
                 "types": "./dist/index.d.ts"
             }
+        },
+        "./node": {
+            "require": "./dist/index.cjs",
+            "types": "./dist/index.d.ts"
+        },
+        "./browser": {
+            "require": "./dist/index.umd.js",
+            "types": "./dist/browser/index.d.ts"
         }
     },
     "files": [
@@ -56,7 +64,7 @@
         "url": "https://github.com/MultipleChain/js/issues"
     },
     "dependencies": {
-        "@multiplechain/types": "^0.1.53",
+        "@multiplechain/types": "^0.1.55",
         "@multiplechain/utils": "^0.1.18",
         "@wagmi/chains": "^1.8.0",
         "@walletconnect/ethereum-provider": "^2.12.2",

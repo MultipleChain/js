@@ -1,6 +1,6 @@
 import { Provider } from '../services/Provider.ts'
-import { TransactionSigner } from '../services/TransactionSigner.ts'
-import type { CoinInterface, TransactionSignerInterface } from '@multiplechain/types'
+import type { CoinInterface } from '@multiplechain/types'
+import { CoinTransactionSigner } from '../services/TransactionSigner.ts'
 
 export class Coin implements CoinInterface {
     /**
@@ -54,7 +54,7 @@ export class Coin implements CoinInterface {
         sender: string,
         receiver: string,
         amount: number
-    ): Promise<TransactionSignerInterface> {
-        return new TransactionSigner('example')
+    ): Promise<CoinTransactionSigner> {
+        return new CoinTransactionSigner('example')
     }
 }

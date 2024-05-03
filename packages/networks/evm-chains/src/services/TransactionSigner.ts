@@ -11,6 +11,7 @@ import { ErrorTypeEnum, type TransactionSignerInterface } from '@multiplechain/t
 export interface TransactionData extends TransactionRequest {
     gas?: BigNumberish
 }
+
 export class TransactionSigner implements TransactionSignerInterface {
     /**
      * Transaction data from the blockchain network
@@ -75,17 +76,17 @@ export class TransactionSigner implements TransactionSignerInterface {
 
     /**
      * Get the raw transaction data
-     * @returns {any} Transaction data
+     * @returns {TransactionData} Transaction data
      */
-    getRawData(): any {
+    getRawData(): TransactionData {
         return this.rawData
     }
 
     /**
      * Get the signed transaction data
-     * @returns {any} Signed transaction data
+     * @returns {string} Signed transaction data
      */
-    getSignedData(): any {
+    getSignedData(): string {
         return this.signedData
     }
 }

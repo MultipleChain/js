@@ -17,6 +17,14 @@
                 "default": "./dist/index.cjs",
                 "types": "./dist/index.d.ts"
             }
+        },
+        "./node": {
+            "require": "./dist/index.cjs",
+            "types": "./dist/index.d.ts"
+        },
+        "./browser": {
+            "require": "./dist/index.umd.js",
+            "types": "./dist/browser/index.d.ts"
         }
     },
     "files": [
@@ -25,6 +33,7 @@
         "!tsconfig.tsbuildinfo"
     ],
     "scripts": {
+        "dev": "vite",
         "clean": "rm -rf dist",
         "watch": "tsc --watch",
         "build:vite": "vite build",
@@ -52,7 +61,7 @@
         "url": "https://github.com/MultipleChain/js/issues"
     },
     "dependencies": {
-        "@multiplechain/types": "^0.1.53",
+        "@multiplechain/types": "^0.1.55",
         "@multiplechain/utils": "^0.1.18"
     }
 }

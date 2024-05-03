@@ -270,6 +270,10 @@ export class Wallet implements Omit<WalletInterface, 'adapter'> {
      * @returns {void}
      */
     on(eventName: string, callback: (...args: any[]) => void): void {
-        this.walletProvider.on(eventName, callback)
+        if (this.adapter?.provider?.on !== undefined) {
+            this.adapter.provider.on(eventName, callback)
+        } else {
+            this.walletProvider.on(eventName, callback)
+        }
     }
 }

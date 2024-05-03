@@ -2,7 +2,8 @@ import type {
     WalletInterface,
     WalletAdapterInterface,
     WalletPlatformEnum,
-    TransactionSignerInterface
+    TransactionSignerInterface,
+    ProviderInterface
 } from '@multiplechain/types'
 import { Provider } from '../services/Provider'
 
@@ -40,7 +41,7 @@ export class Wallet implements WalletInterface {
      * @returns {string}
      */
     getIcon(): string {
-        return this.adapter.name
+        return this.adapter.icon
     }
 
     /**
@@ -71,10 +72,11 @@ export class Wallet implements WalletInterface {
     }
 
     /**
-     * connect to adapter
+     * @param {ProviderInterface} provider
+     * @param {Object} ops
      * @returns {Promise<string>}
      */
-    async connect(): Promise<string> {
+    async connect(provider?: ProviderInterface, ops?: object): Promise<string> {
         await this.adapter.connect()
         return 'wallet address'
     }
