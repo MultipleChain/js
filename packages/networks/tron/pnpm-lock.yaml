@@ -17,9 +17,17 @@ dependencies:
   '@noble/secp256k1':
     specifier: ^1.7.1
     version: 1.7.1
+  '@tronweb3/tronwallet-adapter-tronlink':
+    specifier: ^1.1.9
+    version: 1.1.9
   tronweb:
     specifier: ^5.3.2
     version: 5.3.2
+
+devDependencies:
+  '@tronweb3/tronwallet-abstract-adapter':
+    specifier: ^1.1.6
+    version: 1.1.6
 
 packages:
 
@@ -267,6 +275,19 @@ packages:
     resolution: {integrity: sha512-IVcT2GfWX3K6tHUVhs14NP5uzKhQt4KeDya1g9ACxuZsUzsaoGUIGzceK2Ltu7xp1YV94AaHOf4yxLAivlvEkQ==}
     dev: false
 
+  /@tronweb3/tronwallet-abstract-adapter@1.1.6:
+    resolution: {integrity: sha512-3T2ojxzSKIAw4ucEcg4p5Nwr4lN1g1Om8s1ty77DOHIa0oS1YDvZmlRQekptWEppKOoRDYFWST1ERCvt2Xxm0A==}
+    engines: {node: '>=16', pnpm: '>=7'}
+    dependencies:
+      eventemitter3: 4.0.7
+
+  /@tronweb3/tronwallet-adapter-tronlink@1.1.9:
+    resolution: {integrity: sha512-fIDKt822OmESLVeYCG9XbXGI34lM/79/jzJ3rd81xOZD8y7V0/DuDLdg5gFiCH4g9OIutKslDXiwoMpQry9O3w==}
+    engines: {node: '>=16', pnpm: '>=7'}
+    dependencies:
+      '@tronweb3/tronwallet-abstract-adapter': 1.1.6
+    dev: false
+
   /@types/node@18.15.13:
     resolution: {integrity: sha512-N+0kuo9KgrUQ1Sn/ifDXsvg0TTleP7rIy4zOBGECxAljqvqfqpTfzx0Q1NUedOixRMBfe2Whhb056a42cWs26Q==}
     dev: false
@@ -434,6 +455,9 @@ packages:
   /eventemitter3@3.1.2:
     resolution: {integrity: sha512-tvtQIeLVHjDkJYnzf2dgVMxfuSGJeM/7UCG17TT4EumTfNtF+0nebF/4zWOIkCreAbtNqhGEboB6BWrwqNaw4Q==}
     dev: false
+
+  /eventemitter3@4.0.7:
+    resolution: {integrity: sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw==}
 
   /eventemitter3@5.0.1:
     resolution: {integrity: sha512-GWkBvjiSZK87ELrYOSESUYeVIc9mvLLf/nXalMOS5dYrgZq9o5OVkbZAVM06CVxYsCwH9BDZFPlQTlPA1j4ahA==}

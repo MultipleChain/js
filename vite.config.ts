@@ -1,13 +1,15 @@
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
 import envCompatible from 'vite-plugin-env-compatible'
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 export default defineConfig({
     plugins: [
         dts({
             entryRoot: './src'
         }),
-        envCompatible()
+        envCompatible(),
+        nodePolyfills()
     ],
     build: {
         minify: true,
