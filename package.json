@@ -4,12 +4,14 @@
   "type": "module",
   "scripts": {
     "test": "vitest",
+    "coverage": "vitest run --coverage",
     "format": "prettier --write packages/",
     "lint": "eslint . --ext .ts --ignore-path .gitignore"
   },
   "devDependencies": {
     "@types/node": "^20.11.20",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@vitest/coverage-istanbul": "^1.5.3",
     "esbuild": "^0.20.2",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",

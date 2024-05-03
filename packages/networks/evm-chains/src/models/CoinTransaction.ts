@@ -8,7 +8,7 @@ export class CoinTransaction extends Transaction implements CoinTransactionInter
      * @returns {Promise<string>} Wallet address of the receiver of transaction
      */
     async getReceiver(): Promise<string> {
-        const data = await this.getData() 
+        const data = await this.getData()
         return data?.response.to ?? ''
     }
 

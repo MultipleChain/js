@@ -35,17 +35,18 @@ jobs:
             fi
           done
 
-      - name: Run test
-        run: npm run test
-
       - name: Runt lint
         run: npm run lint
+        
+      - name: Run test
+        run: npm run coverage
 
       - name: Code coverage
         uses: codecov/codecov-action@v4.0.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: MultipleChain/js
+          files: './coverage/clover.xml'
 
       - name: Set PR status
         if: ${{ github.event_name == 'pull_request' }}
