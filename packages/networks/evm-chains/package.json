@@ -19,11 +19,11 @@
             }
         },
         "./node": {
-            "require": "./dist/index.cjs",
+            "default": "./dist/index.cjs",
             "types": "./dist/index.d.ts"
         },
         "./browser": {
-            "require": "./dist/index.umd.js",
+            "default": "./dist/index.es.js",
             "types": "./dist/browser/index.d.ts"
         }
     },
