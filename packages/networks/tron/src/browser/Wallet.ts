@@ -205,7 +205,7 @@ export class Wallet implements WalletInterface {
      * @returns {void}
      */
     on(eventName: string, callback: (...args: any[]) => void): void {
-        if (this.adapter?.provider.on !== undefined) {
+        if (this.adapter?.provider?.on !== undefined) {
             this.adapter.provider.on(eventName, callback)
         } else {
             this.walletProvider.on(eventName as keyof AdapterEvents, callback)
