@@ -44,10 +44,10 @@ export class TransactionListener<T extends TransactionTypeEnum>
 
     /**
      * @param {T} type - Transaction type
-     * @param {Provider} provider - Provider
      * @param {DynamicTransactionListenerFilterType<T>} filter - Transaction listener filter
+     * @param {Provider} provider - Provider
      */
-    constructor(type: T, provider?: Provider, filter?: DynamicTransactionListenerFilterType<T>) {
+    constructor(type: T, filter?: DynamicTransactionListenerFilterType<T>, provider?: Provider) {
         this.type = type
         this.filter = filter
         this.provider = provider ?? Provider.instance

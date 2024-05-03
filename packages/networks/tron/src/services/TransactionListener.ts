@@ -43,14 +43,20 @@ export class TransactionListener<T extends TransactionTypeEnum>
     triggeredTransactions: string[] = []
 
     /**
-     * @param {T} type - Transaction type
-     * @param {Provider} provider - Provider
-     * @param {DynamicTransactionListenerFilterType<T>} filter - Transaction listener filter
+     * Dynamic stop method
      */
-    constructor(type: T, provider?: Provider, filter?: DynamicTransactionListenerFilterType<T>) {
+    dynamicStop: () => void = () => {}
+
+    /**
+     * @param {T} type - Transaction type
+     * @param {DynamicTransactionListenerFilterType<T>} filter - Transaction listener filter
+     * @param {Provider} provider - Provider
+     */
+    constructor(type: T, filter?: DynamicTransactionListenerFilterType<T>, provider?: Provider) {
         this.type = type
         this.filter = filter
         this.provider = provider ?? Provider.instance
+        throw new Error('This class is not implemented for Tron')
     }
 
     /**
@@ -60,7 +66,7 @@ export class TransactionListener<T extends TransactionTypeEnum>
     stop(): void {
         if (this.status) {
             this.status = false
-            // stop the listener
+            this.dynamicStop()
         }
     }
 
@@ -90,6 +96,7 @@ export class TransactionListener<T extends TransactionTypeEnum>
      * @returns {Promise<boolean>}
      */
     async on(callback: TransactionListenerCallbackType): Promise<boolean> {
+        this.start()
         this.callbacks.push(callback)
         return true
     }
