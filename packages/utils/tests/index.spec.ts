@@ -7,6 +7,12 @@ import {
     base58Decode,
     bufferToString,
     stringToBuffer,
+    checkWebSocket,
+    isNumeric,
+    objectsEqual,
+    isMobile,
+    isWebview,
+    sleep,
     math
 } from '../src/index.js'
 
@@ -43,6 +49,34 @@ describe('Helper methods', () => {
         expect(stringToBuffer('example')).toStrictEqual(
             Buffer.from([101, 120, 97, 109, 112, 108, 101])
         )
+    })
+
+    it('Sleep', async () => {
+        const start = Date.now()
+        await sleep(1000)
+        expect(Date.now() - start).toBeGreaterThanOrEqual(1000)
+    })
+
+    it('Check websocket', async () => {
+        expect(
+            await checkWebSocket('wss://sepolia.infura.io/ws/v3/9aa3d95b3bc440fa88ea12eaa4456161')
+        ).toBe(true)
+    })
+
+    it('Is numeric', () => {
+        expect(isNumeric('10')).toBe(true)
+    })
+
+    it('Objects equal', () => {
+        expect(objectsEqual({ a: 1, b: 2 }, { a: 1, b: 2 })).toBe(true)
+    })
+
+    it('Is mobile', () => {
+        expect(isMobile()).toBe(false)
+    })
+
+    it('Is webview', () => {
+        expect(isWebview()).toBe(false)
     })
 })
 

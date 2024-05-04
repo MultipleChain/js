@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest'
 
 import { provider } from './setup.ts'
-import { Provider } from '../src/services/Provider.ts'
+import networks from '../src/services/Networks.ts'
+import { Provider, type EvmNetworkConfigInterface } from '../src/services/Provider.ts'
 import { TransactionListener } from '../src/services/TransactionListener.ts'
 import { TransactionTypeEnum } from '@multiplechain/types'
 import { Coin } from '../src/assets/Coin.ts'
@@ -12,6 +13,9 @@ import { Transaction } from '../src/models/Transaction.ts'
 import { TokenTransaction } from '../src/models/TokenTransaction.ts'
 import { NftTransaction } from '../src/models/NftTransaction.ts'
 import { NFT } from '../src/assets/NFT.ts'
+import ERC20 from '../resources/erc20.json'
+import type { InterfaceAbi } from 'ethers'
+import { ContractFactory, WebSocketProvider } from 'ethers'
 
 const senderPrivateKey = String(process.env.EVM_SENDER_PRIVATE_KEY)
 const receiverPrivateKey = String(process.env.EVM_RECEIVER_PRIVATE_KEY)
@@ -48,6 +52,85 @@ describe('Provider', () => {
         expect(await provider.checkWsConnection('wss://sepolia.infura.io/v3')).instanceOf(Error)
         expect(await provider.checkWsConnection(process.env.EVM_WS_URL as unknown as string)).toBe(
             true
+        )
+    })
+})
+
+describe('Networks', () => {
+    it('Ethereum', () => {
+        // @ts-expect-error ethereum is defined
+        expect(networks.ethereum).toBeDefined()
+    })
+
+    it('findById', () => {
+        // @ts-expect-error ethereum is defined
+        expect(networks.findById(1)).toBe(networks.ethereum)
+    })
+
+    it('findByKey', () => {
+        // @ts-expect-error ethereum is defined
+        expect(networks.findByKey('ethereum')).toBe(networks.ethereum)
+    })
+
+    it('findByName', () => {
+        // @ts-expect-error classic is defined
+        expect(networks.findByName('Ethereum Classic')).toBe(networks.classic)
+    })
+
+    it('findBySymbol', () => {
+        // @ts-expect-error arbitrum is defined
+        expect(networks.findBySymbol('ETH')).toBe(networks.arbitrum)
+    })
+
+    it('findByHexId', () => {
+        // @ts-expect-error ethereum is defined
+        expect(networks.findByHexId('0x1')).toBe(networks.ethereum)
+    })
+
+    it('Mainnets', () => {
+        expect(networks.getMainnets()).toBeInstanceOf(Array)
+    })
+
+    it('Testnets', () => {
+        expect(networks.getTestnets()).toBeInstanceOf(Array)
+    })
+
+    it('All', () => {
+        expect(networks.getAll()).toBeInstanceOf(Array)
+    })
+
+    it('Add', () => {
+        // @ts-expect-error ethereum is defined
+        networks.add('test', networks.ethereum as EvmNetworkConfigInterface)
+        // @ts-expect-error ethereum is defined
+        expect(networks.findByKey('test')).toBe(networks.ethereum)
+    })
+})
+
+describe('Ethers', () => {
+    it('Connect websocket', async () => {
+        expect(await provider.ethers.connectWebSocket()).toBeInstanceOf(WebSocketProvider)
+    })
+
+    it('Websocket', async () => {
+        expect(provider.ethers.webSocket).toBeInstanceOf(Object)
+    })
+
+    it('getByteCode', async () => {
+        expect(await provider.ethers.getByteCode(tokenTestAddress)).toBeTypeOf('string')
+    })
+
+    it('getLastTransactions', async () => {
+        expect(await provider.ethers.getLastTransactions(senderTestAddress)).toBeInstanceOf(Array)
+    })
+
+    it('getLastTransaction', async () => {
+        expect(await provider.ethers.getLastTransaction(senderTestAddress)).toBe(null)
+    })
+
+    it('contractFactory', async () => {
+        expect(provider.ethers.contractFactory(ERC20 as InterfaceAbi, '')).toBeInstanceOf(
+            ContractFactory
         )
     })
 })
