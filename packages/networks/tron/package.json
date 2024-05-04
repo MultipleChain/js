@@ -41,6 +41,7 @@
         "typecheck": "tsc --noEmit",
         "lint": "eslint . --ext .ts",
         "test": "vitest run --dir tests",
+        "test-ui": "vitest watch --ui",
         "prepublishOnly": "pnpm run build",
         "build": "pnpm run build:vite && pnpm run build:node"
     },
