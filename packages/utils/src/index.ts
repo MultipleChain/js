@@ -90,34 +90,6 @@ export const isNumeric = (value: string | number): boolean => {
 }
 
 /**
- * Get the number of decimal places
- */
-export const getDecimalPlaces = (num: number): number => {
-    const match = ('' + num).match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/)
-    if (match === null) {
-        return num
-    } else {
-        return Math.max(
-            0,
-            // Number of digits right of decimal point.
-            (match[1] !== undefined && match[1] !== null ? match[1].length : 0) -
-                // Adjust for scientific notation.
-                (match[2] !== undefined && match[2] !== null ? +match[2] : 0)
-        )
-    }
-}
-
-/**
- * Fix the float number
- * @param {number} num
- * @returns number
- * @example 1.0000000000000001 => 1
- */
-export const fixFloat = (num: number): number => {
-    return parseFloat(num.toFixed(getDecimalPlaces(num)))
-}
-
-/**
  * Sleeps the given milliseconds
  * @param {number} ms
  * @returns Promise<void>
@@ -208,6 +180,9 @@ declare global {
 }
 
 export const isMobile = (): boolean => {
+    if (typeof window === 'undefined') {
+        return false
+    }
     /* eslint-disable */
     return (function (a) {
         return /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino|android|ipad|playbook|silk/i.test(
