@@ -8,7 +8,14 @@ export default mergeConfig(
         test: {
             coverage: {
                 provider: 'istanbul',
-                exclude: ['**/boilerplate/**']
+                include: ['**/packages/**/src/**', '**/packages/networks/**/src/**'],
+                exclude: [
+                    '**/boilerplate/**',
+                    '**/types/**',
+                    '**/browser/**',
+                    '**/index.ts/**',
+                    '**/tron/src/services/TransactionListener.ts'
+                ]
             },
             watch: false,
             testTimeout: 180000,

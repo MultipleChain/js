@@ -27,6 +27,10 @@ describe('Transaction', () => {
         expect(await tx.getData()).toBeTypeOf('object')
     })
 
+    it('Wait', async () => {
+        expect(await tx.wait()).toBe(TransactionStatusEnum.CONFIRMED)
+    })
+
     it('URL', async () => {
         expect(tx.getUrl()).toBe(
             'https://nile.tronscan.org/#/transaction/8697ad2c4e1713227c16a65a5845636458df2d3db3adf526e07e17699bc6b3c4'

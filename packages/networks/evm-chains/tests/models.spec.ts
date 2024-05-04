@@ -33,6 +33,10 @@ describe('Transaction', () => {
         expect(await tx.getData()).toBeTypeOf('object')
     })
 
+    it('Wait', async () => {
+        expect(await tx.wait()).toBe(TransactionStatusEnum.CONFIRMED)
+    })
+
     it('URL', async () => {
         expect(tx.getUrl()).toBe(
             'https://sepolia.etherscan.io/tx/0x566002399664e92f82ed654c181095bdd7ff3d3f1921d963257585891f622251'

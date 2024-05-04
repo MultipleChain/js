@@ -75,8 +75,6 @@ describe('Coin', () => {
     })
 
     it('Transfer', async () => {
-        if (!coinTransferTestIsActive) return
-
         const signer = await coin.transfer(
             senderTestAddress,
             receiverTestAddress,
@@ -84,6 +82,8 @@ describe('Coin', () => {
         )
 
         await checkSigner(signer)
+
+        if (!coinTransferTestIsActive) return
 
         const beforeBalance = await coin.getBalance(receiverTestAddress)
 
@@ -117,10 +117,6 @@ describe('Token', () => {
     })
 
     it('Transfer', async () => {
-        if (!tokenTransferTestIsActive) return
-
-        await waitSecondsBeforeThanNewTx(5)
-
         const signer = await token.transfer(
             senderTestAddress,
             receiverTestAddress,
@@ -128,6 +124,10 @@ describe('Token', () => {
         )
 
         await checkSigner(signer)
+
+        if (!tokenTransferTestIsActive) return
+
+        await waitSecondsBeforeThanNewTx(5)
 
         const beforeBalance = await token.getBalance(receiverTestAddress)
 
@@ -138,10 +138,6 @@ describe('Token', () => {
     })
 
     it('Approve and Allowance', async () => {
-        if (!tokenApproveTestIsActive) return
-
-        await waitSecondsBeforeThanNewTx(5)
-
         const signer = await token.approve(
             senderTestAddress,
             receiverTestAddress,
@@ -149,6 +145,10 @@ describe('Token', () => {
         )
 
         await checkSigner(signer)
+
+        if (!tokenApproveTestIsActive) return
+
+        await waitSecondsBeforeThanNewTx(5)
 
         await checkTx(await signer.send())
 
@@ -158,10 +158,6 @@ describe('Token', () => {
     })
 
     it('Transfer from', async () => {
-        if (!tokenTransferFromTestIsActive) return
-
-        await waitSecondsBeforeThanNewTx(5)
-
         const signer = await token.transferFrom(
             receiverTestAddress,
             senderTestAddress,
@@ -170,6 +166,10 @@ describe('Token', () => {
         )
 
         await checkSigner(signer, receiverPrivateKey)
+
+        if (!tokenTransferFromTestIsActive) return
+
+        await waitSecondsBeforeThanNewTx(5)
 
         const beforeBalance = await token.getBalance(receiverTestAddress)
 
@@ -206,13 +206,13 @@ describe('Nft', () => {
     })
 
     it('Transfer', async () => {
-        if (!nftTransactionTestIsActive) return
-
-        await waitSecondsBeforeThanNewTx(5)
-
         const signer = await nft.transfer(senderTestAddress, receiverTestAddress, nftTransferId)
 
         await checkSigner(signer)
+
+        if (!nftTransactionTestIsActive) return
+
+        await waitSecondsBeforeThanNewTx(5)
 
         await checkTx(await signer.send())
 
@@ -220,13 +220,17 @@ describe('Nft', () => {
     })
 
     it('Approve', async () => {
+        const customOwner = nftTransactionTestIsActive ? receiverTestAddress : senderTestAddress
+        const customSpender = nftTransactionTestIsActive ? senderTestAddress : receiverTestAddress
+        const customPrivateKey = nftTransactionTestIsActive ? receiverPrivateKey : senderPrivateKey
+
+        const signer = await nft.approve(customOwner, customSpender, nftTransferId)
+
+        await checkSigner(signer, customPrivateKey)
+
         if (!nftTransactionTestIsActive) return
 
         await waitSecondsBeforeThanNewTx(5)
-
-        const signer = await nft.approve(receiverTestAddress, senderTestAddress, nftTransferId)
-
-        await checkSigner(signer, receiverPrivateKey)
 
         await checkTx(await signer.send())
 
