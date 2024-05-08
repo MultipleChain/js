@@ -215,7 +215,7 @@
 
     <script type="module">
         import * as Boilerplate from './src/browser/index.ts'
-        import { isMobile, isWebview } from '@multiplechain/utils'
+        import { isMobile } from '@multiplechain/utils'
         window.Boilerplate = Boilerplate
 
         const provider = new Boilerplate.Provider({
@@ -331,17 +331,6 @@
             return sortedObj;
         }, {});
     
-        // if one wallet detected, remove other adapters
-        if (isWebview()) {
-            Object.values(adapters).forEach(wallet => {
-                if (wallet.isDetected()) {
-                    adapters = {}
-                    adapters[wallet.key] = wallet;
-                    return true;
-                }
-            });
-        }
-
         Object.values(adapters).forEach(adapter => {
             container.innerHTML += adapterTemplate(adapter)
         })
