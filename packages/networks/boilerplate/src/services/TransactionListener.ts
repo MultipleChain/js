@@ -25,7 +25,7 @@ export class TransactionListener<T extends TransactionTypeEnum>
     /**
      * Transaction listener filter
      */
-    filter?: DynamicTransactionListenerFilterType<T>
+    filter?: DynamicTransactionListenerFilterType<T> | Record<string, never>
 
     /**
      * Provider
@@ -49,7 +49,7 @@ export class TransactionListener<T extends TransactionTypeEnum>
      */
     constructor(type: T, filter?: DynamicTransactionListenerFilterType<T>, provider?: Provider) {
         this.type = type
-        this.filter = filter
+        this.filter = filter ?? {}
         this.provider = provider ?? Provider.instance
     }
 
