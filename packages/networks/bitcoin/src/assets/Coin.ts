@@ -1,6 +1,6 @@
 import axios from 'axios'
-import { math } from '@multiplechain/utils'
 import { Provider } from '../services/Provider.ts'
+import { fromSatoshi, toSatoshi } from '../utils.ts'
 import { Transaction, Script, Address } from 'bitcore-lib'
 import { ErrorTypeEnum, type CoinInterface } from '@multiplechain/types'
 import { CoinTransactionSigner } from '../services/TransactionSigner.ts'
@@ -48,23 +48,7 @@ export class Coin implements CoinInterface {
         const addressStats = await axios.get(addressStatsApi).then((res) => res.data)
         const balanceSat =
             addressStats.chain_stats.funded_txo_sum - addressStats.chain_stats.spent_txo_sum
-        return Coin.toBitcoin(balanceSat)
-    }
-
-    /**
-     * @param {number} amount Amount in satoshi
-     * @returns {number} Amount in COIN
-     */
-    static toBitcoin(amount: number): number {
-        return math.div(amount, 100000000, 8)
-    }
-
-    /**
-     * @param {number} amount Amount in COIN
-     * @returns {number} Amount in satoshi
-     */
-    static toSatoshi(amount: number): number {
-        return math.mul(amount, 100000000, 8)
+        return fromSatoshi(balanceSat)
     }
 
     /**
@@ -93,7 +77,7 @@ export class Coin implements CoinInterface {
         const inputs = []
         const transaction = new Transaction()
         const senderAddress = new Address(sender)
-        const satoshiToSend = Coin.toSatoshi(amount)
+        const satoshiToSend = toSatoshi(amount)
 
         const utxos = await axios
             .get(this.provider.createEndpoint('address/' + sender + '/utxo'))

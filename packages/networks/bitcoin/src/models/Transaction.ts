@@ -1,6 +1,50 @@
+import axios from 'axios'
+import { fromSatoshi } from '../utils.ts'
 import { Provider } from '../services/Provider.ts'
 import type { TransactionInterface } from '@multiplechain/types'
-import { TransactionStatusEnum } from '@multiplechain/types'
+import { ErrorTypeEnum, TransactionStatusEnum } from '@multiplechain/types'
+
+export interface VinObject {
+    txid: string
+    vout: number
+    prevout: {
+        scriptpubkey: string
+        scriptpubkey_asm: string
+        scriptpubkey_type: string
+        scriptpubkey_address: string
+        value: number
+    }
+    scriptsig: string
+    scriptsig_asm: string
+    witness: string[]
+    is_coinbase: boolean
+    sequence: number
+}
+
+export interface VoutObject {
+    scriptpubkey: string
+    scriptpubkey_asm: string
+    scriptpubkey_type: string
+    scriptpubkey_address: string
+    value: number
+}
+
+export interface TransactionData {
+    txid: string
+    version: number
+    locktime: number
+    vin: VinObject[]
+    vout: VoutObject[]
+    size: number
+    weight: number
+    fee: number
+    status: {
+        confirmed: boolean
+        block_height: number
+        block_hash: string
+        block_time: number
+    }
+}
 
 export class Transaction implements TransactionInterface {
     /**
@@ -14,6 +58,11 @@ export class Transaction implements TransactionInterface {
     provider: Provider
 
     /**
+     * Transaction data
+     */
+    data: TransactionData | null = null
+
+    /**
      * @param {string} id Transaction id
      * @param {Provider} provider Blockchain network provider
      */
@@ -25,15 +74,46 @@ export class Transaction implements TransactionInterface {
     /**
      * @returns {Promise<object | null>} Transaction data
      */
-    async getData(): Promise<object | null> {
-        return {}
+    async getData(): Promise<TransactionData | null> {
+        if (this.data !== null) {
+            return this.data
+        }
+        try {
+            const data = (await axios.get(this.provider.createEndpoint('tx/' + this.id))).data
+
+            if (data?.txid !== this.id) {
+                this.data = null
+            }
+
+            return (this.data = data as TransactionData)
+        } catch (error) {
+            throw new Error(ErrorTypeEnum.RPC_REQUEST_ERROR)
+        }
     }
 
     /**
-     * @returns {Promise<TransactionStatusEnum>} Wait for the transaction to be confirmed
+     * @param {number} ms - Milliseconds to wait for the transaction to be confirmed. Default is 4000ms
+     * @returns {Promise<TransactionStatusEnum>} Status of the transaction
      */
-    async wait(): Promise<TransactionStatusEnum> {
-        return await Promise.resolve(TransactionStatusEnum.CONFIRMED)
+    async wait(ms: number = 4000): Promise<TransactionStatusEnum> {
+        return await new Promise((resolve, reject) => {
+            const check = async (): Promise<void> => {
+                try {
+                    const status = await this.getStatus()
+                    if (status === TransactionStatusEnum.CONFIRMED) {
+                        resolve(TransactionStatusEnum.CONFIRMED)
+                        return
+                    } else if (status === TransactionStatusEnum.FAILED) {
+                        reject(TransactionStatusEnum.FAILED)
+                        return
+                    }
+                    setTimeout(check, ms)
+                } catch (error) {
+                    reject(TransactionStatusEnum.FAILED)
+                }
+            }
+            void check()
+        })
     }
 
     /**
@@ -47,48 +127,67 @@ export class Transaction implements TransactionInterface {
      * @returns {string} Transaction URL
      */
     getUrl(): string {
-        return 'example'
+        return this.provider.explorer + 'tx/' + this.id
     }
 
     /**
      * @returns {Promise<string>} Wallet address of the sender of transaction
      */
     async getSigner(): Promise<string> {
-        return 'example'
+        const data = await this.getData()
+        return data?.vin[0].prevout.scriptpubkey_address ?? ''
     }
 
     /**
      * @returns {Promise<number>} Transaction fee
      */
     async getFee(): Promise<number> {
-        return 0
+        const data = await this.getData()
+        return fromSatoshi(data?.fee ?? 0)
     }
 
     /**
      * @returns {Promise<number>} Block number that transaction
      */
     async getBlockNumber(): Promise<number> {
-        return 0
+        const data = await this.getData()
+        return data?.status?.block_height ?? 0
     }
 
     /**
      * @returns {Promise<number>} Block timestamp that transaction
      */
     async getBlockTimestamp(): Promise<number> {
-        return 0
+        const data = await this.getData()
+        return data?.status?.block_time ?? 0
     }
 
     /**
      * @returns {Promise<number>} Confirmation count of the block
      */
     async getBlockConfirmationCount(): Promise<number> {
-        return 0
+        const data = await this.getData()
+        if (data === null) {
+            return 0
+        }
+        const latestBlock = await axios.get(this.provider.createEndpoint('blocks/tip/height'))
+        return (latestBlock.data as number) - data?.status?.block_height
     }
 
     /**
      * @returns {Promise<TransactionStatusEnum>} Status of the transaction
      */
     async getStatus(): Promise<TransactionStatusEnum> {
-        return TransactionStatusEnum.CONFIRMED
+        const data = await this.getData()
+        if (data === null) {
+            return TransactionStatusEnum.PENDING
+        } else if (data.status?.block_height !== undefined) {
+            if (data.status.confirmed) {
+                return TransactionStatusEnum.CONFIRMED
+            } else {
+                return TransactionStatusEnum.FAILED
+            }
+        }
+        return TransactionStatusEnum.PENDING
     }
 }

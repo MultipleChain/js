@@ -75,7 +75,7 @@ export class Provider implements Omit<ProviderInterface, 'update'> {
      */
     async checkRpcConnection(url?: string): Promise<boolean | Error> {
         try {
-            const response = await axios.get(url ?? this.api + 'block-height/0')
+            const response = await axios.get(url ?? this.createEndpoint('blocks/tip/height'))
 
             if (response.status !== 200) {
                 return new Error(response.statusText + ': ' + JSON.stringify(response.data))

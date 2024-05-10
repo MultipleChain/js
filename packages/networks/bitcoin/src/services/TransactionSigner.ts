@@ -54,7 +54,7 @@ export class TransactionSigner implements TransactionSignerInterface {
                 url: `https://blockstream.info/testnet/api/tx`,
                 data: this.signedData
             })
-            return new Transaction(result.data.txid as string)
+            return new Transaction(result.data as string)
         } catch (error: any) {
             throw new Error(JSON.stringify((error as AxiosError).response?.data))
         }
