@@ -14,6 +14,8 @@ import {
     AddressPurpose
 } from 'sats-connect'
 
+let connected = false
+
 const Xverse: WalletAdapterInterface = {
     id: 'xverse',
     name: 'Xverse',
@@ -21,7 +23,7 @@ const Xverse: WalletAdapterInterface = {
     platforms: [WalletPlatformEnum.BROWSER, WalletPlatformEnum.MOBILE],
     downloadLink: 'https://www.xverse.app/download',
     isDetected: () => Boolean(window.XverseProviders?.BitcoinProvider),
-    isConnected: async () => window?.unisat?._isConnected ?? false,
+    isConnected: async () => connected,
     connect: async (provider?: ProviderInterface): Promise<BitcoinWalletAdapter> => {
         return await new Promise((resolve, reject) => {
             const type =
@@ -123,6 +125,7 @@ const Xverse: WalletAdapterInterface = {
             try {
                 connect()
                     .then((walletAdapter) => {
+                        connected = true
                         resolve(walletAdapter)
                     })
                     .catch(reject)
