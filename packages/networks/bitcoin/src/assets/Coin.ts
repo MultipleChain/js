@@ -1,5 +1,8 @@
+import axios from 'axios'
+import { math } from '@multiplechain/utils'
 import { Provider } from '../services/Provider.ts'
-import type { CoinInterface } from '@multiplechain/types'
+import { Transaction, Script, Address } from 'bitcore-lib'
+import { ErrorTypeEnum, type CoinInterface } from '@multiplechain/types'
 import { CoinTransactionSigner } from '../services/TransactionSigner.ts'
 
 export class Coin implements CoinInterface {
@@ -19,21 +22,21 @@ export class Coin implements CoinInterface {
      * @returns {string} Coin name
      */
     getName(): string {
-        return 'example'
+        return 'Bitcoin'
     }
 
     /**
      * @returns {string} Coin symbol
      */
     getSymbol(): string {
-        return 'example'
+        return 'BTC'
     }
 
     /**
      * @returns {number} Decimal value of the coin
      */
     getDecimals(): number {
-        return 18
+        return 8
     }
 
     /**
@@ -41,7 +44,27 @@ export class Coin implements CoinInterface {
      * @returns {Promise<number>} Wallet balance as currency of COIN
      */
     async getBalance(owner: string): Promise<number> {
-        return 0
+        const addressStatsApi = this.provider.createEndpoint('address/' + owner)
+        const addressStats = await axios.get(addressStatsApi).then((res) => res.data)
+        const balanceSat =
+            addressStats.chain_stats.funded_txo_sum - addressStats.chain_stats.spent_txo_sum
+        return Coin.toBitcoin(balanceSat)
+    }
+
+    /**
+     * @param {number} amount Amount in satoshi
+     * @returns {number} Amount in COIN
+     */
+    static toBitcoin(amount: number): number {
+        return math.div(amount, 100000000, 8)
+    }
+
+    /**
+     * @param {number} amount Amount in COIN
+     * @returns {number} Amount in satoshi
+     */
+    static toSatoshi(amount: number): number {
+        return math.mul(amount, 100000000, 8)
     }
 
     /**
@@ -55,6 +78,43 @@ export class Coin implements CoinInterface {
         receiver: string,
         amount: number
     ): Promise<CoinTransactionSigner> {
-        return new CoinTransactionSigner('example')
+        if (amount < 0) {
+            throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
+        }
+
+        if (amount > (await this.getBalance(sender))) {
+            throw new Error(ErrorTypeEnum.INSUFFICIENT_BALANCE)
+        }
+
+        if (sender === receiver) {
+            throw new Error(ErrorTypeEnum.INVALID_ADDRESS)
+        }
+
+        const inputs = []
+        const transaction = new Transaction()
+        const senderAddress = new Address(sender)
+        const satoshiToSend = Coin.toSatoshi(amount)
+
+        const utxos = await axios
+            .get(this.provider.createEndpoint('address/' + sender + '/utxo'))
+            .then((res) => res.data)
+
+        for (const utxo of utxos) {
+            inputs.push(
+                new Transaction.UnspentOutput({
+                    txId: utxo.txid,
+                    satoshis: utxo.value,
+                    address: senderAddress,
+                    outputIndex: utxo.vout,
+                    script: Script.fromAddress(senderAddress)
+                })
+            )
+        }
+
+        transaction.from(inputs)
+        transaction.change(sender)
+        transaction.to(receiver, satoshiToSend)
+
+        return new CoinTransactionSigner(transaction)
     }
 }

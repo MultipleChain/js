@@ -1,20 +1,23 @@
+import axios from 'axios'
+import type { AxiosError } from 'axios'
 import { Provider } from '../services/Provider.ts'
 import { Transaction } from '../models/Transaction.ts'
 import { NftTransaction } from '../models/NftTransaction.ts'
 import { CoinTransaction } from '../models/CoinTransaction.ts'
 import { TokenTransaction } from '../models/TokenTransaction.ts'
-import type { TransactionSignerInterface } from '@multiplechain/types'
+import type { Transaction as TransactionData } from 'bitcore-lib'
+import { type TransactionSignerInterface } from '@multiplechain/types'
 
 export class TransactionSigner implements TransactionSignerInterface {
     /**
      * Transaction data from the blockchain network
      */
-    rawData: any
+    rawData: TransactionData
 
     /**
      * Signed transaction data
      */
-    signedData?: any
+    signedData?: string
 
     /**
      * Blockchain network provider
@@ -22,9 +25,9 @@ export class TransactionSigner implements TransactionSignerInterface {
     provider: Provider
 
     /**
-     * @param {any} rawData - Transaction data
+     * @param {TransactionData} rawData - Transaction data
      */
-    constructor(rawData: any, provider?: Provider) {
+    constructor(rawData: TransactionData, provider?: Provider) {
         this.rawData = rawData
         this.provider = provider ?? Provider.instance
     }
@@ -35,7 +38,9 @@ export class TransactionSigner implements TransactionSignerInterface {
      * @returns {Promise<TransactionSigner>} Signed transaction data
      */
     async sign(privateKey: string): Promise<TransactionSigner> {
-        return await Promise.resolve(this)
+        this.rawData.sign(privateKey)
+        this.signedData = this.rawData.serialize()
+        return this
     }
 
     /**
@@ -43,14 +48,23 @@ export class TransactionSigner implements TransactionSignerInterface {
      * @returns {Promise<Transaction>}
      */
     async send(): Promise<Transaction> {
-        return await Promise.resolve(new Transaction('example'))
+        try {
+            const result = await axios({
+                method: 'POST',
+                url: `https://blockstream.info/testnet/api/tx`,
+                data: this.signedData
+            })
+            return new Transaction(result.data.txid as string)
+        } catch (error: any) {
+            throw new Error(JSON.stringify((error as AxiosError).response?.data))
+        }
     }
 
     /**
      * Get the raw transaction data
      * @returns Transaction data
      */
-    getRawData(): any {
+    getRawData(): TransactionData {
         return this.rawData
     }
 
@@ -58,8 +72,8 @@ export class TransactionSigner implements TransactionSignerInterface {
      * Get the signed transaction data
      * @returns Signed transaction data
      */
-    getSignedData(): any {
-        return this.signedData
+    getSignedData(): string {
+        return this.signedData ?? ''
     }
 }
 

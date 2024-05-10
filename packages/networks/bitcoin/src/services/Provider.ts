@@ -1,3 +1,4 @@
+import axios from 'axios'
 import { checkWebSocket } from '@multiplechain/utils'
 import { ErrorTypeEnum, type ProviderInterface } from '@multiplechain/types'
 
@@ -74,10 +75,10 @@ export class Provider implements Omit<ProviderInterface, 'update'> {
      */
     async checkRpcConnection(url?: string): Promise<boolean | Error> {
         try {
-            const response = await fetch(url ?? this.api + 'block-height/0')
+            const response = await axios.get(url ?? this.api + 'block-height/0')
 
-            if (!response.ok) {
-                return new Error(response.statusText + ': ' + (await response.text()))
+            if (response.status !== 200) {
+                return new Error(response.statusText + ': ' + JSON.stringify(response.data))
             }
 
             return true
@@ -129,6 +130,15 @@ export class Provider implements Omit<ProviderInterface, 'update'> {
                 this.wsUrl = 'wss://ws.blockchain.info/inv'
             }
         }
+    }
+
+    /**
+     * Create a new endpoint
+     * @param {string} endpoint - Endpoint
+     * @returns {string} Endpoint
+     */
+    createEndpoint(endpoint: string): string {
+        return this.api + endpoint
     }
 
     /**
