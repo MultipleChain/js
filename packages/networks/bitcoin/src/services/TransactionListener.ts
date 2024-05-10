@@ -121,7 +121,7 @@ export class TransactionListener<T extends TransactionTypeEnum>
      * @returns {void}
      */
     contractProcess(): void {
-        // Contract transaction process
+        throw new Error('This method is not implemented for Bitcoin.')
     }
 
     /**
@@ -137,7 +137,7 @@ export class TransactionListener<T extends TransactionTypeEnum>
      * @returns {void}
      */
     tokenProcess(): void {
-        // Token transaction process
+        throw new Error('This method is not implemented for Bitcoin.')
     }
 
     /**
@@ -145,6 +145,6 @@ export class TransactionListener<T extends TransactionTypeEnum>
      * @returns {void}
      */
     nftProcess(): void {
-        // NFT transaction process
+        throw new Error('This method is not implemented for Bitcoin.')
     }
 }

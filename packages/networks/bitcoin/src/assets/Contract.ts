@@ -19,6 +19,7 @@ export class Contract implements ContractInterface {
     constructor(address: string, provider?: Provider) {
         this.address = address
         this.provider = provider ?? Provider.instance
+        throw new Error('This class is not implemented for Bitcoin.')
     }
 
     /**
