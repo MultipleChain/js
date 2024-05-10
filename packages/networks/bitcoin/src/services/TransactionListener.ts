@@ -291,8 +291,6 @@ export class TransactionListener<T extends TransactionTypeEnum>
 
             const values = this.getValues(data)
 
-            console.log(values)
-
             if (sender !== undefined) {
                 expectedParams.sender = sender.toLowerCase()
                 receivedParams.sender = values.sender?.toLowerCase()
