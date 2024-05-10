@@ -5,8 +5,15 @@ import { Transaction } from '../models/Transaction.ts'
 import { NftTransaction } from '../models/NftTransaction.ts'
 import { CoinTransaction } from '../models/CoinTransaction.ts'
 import { TokenTransaction } from '../models/TokenTransaction.ts'
-import type { Transaction as TransactionData } from 'bitcore-lib'
 import { type TransactionSignerInterface } from '@multiplechain/types'
+import type { Transaction as BitcoreLibTransactionData } from 'bitcore-lib'
+
+export interface TransactionData {
+    sender: string
+    receiver: string
+    amount: number
+    bitcoreLib: BitcoreLibTransactionData
+}
 
 export class TransactionSigner implements TransactionSignerInterface {
     /**
@@ -38,8 +45,8 @@ export class TransactionSigner implements TransactionSignerInterface {
      * @returns {Promise<TransactionSigner>} Signed transaction data
      */
     async sign(privateKey: string): Promise<TransactionSigner> {
-        this.rawData.sign(privateKey)
-        this.signedData = this.rawData.serialize()
+        this.rawData.bitcoreLib.sign(privateKey)
+        this.signedData = this.rawData.bitcoreLib.serialize()
         return this
     }
 

@@ -99,6 +99,11 @@ export class Coin implements CoinInterface {
         transaction.change(sender)
         transaction.to(receiver, satoshiToSend)
 
-        return new CoinTransactionSigner(transaction)
+        return new CoinTransactionSigner({
+            sender,
+            receiver,
+            amount: satoshiToSend,
+            bitcoreLib: transaction
+        })
     }
 }

@@ -188,9 +188,6 @@
             <span>Deep link: </span> <span class="deep-link"></span>
         </div>
         <div class="info">
-            <span>Chain id: </span> <span class="chain-id"></span>
-        </div>
-        <div class="info">
             <span>Connected address: </span> <span class="connected-address"></span>
         </div>
         <button class="action-btn sign-message">
@@ -205,12 +202,6 @@
         <div class="action-result">
             <span>Result:</span> <span class="send-coin"></span>
         </div>
-        <button class="action-btn send-token">
-            Send Token
-        </button>
-        <div class="action-result">
-            <span>Result:</span> <span class="send-token"></span>
-        </div>
     </div>
 
     <script type="module">
@@ -219,7 +210,7 @@
         window.Bitcoin = Bitcoin
 
         const provider = new Bitcoin.Provider({
-            // options
+            testnet: true
         });
 
         window.adapters = {}
@@ -242,7 +233,6 @@
             document.querySelector('.platforms').innerText = wallet.getPlatforms().join(', ')
             document.querySelector('.download-link').innerText = wallet.getDownloadLink()
             document.querySelector('.deep-link').innerText = wallet.createDeepLink('https://google.com')
-            document.querySelector('.chain-id').innerText = await wallet.getChainId()
             document.querySelector('.connected-address').innerText = sender
 
             document.querySelector('.action-result .sign-message').innerText = ''
@@ -251,8 +241,7 @@
                 document.querySelector('.action-result .sign-message').innerText = result
             }
 
-            const receiver = '0xbBa4d06D1cEf94b35aDeCfDa893523907fdD36DE';
-            const tokenAddress = '0x4294cb0dD25dC9140B5127f247cBd47Eeb673431';
+            const receiver = 'tb1q9uxj8p043sjkm0qzlsys7677mv98j76k8cvgtg';
 
             document.querySelector('.action-result .send-coin').innerText = ''
             document.querySelector('.action-btn.send-coin').onclick = async () => {
@@ -260,14 +249,6 @@
                 const signer = await coin.transfer(sender, receiver, 0.00001)
                 const result = await wallet.sendTransaction(signer)
                 document.querySelector('.action-result .send-coin').innerText = result
-            }
-
-            document.querySelector('.action-result .send-token').innerText = ''
-            document.querySelector('.action-btn.send-token').onclick = async () => {
-                const token = new Bitcoin.assets.Token(tokenAddress);
-                const signer = await token.transfer(sender, receiver, 0.1)
-                const result = await wallet.sendTransaction(signer)
-                document.querySelector('.action-result .send-token').innerText = result
             }
         }
 

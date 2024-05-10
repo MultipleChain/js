@@ -1,16 +1,39 @@
-import type {
-    WalletInterface,
-    WalletAdapterInterface,
-    WalletPlatformEnum,
-    TransactionSignerInterface,
-    ProviderInterface
+import {
+    type WalletInterface,
+    type WalletAdapterInterface,
+    type WalletPlatformEnum,
+    type TransactionSignerInterface,
+    type ProviderInterface,
+    ErrorTypeEnum
 } from '@multiplechain/types'
 import { Provider } from '../services/Provider.ts'
+import type { TransactionData } from '../services/TransactionSigner.ts'
+
+export interface BitcoinWalletAdapter {
+    getAddress: () => Promise<string>
+    signMessage: (message: string) => Promise<string>
+    sendBitcoin: (to: string, amount: number) => Promise<string>
+    on: (event: string, callback: (data: any) => void) => void
+}
+
+const rejectMap = (error: any, reject: (a: any) => any): any => {
+    console.error('MultipleChain Bitcoin Wallet Error:', error)
+
+    if (typeof error === 'object') {
+        if (error.code === 4001 || String(error.message).includes('User rejected the request')) {
+            return reject(ErrorTypeEnum.WALLET_REQUEST_REJECTED)
+        } else if (String(error).includes('is not valid JSON')) {
+            return reject(ErrorTypeEnum.UNACCEPTED_CHAIN)
+        }
+    }
+
+    return reject(error)
+}
 
 export class Wallet implements WalletInterface {
     adapter: WalletAdapterInterface
 
-    walletProvider: object
+    walletProvider: BitcoinWalletAdapter
 
     networkProvider: Provider
 
@@ -77,8 +100,24 @@ export class Wallet implements WalletInterface {
      * @returns {Promise<string>}
      */
     async connect(provider?: ProviderInterface, ops?: object): Promise<string> {
-        await this.adapter.connect()
-        return 'wallet address'
+        return await new Promise((resolve, reject) => {
+            this.adapter
+                .connect(provider, ops)
+                .then(async (provider) => {
+                    this.walletProvider = provider as BitcoinWalletAdapter
+                    resolve(await this.getAddress())
+                })
+                .catch((error) => {
+                    const customReject = (error: any): void => {
+                        if (error.message === ErrorTypeEnum.WALLET_REQUEST_REJECTED) {
+                            reject(new Error(ErrorTypeEnum.WALLET_CONNECT_REJECTED))
+                        } else {
+                            reject(error)
+                        }
+                    }
+                    rejectMap(error, customReject)
+                })
+        })
     }
 
     /**
@@ -99,14 +138,14 @@ export class Wallet implements WalletInterface {
      * @returns {Promise<string>}
      */
     async getAddress(): Promise<string> {
-        return 'wallet address'
+        return await this.walletProvider.getAddress()
     }
 
     /**
      * @param {string} message
      */
     async signMessage(message: string): Promise<string> {
-        return 'signed message'
+        return await this.walletProvider.signMessage(message)
     }
 
     /**
@@ -114,7 +153,8 @@ export class Wallet implements WalletInterface {
      * @returns {Promise<string>}
      */
     async sendTransaction(transactionSigner: TransactionSignerInterface): Promise<string> {
-        return 'transaction hash'
+        const data = (await transactionSigner.getRawData()) as TransactionData
+        return await this.walletProvider.sendBitcoin(data.receiver, data.amount)
     }
 
     /**
@@ -123,6 +163,6 @@ export class Wallet implements WalletInterface {
      * @returns {void}
      */
     on(eventName: string, callback: (...args: any[]) => void): void {
-        'wallet events'
+        this.walletProvider.on(eventName, callback)
     }
 }
