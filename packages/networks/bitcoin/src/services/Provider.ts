@@ -1,14 +1,36 @@
-import {
-    ErrorTypeEnum,
-    type NetworkConfigInterface,
-    type ProviderInterface
-} from '@multiplechain/types'
+import { checkWebSocket } from '@multiplechain/utils'
+import { ErrorTypeEnum, type ProviderInterface } from '@multiplechain/types'
 
-export class Provider implements ProviderInterface {
+export interface BitcoinNetworkConfigInterface {
+    testnet: boolean
+    blockCypherToken?: string
+}
+
+export class Provider implements Omit<ProviderInterface, 'update'> {
     /**
      * Network configuration of the provider
      */
-    network: NetworkConfigInterface
+    network: BitcoinNetworkConfigInterface
+
+    /**
+     * API URL
+     */
+    api: string
+
+    /**
+     * Explorer URL
+     */
+    explorer: string
+
+    /**
+     * Websocket URL
+     */
+    wsUrl: string
+
+    /**
+     * BlockCypher token
+     */
+    blockCypherToken?: string
 
     /**
      * Static instance of the provider
@@ -18,8 +40,8 @@ export class Provider implements ProviderInterface {
     /**
      * @param network - Network configuration of the provider
      */
-    constructor(network: NetworkConfigInterface) {
-        this.network = network
+    constructor(network: BitcoinNetworkConfigInterface) {
+        this.update(network)
     }
 
     /**
@@ -35,10 +57,10 @@ export class Provider implements ProviderInterface {
 
     /**
      * Initialize the static instance of the provider
-     * @param {NetworkConfigInterface} network - Network configuration of the provider
+     * @param {BitcoinNetworkConfigInterface} network - Network configuration of the provider
      * @returns {void}
      */
-    static initialize(network: NetworkConfigInterface): void {
+    static initialize(network: BitcoinNetworkConfigInterface): void {
         if (Provider._instance !== undefined) {
             throw new Error(ErrorTypeEnum.PROVIDER_IS_ALREADY_INITIALIZED)
         }
@@ -51,7 +73,17 @@ export class Provider implements ProviderInterface {
      * @returns {Promise<boolean | Error>}
      */
     async checkRpcConnection(url?: string): Promise<boolean | Error> {
-        return true
+        try {
+            const response = await fetch(url ?? this.api + 'block-height/0')
+
+            if (!response.ok) {
+                return new Error(response.statusText + ': ' + (await response.text()))
+            }
+
+            return true
+        } catch (error) {
+            return error as Error
+        }
     }
 
     /**
@@ -60,15 +92,43 @@ export class Provider implements ProviderInterface {
      * @returns {Promise<boolean | Error>}
      */
     async checkWsConnection(url?: string): Promise<boolean | Error> {
-        return true
+        try {
+            const result: any = await checkWebSocket(url ?? this.wsUrl)
+
+            if (result instanceof Error) {
+                return result
+            }
+
+            return true
+        } catch (error) {
+            return error as Error
+        }
     }
 
     /**
      * Update network configuration of the provider
      * @param network - Network configuration of the provider
      */
-    update(network: NetworkConfigInterface): void {
+    update(network: BitcoinNetworkConfigInterface): void {
         this.network = network
+        Provider._instance = this
+        this.blockCypherToken = this.network.blockCypherToken
+        if (this.network.testnet) {
+            this.api = 'https://blockstream.info/testnet/api/'
+            this.explorer = 'https://blockstream.info/testnet/'
+            const token = this.network.blockCypherToken ?? '49d43a59a4f24d31a9731eb067ab971c'
+            this.wsUrl = 'wss://socket.blockcypher.com/v1/btc/test3?token=' + token
+        } else {
+            this.api = 'https://blockstream.info/api/'
+            this.explorer = 'https://blockstream.info/'
+            if (this.network.blockCypherToken !== undefined) {
+                this.wsUrl =
+                    'wss://socket.blockcypher.com/v1/btc/main?token=' +
+                    this.network.blockCypherToken
+            } else {
+                this.wsUrl = 'wss://ws.blockchain.info/inv'
+            }
+        }
     }
 
     /**

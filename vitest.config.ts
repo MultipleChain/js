@@ -24,6 +24,7 @@ export default mergeConfig(
             root: fileURLToPath(new URL('./', import.meta.url)),
             setupFiles: [
                 './packages/networks/evm-chains/tests/setup.ts',
+                './packages/networks/bitcoin/tests/setup.ts',
                 './packages/networks/tron/tests/setup.ts'
             ]
         }
