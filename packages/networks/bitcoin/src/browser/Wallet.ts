@@ -5,7 +5,7 @@ import type {
     TransactionSignerInterface,
     ProviderInterface
 } from '@multiplechain/types'
-import { Provider } from '../services/Provider'
+import { Provider } from '../services/Provider.ts'
 
 export class Wallet implements WalletInterface {
     adapter: WalletAdapterInterface
