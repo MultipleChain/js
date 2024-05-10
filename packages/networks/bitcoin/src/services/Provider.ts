@@ -34,6 +34,11 @@ export class Provider implements Omit<ProviderInterface, 'update'> {
     blockCypherToken?: string
 
     /**
+     * Default BlockCypher token
+     */
+    defaultBlockCypherToken = '49d43a59a4f24d31a9731eb067ab971c'
+
+    /**
      * Static instance of the provider
      */
     private static _instance: Provider
@@ -117,7 +122,7 @@ export class Provider implements Omit<ProviderInterface, 'update'> {
         if (this.network.testnet) {
             this.api = 'https://blockstream.info/testnet/api/'
             this.explorer = 'https://blockstream.info/testnet/'
-            const token = this.network.blockCypherToken ?? '49d43a59a4f24d31a9731eb067ab971c'
+            const token = this.network.blockCypherToken ?? this.defaultBlockCypherToken
             this.wsUrl = 'wss://socket.blockcypher.com/v1/btc/test3?token=' + token
         } else {
             this.api = 'https://blockstream.info/api/'

@@ -65,7 +65,8 @@
         "@multiplechain/types": "^0.1.55",
         "@multiplechain/utils": "^0.1.18",
         "axios": "^1.6.8",
-        "bitcore-lib": "^10.0.28"
+        "bitcore-lib": "^10.0.28",
+        "ws": "^8.17.0"
     },
     "devDependencies": {
         "@types/bitcore-lib": "^0.15.6"
