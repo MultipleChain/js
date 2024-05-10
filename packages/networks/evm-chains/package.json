@@ -73,6 +73,7 @@
         "@web3modal/core": "^4.1.11",
         "@web3modal/ethers": "^4.1.11",
         "@web3modal/scaffold-utils": "^4.1.11",
+        "axios": "^1.6.8",
         "ethers": "^6.11.1"
     }
 }
