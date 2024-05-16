@@ -31,6 +31,7 @@ export default mergeConfig(
             setupFiles: [
                 './packages/networks/evm-chains/tests/setup.ts',
                 './packages/networks/bitcoin/tests/setup.ts',
+                './packages/networks/solana/tests/setup.ts',
                 './packages/networks/tron/tests/setup.ts'
             ]
         }

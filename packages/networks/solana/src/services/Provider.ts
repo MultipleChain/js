@@ -1,8 +1,21 @@
+import axios from 'axios'
 import {
     ErrorTypeEnum,
     type NetworkConfigInterface,
     type ProviderInterface
 } from '@multiplechain/types'
+import { Connection } from '@solana/web3.js'
+import { checkWebSocket } from '@multiplechain/utils'
+
+export interface SolanaNodeInfoInterface {
+    node: string
+    name: string
+    wsUrl?: string
+    rpcUrl: string
+    explorerUrl: string
+}
+
+export type SolanaNodeInfoListInterface = Record<string, SolanaNodeInfoInterface>
 
 export class Provider implements ProviderInterface {
     /**
@@ -11,9 +24,34 @@ export class Provider implements ProviderInterface {
     network: NetworkConfigInterface
 
     /**
+     * Node list
+     */
+    nodes: SolanaNodeInfoListInterface = {
+        mainnet: {
+            node: 'mainnet-beta',
+            name: 'Mainnet',
+            rpcUrl: 'https://api.mainnet-beta.solana.com/',
+            explorerUrl: 'https://solscan.io/'
+        },
+        devnet: {
+            node: 'devnet',
+            name: 'Devnet',
+            rpcUrl: 'https://api.devnet.solana.com',
+            explorerUrl: 'https://solscan.io/'
+        }
+    }
+
+    /**
+     * Node information
+     */
+    node: SolanaNodeInfoInterface
+
+    /**
      * Static instance of the provider
      */
     private static _instance: Provider
+
+    web3: Connection
 
     /**
      * @param network - Network configuration of the provider
@@ -51,7 +89,21 @@ export class Provider implements ProviderInterface {
      * @returns {Promise<boolean | Error>}
      */
     async checkRpcConnection(url?: string): Promise<boolean | Error> {
-        return true
+        try {
+            const response = await axios.post(url ?? this.node.rpcUrl, {
+                jsonrpc: '2.0',
+                id: 1,
+                method: 'getEpochInfo'
+            })
+
+            if (response.status !== 200) {
+                return new Error(response.statusText + ': ' + JSON.stringify(response.data))
+            }
+
+            return true
+        } catch (error) {
+            return error as any
+        }
     }
 
     /**
@@ -60,7 +112,17 @@ export class Provider implements ProviderInterface {
      * @returns {Promise<boolean | Error>}
      */
     async checkWsConnection(url?: string): Promise<boolean | Error> {
-        return true
+        try {
+            const result: any = await checkWebSocket(url ?? this.node.wsUrl ?? '')
+
+            if (result instanceof Error) {
+                return result
+            }
+
+            return true
+        } catch (error) {
+            return error as Error
+        }
     }
 
     /**
@@ -70,6 +132,10 @@ export class Provider implements ProviderInterface {
     update(network: NetworkConfigInterface): void {
         this.network = network
         Provider._instance = this
+        this.node = this.nodes[network.testnet ?? false ? 'devnet' : 'mainnet']
+        this.node.rpcUrl = this.network.rpcUrl ?? this.node.rpcUrl
+        this.node.wsUrl = this.network.wsUrl ?? this.node.wsUrl
+        this.web3 = new Connection(this.node.rpcUrl, 'recent')
     }
 
     /**

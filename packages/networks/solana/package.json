@@ -62,7 +62,11 @@
         "url": "https://github.com/MultipleChain/js/issues"
     },
     "dependencies": {
+        "@metaplex-foundation/js": "^0.20.1",
         "@multiplechain/types": "^0.1.55",
-        "@multiplechain/utils": "^0.1.18"
+        "@multiplechain/utils": "^0.1.18",
+        "@solana/spl-token": "^0.4.6",
+        "@solana/web3.js": "^1.91.8",
+        "axios": "^1.6.8"
     }
 }
