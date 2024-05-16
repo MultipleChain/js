@@ -101,7 +101,7 @@ export class Provider implements Omit<ProviderInterface, 'update'> {
      */
     async checkWsConnection(url?: string): Promise<boolean | Error> {
         try {
-            const result: any = await checkWebSocket(url ?? this.network.rpcUrl)
+            const result: any = await checkWebSocket(url ?? this.network.wsUrl ?? '')
 
             if (result instanceof Error) {
                 return result
