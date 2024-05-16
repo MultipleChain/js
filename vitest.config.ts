@@ -14,6 +14,12 @@ export default mergeConfig(
                     '**/types/**',
                     '**/browser/**',
                     '**/index.ts/**',
+                    '**/bitcoin/src/assets/NFT.ts',
+                    '**/bitcoin/src/assets/Token.ts',
+                    '**/bitcoin/src/assets/Contract.ts',
+                    '**/bitcoin/src/models/NftTransaction.ts',
+                    '**/bitcoin/src/models/TokenTransaction.ts',
+                    '**/bitcoin/src/models/ContractTransaction.ts',
                     '**/tron/src/services/TransactionListener.ts'
                 ]
             },
