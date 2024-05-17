@@ -1,5 +1,5 @@
-import axios from 'axios'
-import { fromSatoshi } from '../utils.ts'
+import { fromSatoshi, sleep } from '../utils.ts'
+import axios, { type AxiosError } from 'axios'
 import { Provider } from '../services/Provider.ts'
 import type { TransactionInterface } from '@multiplechain/types'
 import { ErrorTypeEnum, TransactionStatusEnum } from '@multiplechain/types'
@@ -46,6 +46,8 @@ export interface TransactionData {
     }
 }
 
+let counter = 0
+
 export class Transaction implements TransactionInterface {
     /**
      * Each transaction has its own unique ID defined by the user
@@ -87,6 +89,16 @@ export class Transaction implements TransactionInterface {
 
             return (this.data = data as TransactionData)
         } catch (error) {
+            const axiosError = error as AxiosError
+            // Returns empty data when the transaction is first created. For this reason, it would be better to check it intermittently and give an error if it still does not exist. Average 10 seconds.
+            if (String(axiosError?.response?.data).includes('Transaction not found')) {
+                if (counter > 5) {
+                    throw new Error('Transaction not found')
+                }
+                counter++
+                await sleep(2000)
+                return await this.getData()
+            }
             throw new Error(ErrorTypeEnum.RPC_REQUEST_ERROR)
         }
     }
