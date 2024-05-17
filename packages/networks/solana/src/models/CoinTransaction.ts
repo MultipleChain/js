@@ -6,6 +6,15 @@ import { AssetDirectionEnum, type CoinTransactionInterface } from '@multiplechai
 
 export class CoinTransaction extends Transaction implements CoinTransactionInterface {
     /**
+     * @returns {Promise<ParsedInstruction>} Wallet address of the receiver of transaction
+     */
+    findTransferInstruction(data: any): ParsedInstruction {
+        return data.transaction.message.instructions.find((instruction: any): boolean => {
+            return instruction.parsed !== undefined && instruction.parsed.type === 'transfer'
+        }) as ParsedInstruction
+    }
+
+    /**
      * @returns {Promise<string>} Wallet address of the receiver of transaction
      */
     async getReceiver(): Promise<string> {
@@ -14,9 +23,7 @@ export class CoinTransaction extends Transaction implements CoinTransactionInter
             return ''
         }
 
-        const instruction = data.transaction.message.instructions[2] as ParsedInstruction
-
-        return instruction.parsed.info.destination
+        return this.findTransferInstruction(data).parsed.info.destination
     }
 
     /**
@@ -28,9 +35,7 @@ export class CoinTransaction extends Transaction implements CoinTransactionInter
             return ''
         }
 
-        const instruction = data.transaction.message.instructions[2] as ParsedInstruction
-
-        return instruction.parsed.info.source
+        return this.findTransferInstruction(data).parsed.info.source
     }
 
     /**
@@ -42,9 +47,7 @@ export class CoinTransaction extends Transaction implements CoinTransactionInter
             return 0
         }
 
-        const instruction = data.transaction.message.instructions[2] as ParsedInstruction
-
-        return math.div(instruction.parsed.info.lamports as number, 10 ** 9)
+        return math.div(this.findTransferInstruction(data).parsed.info.lamports as number, 10 ** 9)
     }
 
     /**
