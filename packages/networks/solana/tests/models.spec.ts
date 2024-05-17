@@ -61,3 +61,29 @@ describe('Transaction', () => {
         expect(await tx.getStatus()).toBe(TransactionStatusEnum.CONFIRMED)
     })
 })
+
+describe('Coin Transaction', () => {
+    const tx = new CoinTransaction(solTransferTx)
+
+    it('Receiver', async () => {
+        expect((await tx.getReceiver()).toLowerCase()).toBe(receiver.toLowerCase())
+    })
+
+    it('Amount', async () => {
+        expect(await tx.getAmount()).toBe(coinAmount)
+    })
+
+    it('Verify Transfer', async () => {
+        expect(await tx.verifyTransfer(AssetDirectionEnum.INCOMING, receiver, coinAmount)).toBe(
+            TransactionStatusEnum.CONFIRMED
+        )
+
+        expect(await tx.verifyTransfer(AssetDirectionEnum.OUTGOING, sender, coinAmount)).toBe(
+            TransactionStatusEnum.CONFIRMED
+        )
+
+        expect(await tx.verifyTransfer(AssetDirectionEnum.OUTGOING, receiver, coinAmount)).toBe(
+            TransactionStatusEnum.FAILED
+        )
+    })
+})
