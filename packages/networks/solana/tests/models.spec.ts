@@ -145,3 +145,37 @@ describe('Token Transaction', () => {
         )
     })
 })
+
+describe('NFT Transaction', () => {
+    const tx = new NftTransaction(nftTransferTx)
+
+    it('Receiver', async () => {
+        expect((await tx.getReceiver()).toLowerCase()).toBe(receiver.toLowerCase())
+    })
+
+    it('Signer', async () => {
+        expect((await tx.getSigner()).toLowerCase()).toBe(sender.toLowerCase())
+    })
+
+    it('Sender', async () => {
+        expect((await tx.getSender()).toLowerCase()).toBe(sender.toLowerCase())
+    })
+
+    it('NFT ID', async () => {
+        expect(await tx.getNftId()).toBe(nftId)
+    })
+
+    it('Verify Transfer', async () => {
+        expect(await tx.verifyTransfer(AssetDirectionEnum.INCOMING, receiver, nftId)).toBe(
+            TransactionStatusEnum.CONFIRMED
+        )
+
+        expect(await tx.verifyTransfer(AssetDirectionEnum.OUTGOING, sender, nftId)).toBe(
+            TransactionStatusEnum.CONFIRMED
+        )
+
+        expect(await tx.verifyTransfer(AssetDirectionEnum.OUTGOING, receiver, nftId)).toBe(
+            TransactionStatusEnum.FAILED
+        )
+    })
+})
