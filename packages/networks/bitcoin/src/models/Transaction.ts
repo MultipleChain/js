@@ -74,7 +74,7 @@ export class Transaction implements TransactionInterface {
     }
 
     /**
-     * @returns {Promise<object | null>} Transaction data
+     * @returns {Promise<TransactionData | null>} Transaction data
      */
     async getData(): Promise<TransactionData | null> {
         if (this.data !== null) {
@@ -84,7 +84,7 @@ export class Transaction implements TransactionInterface {
             const data = (await axios.get(this.provider.createEndpoint('tx/' + this.id))).data
 
             if (data?.txid !== this.id) {
-                this.data = null
+                return (this.data = null)
             }
 
             return (this.data = data as TransactionData)
