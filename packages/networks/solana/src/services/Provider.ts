@@ -8,8 +8,8 @@ import { Connection } from '@solana/web3.js'
 import { checkWebSocket } from '@multiplechain/utils'
 
 export interface SolanaNodeInfoInterface {
-    node: string
     name: string
+    cluster: string
     wsUrl?: string
     rpcUrl: string
     explorerUrl: string
@@ -28,15 +28,15 @@ export class Provider implements ProviderInterface {
      */
     nodes: SolanaNodeInfoListInterface = {
         mainnet: {
-            node: 'mainnet-beta',
             name: 'Mainnet',
+            cluster: 'mainnet-beta',
             rpcUrl: 'https://api.mainnet-beta.solana.com/',
             explorerUrl: 'https://solscan.io/'
         },
         devnet: {
-            node: 'devnet',
             name: 'Devnet',
-            rpcUrl: 'https://api.devnet.solana.com',
+            cluster: 'devnet',
+            rpcUrl: 'https://api.devnet.solana.com/',
             explorerUrl: 'https://solscan.io/'
         }
     }

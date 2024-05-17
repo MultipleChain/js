@@ -1,6 +1,8 @@
+import { math } from '@multiplechain/utils'
 import { Provider } from '../services/Provider.ts'
 import type { TransactionInterface } from '@multiplechain/types'
-import { TransactionStatusEnum } from '@multiplechain/types'
+import type { ParsedTransactionWithMeta } from '@solana/web3.js'
+import { ErrorTypeEnum, TransactionStatusEnum } from '@multiplechain/types'
 
 export class Transaction implements TransactionInterface {
     /**
@@ -12,6 +14,8 @@ export class Transaction implements TransactionInterface {
      * Blockchain network provider
      */
     provider: Provider
+
+    data: ParsedTransactionWithMeta | null = null
 
     /**
      * @param {string} id Transaction id
@@ -25,15 +29,57 @@ export class Transaction implements TransactionInterface {
     /**
      * @returns {Promise<object | null>} Transaction data
      */
-    async getData(): Promise<object | null> {
-        return {}
+    async getData(): Promise<ParsedTransactionWithMeta | null> {
+        if (this.data !== null) {
+            return this.data
+        }
+        try {
+            const data = await this.provider.web3.getParsedTransaction(this.id, {
+                commitment: 'confirmed'
+            })
+
+            if (data === null) {
+                return null
+            }
+
+            return (this.data = data)
+        } catch (error) {
+            throw new Error(ErrorTypeEnum.RPC_REQUEST_ERROR)
+        }
     }
 
     /**
-     * @returns {Promise<TransactionStatusEnum>} Wait for the transaction to be confirmed
+     * @param {number} ms - Milliseconds to wait for the transaction to be confirmed. Default is 4000ms
+     * @returns {Promise<TransactionStatusEnum>} Status of the transaction
      */
-    async wait(): Promise<TransactionStatusEnum> {
-        return await Promise.resolve(TransactionStatusEnum.CONFIRMED)
+    async wait(ms: number = 4000): Promise<TransactionStatusEnum> {
+        return await new Promise((resolve, reject) => {
+            const check = async (): Promise<void> => {
+                try {
+                    let status = await this.getStatus()
+                    if (status === TransactionStatusEnum.PENDING) {
+                        const latestBlockHash = await this.provider.web3.getLatestBlockhash()
+                        await this.provider.web3.confirmTransaction({
+                            signature: this.id,
+                            blockhash: latestBlockHash.blockhash,
+                            lastValidBlockHeight: latestBlockHash.lastValidBlockHeight
+                        })
+                        status = await this.getStatus()
+                    }
+                    if (status === TransactionStatusEnum.CONFIRMED) {
+                        resolve(TransactionStatusEnum.CONFIRMED)
+                        return
+                    } else if (status === TransactionStatusEnum.FAILED) {
+                        reject(TransactionStatusEnum.FAILED)
+                        return
+                    }
+                    setTimeout(check, ms)
+                } catch (error) {
+                    reject(TransactionStatusEnum.FAILED)
+                }
+            }
+            void check()
+        })
     }
 
     /**
@@ -47,48 +93,65 @@ export class Transaction implements TransactionInterface {
      * @returns {string} Transaction URL
      */
     getUrl(): string {
-        return 'example'
+        const node = this.provider.node
+        let transactionUrl = this.provider.node.explorerUrl + 'tx/' + this.id
+        transactionUrl += node.cluster !== 'mainnet-beta' ? '?cluster=' + node.cluster : ''
+        return transactionUrl
     }
 
     /**
      * @returns {Promise<string>} Wallet address of the sender of transaction
      */
     async getSigner(): Promise<string> {
-        return 'example'
+        const data = await this.getData()
+        return data?.transaction?.message?.accountKeys[0].pubkey.toBase58() ?? ''
     }
 
     /**
      * @returns {Promise<number>} Transaction fee
      */
     async getFee(): Promise<number> {
-        return 0
+        const data = await this.getData()
+        return math.div(data?.meta?.fee ?? 0, 10 ** 9)
     }
 
     /**
      * @returns {Promise<number>} Block number that transaction
      */
     async getBlockNumber(): Promise<number> {
-        return 0
+        const data = await this.getData()
+        return data?.slot ?? 0
     }
 
     /**
      * @returns {Promise<number>} Block timestamp that transaction
      */
     async getBlockTimestamp(): Promise<number> {
-        return 0
+        const data = await this.getData()
+        return data?.blockTime ?? 0
     }
 
     /**
      * @returns {Promise<number>} Confirmation count of the block
      */
     async getBlockConfirmationCount(): Promise<number> {
-        return 0
+        const data = await this.getData()
+        const currentSlot = await this.provider.web3.getSlot()
+        return currentSlot - (data?.slot ?? 0)
     }
 
     /**
      * @returns {Promise<TransactionStatusEnum>} Status of the transaction
      */
     async getStatus(): Promise<TransactionStatusEnum> {
-        return TransactionStatusEnum.CONFIRMED
+        const data = await this.getData()
+
+        if (data === null) {
+            return TransactionStatusEnum.PENDING
+        }
+
+        return data.meta?.err !== null
+            ? TransactionStatusEnum.FAILED
+            : TransactionStatusEnum.CONFIRMED
     }
 }
