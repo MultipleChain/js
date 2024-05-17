@@ -12,6 +12,7 @@ const coinAmount = Number(process.env.SOL_COIN_AMOUNT)
 
 const solTransferTx = String(process.env.SOL_TRANSFER_TX)
 const tokenTransferTx = String(process.env.SOL_TOKEN_TRANSFER_TX)
+const token2022TransferTx = String(process.env.SOL_TOKEN_2022_TRANSFER_TX)
 const nftTransferTx = String(process.env.SOL_NFT_TRANSFER_TX)
 
 const sender = String(process.env.SOL_MODEL_TEST_SENDER)
@@ -83,6 +84,63 @@ describe('Coin Transaction', () => {
         )
 
         expect(await tx.verifyTransfer(AssetDirectionEnum.OUTGOING, receiver, coinAmount)).toBe(
+            TransactionStatusEnum.FAILED
+        )
+    })
+})
+
+describe('Token Transaction', () => {
+    const tx = new TokenTransaction(tokenTransferTx)
+    const tx2022 = new TokenTransaction(token2022TransferTx)
+
+    it('Receiver', async () => {
+        expect((await tx.getReceiver()).toLowerCase()).toBe(receiver.toLowerCase())
+    })
+
+    it('Sender', async () => {
+        expect((await tx.getSender()).toLowerCase()).toBe(sender.toLowerCase())
+    })
+
+    it('Amount', async () => {
+        expect(await tx.getAmount()).toBe(tokenAmount)
+    })
+
+    it('Verify Transfer', async () => {
+        expect(await tx.verifyTransfer(AssetDirectionEnum.INCOMING, receiver, tokenAmount)).toBe(
+            TransactionStatusEnum.CONFIRMED
+        )
+
+        expect(await tx.verifyTransfer(AssetDirectionEnum.OUTGOING, sender, tokenAmount)).toBe(
+            TransactionStatusEnum.CONFIRMED
+        )
+
+        expect(await tx.verifyTransfer(AssetDirectionEnum.OUTGOING, receiver, tokenAmount)).toBe(
+            TransactionStatusEnum.FAILED
+        )
+    })
+
+    it('Receiver', async () => {
+        expect((await tx2022.getReceiver()).toLowerCase()).toBe(receiver.toLowerCase())
+    })
+
+    it('Sender', async () => {
+        expect((await tx2022.getSender()).toLowerCase()).toBe(sender.toLowerCase())
+    })
+
+    it('Amount', async () => {
+        expect(await tx2022.getAmount()).toBe(tokenAmount)
+    })
+
+    it('Verify Transfer', async () => {
+        expect(
+            await tx2022.verifyTransfer(AssetDirectionEnum.INCOMING, receiver, tokenAmount)
+        ).toBe(TransactionStatusEnum.CONFIRMED)
+
+        expect(await tx2022.verifyTransfer(AssetDirectionEnum.OUTGOING, sender, tokenAmount)).toBe(
+            TransactionStatusEnum.CONFIRMED
+        )
+
+        expect(await tx.verifyTransfer(AssetDirectionEnum.OUTGOING, receiver, tokenAmount)).toBe(
             TransactionStatusEnum.FAILED
         )
     })
