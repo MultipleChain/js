@@ -291,27 +291,6 @@ export class Token extends Contract implements TokenInterface {
             programId
         )
 
-        const spenderAccount = getAssociatedTokenAddressSync(
-            this.pubKey,
-            spenderPubKey,
-            false,
-            programId
-        )
-
-        // If the receiver does not have an associated token account, create one
-        if ((await this.provider.web3.getAccountInfo(spenderAccount)) === null) {
-            transaction.add(
-                createAssociatedTokenAccountInstruction(
-                    ownerPubKey,
-                    spenderAccount,
-                    spenderPubKey,
-                    this.pubKey,
-                    programId,
-                    ASSOCIATED_TOKEN_PROGRAM_ID
-                )
-            )
-        }
-
         transaction.add(
             createApproveInstruction(
                 ownerAccount,

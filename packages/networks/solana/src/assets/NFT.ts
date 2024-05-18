@@ -238,27 +238,6 @@ export class NFT extends Contract implements NftInterface {
 
         const ownerAccount = getAssociatedTokenAddressSync(nftPubKey, ownerPubKey, false, programId)
 
-        const spenderAccount = getAssociatedTokenAddressSync(
-            nftPubKey,
-            spenderPubKey,
-            false,
-            programId
-        )
-
-        // If the receiver does not have an associated token account, create one
-        if ((await this.provider.web3.getAccountInfo(spenderAccount)) === null) {
-            transaction.add(
-                createAssociatedTokenAccountInstruction(
-                    ownerPubKey,
-                    spenderAccount,
-                    spenderPubKey,
-                    this.pubKey,
-                    programId,
-                    ASSOCIATED_TOKEN_PROGRAM_ID
-                )
-            )
-        }
-
         transaction.add(
             createApproveInstruction(ownerAccount, spenderPubKey, ownerPubKey, 1, [], programId)
         )
