@@ -7,6 +7,8 @@ import type {
 } from '@multiplechain/types'
 
 import { Provider } from './Provider.ts'
+import { Transaction } from '../models/Transaction.ts'
+import { PublicKey, type LogsFilter } from '@solana/web3.js'
 import { TransactionListenerProcessIndex } from '@multiplechain/types'
 
 export class TransactionListener<T extends TransactionTypeEnum>
@@ -38,6 +40,16 @@ export class TransactionListener<T extends TransactionTypeEnum>
     status: boolean = false
 
     /**
+     * Connected status
+     */
+    connected: boolean = false
+
+    /**
+     * Dynamic stop method
+     */
+    dynamicStop: () => void = () => {}
+
+    /**
      * Triggered transactions
      */
     triggeredTransactions: string[] = []
@@ -60,7 +72,7 @@ export class TransactionListener<T extends TransactionTypeEnum>
     stop(): void {
         if (this.status) {
             this.status = false
-            // stop the listener
+            this.dynamicStop()
         }
     }
 
@@ -90,7 +102,17 @@ export class TransactionListener<T extends TransactionTypeEnum>
      * @returns {Promise<boolean>}
      */
     async on(callback: TransactionListenerCallbackType): Promise<boolean> {
+        if (!this.connected) {
+            if ((await this.provider.checkWsConnection()) instanceof Error) {
+                throw new Error('WebSocket connection is not available')
+            } else {
+                this.connected = true
+            }
+        }
+
+        this.start()
         this.callbacks.push(callback)
+
         return true
     }
 
@@ -113,7 +135,23 @@ export class TransactionListener<T extends TransactionTypeEnum>
      * @returns {void}
      */
     generalProcess(): void {
-        // General transaction process
+        let parameter: LogsFilter = 'all'
+
+        if (this.filter?.signer !== undefined) {
+            parameter = new PublicKey(this.filter.signer)
+        }
+
+        const subscriptionId = this.provider.web3.onLogs(
+            parameter,
+            (logs) => {
+                this.trigger(new Transaction(logs.signature))
+            },
+            'recent'
+        )
+
+        this.dynamicStop = () => {
+            void this.provider.web3.removeOnLogsListener(subscriptionId)
+        }
     }
 
     /**
