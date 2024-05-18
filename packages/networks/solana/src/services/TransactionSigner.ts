@@ -1,20 +1,24 @@
 import { Provider } from '../services/Provider.ts'
+import { base58Decode } from '@multiplechain/utils'
 import { Transaction } from '../models/Transaction.ts'
 import { NftTransaction } from '../models/NftTransaction.ts'
 import { CoinTransaction } from '../models/CoinTransaction.ts'
 import { TokenTransaction } from '../models/TokenTransaction.ts'
 import type { TransactionSignerInterface } from '@multiplechain/types'
+import { Keypair, VersionedTransaction, Transaction as RawTransaction } from '@solana/web3.js'
+
+type SignedTransaction = Buffer | Uint8Array
 
 export class TransactionSigner implements TransactionSignerInterface {
     /**
      * Transaction data from the blockchain network
      */
-    rawData: any
+    rawData: RawTransaction
 
     /**
      * Signed transaction data
      */
-    signedData?: any
+    signedData: SignedTransaction
 
     /**
      * Blockchain network provider
@@ -22,9 +26,9 @@ export class TransactionSigner implements TransactionSignerInterface {
     provider: Provider
 
     /**
-     * @param {any} rawData - Transaction data
+     * @param {RawTransaction} rawData - Transaction data
      */
-    constructor(rawData: any, provider?: Provider) {
+    constructor(rawData: RawTransaction, provider?: Provider) {
         this.rawData = rawData
         this.provider = provider ?? Provider.instance
     }
@@ -35,7 +39,43 @@ export class TransactionSigner implements TransactionSignerInterface {
      * @returns {Promise<TransactionSigner>} Signed transaction data
      */
     async sign(privateKey: string): Promise<TransactionSigner> {
-        return await Promise.resolve(this)
+        this.rawData.recentBlockhash = (
+            await this.provider.web3.getLatestBlockhash('finalized')
+        ).blockhash
+
+        const serialized = this.rawData.serialize({
+            requireAllSignatures: false,
+            verifySignatures: true
+        })
+
+        const feePayer = Keypair.fromSecretKey(base58Decode(privateKey))
+        const transaction = this.getRawTransaction(serialized.toString('base64'))
+
+        if (transaction instanceof VersionedTransaction) {
+            transaction.sign([feePayer])
+        } else {
+            transaction.partialSign(feePayer)
+        }
+
+        this.signedData = transaction.serialize()
+
+        return this
+    }
+
+    /**
+     * Get the raw transaction data
+     * @returns Transaction data
+     */
+    private getRawTransaction(encodedTransaction: string): RawTransaction | VersionedTransaction {
+        let recoveredTransaction: RawTransaction | VersionedTransaction
+        try {
+            recoveredTransaction = RawTransaction.from(Buffer.from(encodedTransaction, 'base64'))
+        } catch (error) {
+            recoveredTransaction = VersionedTransaction.deserialize(
+                Buffer.from(encodedTransaction, 'base64')
+            )
+        }
+        return recoveredTransaction
     }
 
     /**
@@ -43,14 +83,14 @@ export class TransactionSigner implements TransactionSignerInterface {
      * @returns {Promise<Transaction>}
      */
     async send(): Promise<Transaction> {
-        return await Promise.resolve(new Transaction('example'))
+        return new Transaction(await this.provider.web3.sendRawTransaction(this.signedData))
     }
 
     /**
      * Get the raw transaction data
      * @returns Transaction data
      */
-    getRawData(): any {
+    getRawData(): RawTransaction {
         return this.rawData
     }
 
@@ -58,7 +98,7 @@ export class TransactionSigner implements TransactionSignerInterface {
      * Get the signed transaction data
      * @returns Signed transaction data
      */
-    getSignedData(): any {
+    getSignedData(): SignedTransaction {
         return this.signedData
     }
 }

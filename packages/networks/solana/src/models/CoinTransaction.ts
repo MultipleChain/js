@@ -1,4 +1,4 @@
-import { math } from '@multiplechain/utils'
+import { fromLamports } from '../utils.ts'
 import { Transaction } from './Transaction.ts'
 import type { ParsedInstruction } from '@solana/web3.js'
 import { TransactionStatusEnum } from '@multiplechain/types'
@@ -47,7 +47,7 @@ export class CoinTransaction extends Transaction implements CoinTransactionInter
             return 0
         }
 
-        return math.div(this.findTransferInstruction(data).parsed.info.lamports as number, 10 ** 9)
+        return fromLamports(this.findTransferInstruction(data).parsed.info.lamports as number)
     }
 
     /**

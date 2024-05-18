@@ -1,4 +1,4 @@
-import { math } from '@multiplechain/utils'
+import { fromLamports } from '../utils.ts'
 import { Provider } from '../services/Provider.ts'
 import type { TransactionInterface } from '@multiplechain/types'
 import type { ParsedTransactionWithMeta } from '@solana/web3.js'
@@ -112,7 +112,7 @@ export class Transaction implements TransactionInterface {
      */
     async getFee(): Promise<number> {
         const data = await this.getData()
-        return math.div(data?.meta?.fee ?? 0, 10 ** 9)
+        return fromLamports(data?.meta?.fee ?? 0)
     }
 
     /**

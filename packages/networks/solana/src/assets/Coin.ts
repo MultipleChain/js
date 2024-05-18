@@ -1,5 +1,7 @@
 import { Provider } from '../services/Provider.ts'
-import type { CoinInterface } from '@multiplechain/types'
+import { fromLamports, toLamports } from '../utils.ts'
+import { PublicKey, SystemProgram, Transaction } from '@solana/web3.js'
+import { ErrorTypeEnum, type CoinInterface } from '@multiplechain/types'
 import { CoinTransactionSigner } from '../services/TransactionSigner.ts'
 
 export class Coin implements CoinInterface {
@@ -19,21 +21,21 @@ export class Coin implements CoinInterface {
      * @returns {string} Coin name
      */
     getName(): string {
-        return 'example'
+        return 'Solana'
     }
 
     /**
      * @returns {string} Coin symbol
      */
     getSymbol(): string {
-        return 'example'
+        return 'SOL'
     }
 
     /**
      * @returns {number} Decimal value of the coin
      */
     getDecimals(): number {
-        return 18
+        return 9
     }
 
     /**
@@ -41,7 +43,7 @@ export class Coin implements CoinInterface {
      * @returns {Promise<number>} Wallet balance as currency of COIN
      */
     async getBalance(owner: string): Promise<number> {
-        return 0
+        return fromLamports(await this.provider.web3.getBalance(new PublicKey(owner)))
     }
 
     /**
@@ -55,6 +57,28 @@ export class Coin implements CoinInterface {
         receiver: string,
         amount: number
     ): Promise<CoinTransactionSigner> {
-        return new CoinTransactionSigner('example')
+        if (amount < 0) {
+            throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
+        }
+
+        if (amount > (await this.getBalance(sender))) {
+            throw new Error(ErrorTypeEnum.INSUFFICIENT_BALANCE)
+        }
+
+        const lamports = toLamports(amount)
+        const senderPubKey = new PublicKey(sender)
+        const receiverPubKey = new PublicKey(receiver)
+
+        const transaction = new Transaction().add(
+            SystemProgram.transfer({
+                fromPubkey: senderPubKey,
+                toPubkey: receiverPubKey,
+                lamports
+            })
+        )
+
+        transaction.feePayer = senderPubKey
+
+        return new CoinTransactionSigner(transaction)
     }
 }
