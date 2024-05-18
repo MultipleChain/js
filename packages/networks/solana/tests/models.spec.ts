@@ -5,6 +5,7 @@ import { NftTransaction } from '../src/models/NftTransaction.ts'
 import { CoinTransaction } from '../src/models/CoinTransaction.ts'
 import { TokenTransaction } from '../src/models/TokenTransaction.ts'
 import { AssetDirectionEnum, TransactionStatusEnum } from '@multiplechain/types'
+import { ContractTransaction } from '../src/models/ContractTransaction.ts'
 
 const nftId = String(process.env.SOL_NFT_ID)
 const tokenAmount = Number(process.env.SOL_TOKEN_AMOUNT)
@@ -89,6 +90,18 @@ describe('Coin Transaction', () => {
     })
 })
 
+describe('Contract Transaction', () => {
+    const tx = new ContractTransaction(
+        '5pak57tjpTf4BfHweZryxtmJBWsJjeaU56N6CbuwuSuNyPtHwKsu6CZp6Y2L9dHqNJH33w6V895ZQLgRjANJJSR3'
+    )
+
+    it('Address', async () => {
+        expect((await tx.getAddress()).toLowerCase()).toBe(
+            'HeXZiyduAmAaYABvrh4bU94TdzB2TkwFuNXfgi1PYFwS'.toLowerCase()
+        )
+    })
+})
+
 describe('Token Transaction', () => {
     const tx = new TokenTransaction(tokenTransferTx)
     const tx2022 = new TokenTransaction(token2022TransferTx)
@@ -99,6 +112,12 @@ describe('Token Transaction', () => {
 
     it('Sender', async () => {
         expect((await tx.getSender()).toLowerCase()).toBe(sender.toLowerCase())
+    })
+
+    it('Program', async () => {
+        expect((await tx.getAddress()).toLowerCase()).toBe(
+            'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'.toLowerCase()
+        )
     })
 
     it('Amount', async () => {
@@ -125,6 +144,12 @@ describe('Token Transaction', () => {
 
     it('Sender', async () => {
         expect((await tx2022.getSender()).toLowerCase()).toBe(sender.toLowerCase())
+    })
+
+    it('Program', async () => {
+        expect((await tx2022.getAddress()).toLowerCase()).toBe(
+            'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb'.toLowerCase()
+        )
     })
 
     it('Amount', async () => {
@@ -155,6 +180,12 @@ describe('NFT Transaction', () => {
 
     it('Signer', async () => {
         expect((await tx.getSigner()).toLowerCase()).toBe(sender.toLowerCase())
+    })
+
+    it('Program', async () => {
+        expect((await tx.getAddress()).toLowerCase()).toBe(
+            'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'.toLowerCase()
+        )
     })
 
     it('Sender', async () => {
