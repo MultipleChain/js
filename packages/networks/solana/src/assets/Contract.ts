@@ -32,30 +32,30 @@ export class Contract implements ContractInterface {
     }
 
     /**
-     * @param {string} method Method name
-     * @param {any[]} args Method parameters
+     * @param {string} _method Method name
+     * @param {any[]} _args Method parameters
      * @returns {Promise<any>} Method result
      */
-    async callMethod(method: string, ...args: any[]): Promise<any> {
-        return {}
+    async callMethod(_method: string, ..._args: any[]): Promise<any> {
+        throw new Error('Method not implemented.')
     }
 
     /**
-     * @param {string} method Method name
-     * @param {any[]} args Sender wallet address
+     * @param {string} _method Method name
+     * @param {any[]} _args Sender wallet address
      * @returns {Promise<string>} Encoded method data
      */
-    async getMethodData(method: string, ...args: any[]): Promise<any> {
-        return {}
+    async getMethodData(_method: string, ..._args: any[]): Promise<any> {
+        throw new Error('Method not implemented.')
     }
 
     /**
-     * @param {string} method Method name
-     * @param {string} from Sender wallet address
-     * @param {any[]} args Method parameters
+     * @param {string} _method Method name
+     * @param {string} _from Sender wallet address
+     * @param {any[]} _args Method parameters
      * @returns {Promise<any>} Encoded method data
      */
-    async createTransactionData(method: string, from: string, ...args: any[]): Promise<any> {
-        return ''
+    async createTransactionData(_method: string, _from: string, ..._args: any[]): Promise<any> {
+        throw new Error('Method not implemented.')
     }
 }
