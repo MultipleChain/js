@@ -1,27 +1,103 @@
 import { Contract } from './Contract.ts'
-import type { TokenInterface } from '@multiplechain/types'
+import { math } from '@multiplechain/utils'
+import { Metaplex } from '@metaplex-foundation/js'
+import { ErrorTypeEnum, type TokenInterface } from '@multiplechain/types'
 import { TokenTransactionSigner } from '../services/TransactionSigner.ts'
+import {
+    PublicKey,
+    Transaction,
+    type AccountInfo,
+    type ParsedAccountData,
+    type RpcResponseAndContext
+} from '@solana/web3.js'
+import {
+    TOKEN_PROGRAM_ID,
+    TOKEN_2022_PROGRAM_ID,
+    getTokenMetadata,
+    ASSOCIATED_TOKEN_PROGRAM_ID,
+    getAssociatedTokenAddressSync,
+    createAssociatedTokenAccountInstruction,
+    createTransferInstruction,
+    createApproveInstruction
+} from '@solana/spl-token'
+
+interface Metadata {
+    name: string
+    symbol: string
+    programId: string
+    decimals: number
+}
 
 export class Token extends Contract implements TokenInterface {
+    metadata: Metadata
+
+    /**
+     * Token metadata
+     */
+    async getMetadata(): Promise<Metadata | null> {
+        if (this.metadata !== undefined) return this.metadata
+
+        const accountInfo = (await this.provider.web3.getParsedAccountInfo(
+            this.pubKey
+        )) as unknown as RpcResponseAndContext<AccountInfo<ParsedAccountData>>
+
+        if (accountInfo?.value === null) return null
+
+        const programId = accountInfo.value.owner
+
+        if (TOKEN_2022_PROGRAM_ID.equals(programId)) {
+            const result = await getTokenMetadata(
+                this.provider.web3,
+                this.pubKey,
+                'confirmed',
+                programId
+            )
+            if (result === null) return null
+            return (this.metadata = {
+                name: result.name,
+                symbol: result.symbol,
+                programId: programId.toBase58(),
+                decimals: accountInfo.value.data.parsed.info.decimals
+            })
+        } else {
+            const metaplex = Metaplex.make(this.provider.web3)
+            const data = await metaplex.nfts().findByMint({ mintAddress: this.pubKey })
+            return (this.metadata = {
+                name: data.name,
+                symbol: data.symbol,
+                programId: programId.toBase58(),
+                decimals: accountInfo.value.data.parsed.info.decimals
+            })
+        }
+    }
+
+    async getProgramId(): Promise<PublicKey> {
+        const accountInfo = await this.provider.web3.getAccountInfo(this.pubKey)
+        return accountInfo !== null ? accountInfo.owner : TOKEN_PROGRAM_ID
+    }
+
     /**
      * @returns {Promise<string>} Token name
      */
     async getName(): Promise<string> {
-        return 'example'
+        await this.getMetadata()
+        return this.metadata.name
     }
 
     /**
      * @returns {Promise<string>} Token symbol
      */
     async getSymbol(): Promise<string> {
-        return 'example'
+        await this.getMetadata()
+        return this.metadata.symbol
     }
 
     /**
      * @returns {Promise<number>} Decimal value of the token
      */
     async getDecimals(): Promise<number> {
-        return 18
+        await this.getMetadata()
+        return this.metadata.decimals
     }
 
     /**
@@ -29,14 +105,20 @@ export class Token extends Contract implements TokenInterface {
      * @returns {Promise<number>} Wallet balance as currency of TOKEN
      */
     async getBalance(owner: string): Promise<number> {
-        return 0
+        const res = await this.provider.web3.getParsedTokenAccountsByOwner(new PublicKey(owner), {
+            mint: this.pubKey
+        })
+
+        return res.value[0] === undefined
+            ? 0
+            : res.value[0].account.data.parsed.info.tokenAmount.uiAmount
     }
 
     /**
      * @returns {Promise<number>} Total supply of the token
      */
     async getTotalSupply(): Promise<number> {
-        return 0
+        return (await this.provider.web3.getTokenSupply(this.pubKey)).value.uiAmount ?? 0
     }
 
     /**
@@ -44,8 +126,36 @@ export class Token extends Contract implements TokenInterface {
      * @param {string} spender Address of the spender that is using the tokens of owner
      * @returns {Promise<number>} Amount of tokens that the spender is allowed to spend
      */
-    async getAllowance(owner: string, spender: string): Promise<number> {
-        return 0
+    async getAllowance(owner: string, spender?: string): Promise<number> {
+        const ownerResult = await this.provider.web3.getParsedTokenAccountsByOwner(
+            new PublicKey(owner),
+            {
+                mint: this.pubKey
+            }
+        )
+
+        if (ownerResult.value[0] === undefined) return 0
+
+        if (ownerResult.value[0].account.data.parsed.info.delegatedAmount === undefined) return 0
+
+        if (spender !== undefined) {
+            if (
+                ownerResult.value[0].account.data.parsed.info.delegate.toLowerCase() !==
+                spender.toLowerCase()
+            )
+                return 0
+        }
+
+        return ownerResult.value[0].account.data.parsed.info.delegatedAmount.uiAmount
+    }
+
+    /**
+     * @param {number} amount Amount of tokens that will be transferred
+     * @returns {Promise<number>} Formatted amount
+     */
+    private async formatAmount(amount: number): Promise<number> {
+        const decimals = await this.getDecimals()
+        return math.mul(amount, math.pow(10, decimals), decimals)
     }
 
     /**
@@ -60,7 +170,64 @@ export class Token extends Contract implements TokenInterface {
         receiver: string,
         amount: number
     ): Promise<TokenTransactionSigner> {
-        return new TokenTransactionSigner('example')
+        if (amount <= 0) {
+            throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
+        }
+
+        const balance = await this.getBalance(sender)
+
+        if (amount > balance) {
+            throw new Error(ErrorTypeEnum.INSUFFICIENT_BALANCE)
+        }
+
+        const transaction = new Transaction()
+        const senderPubKey = new PublicKey(sender)
+        const receiverPubKey = new PublicKey(receiver)
+        const programId = await this.getProgramId()
+        const transferAmount = await this.formatAmount(amount)
+
+        const senderAccount = getAssociatedTokenAddressSync(
+            this.pubKey,
+            senderPubKey,
+            false,
+            programId
+        )
+
+        const receiverAccount = getAssociatedTokenAddressSync(
+            this.pubKey,
+            receiverPubKey,
+            false,
+            programId
+        )
+
+        // If the receiver does not have an associated token account, create one
+        if ((await this.provider.web3.getAccountInfo(receiverAccount)) === null) {
+            transaction.add(
+                createAssociatedTokenAccountInstruction(
+                    senderPubKey,
+                    receiverAccount,
+                    receiverPubKey,
+                    this.pubKey,
+                    programId,
+                    ASSOCIATED_TOKEN_PROGRAM_ID
+                )
+            )
+        }
+
+        transaction.add(
+            createTransferInstruction(
+                senderAccount,
+                receiverAccount,
+                senderPubKey,
+                transferAmount,
+                [],
+                programId
+            )
+        )
+
+        transaction.feePayer = senderPubKey
+
+        return new TokenTransactionSigner(transaction)
     }
 
     /**
@@ -76,7 +243,75 @@ export class Token extends Contract implements TokenInterface {
         receiver: string,
         amount: number
     ): Promise<TokenTransactionSigner> {
-        return new TokenTransactionSigner('example')
+        if (amount < 0) {
+            throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
+        }
+
+        const balance = await this.getBalance(owner)
+
+        if (amount > balance) {
+            throw new Error(ErrorTypeEnum.INSUFFICIENT_BALANCE)
+        }
+
+        const allowance = await this.getAllowance(owner, spender)
+
+        if (allowance === 0) {
+            throw new Error(ErrorTypeEnum.UNAUTHORIZED_ADDRESS)
+        }
+
+        if (amount > allowance) {
+            throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
+        }
+
+        const transaction = new Transaction()
+        const ownerPubKey = new PublicKey(owner)
+        const spenderPubKey = new PublicKey(spender)
+        const receiverPubKey = new PublicKey(receiver)
+        const programId = await this.getProgramId()
+        const transferAmount = await this.formatAmount(amount)
+
+        const ownerAccount = getAssociatedTokenAddressSync(
+            this.pubKey,
+            ownerPubKey,
+            false,
+            programId
+        )
+
+        const receiverAccount = getAssociatedTokenAddressSync(
+            this.pubKey,
+            receiverPubKey,
+            false,
+            programId
+        )
+
+        // If the receiver does not have an associated token account, create one
+        if ((await this.provider.web3.getAccountInfo(receiverAccount)) === null) {
+            transaction.add(
+                createAssociatedTokenAccountInstruction(
+                    spenderPubKey,
+                    receiverAccount,
+                    receiverPubKey,
+                    this.pubKey,
+                    programId,
+                    ASSOCIATED_TOKEN_PROGRAM_ID
+                )
+            )
+        }
+
+        transaction.add(
+            createTransferInstruction(
+                ownerAccount,
+                receiverAccount,
+                spenderPubKey,
+                transferAmount,
+                [],
+                programId
+            )
+        )
+
+        transaction.feePayer = spenderPubKey
+
+        return new TokenTransactionSigner(transaction)
     }
 
     /**
@@ -86,11 +321,63 @@ export class Token extends Contract implements TokenInterface {
      * @param {number} amount Amount of the tokens that will be used
      * @returns {Promise<TransactionSigner>} Transaction signer
      */
-    async approve(
-        owner: string,
-        spender: string,
-        amount: number
-    ): Promise<TokenTransactionSigner> {
-        return new TokenTransactionSigner('example')
+    async approve(owner: string, spender: string, amount: number): Promise<TokenTransactionSigner> {
+        if (amount < 0) {
+            throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
+        }
+
+        const balance = await this.getBalance(owner)
+
+        if (amount > balance) {
+            throw new Error(ErrorTypeEnum.INSUFFICIENT_BALANCE)
+        }
+        const transaction = new Transaction()
+        const ownerPubKey = new PublicKey(owner)
+        const spenderPubKey = new PublicKey(spender)
+        const programId = await this.getProgramId()
+        const approveAmount = await this.formatAmount(amount)
+
+        const ownerAccount = getAssociatedTokenAddressSync(
+            this.pubKey,
+            ownerPubKey,
+            false,
+            programId
+        )
+
+        const spenderAccount = getAssociatedTokenAddressSync(
+            this.pubKey,
+            spenderPubKey,
+            false,
+            programId
+        )
+
+        // If the receiver does not have an associated token account, create one
+        if ((await this.provider.web3.getAccountInfo(spenderAccount)) === null) {
+            transaction.add(
+                createAssociatedTokenAccountInstruction(
+                    ownerPubKey,
+                    spenderAccount,
+                    spenderPubKey,
+                    this.pubKey,
+                    programId,
+                    ASSOCIATED_TOKEN_PROGRAM_ID
+                )
+            )
+        }
+
+        transaction.add(
+            createApproveInstruction(
+                ownerAccount,
+                spenderPubKey,
+                ownerPubKey,
+                approveAmount,
+                [],
+                programId
+            )
+        )
+
+        transaction.feePayer = ownerPubKey
+
+        return new TokenTransactionSigner(transaction)
     }
 }

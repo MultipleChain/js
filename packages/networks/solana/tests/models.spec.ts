@@ -165,9 +165,9 @@ describe('Token Transaction', () => {
             TransactionStatusEnum.CONFIRMED
         )
 
-        expect(await tx.verifyTransfer(AssetDirectionEnum.OUTGOING, receiver, tokenAmount)).toBe(
-            TransactionStatusEnum.FAILED
-        )
+        expect(
+            await tx2022.verifyTransfer(AssetDirectionEnum.OUTGOING, receiver, tokenAmount)
+        ).toBe(TransactionStatusEnum.FAILED)
     })
 })
 

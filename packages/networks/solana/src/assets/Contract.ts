@@ -1,3 +1,4 @@
+import { PublicKey } from '@solana/web3.js'
 import { Provider } from '../services/Provider.ts'
 import type { ContractInterface } from '@multiplechain/types'
 
@@ -7,6 +8,7 @@ export class Contract implements ContractInterface {
      */
     address: string
 
+    pubKey: PublicKey
     /**
      * Blockchain network provider
      */
@@ -18,6 +20,7 @@ export class Contract implements ContractInterface {
      */
     constructor(address: string, provider?: Provider) {
         this.address = address
+        this.pubKey = new PublicKey(address)
         this.provider = provider ?? Provider.instance
     }
 
