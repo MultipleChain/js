@@ -170,64 +170,7 @@ export class Token extends Contract implements TokenInterface {
         receiver: string,
         amount: number
     ): Promise<TokenTransactionSigner> {
-        if (amount <= 0) {
-            throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
-        }
-
-        const balance = await this.getBalance(sender)
-
-        if (amount > balance) {
-            throw new Error(ErrorTypeEnum.INSUFFICIENT_BALANCE)
-        }
-
-        const transaction = new Transaction()
-        const senderPubKey = new PublicKey(sender)
-        const receiverPubKey = new PublicKey(receiver)
-        const programId = await this.getProgramId()
-        const transferAmount = await this.formatAmount(amount)
-
-        const senderAccount = getAssociatedTokenAddressSync(
-            this.pubKey,
-            senderPubKey,
-            false,
-            programId
-        )
-
-        const receiverAccount = getAssociatedTokenAddressSync(
-            this.pubKey,
-            receiverPubKey,
-            false,
-            programId
-        )
-
-        // If the receiver does not have an associated token account, create one
-        if ((await this.provider.web3.getAccountInfo(receiverAccount)) === null) {
-            transaction.add(
-                createAssociatedTokenAccountInstruction(
-                    senderPubKey,
-                    receiverAccount,
-                    receiverPubKey,
-                    this.pubKey,
-                    programId,
-                    ASSOCIATED_TOKEN_PROGRAM_ID
-                )
-            )
-        }
-
-        transaction.add(
-            createTransferInstruction(
-                senderAccount,
-                receiverAccount,
-                senderPubKey,
-                transferAmount,
-                [],
-                programId
-            )
-        )
-
-        transaction.feePayer = senderPubKey
-
-        return new TokenTransactionSigner(transaction)
+        return await this.transferFrom(sender, sender, receiver, amount)
     }
 
     /**
@@ -253,14 +196,17 @@ export class Token extends Contract implements TokenInterface {
             throw new Error(ErrorTypeEnum.INSUFFICIENT_BALANCE)
         }
 
-        const allowance = await this.getAllowance(owner, spender)
+        // check if spender different from owner
+        if (spender !== owner) {
+            const allowance = await this.getAllowance(owner, spender)
 
-        if (allowance === 0) {
-            throw new Error(ErrorTypeEnum.UNAUTHORIZED_ADDRESS)
-        }
+            if (allowance === 0) {
+                throw new Error(ErrorTypeEnum.UNAUTHORIZED_ADDRESS)
+            }
 
-        if (amount > allowance) {
-            throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
+            if (amount > allowance) {
+                throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
+            }
         }
 
         const transaction = new Transaction()
@@ -331,6 +277,7 @@ export class Token extends Contract implements TokenInterface {
         if (amount > balance) {
             throw new Error(ErrorTypeEnum.INSUFFICIENT_BALANCE)
         }
+
         const transaction = new Transaction()
         const ownerPubKey = new PublicKey(owner)
         const spenderPubKey = new PublicKey(spender)
