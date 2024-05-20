@@ -59,11 +59,14 @@ export class Transaction implements TransactionInterface {
                     let status = await this.getStatus()
                     if (status === TransactionStatusEnum.PENDING) {
                         const latestBlockHash = await this.provider.web3.getLatestBlockhash()
-                        await this.provider.web3.confirmTransaction({
-                            signature: this.id,
-                            blockhash: latestBlockHash.blockhash,
-                            lastValidBlockHeight: latestBlockHash.lastValidBlockHeight
-                        })
+                        await this.provider.web3.confirmTransaction(
+                            {
+                                signature: this.id,
+                                blockhash: latestBlockHash.blockhash,
+                                lastValidBlockHeight: latestBlockHash.lastValidBlockHeight
+                            },
+                            'finalized'
+                        )
                         status = await this.getStatus()
                     }
                     if (status === TransactionStatusEnum.CONFIRMED) {
