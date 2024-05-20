@@ -8,10 +8,16 @@ export class CoinTransaction extends Transaction implements CoinTransactionInter
     /**
      * @returns {Promise<ParsedInstruction>} Wallet address of the receiver of transaction
      */
-    findTransferInstruction(data: any): ParsedInstruction {
-        return data.transaction.message.instructions.find((instruction: any): boolean => {
-            return instruction.parsed !== undefined && instruction.parsed.type === 'transfer'
-        }) as ParsedInstruction
+    findTransferInstruction(data: any): ParsedInstruction | null {
+        return (
+            (data.transaction.message.instructions.find((instruction: any): boolean => {
+                return (
+                    instruction.parsed !== undefined &&
+                    (instruction.parsed.type === 'transfer' ||
+                        instruction.parsed.type === 'createAccount')
+                )
+            }) as ParsedInstruction) ?? null
+        )
     }
 
     /**
@@ -23,7 +29,9 @@ export class CoinTransaction extends Transaction implements CoinTransactionInter
             return ''
         }
 
-        return this.findTransferInstruction(data).parsed.info.destination
+        const instruction = this.findTransferInstruction(data)
+
+        return instruction?.parsed.info.destination ?? instruction?.parsed.info.newAccount ?? ''
     }
 
     /**
@@ -35,7 +43,7 @@ export class CoinTransaction extends Transaction implements CoinTransactionInter
             return ''
         }
 
-        return this.findTransferInstruction(data).parsed.info.source
+        return this.findTransferInstruction(data)?.parsed.info.source ?? ''
     }
 
     /**
@@ -47,7 +55,9 @@ export class CoinTransaction extends Transaction implements CoinTransactionInter
             return 0
         }
 
-        return fromLamports(this.findTransferInstruction(data).parsed.info.lamports as number)
+        return fromLamports(
+            (this.findTransferInstruction(data)?.parsed.info.lamports as number) ?? 0
+        )
     }
 
     /**
