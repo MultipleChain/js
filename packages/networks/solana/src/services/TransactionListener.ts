@@ -7,7 +7,7 @@ import type {
 } from '@multiplechain/types'
 
 import { Provider } from './Provider.ts'
-import { PublicKey } from '@solana/web3.js'
+import { PublicKey, type Logs } from '@solana/web3.js'
 import { Transaction } from '../models/Transaction.ts'
 import { TransactionListenerProcessIndex } from '@multiplechain/types'
 
@@ -185,7 +185,64 @@ export class TransactionListener<T extends TransactionTypeEnum>
      * @returns {void}
      */
     contractProcess(): void {
-        // Contract transaction process
+        const filter = this
+            .filter as DynamicTransactionListenerFilterType<TransactionTypeEnum.CONTRACT>
+
+        const callback = async (logs: Logs): Promise<any> => {
+            try {
+                const transaction = new Transaction(logs.signature)
+                const data = await transaction.getData()
+
+                if (data === null) {
+                    return
+                }
+
+                const isSystemProgram = data.transaction.message.instructions.find(
+                    (instruction) => {
+                        return instruction.programId.equals(
+                            new PublicKey('11111111111111111111111111111111')
+                        )
+                    }
+                )
+
+                if (isSystemProgram !== undefined) {
+                    return
+                }
+
+                if (filter?.signer !== undefined) {
+                    const signer = new PublicKey(filter.signer)
+                    const isSigner = data.transaction.message.accountKeys.find((account) => {
+                        return account.signer && account.pubkey.equals(new PublicKey(signer))
+                    })
+
+                    if (isSigner === undefined) {
+                        return
+                    }
+                }
+
+                if (filter?.address !== undefined) {
+                    const address = new PublicKey(filter.address)
+                    const isProgram = data.transaction.message.instructions.find((instruction) => {
+                        return instruction.programId.equals(address)
+                    })
+
+                    if (isProgram === undefined) {
+                        return
+                    }
+                }
+
+                this.trigger(transaction)
+            } catch (error) {
+                // Maybe in future, we can add logging system
+            }
+        }
+
+        const parameter = filter.signer === undefined ? 'all' : new PublicKey(filter.signer)
+        const subscriptionId = this.provider.web3.onLogs(parameter, callback, 'confirmed')
+
+        this.dynamicStop = () => {
+            void this.provider.web3.removeOnLogsListener(subscriptionId)
+        }
     }
 
     /**
