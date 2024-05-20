@@ -7,8 +7,8 @@ import type {
 } from '@multiplechain/types'
 
 import { Provider } from './Provider.ts'
+import { PublicKey } from '@solana/web3.js'
 import { Transaction } from '../models/Transaction.ts'
-import { PublicKey, type LogsFilter } from '@solana/web3.js'
 import { TransactionListenerProcessIndex } from '@multiplechain/types'
 
 export class TransactionListener<T extends TransactionTypeEnum>
@@ -135,19 +135,45 @@ export class TransactionListener<T extends TransactionTypeEnum>
      * @returns {void}
      */
     generalProcess(): void {
-        let parameter: LogsFilter = 'all'
+        let subscriptionId: number
 
-        if (this.filter?.signer !== undefined) {
-            parameter = new PublicKey(this.filter.signer)
+        if (this.filter?.signer === undefined) {
+            subscriptionId = this.provider.web3.onLogs(
+                'all',
+                (logs) => {
+                    this.trigger(new Transaction(logs.signature))
+                },
+                'recent'
+            )
+        } else {
+            const signer = new PublicKey(this.filter.signer)
+            subscriptionId = this.provider.web3.onLogs(
+                signer,
+                async (logs) => {
+                    try {
+                        const transaction = new Transaction(logs.signature)
+                        const data = await transaction.getData()
+
+                        if (data === null) {
+                            return
+                        }
+
+                        const isSigner = data.transaction.message.accountKeys.find((account) => {
+                            return account.signer && account.pubkey.equals(signer)
+                        })
+
+                        if (isSigner === undefined) {
+                            return
+                        }
+
+                        this.trigger(transaction)
+                    } catch (error) {
+                        // Maybe in future, we can add logging system
+                    }
+                },
+                'confirmed'
+            )
         }
-
-        const subscriptionId = this.provider.web3.onLogs(
-            parameter,
-            (logs) => {
-                this.trigger(new Transaction(logs.signature))
-            },
-            'recent'
-        )
 
         this.dynamicStop = () => {
             void this.provider.web3.removeOnLogsListener(subscriptionId)
