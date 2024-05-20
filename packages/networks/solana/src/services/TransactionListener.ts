@@ -18,6 +18,7 @@ import {
 import { TransactionListenerProcessIndex } from '@multiplechain/types'
 import { ContractTransaction } from '../models/ContractTransaction.ts'
 import { CoinTransaction } from '../models/CoinTransaction.ts'
+import { objectsEqual } from '@multiplechain/utils'
 
 export class TransactionListener<T extends TransactionTypeEnum>
     implements TransactionListenerInterface<T>
@@ -154,9 +155,9 @@ export class TransactionListener<T extends TransactionTypeEnum>
                 'recent'
             )
         } else {
-            const signer = new PublicKey(this.filter.signer)
+            const signer = this.filter.signer
             subscriptionId = this.provider.web3.onLogs(
-                signer,
+                new PublicKey(signer),
                 async (logs) => {
                     try {
                         const transaction = new Transaction(logs.signature)
@@ -166,11 +167,9 @@ export class TransactionListener<T extends TransactionTypeEnum>
                             return
                         }
 
-                        const isSigner = data.transaction.message.accountKeys.find((account) => {
-                            return account.signer && account.pubkey.equals(signer)
-                        })
-
-                        if (isSigner === undefined) {
+                        if (
+                            signer.toLowerCase() !== (await transaction.getSigner()).toLowerCase()
+                        ) {
                             return
                         }
 
@@ -223,26 +222,26 @@ export class TransactionListener<T extends TransactionTypeEnum>
                     return
                 }
 
-                if (filter?.signer !== undefined) {
-                    const signer = new PublicKey(filter.signer)
-                    const isSigner = data.transaction.message.accountKeys.find((account) => {
-                        return account.signer && account.pubkey.equals(new PublicKey(signer))
-                    })
-
-                    if (isSigner === undefined) {
-                        return
-                    }
+                interface ParamsType {
+                    signer?: string
+                    address?: string
                 }
 
-                if (filter?.address !== undefined) {
-                    const address = new PublicKey(filter.address)
-                    const isProgram = data.transaction.message.instructions.find((instruction) => {
-                        return instruction.programId.equals(address)
-                    })
+                const expectedParams: ParamsType = {}
+                const receivedParams: ParamsType = {}
 
-                    if (isProgram === undefined) {
-                        return
-                    }
+                if (filter.signer !== undefined) {
+                    expectedParams.signer = filter.signer.toLowerCase()
+                    receivedParams.signer = (await transaction.getSigner()).toLowerCase()
+                }
+
+                if (filter.address !== undefined) {
+                    expectedParams.address = filter.address.toLowerCase()
+                    receivedParams.address = (await transaction.getAddress()).toLowerCase()
+                }
+
+                if (!objectsEqual(expectedParams, receivedParams)) {
+                    return
                 }
 
                 this.trigger(transaction)
@@ -266,19 +265,8 @@ export class TransactionListener<T extends TransactionTypeEnum>
     coinProcess(): void {
         const filter = this.filter as DynamicTransactionListenerFilterType<TransactionTypeEnum.COIN>
 
-        if (
-            filter.signer !== undefined &&
-            filter.sender !== undefined &&
-            filter.signer !== filter.sender
-        ) {
-            throw new Error(
-                'Sender and signer must be the same in coin transactions. Or only one of them can be defined.'
-            )
-        }
-
-        const sender = filter.sender ?? filter.signer
         const parameter = new PublicKey(
-            sender ?? filter.receiver ?? SystemProgram.programId.toBase58()
+            filter.signer ?? filter.sender ?? filter.receiver ?? SystemProgram.programId.toBase58()
         )
 
         const callback = async (logs: Logs): Promise<any> => {
@@ -294,31 +282,37 @@ export class TransactionListener<T extends TransactionTypeEnum>
                     return
                 }
 
-                if (sender !== undefined) {
-                    const isSender = data.transaction.message.accountKeys.find((account) => {
-                        return account.signer && account.pubkey.equals(new PublicKey(sender))
-                    })
+                interface ParamsType {
+                    signer?: string
+                    sender?: string
+                    receiver?: string
+                    amount?: number
+                }
 
-                    if (isSender === undefined) {
-                        return
-                    }
+                const expectedParams: ParamsType = {}
+                const receivedParams: ParamsType = {}
+
+                if (filter.signer !== undefined) {
+                    expectedParams.signer = filter.signer.toLowerCase()
+                    receivedParams.signer = (await transaction.getSigner()).toLowerCase()
+                }
+
+                if (filter.sender !== undefined) {
+                    expectedParams.sender = filter.sender.toLowerCase()
+                    receivedParams.sender = (await transaction.getSender()).toLowerCase()
                 }
 
                 if (filter.receiver !== undefined) {
-                    const receiver = new PublicKey(filter.receiver)
-                    const isReceiver = data.transaction.message.accountKeys.find((account) => {
-                        return account.pubkey.equals(receiver)
-                    })
-
-                    if (isReceiver === undefined) {
-                        return
-                    }
+                    expectedParams.receiver = filter.receiver.toLowerCase()
+                    receivedParams.receiver = (await transaction.getReceiver()).toLowerCase()
                 }
 
-                if (
-                    filter.amount !== undefined &&
-                    (await transaction.getAmount()) !== filter.amount
-                ) {
+                if (filter.amount !== undefined) {
+                    expectedParams.amount = filter.amount
+                    receivedParams.amount = await transaction.getAmount()
+                }
+
+                if (!objectsEqual(expectedParams, receivedParams)) {
                     return
                 }
 
