@@ -1,5 +1,4 @@
 import type {
-    TransactionTypeEnum,
     DynamicTransactionType,
     TransactionListenerInterface,
     TransactionListenerCallbackType,
@@ -12,13 +11,18 @@ import {
     PublicKey,
     SystemProgram,
     type Logs,
+    type LogsFilter,
+    type ParsedAccountData,
     type ParsedInstruction,
     type PartiallyDecodedInstruction
 } from '@solana/web3.js'
-import { TransactionListenerProcessIndex } from '@multiplechain/types'
-import { ContractTransaction } from '../models/ContractTransaction.ts'
-import { CoinTransaction } from '../models/CoinTransaction.ts'
 import { objectsEqual } from '@multiplechain/utils'
+import { NftTransaction } from '../models/NftTransaction.ts'
+import { CoinTransaction } from '../models/CoinTransaction.ts'
+import { TokenTransaction } from '../models/TokenTransaction.ts'
+import { ContractTransaction } from '../models/ContractTransaction.ts'
+import { TransactionListenerProcessIndex, TransactionTypeEnum } from '@multiplechain/types'
+import { getAssociatedTokenAddressSync } from '@solana/spl-token'
 
 export class TransactionListener<T extends TransactionTypeEnum>
     implements TransactionListenerInterface<T>
@@ -250,7 +254,8 @@ export class TransactionListener<T extends TransactionTypeEnum>
             }
         }
 
-        const parameter = filter.signer === undefined ? 'all' : new PublicKey(filter.signer)
+        const address = filter.signer ?? filter.address
+        const parameter = address !== undefined ? new PublicKey(address) : 'all'
         const subscriptionId = this.provider.web3.onLogs(parameter, callback, 'confirmed')
 
         this.dynamicStop = () => {
@@ -329,19 +334,189 @@ export class TransactionListener<T extends TransactionTypeEnum>
         }
     }
 
+    private async tokenNftCondition(
+        _transaction: TokenTransaction | NftTransaction
+    ): Promise<boolean> {
+        const filter =
+            this.type === TransactionTypeEnum.TOKEN
+                ? (this.filter as DynamicTransactionListenerFilterType<TransactionTypeEnum.TOKEN>)
+                : (this.filter as DynamicTransactionListenerFilterType<TransactionTypeEnum.NFT>)
+
+        const transaction =
+            this.type === TransactionTypeEnum.TOKEN
+                ? (_transaction as TokenTransaction)
+                : (_transaction as NftTransaction)
+
+        interface ParamsType {
+            signer?: string
+            sender?: string
+            receiver?: string
+            address?: string
+            amount?: number
+            nftId?: number | string
+        }
+
+        const expectedParams: ParamsType = {}
+        const receivedParams: ParamsType = {}
+
+        if (filter.signer !== undefined) {
+            expectedParams.signer = filter.signer.toLowerCase()
+            receivedParams.signer = (await transaction.getSigner()).toLowerCase()
+        }
+
+        if (filter.sender !== undefined) {
+            expectedParams.sender = filter.sender.toLowerCase()
+            receivedParams.sender = (await transaction.getSender()).toLowerCase()
+        }
+
+        if (filter.receiver !== undefined) {
+            expectedParams.receiver = filter.receiver.toLowerCase()
+            receivedParams.receiver = (await transaction.getReceiver()).toLowerCase()
+        }
+
+        if (filter.address !== undefined) {
+            expectedParams.address = filter.address.toLowerCase()
+            receivedParams.address = (await transaction.getAddress()).toLowerCase()
+        }
+
+        if (this.type === TransactionTypeEnum.TOKEN) {
+            const tFilter =
+                filter as DynamicTransactionListenerFilterType<TransactionTypeEnum.TOKEN>
+            const tTransaction = _transaction as TokenTransaction
+            if (tFilter.amount !== undefined) {
+                expectedParams.amount = tFilter.amount
+                receivedParams.amount = await tTransaction.getAmount()
+            }
+        } else {
+            const nFilter = filter as DynamicTransactionListenerFilterType<TransactionTypeEnum.NFT>
+            const nTransaction = _transaction as NftTransaction
+            if (nFilter.nftId !== undefined) {
+                expectedParams.nftId = nFilter.nftId
+                receivedParams.nftId = await nTransaction.getNftId()
+            }
+        }
+
+        return objectsEqual(expectedParams, receivedParams)
+    }
+
+    private async createTokenNftListenParameter(): Promise<LogsFilter> {
+        const filter =
+            this.type === TransactionTypeEnum.TOKEN
+                ? (this.filter as DynamicTransactionListenerFilterType<TransactionTypeEnum.TOKEN>)
+                : (this.filter as DynamicTransactionListenerFilterType<TransactionTypeEnum.NFT>)
+
+        let parameter: LogsFilter = 'all'
+
+        if (filter?.address !== undefined) {
+            const tokenMintAddress = new PublicKey(filter.address)
+            const accountInfo = await this.provider.web3.getParsedAccountInfo(tokenMintAddress)
+
+            const result = accountInfo?.value
+            const data = (result?.data as ParsedAccountData) ?? null
+            const programId = ['spl-token', 'spl-token-2022'].includes(data?.program)
+                ? result?.owner
+                : null
+
+            parameter = programId ?? tokenMintAddress ?? 'all'
+            const address = filter.sender ?? filter.receiver
+
+            if (programId !== null && address !== undefined) {
+                const addressPubKey = new PublicKey(address)
+                const ownerAccount = getAssociatedTokenAddressSync(
+                    tokenMintAddress,
+                    addressPubKey,
+                    false,
+                    programId
+                )
+
+                parameter = ownerAccount
+            }
+        }
+
+        return parameter
+    }
+
     /**
      * Token transaction process
-     * @returns {void}
+     * @returns {Promise<void>}
      */
-    tokenProcess(): void {
-        // Token transaction process
+    async tokenProcess(): Promise<void> {
+        const callback = async (logs: Logs): Promise<any> => {
+            try {
+                const transaction = new TokenTransaction(logs.signature)
+                const data = await transaction.getData()
+
+                if (data === null) {
+                    return
+                }
+
+                if (this.isSystemProgram(data.transaction.message.instructions)) {
+                    return
+                }
+
+                const instruction = transaction.findTransferInstruction(data)
+
+                if (instruction === null || instruction.parsed?.info?.tokenAmount?.decimals === 0) {
+                    return
+                }
+
+                if (!(await this.tokenNftCondition(transaction))) {
+                    return
+                }
+
+                this.trigger(transaction)
+            } catch (error) {
+                // Maybe in future, we can add logging system
+            }
+        }
+
+        const parameter = await this.createTokenNftListenParameter()
+        const subscriptionId = this.provider.web3.onLogs(parameter, callback, 'confirmed')
+
+        this.dynamicStop = () => {
+            void this.provider.web3.removeOnLogsListener(subscriptionId)
+        }
     }
 
     /**
      * NFT transaction process
-     * @returns {void}
+     * @returns {Promise<void>}
      */
-    nftProcess(): void {
-        // NFT transaction process
+    async nftProcess(): Promise<void> {
+        const callback = async (logs: Logs): Promise<any> => {
+            try {
+                const transaction = new NftTransaction(logs.signature)
+                const data = await transaction.getData()
+
+                if (data === null) {
+                    return
+                }
+
+                if (this.isSystemProgram(data.transaction.message.instructions)) {
+                    return
+                }
+
+                const instruction = transaction.findTransferInstruction(data)
+
+                if (instruction === null || instruction.parsed?.info?.tokenAmount?.decimals !== 0) {
+                    return
+                }
+
+                if (!(await this.tokenNftCondition(transaction))) {
+                    return
+                }
+
+                this.trigger(transaction)
+            } catch (error) {
+                // Maybe in future, we can add logging system
+            }
+        }
+
+        const parameter = await this.createTokenNftListenParameter()
+        const subscriptionId = this.provider.web3.onLogs(parameter, callback, 'confirmed')
+
+        this.dynamicStop = () => {
+            void this.provider.web3.removeOnLogsListener(subscriptionId)
+        }
     }
 }

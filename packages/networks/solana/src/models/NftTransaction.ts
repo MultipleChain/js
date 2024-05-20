@@ -7,14 +7,16 @@ export class NftTransaction extends ContractTransaction implements NftTransactio
     /**
      * @returns {Promise<ParsedInstruction>} Wallet address of the receiver of transaction
      */
-    findTransferInstruction(data: any): ParsedInstruction {
-        return data.transaction.message.instructions.find((instruction: any): boolean => {
-            return (
-                instruction.parsed !== undefined &&
-                (instruction.parsed.type === 'transferChecked' ||
-                    instruction.parsed.type === 'transfer')
-            )
-        }) as ParsedInstruction
+    findTransferInstruction(data: any): ParsedInstruction | null {
+        return (
+            (data.transaction.message.instructions.find((instruction: any): boolean => {
+                return (
+                    instruction.parsed !== undefined &&
+                    (instruction.parsed.type === 'transferChecked' ||
+                        instruction.parsed.type === 'transfer')
+                )
+            }) as ParsedInstruction) ?? null
+        )
     }
 
     /**
@@ -28,7 +30,7 @@ export class NftTransaction extends ContractTransaction implements NftTransactio
 
         const instruction = this.findTransferInstruction(data)
 
-        if (instruction.parsed?.info.mint !== undefined) {
+        if (instruction?.parsed?.info.mint !== undefined) {
             return instruction.parsed.info.mint
         }
 
@@ -69,7 +71,7 @@ export class NftTransaction extends ContractTransaction implements NftTransactio
             return ''
         }
 
-        return this.findTransferInstruction(data).parsed.info.authority
+        return this.findTransferInstruction(data)?.parsed.info.authority
     }
 
     /**
@@ -82,7 +84,7 @@ export class NftTransaction extends ContractTransaction implements NftTransactio
             return ''
         }
 
-        return this.findTransferInstruction(data).parsed.info.mint
+        return this.findTransferInstruction(data)?.parsed.info.mint
     }
 
     /**

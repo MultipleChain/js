@@ -6,7 +6,7 @@ export class ContractTransaction extends Transaction implements ContractTransact
     /**
      * @returns {Promise<ParsedInstruction>} Wallet address of the receiver of transaction
      */
-    findTransferInstruction(data: any): ParsedInstruction {
+    findTransferInstruction(data: any): ParsedInstruction | null {
         const length = data.transaction.message.instructions.length
         return data.transaction.message.instructions[length - 1] as ParsedInstruction
     }
@@ -20,6 +20,6 @@ export class ContractTransaction extends Transaction implements ContractTransact
             return ''
         }
 
-        return this.findTransferInstruction(data).programId.toBase58()
+        return this.findTransferInstruction(data)?.programId.toBase58() ?? ''
     }
 }

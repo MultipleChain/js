@@ -1,20 +1,24 @@
-import type { ParsedInstruction } from '@solana/web3.js'
+import { PublicKey } from '@solana/web3.js'
+import { math } from '@multiplechain/utils'
 import { TransactionStatusEnum } from '@multiplechain/types'
 import { ContractTransaction } from './ContractTransaction.ts'
+import type { ParsedAccountData, ParsedInstruction } from '@solana/web3.js'
 import { AssetDirectionEnum, type TokenTransactionInterface } from '@multiplechain/types'
 
 export class TokenTransaction extends ContractTransaction implements TokenTransactionInterface {
     /**
      * @returns {Promise<ParsedInstruction>} Wallet address of the receiver of transaction
      */
-    findTransferInstruction(data: any): ParsedInstruction {
-        return data.transaction.message.instructions.find((instruction: any): boolean => {
-            return (
-                instruction.parsed !== undefined &&
-                (instruction.parsed.type === 'transferChecked' ||
-                    instruction.parsed.type === 'transfer')
-            )
-        }) as ParsedInstruction
+    findTransferInstruction(data: any): ParsedInstruction | null {
+        return (
+            (data.transaction.message.instructions.find((instruction: any): boolean => {
+                return (
+                    instruction.parsed !== undefined &&
+                    (instruction.parsed.type === 'transferChecked' ||
+                        instruction.parsed.type === 'transfer')
+                )
+            }) as ParsedInstruction) ?? null
+        )
     }
 
     /**
@@ -28,7 +32,7 @@ export class TokenTransaction extends ContractTransaction implements TokenTransa
 
         const instruction = this.findTransferInstruction(data)
 
-        if (instruction.parsed?.info.mint !== undefined) {
+        if (instruction?.parsed?.info.mint !== undefined) {
             return instruction.parsed.info.mint
         }
 
@@ -52,11 +56,12 @@ export class TokenTransaction extends ContractTransaction implements TokenTransa
             return ''
         }
 
-        if (data.meta?.postTokenBalances?.length === undefined) {
-            return ''
-        }
+        const instruction = this.findTransferInstruction(data)
+        const accountInfo = await this.provider.web3.getParsedAccountInfo(
+            new PublicKey(instruction?.parsed.info.destination as string)
+        )
 
-        return data.meta.postTokenBalances[1].owner ?? ''
+        return (accountInfo.value?.data as ParsedAccountData)?.parsed?.info?.owner ?? ''
     }
 
     /**
@@ -68,11 +73,7 @@ export class TokenTransaction extends ContractTransaction implements TokenTransa
             return ''
         }
 
-        if (data.meta?.postTokenBalances?.length === undefined) {
-            return ''
-        }
-
-        return data.meta.postTokenBalances[0].owner ?? ''
+        return this.findTransferInstruction(data)?.parsed.info.authority
     }
 
     /**
@@ -84,7 +85,21 @@ export class TokenTransaction extends ContractTransaction implements TokenTransa
             return 0
         }
 
-        return this.findTransferInstruction(data).parsed.info.tokenAmount.uiAmount as number
+        const instruction = this.findTransferInstruction(data)
+
+        if (instruction?.parsed?.info?.tokenAmount?.uiAmount !== undefined) {
+            return instruction.parsed.info.tokenAmount.uiAmount as number
+        }
+
+        const amount = instruction?.parsed.info.amount as number
+
+        const postBalance = data.meta?.postTokenBalances?.find((balance: any): boolean => {
+            return balance.mint !== undefined
+        })
+
+        const decimals = postBalance?.uiTokenAmount?.decimals ?? 0
+
+        return math.div(amount, math.pow(10, decimals), decimals)
     }
 
     /**
