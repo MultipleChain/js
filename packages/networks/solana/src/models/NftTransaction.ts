@@ -18,6 +18,32 @@ export class NftTransaction extends ContractTransaction implements NftTransactio
     }
 
     /**
+     * @returns {Promise<string>} Contract address of the transaction
+     */
+    async getAddress(): Promise<string> {
+        const data = await this.getData()
+        if (data === null) {
+            return ''
+        }
+
+        const instruction = this.findTransferInstruction(data)
+
+        if (instruction.parsed?.info.mint !== undefined) {
+            return instruction.parsed.info.mint
+        }
+
+        const postBalance = data.meta?.postTokenBalances?.find((balance: any): boolean => {
+            return balance.mint !== undefined
+        })
+
+        if (postBalance !== undefined) {
+            return postBalance.mint
+        }
+
+        return await super.getAddress()
+    }
+
+    /**
      * @returns {Promise<string>} Receiver wallet address
      */
     async getReceiver(): Promise<string> {
