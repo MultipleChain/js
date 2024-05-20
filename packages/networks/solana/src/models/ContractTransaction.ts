@@ -20,6 +20,12 @@ export class ContractTransaction extends Transaction implements ContractTransact
             return ''
         }
 
-        return this.findTransferInstruction(data).programId.toBase58()
+        const instruction = this.findTransferInstruction(data)
+
+        if (instruction.parsed?.info?.mint !== undefined) {
+            return instruction.parsed.info.mint
+        }
+
+        return instruction.programId.toBase58()
     }
 }
