@@ -104,7 +104,13 @@ export class Transaction implements TransactionInterface {
      */
     async getSigner(): Promise<string> {
         const data = await this.getData()
-        return data?.transaction?.message?.accountKeys[0].pubkey.toBase58() ?? ''
+        return (
+            data?.transaction?.message?.accountKeys
+                .find((account) => {
+                    return account.signer
+                })
+                ?.pubkey.toBase58() ?? ''
+        )
     }
 
     /**
