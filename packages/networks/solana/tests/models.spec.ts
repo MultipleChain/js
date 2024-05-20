@@ -19,6 +19,9 @@ const nftTransferTx = String(process.env.SOL_NFT_TRANSFER_TX)
 const sender = String(process.env.SOL_MODEL_TEST_SENDER)
 const receiver = String(process.env.SOL_MODEL_TEST_RECEIVER)
 
+const tokenTestAddress = String(process.env.SOL_TOKEN_TEST_ADDRESS)
+const token2022TestAddress = String(process.env.SOL_TOKEN_2022_TEST_ADDRESS)
+
 describe('Transaction', () => {
     const tx = new Transaction(solTransferTx)
     it('Id', async () => {
@@ -115,9 +118,7 @@ describe('Token Transaction', () => {
     })
 
     it('Program', async () => {
-        expect((await tx.getAddress()).toLowerCase()).toBe(
-            'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'.toLowerCase()
-        )
+        expect((await tx.getAddress()).toLowerCase()).toBe(tokenTestAddress.toLowerCase())
     })
 
     it('Amount', async () => {
@@ -147,9 +148,7 @@ describe('Token Transaction', () => {
     })
 
     it('Program', async () => {
-        expect((await tx2022.getAddress()).toLowerCase()).toBe(
-            'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb'.toLowerCase()
-        )
+        expect((await tx2022.getAddress()).toLowerCase()).toBe(token2022TestAddress.toLowerCase())
     })
 
     it('Amount', async () => {
@@ -183,9 +182,7 @@ describe('NFT Transaction', () => {
     })
 
     it('Program', async () => {
-        expect((await tx.getAddress()).toLowerCase()).toBe(
-            'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'.toLowerCase()
-        )
+        expect((await tx.getAddress()).toLowerCase()).toBe(nftId.toLowerCase())
     })
 
     it('Sender', async () => {
