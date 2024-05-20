@@ -74,7 +74,7 @@ describe('Transaction Listener', () => {
                     })
                     .then(async () => {
                         await sleep(2000)
-                        await (await signer.sign(senderPrivateKey)).send()
+                        void (await signer.sign(senderPrivateKey)).send()
                     })
                     .catch(reject)
             })
@@ -106,7 +106,7 @@ describe('Transaction Listener', () => {
                     })
                     .then(async () => {
                         await sleep(2000)
-                        await (await signer.sign(senderPrivateKey)).send()
+                        void (await signer.sign(senderPrivateKey)).send()
                     })
                     .catch(reject)
             })
@@ -134,7 +134,7 @@ describe('Transaction Listener', () => {
                     })
                     .then(async () => {
                         await sleep(2000)
-                        await (await signer.sign(senderPrivateKey)).send()
+                        void (await signer.sign(senderPrivateKey)).send()
                     })
                     .catch(reject)
             })
@@ -167,7 +167,7 @@ describe('Transaction Listener', () => {
                     })
                     .then(async () => {
                         await sleep(2000)
-                        await (await signer.sign(senderPrivateKey)).send()
+                        void (await signer.sign(senderPrivateKey)).send()
                     })
                     .catch(reject)
             })
@@ -197,7 +197,7 @@ describe('Transaction Listener', () => {
                     })
                     .then(async () => {
                         await sleep(2000)
-                        await (await signer.sign(senderPrivateKey)).send()
+                        void (await signer.sign(senderPrivateKey)).send()
                     })
                     .catch(reject)
             })
