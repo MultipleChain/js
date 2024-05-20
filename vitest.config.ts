@@ -24,6 +24,11 @@ export default mergeConfig(
                 ]
             },
             watch: false,
+            maxConcurrency: 1,
+            sequence: {
+                shuffle: false,
+                concurrent: false
+            },
             testTimeout: 180000,
             environment: 'node',
             exclude: [...configDefaults.exclude, 'e2e/*', '**/boilerplate/**'],

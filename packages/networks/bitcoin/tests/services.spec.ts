@@ -6,6 +6,7 @@ import { TransactionListener } from '../src/services/TransactionListener.ts'
 import { TransactionTypeEnum } from '@multiplechain/types'
 import { CoinTransaction } from '../src/models/CoinTransaction.ts'
 import { Coin } from '../src/assets/Coin.ts'
+import { sleep } from '@multiplechain/utils'
 
 const senderTestAddress = String(process.env.BTC_SENDER_ADDRESS)
 const receiverTestAddress = String(process.env.BTC_RECEIVER_ADDRESS)
@@ -44,15 +45,23 @@ describe('Transaction Listener', () => {
             receiver: receiverTestAddress
         })
 
-        void listener.on((transaction) => {
-            listener.stop()
-            expect(transaction).toBeInstanceOf(CoinTransaction)
-        })
-
         const signer = await new Coin().transfer(senderTestAddress, receiverTestAddress, 0.0001)
 
-        const transaction = await (await signer.sign(senderPrivateKey)).send()
+        const waitListenerEvent = async (): Promise<any> => {
+            return await new Promise((resolve, reject) => {
+                void listener
+                    .on((transaction) => {
+                        listener.stop()
+                        resolve(transaction)
+                    })
+                    .then(async () => {
+                        await sleep(2000)
+                        void (await signer.sign(senderPrivateKey)).send()
+                    })
+                    .catch(reject)
+            })
+        }
 
-        expect(transaction).toBeInstanceOf(CoinTransaction)
+        expect(await waitListenerEvent()).toBeInstanceOf(CoinTransaction)
     })
 })
