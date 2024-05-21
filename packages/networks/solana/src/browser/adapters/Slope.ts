@@ -13,6 +13,9 @@ const Slope: WalletAdapterInterface = {
     downloadLink: 'https://www.slope.finance/',
     isDetected: () => slope.readyState === WalletReadyState.Installed,
     isConnected: async () => slope.connected,
+    disconnect: async () => {
+        await slope.disconnect()
+    },
     connect: async (
         _provider?: ProviderInterface,
         _ops?: object

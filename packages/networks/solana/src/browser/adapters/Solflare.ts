@@ -28,6 +28,9 @@ const Solflare: WalletAdapterInterface = {
     },
     isDetected: () => solflare.readyState === WalletReadyState.Installed,
     isConnected: async () => solflare.connected,
+    disconnect: async () => {
+        await solflare.disconnect()
+    },
     connect: async (
         _provider?: ProviderInterface,
         _ops?: object

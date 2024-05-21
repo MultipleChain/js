@@ -32,6 +32,9 @@ dependencies:
   '@solana/wallet-adapter-solflare':
     specifier: ^0.6.28
     version: 0.6.28(@solana/web3.js@1.91.8)
+  '@solana/wallet-adapter-trust':
+    specifier: ^0.1.13
+    version: 0.1.13(@solana/web3.js@1.91.8)
   '@solana/web3.js':
     specifier: ^1.91.8
     version: 1.91.8
@@ -1075,6 +1078,16 @@ packages:
       '@solflare-wallet/metamask-sdk': 1.0.3(@solana/web3.js@1.91.8)
       '@solflare-wallet/sdk': 1.4.2(@solana/web3.js@1.91.8)
       '@wallet-standard/wallet': 1.0.1
+    dev: false
+
+  /@solana/wallet-adapter-trust@0.1.13(@solana/web3.js@1.91.8):
+    resolution: {integrity: sha512-lkmPfNdyRgx+z0K7i2cDa3a6SOKXpi3FiaYSo8Zozoxkp+Ga/NXVWxlXtMca4GAc/MnJMVp7yF/31kyFIee+3A==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      '@solana/web3.js': ^1.77.3
+    dependencies:
+      '@solana/wallet-adapter-base': 0.9.23(@solana/web3.js@1.91.8)
+      '@solana/web3.js': 1.91.8
     dev: false
 
   /@solana/wallet-standard-chains@1.1.0:

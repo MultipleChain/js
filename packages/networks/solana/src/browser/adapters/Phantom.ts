@@ -30,6 +30,9 @@ const Phantom: WalletAdapterInterface = {
             window.phantom?.solana?.isPhantom !== undefined && window.phantom?.connect === undefined
         ),
     isConnected: async () => phantomAdapter.connected,
+    disconnect: async () => {
+        await phantomAdapter.disconnect()
+    },
     connect: async (
         _provider?: ProviderInterface,
         _ops?: object
