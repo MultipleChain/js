@@ -7,6 +7,7 @@ import type {
     TransactionReceipt,
     TransactionResponse
 } from 'ethers'
+import { ErrorTypeEnum } from '@multiplechain/types'
 import { sleep, checkWebSocket } from '@multiplechain/utils'
 import type { EvmNetworkConfigInterface } from './Provider.ts'
 import type { TransactionData } from '../services/TransactionSigner.ts'
@@ -58,7 +59,7 @@ export class Ethers {
     public async connectWebSocket(): Promise<WebSocketProvider> {
         return await new Promise((resolve, reject) => {
             if (this.network.wsUrl === undefined) {
-                reject(new Error('WebSocket URL is not defined'))
+                reject(new Error(ErrorTypeEnum.WS_URL_NOT_DEFINED))
             } else {
                 const url = this.network.wsUrl
                 checkWebSocket(url)

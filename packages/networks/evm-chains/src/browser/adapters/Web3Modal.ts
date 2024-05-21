@@ -133,19 +133,19 @@ const Web3Modal: Web3ModalAdapterInterface = {
         const ops = _ops as Web3ModalOps
 
         if (provider === undefined) {
-            throw new Error('Provider is required')
+            throw new Error(ErrorTypeEnum.PROVIDER_IS_REQUIRED)
         }
 
         if (ops === undefined) {
-            throw new Error('Ops is required')
+            throw new Error(ErrorTypeEnum.OPS_IS_REQUIRED)
         }
 
         if (ops.projectId === undefined) {
-            throw new Error('Project ID is required')
+            throw new Error(ErrorTypeEnum.PROJECT_ID_IS_REQUIRED)
         }
 
         if (ops.metadata === undefined) {
-            throw new Error('Metadata is required')
+            throw new Error(ErrorTypeEnum.METADATA_IS_REQUIRED)
         }
 
         const network = provider.network as EvmNetworkConfigInterface
