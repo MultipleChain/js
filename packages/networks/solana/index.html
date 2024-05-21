@@ -188,9 +188,6 @@
             <span>Deep link: </span> <span class="deep-link"></span>
         </div>
         <div class="info">
-            <span>Chain id: </span> <span class="chain-id"></span>
-        </div>
-        <div class="info">
             <span>Connected address: </span> <span class="connected-address"></span>
         </div>
         <button class="action-btn sign-message">
@@ -246,7 +243,6 @@
             document.querySelector('.platforms').innerText = wallet.getPlatforms().join(', ')
             document.querySelector('.download-link').innerText = wallet.getDownloadLink()
             document.querySelector('.deep-link').innerText = wallet.createDeepLink('https://google.com')
-            document.querySelector('.chain-id').innerText = await wallet.getChainId()
             document.querySelector('.connected-address').innerText = sender
 
             document.querySelector('.action-result .sign-message').innerText = ''
@@ -255,8 +251,8 @@
                 document.querySelector('.action-result .sign-message').innerText = result
             }
 
-            const receiver = '0xbBa4d06D1cEf94b35aDeCfDa893523907fdD36DE';
-            const tokenAddress = '0x4294cb0dD25dC9140B5127f247cBd47Eeb673431';
+            const receiver = 'GHVMV3zZscR8V4K5GEgQTUjuV4jEixB9a4QX3KhgvVKy';
+            const tokenAddress = '2ZHwL3dXk3szRgiBLZi244NmKs2VmoBx764AYMY2tQfx';
 
             document.querySelector('.action-result .send-coin').innerText = ''
             document.querySelector('.action-btn.send-coin').onclick = async () => {
