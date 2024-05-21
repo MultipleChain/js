@@ -235,6 +235,10 @@
 
         window.adapters = {}
         window.connectAdapter = async (adapter) => {
+            if (await adapter.isDetected() === false) {
+                return alert('Adapter is not detected')
+            }
+
             if (adapter.disconnect) {
                 await adapter.disconnect()
             }

@@ -219,11 +219,15 @@
         window.Solana = Solana
 
         const provider = new Solana.Provider({
-            // options
+            testnet: true,
         });
 
         window.adapters = {}
         window.connectAdapter = async (adapter) => {
+            if (await adapter.isDetected() === false) {
+                return alert('Adapter is not detected')
+            }
+
             if (adapter.disconnect) {
                 await adapter.disconnect()
             }
