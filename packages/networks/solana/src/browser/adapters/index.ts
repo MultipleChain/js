@@ -1,1 +1,2 @@
-export { default as Example } from './Phantom.ts'
+export { default as Phantom } from './Phantom.ts'
+export { default as Solflare } from './Solflare.ts'

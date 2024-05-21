@@ -12,6 +12,7 @@ import type {
     WalletAdapterEvents
 } from '@solana/wallet-adapter-base'
 import { base58Encode } from '@multiplechain/utils'
+import type { TransactionSigner } from '../services/TransactionSigner.ts'
 
 const rejectMap = (error: any, reject: (a: any) => any): any => {
     console.error('MultipleChain Solana Wallet Error:', error)
@@ -40,12 +41,14 @@ const rejectMap = (error: any, reject: (a: any) => any): any => {
                 'WalletConnectionError',
                 'WalletWindowClosedError',
                 'WalletAccountError',
-                'WalletSendTransactionError'
+                'WalletSendTransactionError',
+                'WalletSignMessageError'
             ].includes(String(error.name)) ||
             error.code === 4001 ||
             errorMessage === 'User rejected the request.' ||
             error.name === 'WalletSignTransactionError' ||
             errorMessage.includes('user reject this request') ||
+            errorMessage.includes('Transaction rejected') ||
             errorMessage === 'User canceled request'
         ) {
             return reject(new Error(ErrorTypeEnum.WALLET_REQUEST_REJECTED))
@@ -206,18 +209,18 @@ export class Wallet implements WalletInterface {
      * @param {TransactionSignerInterface} transactionSigner
      * @returns {Promise<string>}
      */
-    async sendTransaction(transactionSigner: TransactionSignerInterface): Promise<string> {
+    async sendTransaction(_transactionSigner: TransactionSignerInterface): Promise<string> {
+        const transactionSigner = _transactionSigner as TransactionSigner
         return await new Promise((resolve, reject) => {
             this.currentReject = reject
             try {
                 void (async () => {
-                    const recentBlockhash = (
-                        await this.networkProvider.web3.getLatestBlockhash('finalized')
-                    ).blockhash
-                    const tx = await this.walletProvider.signTransaction(
-                        Object.assign(transactionSigner.getRawData(), { recentBlockhash })
+                    resolve(
+                        await this.walletProvider.sendTransaction(
+                            transactionSigner.getRawData(),
+                            this.networkProvider.web3
+                        )
                     )
-                    resolve(base58Encode(tx.signature as Uint8Array))
                 })()
             } catch (error) {
                 rejectMap(error, reject)
