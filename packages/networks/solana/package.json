@@ -63,6 +63,7 @@
     },
     "dependencies": {
         "@metaplex-foundation/js": "^0.20.1",
+        "@multiplechain/solana-walletconnect": "^0.1.1",
         "@multiplechain/types": "^0.1.56",
         "@multiplechain/utils": "^0.1.20",
         "@solana/spl-token": "^0.4.6",
