@@ -30,9 +30,10 @@ export class Transaction implements TransactionInterface {
     }
 
     /**
-     * @returns {Promise<TransactionStatusEnum>} Wait for the transaction to be confirmed
+     * @param {number} ms - Milliseconds to wait for the transaction to be confirmed. Default is 4000ms
+     * @returns {Promise<TransactionStatusEnum>} Status of the transaction
      */
-    async wait(): Promise<TransactionStatusEnum> {
+    async wait(ms: number = 4000): Promise<TransactionStatusEnum> {
         return await Promise.resolve(TransactionStatusEnum.CONFIRMED)
     }
 
