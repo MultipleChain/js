@@ -86,11 +86,7 @@ export class Token extends Contract implements TokenInterface {
      * @param {number} amount Amount of the tokens that will be used
      * @returns {Promise<TransactionSigner>} Transaction signer
      */
-    async approve(
-        owner: string,
-        spender: string,
-        amount: number
-    ): Promise<TokenTransactionSigner> {
+    async approve(owner: string, spender: string, amount: number): Promise<TokenTransactionSigner> {
         return new TokenTransactionSigner('example')
     }
 }
