@@ -28,7 +28,7 @@ const WalletConnect: WalletAdapterInterface = {
             })
         localStorage.removeItem('walletconnect')
         localStorage.removeItem('WALLETCONNECT_DEEPLINK_CHOICE')
-        document.cookie = 'wl-connected' + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+        indexedDB.deleteDatabase('WALLET_CONNECT_V2_INDEXED_DB')
     },
     connect: async (
         provider?: ProviderInterface,
