@@ -11,30 +11,33 @@ import { TransactionTypeEnum } from '../enums.ts'
 /**
  * Filter types for each transaction type in TransactionListenerInterface
  */
-interface TransactionListenerFilterInterface {
+export interface TransactionListenerFilterInterface {
     signer?: string
 }
 
-interface ContractTransactionListenerFilterInterface extends TransactionListenerFilterInterface {
+export interface ContractTransactionListenerFilterInterface
+    extends TransactionListenerFilterInterface {
     address?: string
 }
 
-interface AssetTransactionListenerFilterInterface extends TransactionListenerFilterInterface {
+export interface AssetTransactionListenerFilterInterface
+    extends TransactionListenerFilterInterface {
     sender?: string
     receiver?: string
 }
 
-interface CoinTransactionListenerFilterInterface extends AssetTransactionListenerFilterInterface {
+export interface CoinTransactionListenerFilterInterface
+    extends AssetTransactionListenerFilterInterface {
     amount?: number
 }
 
-interface TokenTransactionListenerFilterInterface
+export interface TokenTransactionListenerFilterInterface
     extends AssetTransactionListenerFilterInterface,
         ContractTransactionListenerFilterInterface {
     amount?: number
 }
 
-interface NftTransactionListenerFilterInterface
+export interface NftTransactionListenerFilterInterface
     extends AssetTransactionListenerFilterInterface,
         ContractTransactionListenerFilterInterface {
     nftId?: number | string
