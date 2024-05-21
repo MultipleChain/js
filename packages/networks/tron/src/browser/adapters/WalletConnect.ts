@@ -68,6 +68,7 @@ const WalletConnect: WalletAdapterInterface = {
                 walletProvider
                     .connect()
                     .then(async () => {
+                        isConnected = true
                         resolve(walletProvider as CustomAdapter)
                     })
                     .catch((error) => {
