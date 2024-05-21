@@ -1,5 +1,5 @@
 import type { CustomAdapter } from '../Wallet.ts'
-import { WalletPlatformEnum } from '@multiplechain/types'
+import { ErrorTypeEnum, WalletPlatformEnum } from '@multiplechain/types'
 import { WalletConnectAdapter } from '@multiplechain/tron-walletconnect'
 import type {
     ProviderInterface,
@@ -50,15 +50,15 @@ const WalletConnect: WalletAdapterInterface = {
             const ops = _ops as WalletConnectOps
 
             if (provider === undefined) {
-                throw new Error('Provider is required')
+                throw new Error(ErrorTypeEnum.PROVIDER_IS_REQUIRED)
             }
 
             if (ops === undefined) {
-                throw new Error('Ops is required')
+                throw new Error(ErrorTypeEnum.OPS_IS_REQUIRED)
             }
 
             if (ops.projectId === undefined) {
-                throw new Error('Project ID is required')
+                throw new Error(ErrorTypeEnum.PROJECT_ID_IS_REQUIRED)
             }
 
             const walletProvider = new WalletConnectAdapter({

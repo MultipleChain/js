@@ -2,15 +2,38 @@ import type {
     TransactionTypeEnum,
     DynamicTransactionType,
     TransactionListenerInterface,
-    TransactionListenerCallbackType,
     DynamicTransactionListenerFilterType
 } from '@multiplechain/types'
 
 import { Provider } from './Provider.ts'
+import type {
+    Transaction,
+    TokenTransaction,
+    CoinTransaction,
+    ContractTransaction,
+    NftTransaction
+} from '../models/index.ts'
 import { TransactionListenerProcessIndex } from '@multiplechain/types'
 
-export class TransactionListener<T extends TransactionTypeEnum>
-    implements TransactionListenerInterface<T>
+type TransactionListenerTriggerType<T extends TransactionTypeEnum> = DynamicTransactionType<
+    T,
+    Transaction,
+    ContractTransaction,
+    CoinTransaction,
+    TokenTransaction,
+    NftTransaction
+>
+
+type TransactionListenerCallbackType<
+    T extends TransactionTypeEnum,
+    Transaction = TransactionListenerTriggerType<T>
+> = (transaction: Transaction) => void
+
+export class TransactionListener<
+    T extends TransactionTypeEnum,
+    DTransaction extends TransactionListenerTriggerType<T>,
+    CallBackType extends TransactionListenerCallbackType<T>
+> implements TransactionListenerInterface<T, DTransaction, CallBackType>
 {
     /**
      * Transaction type
@@ -20,7 +43,7 @@ export class TransactionListener<T extends TransactionTypeEnum>
     /**
      * Transaction listener callback
      */
-    callbacks: TransactionListenerCallbackType[] = []
+    callbacks: CallBackType[] = []
 
     /**
      * Transaction listener filter
@@ -92,10 +115,10 @@ export class TransactionListener<T extends TransactionTypeEnum>
 
     /**
      * Listen to the transaction events
-     * @param {TransactionListenerCallbackType} callback - Transaction listener callback
+     * @param {CallBackType} callback - Transaction listener callback
      * @returns {Promise<boolean>}
      */
-    async on(callback: TransactionListenerCallbackType): Promise<boolean> {
+    async on(callback: CallBackType): Promise<boolean> {
         this.start()
         this.callbacks.push(callback)
         return true
@@ -103,14 +126,14 @@ export class TransactionListener<T extends TransactionTypeEnum>
 
     /**
      * Trigger the event when a transaction is detected
-     * @param {DynamicTransactionType<T>} transaction - Transaction data
+     * @param {TransactionListenerTriggerType<T>} transaction - Transaction data
      * @returns {void}
      */
-    trigger<T extends TransactionTypeEnum>(transaction: DynamicTransactionType<T>): void {
+    trigger<T extends TransactionTypeEnum>(transaction: TransactionListenerTriggerType<T>): void {
         if (!this.triggeredTransactions.includes(transaction.id)) {
             this.triggeredTransactions.push(transaction.id)
             this.callbacks.forEach((callback) => {
-                callback(transaction)
+                callback(transaction as unknown as DTransaction)
             })
         }
     }
