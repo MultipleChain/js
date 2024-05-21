@@ -17,18 +17,6 @@ const WalletConnect: WalletAdapterInterface = {
     id: 'walletconnect',
     name: 'WalletConnect',
     platforms: [WalletPlatformEnum.UNIVERSAL],
-    downloadLink: 'https://www.tronlink.org/dlDetails/',
-    createDeepLink(url: string): string {
-        return (
-            'tronlinkoutside://pull.activity?param=' +
-            JSON.stringify({
-                url,
-                action: 'open',
-                protocol: 'tronlink',
-                version: '1.0'
-            })
-        )
-    },
     isDetected: () => true,
     isConnected: () => isConnected,
     disconnect: async () => {
