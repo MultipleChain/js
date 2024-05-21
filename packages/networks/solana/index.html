@@ -231,7 +231,13 @@
 
             const wallet = new Solana.browser.Wallet(adapter)
             const adapterProvider = await wallet.connect(provider, {
-                projectId: '113d9f5689edd84ff230c2a6d679c80c'
+                projectId: '113d9f5689edd84ff230c2a6d679c80c',
+                metadata: {
+                    name: 'MultipleChain',
+                    description: 'MultipleChain is a best standard',
+                    url: 'http://localhost:3000/',
+                    icons: []
+                }
             })
             
             document.querySelector('.methods').style.display = 'block'

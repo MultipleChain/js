@@ -1,6 +1,7 @@
 export { default as Slope } from './Slope.ts'
 export { default as Phantom } from './Phantom.ts'
 export { default as Solflare } from './Solflare.ts'
+export { default as Web3Modal } from './Web3Modal.ts'
 export { default as TrustWallet } from './TrustWallet.ts'
 export { default as TokenPocket } from './TokenPocket.ts'
 export { default as BitgetWallet } from './BitgetWallet.ts'

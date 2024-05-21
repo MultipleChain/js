@@ -77,6 +77,8 @@
         "@solana/wallet-adapter-tokenpocket": "^0.4.19",
         "@solana/wallet-adapter-trust": "^0.1.13",
         "@solana/web3.js": "^1.91.8",
+        "@web3modal/core": "^4.2.1",
+        "@web3modal/solana": "^4.2.1",
         "axios": "^1.6.8"
     }
 }
