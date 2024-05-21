@@ -69,6 +69,7 @@
         "@solana/spl-token-metadata": "^0.1.4",
         "@solana/wallet-adapter-base": "^0.9.23",
         "@solana/wallet-adapter-bitkeep": "^0.3.20",
+        "@solana/wallet-adapter-coinbase": "^0.1.19",
         "@solana/wallet-adapter-phantom": "^0.9.24",
         "@solana/wallet-adapter-slope": "^0.5.21",
         "@solana/wallet-adapter-solflare": "^0.6.28",

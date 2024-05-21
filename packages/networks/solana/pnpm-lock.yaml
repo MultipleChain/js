@@ -26,6 +26,9 @@ dependencies:
   '@solana/wallet-adapter-bitkeep':
     specifier: ^0.3.20
     version: 0.3.20(@solana/web3.js@1.91.8)
+  '@solana/wallet-adapter-coinbase':
+    specifier: ^0.1.19
+    version: 0.1.19(@solana/web3.js@1.91.8)
   '@solana/wallet-adapter-phantom':
     specifier: ^0.9.24
     version: 0.9.24(@solana/web3.js@1.91.8)
@@ -1049,6 +1052,16 @@ packages:
 
   /@solana/wallet-adapter-bitkeep@0.3.20(@solana/web3.js@1.91.8):
     resolution: {integrity: sha512-v6Jd13CZOPNIAX0nFlopAJ3HDvC+MhiB4sde3C8sSnNbjVi9h1WLHBmaUfgqU6mAyhDjWUZjKt4zYlMhLdp/bg==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      '@solana/web3.js': ^1.77.3
+    dependencies:
+      '@solana/wallet-adapter-base': 0.9.23(@solana/web3.js@1.91.8)
+      '@solana/web3.js': 1.91.8
+    dev: false
+
+  /@solana/wallet-adapter-coinbase@0.1.19(@solana/web3.js@1.91.8):
+    resolution: {integrity: sha512-hcf9ieAbQxD2g8/5glXVAt67w+3iixpjMMZC7lT7Wa8SJZsq6lmISC9AtZctDEQcWSVV0IkedZp3bg6bp22kng==}
     engines: {node: '>=16'}
     peerDependencies:
       '@solana/web3.js': ^1.77.3
