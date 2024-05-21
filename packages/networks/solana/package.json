@@ -73,6 +73,7 @@
         "@solana/wallet-adapter-phantom": "^0.9.24",
         "@solana/wallet-adapter-slope": "^0.5.21",
         "@solana/wallet-adapter-solflare": "^0.6.28",
+        "@solana/wallet-adapter-tokenpocket": "^0.4.19",
         "@solana/wallet-adapter-trust": "^0.1.13",
         "@solana/web3.js": "^1.91.8",
         "axios": "^1.6.8"
