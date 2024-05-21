@@ -26,6 +26,9 @@ dependencies:
   '@solana/wallet-adapter-phantom':
     specifier: ^0.9.24
     version: 0.9.24(@solana/web3.js@1.91.8)
+  '@solana/wallet-adapter-slope':
+    specifier: ^0.5.21
+    version: 0.5.21(@solana/web3.js@1.91.8)
   '@solana/wallet-adapter-solflare':
     specifier: ^0.6.28
     version: 0.6.28(@solana/web3.js@1.91.8)
@@ -1046,6 +1049,18 @@ packages:
     dependencies:
       '@solana/wallet-adapter-base': 0.9.23(@solana/web3.js@1.91.8)
       '@solana/web3.js': 1.91.8
+    dev: false
+
+  /@solana/wallet-adapter-slope@0.5.21(@solana/web3.js@1.91.8):
+    resolution: {integrity: sha512-4byuSwqkt8L3w7VzFvVPBN+lNkx7CmEc+FMFZUuo9pBDwwi6sDYZK/+wBBep7L7+xW81XKN9K4MsMOQAD2snSg==}
+    engines: {node: '>=16'}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+    peerDependencies:
+      '@solana/web3.js': ^1.77.3
+    dependencies:
+      '@solana/wallet-adapter-base': 0.9.23(@solana/web3.js@1.91.8)
+      '@solana/web3.js': 1.91.8
+      bs58: 4.0.1
     dev: false
 
   /@solana/wallet-adapter-solflare@0.6.28(@solana/web3.js@1.91.8):

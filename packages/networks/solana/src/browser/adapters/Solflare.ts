@@ -27,9 +27,7 @@ const Solflare: WalletAdapterInterface = {
         return `https://solflare.com/ul/v1/browse/${url}?ref=${url}`
     },
     isDetected: () => solflare.readyState === WalletReadyState.Installed,
-    isConnected: async () => {
-        return true // return true if connected
-    },
+    isConnected: async () => solflare.connected,
     connect: async (
         _provider?: ProviderInterface,
         _ops?: object
