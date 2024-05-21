@@ -105,13 +105,20 @@ export class Token extends Contract implements TokenInterface {
      * @returns {Promise<number>} Wallet balance as currency of TOKEN
      */
     async getBalance(owner: string): Promise<number> {
-        const res = await this.provider.web3.getParsedTokenAccountsByOwner(new PublicKey(owner), {
-            mint: this.pubKey
-        })
+        try {
+            const res = await this.provider.web3.getParsedTokenAccountsByOwner(
+                new PublicKey(owner),
+                {
+                    mint: this.pubKey
+                }
+            )
 
-        return res.value[0] === undefined
-            ? 0
-            : res.value[0].account.data.parsed.info.tokenAmount.uiAmount
+            return res.value[0] === undefined
+                ? 0
+                : res.value[0].account.data.parsed.info.tokenAmount.uiAmount
+        } catch (error) {
+            return 0
+        }
     }
 
     /**
@@ -127,26 +134,31 @@ export class Token extends Contract implements TokenInterface {
      * @returns {Promise<number>} Amount of tokens that the spender is allowed to spend
      */
     async getAllowance(owner: string, spender?: string): Promise<number> {
-        const ownerResult = await this.provider.web3.getParsedTokenAccountsByOwner(
-            new PublicKey(owner),
-            {
-                mint: this.pubKey
-            }
-        )
-
-        if (ownerResult.value[0] === undefined) return 0
-
-        if (ownerResult.value[0].account.data.parsed.info.delegatedAmount === undefined) return 0
-
-        if (spender !== undefined) {
-            if (
-                ownerResult.value[0].account.data.parsed.info.delegate.toLowerCase() !==
-                spender.toLowerCase()
+        try {
+            const ownerResult = await this.provider.web3.getParsedTokenAccountsByOwner(
+                new PublicKey(owner),
+                {
+                    mint: this.pubKey
+                }
             )
-                return 0
-        }
 
-        return ownerResult.value[0].account.data.parsed.info.delegatedAmount.uiAmount
+            if (ownerResult.value[0] === undefined) return 0
+
+            if (ownerResult.value[0].account.data.parsed.info.delegatedAmount === undefined)
+                return 0
+
+            if (spender !== undefined) {
+                if (
+                    ownerResult.value[0].account.data.parsed.info.delegate.toLowerCase() !==
+                    spender.toLowerCase()
+                )
+                    return 0
+            }
+
+            return ownerResult.value[0].account.data.parsed.info.delegatedAmount.uiAmount
+        } catch (error) {
+            return 0
+        }
     }
 
     /**
