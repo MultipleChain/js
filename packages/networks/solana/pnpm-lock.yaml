@@ -12,8 +12,8 @@ dependencies:
     specifier: ^0.1.56
     version: 0.1.56
   '@multiplechain/utils':
-    specifier: ^0.1.18
-    version: 0.1.18
+    specifier: ^0.1.20
+    version: 0.1.20
   '@solana/spl-token':
     specifier: ^0.4.6
     version: 0.4.6(@solana/web3.js@1.91.8)(fastestsmallesttextencoderdecoder@1.0.22)
@@ -624,8 +624,8 @@ packages:
     resolution: {integrity: sha512-tnkgDwW0AWxEfhE/392LR6ZPE7Pxz5/Ei1XYsQISGkOfYYZrsvJXr69fXTjDOHCq7RCuQqytKmhnKs5K4xHd7w==}
     dev: false
 
-  /@multiplechain/utils@0.1.18:
-    resolution: {integrity: sha512-UCoOOBJrawp/lInepxuoEiYwId0wMPg7rX8p78FLqzGl8f/b93sAtv7sP87/VVKwhdoEuNZ/uQjckycmNeks/w==}
+  /@multiplechain/utils@0.1.20:
+    resolution: {integrity: sha512-4eEs4YR/V4F2Qnkl5KTZvPpewRQiX7C193d0tjpQuIfyumTEBJtdHYm1CW9CoJ6EjQUaB0oqSRKXomhzfK1qkw==}
     dependencies:
       '@types/ws': 8.5.10
       bignumber.js: 9.1.2
