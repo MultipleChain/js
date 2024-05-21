@@ -9,8 +9,8 @@ dependencies:
     specifier: ^0.20.1
     version: 0.20.1(arweave@1.15.1)(fastestsmallesttextencoderdecoder@1.0.22)
   '@multiplechain/types':
-    specifier: ^0.1.55
-    version: 0.1.55
+    specifier: ^0.1.56
+    version: 0.1.56
   '@multiplechain/utils':
     specifier: ^0.1.18
     version: 0.1.18
@@ -620,8 +620,8 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@multiplechain/types@0.1.55:
-    resolution: {integrity: sha512-9fYrLaDxX2pj9zfIbmvk1hPF3FH/bK+Q3uTF+k3zdsitP/HzQ1S9zImNz20Tvoqkk1ns+/8ecE0Y6GNowsDOQA==}
+  /@multiplechain/types@0.1.56:
+    resolution: {integrity: sha512-tnkgDwW0AWxEfhE/392LR6ZPE7Pxz5/Ei1XYsQISGkOfYYZrsvJXr69fXTjDOHCq7RCuQqytKmhnKs5K4xHd7w==}
     dev: false
 
   /@multiplechain/utils@0.1.18:

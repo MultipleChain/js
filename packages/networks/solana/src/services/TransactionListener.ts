@@ -1,12 +1,11 @@
-import type {
-    DynamicTransactionType,
-    TransactionListenerInterface,
-    TransactionListenerCallbackType,
-    DynamicTransactionListenerFilterType
-} from '@multiplechain/types'
-
 import { Provider } from './Provider.ts'
 import { Transaction } from '../models/Transaction.ts'
+import { objectsEqual } from '@multiplechain/utils'
+import { NftTransaction } from '../models/NftTransaction.ts'
+import { CoinTransaction } from '../models/CoinTransaction.ts'
+import { TokenTransaction } from '../models/TokenTransaction.ts'
+import { ContractTransaction } from '../models/ContractTransaction.ts'
+import { getAssociatedTokenAddressSync } from '@solana/spl-token'
 import {
     PublicKey,
     SystemProgram,
@@ -16,16 +15,36 @@ import {
     type ParsedInstruction,
     type PartiallyDecodedInstruction
 } from '@solana/web3.js'
-import { objectsEqual } from '@multiplechain/utils'
-import { NftTransaction } from '../models/NftTransaction.ts'
-import { CoinTransaction } from '../models/CoinTransaction.ts'
-import { TokenTransaction } from '../models/TokenTransaction.ts'
-import { ContractTransaction } from '../models/ContractTransaction.ts'
-import { TransactionListenerProcessIndex, TransactionTypeEnum } from '@multiplechain/types'
-import { getAssociatedTokenAddressSync } from '@solana/spl-token'
+import type {
+    DynamicTransactionType,
+    TransactionListenerInterface,
+    DynamicTransactionListenerFilterType
+} from '@multiplechain/types'
+import {
+    ErrorTypeEnum,
+    TransactionTypeEnum,
+    TransactionListenerProcessIndex
+} from '@multiplechain/types'
 
-export class TransactionListener<T extends TransactionTypeEnum>
-    implements TransactionListenerInterface<T>
+type TransactionListenerTriggerType<T extends TransactionTypeEnum> = DynamicTransactionType<
+    T,
+    Transaction,
+    ContractTransaction,
+    CoinTransaction,
+    TokenTransaction,
+    NftTransaction
+>
+
+type TransactionListenerCallbackType<
+    T extends TransactionTypeEnum,
+    Transaction = TransactionListenerTriggerType<T>
+> = (transaction: Transaction) => void
+
+export class TransactionListener<
+    T extends TransactionTypeEnum,
+    DTransaction extends TransactionListenerTriggerType<T>,
+    CallBackType extends TransactionListenerCallbackType<T>
+> implements TransactionListenerInterface<T, DTransaction, CallBackType>
 {
     /**
      * Transaction type
@@ -35,7 +54,7 @@ export class TransactionListener<T extends TransactionTypeEnum>
     /**
      * Transaction listener callback
      */
-    callbacks: TransactionListenerCallbackType[] = []
+    callbacks: CallBackType[] = []
 
     /**
      * Transaction listener filter
@@ -111,13 +130,13 @@ export class TransactionListener<T extends TransactionTypeEnum>
 
     /**
      * Listen to the transaction events
-     * @param {TransactionListenerCallbackType} callback - Transaction listener callback
+     * @param {CallBackType} callback - Transaction listener callback
      * @returns {Promise<boolean>}
      */
-    async on(callback: TransactionListenerCallbackType): Promise<boolean> {
+    async on(callback: CallBackType): Promise<boolean> {
         if (!this.connected) {
             if ((await this.provider.checkWsConnection()) instanceof Error) {
-                throw new Error('WebSocket connection is not available')
+                throw new Error(ErrorTypeEnum.WS_CONNECTION_FAILED)
             } else {
                 this.connected = true
             }
@@ -131,14 +150,14 @@ export class TransactionListener<T extends TransactionTypeEnum>
 
     /**
      * Trigger the event when a transaction is detected
-     * @param {DynamicTransactionType<T>} transaction - Transaction data
+     * @param {TransactionListenerTriggerType<T>} transaction - Transaction data
      * @returns {void}
      */
-    trigger<T extends TransactionTypeEnum>(transaction: DynamicTransactionType<T>): void {
+    trigger<T extends TransactionTypeEnum>(transaction: TransactionListenerTriggerType<T>): void {
         if (!this.triggeredTransactions.includes(transaction.id)) {
             this.triggeredTransactions.push(transaction.id)
             this.callbacks.forEach((callback) => {
-                callback(transaction)
+                callback(transaction as unknown as DTransaction)
             })
         }
     }
