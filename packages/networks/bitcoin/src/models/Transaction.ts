@@ -93,7 +93,7 @@ export class Transaction implements TransactionInterface {
             // Returns empty data when the transaction is first created. For this reason, it would be better to check it intermittently and give an error if it still does not exist. Average 10 seconds.
             if (String(axiosError?.response?.data).includes('Transaction not found')) {
                 if (counter > 5) {
-                    throw new Error('Transaction not found')
+                    throw new Error(ErrorTypeEnum.TRANSACTION_NOT_FOUND)
                 }
                 counter++
                 await sleep(2000)

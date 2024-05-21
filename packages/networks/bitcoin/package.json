@@ -1,6 +1,6 @@
 {
     "name": "@multiplechain/bitcoin",
-    "version": "0.1.0",
+    "version": "0.4.0",
     "type": "module",
     "main": "dist/index.cjs",
     "module": "dist/index.es.js",
@@ -62,8 +62,8 @@
         "url": "https://github.com/MultipleChain/js/issues"
     },
     "dependencies": {
-        "@multiplechain/types": "^0.1.55",
-        "@multiplechain/utils": "^0.1.18",
+        "@multiplechain/types": "^0.1.56",
+        "@multiplechain/utils": "^0.1.20",
         "axios": "^1.6.8",
         "bitcore-lib": "^10.0.28",
         "sats-connect": "^2.3.1",

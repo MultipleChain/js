@@ -2,16 +2,18 @@ import type {
     TransactionTypeEnum,
     DynamicTransactionType,
     TransactionListenerInterface,
-    TransactionListenerCallbackType,
     DynamicTransactionListenerFilterType
 } from '@multiplechain/types'
 import WebSocket from 'ws'
 import { Provider } from './Provider.ts'
-import { TransactionListenerProcessIndex } from '@multiplechain/types'
-import { checkWebSocket, objectsEqual } from '@multiplechain/utils'
-import { CoinTransaction } from '../models/CoinTransaction.ts'
-import { Transaction } from '../models/Transaction.ts'
 import { fromSatoshi } from '../utils.ts'
+import { Transaction } from '../models/Transaction.ts'
+import type { NftTransaction } from '../models/NftTransaction.ts'
+import { CoinTransaction } from '../models/CoinTransaction.ts'
+import type { TokenTransaction } from '../models/TokenTransaction.ts'
+import type { ContractTransaction } from '../models/ContractTransaction.ts'
+import { checkWebSocket, objectsEqual } from '@multiplechain/utils'
+import { TransactionListenerProcessIndex } from '@multiplechain/types'
 
 interface Values {
     txId: string
@@ -20,8 +22,25 @@ interface Values {
     receiver?: string
 }
 
-export class TransactionListener<T extends TransactionTypeEnum>
-    implements TransactionListenerInterface<T>
+type TransactionListenerTriggerType<T extends TransactionTypeEnum> = DynamicTransactionType<
+    T,
+    Transaction,
+    ContractTransaction,
+    CoinTransaction,
+    TokenTransaction,
+    NftTransaction
+>
+
+type TransactionListenerCallbackType<
+    T extends TransactionTypeEnum,
+    Transaction = TransactionListenerTriggerType<T>
+> = (transaction: Transaction) => void
+
+export class TransactionListener<
+    T extends TransactionTypeEnum,
+    DTransaction extends TransactionListenerTriggerType<T>,
+    CallBackType extends TransactionListenerCallbackType<T>
+> implements TransactionListenerInterface<T, DTransaction, CallBackType>
 {
     /**
      * Transaction type
@@ -31,7 +50,7 @@ export class TransactionListener<T extends TransactionTypeEnum>
     /**
      * Transaction listener callback
      */
-    callbacks: TransactionListenerCallbackType[] = []
+    callbacks: CallBackType[] = []
 
     /**
      * Transaction listener filter
@@ -107,10 +126,10 @@ export class TransactionListener<T extends TransactionTypeEnum>
 
     /**
      * Listen to the transaction events
-     * @param {TransactionListenerCallbackType} callback - Transaction listener callback
+     * @param {CallBackType} callback - Transaction listener callback
      * @returns {Promise<boolean>}
      */
-    async on(callback: TransactionListenerCallbackType): Promise<boolean> {
+    async on(callback: CallBackType): Promise<boolean> {
         if (this.webSocket === undefined) {
             try {
                 await checkWebSocket(this.provider.wsUrl)
@@ -131,14 +150,14 @@ export class TransactionListener<T extends TransactionTypeEnum>
 
     /**
      * Trigger the event when a transaction is detected
-     * @param {DynamicTransactionType<T>} transaction - Transaction data
+     * @param {TransactionListenerTriggerType<T>} transaction - Transaction data
      * @returns {void}
      */
-    trigger<T extends TransactionTypeEnum>(transaction: DynamicTransactionType<T>): void {
+    trigger<T extends TransactionTypeEnum>(transaction: TransactionListenerTriggerType<T>): void {
         if (!this.triggeredTransactions.includes(transaction.id)) {
             this.triggeredTransactions.push(transaction.id)
             this.callbacks.forEach((callback) => {
-                callback(transaction)
+                callback(transaction as unknown as DTransaction)
             })
         }
     }
