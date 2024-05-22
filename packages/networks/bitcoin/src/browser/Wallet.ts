@@ -145,7 +145,16 @@ export class Wallet implements WalletInterface {
      * @param {string} message
      */
     async signMessage(message: string): Promise<string> {
-        return await this.walletProvider.signMessage(message)
+        return await new Promise((resolve, reject) => {
+            this.walletProvider
+                .signMessage(message)
+                .then((signature) => {
+                    resolve(signature)
+                })
+                .catch((error) => {
+                    rejectMap(error, reject)
+                })
+        })
     }
 
     /**
@@ -154,7 +163,16 @@ export class Wallet implements WalletInterface {
      */
     async sendTransaction(transactionSigner: TransactionSignerInterface): Promise<string> {
         const data = (await transactionSigner.getRawData()) as TransactionData
-        return await this.walletProvider.sendBitcoin(data.receiver, data.amount)
+        return await new Promise((resolve, reject) => {
+            this.walletProvider
+                .sendBitcoin(data.receiver, data.amount)
+                .then((txHash) => {
+                    resolve(txHash)
+                })
+                .catch((error) => {
+                    rejectMap(error, reject)
+                })
+        })
     }
 
     /**
