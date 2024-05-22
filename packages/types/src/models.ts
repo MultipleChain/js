@@ -1,6 +1,6 @@
 import type { AssetDirectionEnum, TransactionStatusEnum } from './enums.ts'
 
-export interface TransactionInterface<TxData> {
+export interface TransactionInterface<TxData = unknown> {
     /**
      * Each transaction has its own unique ID defined by the user
      */
@@ -59,14 +59,14 @@ export interface TransactionInterface<TxData> {
     getStatus: () => Promise<TransactionStatusEnum>
 }
 
-export interface ContractTransactionInterface<TxData> extends TransactionInterface<TxData> {
+export interface ContractTransactionInterface extends TransactionInterface {
     /**
      * @returns {Promise<string>} Smart contract address of the transaction
      */
     getAddress: () => Promise<string>
 }
 
-export interface AssetTransactionInterface<TxData> extends TransactionInterface<TxData> {
+export interface AssetTransactionInterface extends TransactionInterface {
     /**
      * @returns {Promise<string>} Receiver wallet address of the transaction (asset)
      */
@@ -95,15 +95,15 @@ export interface AssetTransactionInterface<TxData> extends TransactionInterface<
     ) => Promise<TransactionStatusEnum>
 }
 
-export interface CoinTransactionInterface<TxData> extends AssetTransactionInterface<TxData> {}
+export interface CoinTransactionInterface extends AssetTransactionInterface {}
 
-export interface TokenTransactionInterface<TxData>
-    extends AssetTransactionInterface<TxData>,
-        ContractTransactionInterface<TxData> {}
+export interface TokenTransactionInterface
+    extends AssetTransactionInterface,
+        ContractTransactionInterface {}
 
-export interface NftTransactionInterface<TxData>
-    extends Omit<AssetTransactionInterface<TxData>, 'verifyTransfer' | 'getAmount'>,
-        ContractTransactionInterface<TxData> {
+export interface NftTransactionInterface
+    extends Omit<AssetTransactionInterface, 'verifyTransfer' | 'getAmount'>,
+        ContractTransactionInterface {
     /**
      * @returns {Promise<number | string>} ID of the NFT
      */

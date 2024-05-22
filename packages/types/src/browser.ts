@@ -14,21 +14,21 @@ export interface WalletConnectConfig {
     themeMode?: 'dark' | 'light'
 }
 
-type Config = Record<string, any>
+export type UnknownConfig = Record<string, unknown>
 
-type ConnectConfig = Config & WalletConnectConfig
+export type ConnectConfig = UnknownConfig & WalletConnectConfig
 
 export interface WalletAdapterInterface<Provider, Adapter> {
     id: string
     name: string
     icon: string
-    provider?: any
+    provider?: unknown
     downloadLink?: string
     platforms: WalletPlatformEnum[]
     disconnect?: () => void | Promise<void>
     isDetected: () => boolean | Promise<boolean>
     isConnected: () => boolean | Promise<boolean>
-    createDeepLink?: (url: string, config?: Config) => string
+    createDeepLink?: (url: string, config?: UnknownConfig) => string
     connect: (provider?: Provider, config?: ConnectConfig) => Promise<Adapter>
 }
 
@@ -66,10 +66,10 @@ export interface WalletInterface<Provider, Signer, Adapter> {
 
     /**
      * @param {String} url
-     * @param {Config} config
+     * @param {UnknownConfig} config
      * @returns {String | null}
      */
-    createDeepLink: (url: string, config?: Config) => string | null
+    createDeepLink: (url: string, config?: UnknownConfig) => string | null
 
     /**
      * @param {ConnectConfig} config
@@ -109,5 +109,5 @@ export interface WalletInterface<Provider, Signer, Adapter> {
      * @param {Function} callback
      * @returns {void}
      */
-    on: (eventName: string, callback: (...args: any[]) => void) => void
+    on: (eventName: string, callback: (...args: unknown[]) => void) => void
 }
