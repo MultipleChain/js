@@ -148,9 +148,9 @@ export class Wallet implements WalletInterface<Provider, WalletAdapter, Transact
 
     /**
      * @param {ConnectConfig} config
-     * @returns {Promise<string>}
+     * @returns {Promise<WalletAddress>}
      */
-    async connect(config?: ConnectConfig): Promise<string> {
+    async connect(config?: ConnectConfig): Promise<WalletAddress> {
         return await new Promise((resolve, reject) => {
             this.currentReject = reject
             this.adapter
