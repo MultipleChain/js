@@ -12,8 +12,8 @@ dependencies:
     specifier: ^0.1.1
     version: 0.1.1(@solana/web3.js@1.91.8)(vite@5.2.11)
   '@multiplechain/types':
-    specifier: ^0.1.59
-    version: 0.1.59
+    specifier: ^0.1.62
+    version: 0.1.62
   '@multiplechain/utils':
     specifier: ^0.1.20
     version: 0.1.20
@@ -935,8 +935,8 @@ packages:
       - vite
     dev: false
 
-  /@multiplechain/types@0.1.59:
-    resolution: {integrity: sha512-kuGR6Je18zH0wU0JWlK9YKnQtIgJlMAGO9zHJxeiWQI6+Gdk+Oxw1lSCsN5/io6y/MjMNOO5b2mKl+G7Vnikwg==}
+  /@multiplechain/types@0.1.62:
+    resolution: {integrity: sha512-PV5tLW6qGuULnCQ5h7lUYVwB+xFIm+i0yLPrEtICc0u6v7p8FLPEn9wcSbWRRvRiR2S9Q31oo6bvrp+XkfatFw==}
     dev: false
 
   /@multiplechain/utils@0.1.20:

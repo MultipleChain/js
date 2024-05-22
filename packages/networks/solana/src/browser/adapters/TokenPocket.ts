@@ -1,17 +1,19 @@
+import type { WalletAdapter } from '../Wallet.ts'
 import { WalletPlatformEnum } from '@multiplechain/types'
+import type { Provider } from '../../services/Provider.ts'
+import { WalletReadyState } from '@solana/wallet-adapter-base'
 import { TokenPocketWalletAdapter } from '@solana/wallet-adapter-tokenpocket'
-import type { ProviderInterface, WalletAdapterInterface } from '@multiplechain/types'
-import { WalletReadyState, type BaseMessageSignerWalletAdapter } from '@solana/wallet-adapter-base'
+import type { ConnectConfig, UnknownConfig, WalletAdapterInterface } from '@multiplechain/types'
 
 const tokenPocket = new TokenPocketWalletAdapter()
 
-const TokenPocket: WalletAdapterInterface = {
+const TokenPocket: WalletAdapterInterface<Provider, WalletAdapter> = {
     id: 'tokenpocket',
     name: tokenPocket.name,
     icon: tokenPocket.icon,
     platforms: [WalletPlatformEnum.MOBILE],
     downloadLink: 'https://www.tokenpocket.pro/en/download/app',
-    createDeepLink(url: string, _ops?: object): string {
+    createDeepLink(url: string, _config?: UnknownConfig): string {
         return (
             'tpdapp://open?params=' +
             JSON.stringify({
@@ -26,12 +28,9 @@ const TokenPocket: WalletAdapterInterface = {
     disconnect: async () => {
         await tokenPocket.disconnect()
     },
-    connect: async (
-        _provider?: ProviderInterface,
-        _ops?: object
-    ): Promise<BaseMessageSignerWalletAdapter> => {
+    connect: async (_provider?: Provider, _config?: ConnectConfig): Promise<WalletAdapter> => {
         await tokenPocket.connect()
-        return tokenPocket as BaseMessageSignerWalletAdapter
+        return tokenPocket as WalletAdapter
     }
 }
 

@@ -4,7 +4,10 @@ import {
     type WalletAdapterInterface,
     ErrorTypeEnum,
     type ConnectConfig,
-    type UnknownConfig
+    type UnknownConfig,
+    type WalletAddress,
+    type SignedMessage,
+    type TransactionId
 } from '@multiplechain/types'
 import { Provider } from '../services/Provider.ts'
 import type {
@@ -13,7 +16,6 @@ import type {
 } from '@solana/wallet-adapter-base'
 import { base58Encode } from '@multiplechain/utils'
 import type { TransactionSigner } from '../services/TransactionSigner.ts'
-import type { Transaction } from '../models/Transaction.ts'
 
 const rejectMap = (error: any, reject: (a: any) => any): any => {
     console.error('MultipleChain Solana Wallet Error:', error)
@@ -78,9 +80,7 @@ export type WalletAdapter = BaseMessageSignerWalletAdapter
 
 type WalletAdapterType = WalletAdapterInterface<Provider, WalletAdapter>
 
-export class Wallet
-    implements WalletInterface<Provider, WalletAdapter, TransactionSigner<Transaction>>
-{
+export class Wallet implements WalletInterface<Provider, WalletAdapter, TransactionSigner> {
     adapter: WalletAdapterType
 
     walletProvider: WalletAdapter
@@ -188,16 +188,17 @@ export class Wallet
     }
 
     /**
-     * @returns {Promise<string>}
+     * @returns {Promise<WalletAddress>}
      */
-    async getAddress(): Promise<string> {
+    async getAddress(): Promise<WalletAddress> {
         return this.walletProvider.publicKey?.toBase58() ?? ''
     }
 
     /**
      * @param {string} message
+     * @returns {Promise<SignedMessage>}
      */
-    async signMessage(message: string): Promise<string> {
+    async signMessage(message: string): Promise<SignedMessage> {
         return await new Promise((resolve, reject) => {
             this.currentReject = reject
             this.walletProvider
@@ -213,9 +214,9 @@ export class Wallet
 
     /**
      * @param {TransactionSigner} transactionSigner
-     * @returns {Promise<string>}
+     * @returns {Promise<TransactionId>}
      */
-    async sendTransaction(transactionSigner: TransactionSigner<Transaction>): Promise<string> {
+    async sendTransaction(transactionSigner: TransactionSigner): Promise<TransactionId> {
         return await new Promise((resolve, reject) => {
             this.currentReject = reject
             try {

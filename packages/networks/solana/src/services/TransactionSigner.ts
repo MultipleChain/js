@@ -1,13 +1,12 @@
 import { Provider } from '../services/Provider.ts'
 import { base58Decode } from '@multiplechain/utils'
-import { Transaction } from '../models/Transaction.ts'
-import type { TransactionSignerInterface } from '@multiplechain/types'
+import type { PrivateKey, TransactionId, TransactionSignerInterface } from '@multiplechain/types'
 import { Keypair, VersionedTransaction, Transaction as RawTransaction } from '@solana/web3.js'
 
 type SignedTransaction = Buffer | Uint8Array
 
-export class TransactionSigner<ReturnTransaction>
-    implements TransactionSignerInterface<RawTransaction, SignedTransaction, ReturnTransaction>
+export class TransactionSigner
+    implements TransactionSignerInterface<RawTransaction, SignedTransaction>
 {
     /**
      * Transaction data from the blockchain network
@@ -34,10 +33,10 @@ export class TransactionSigner<ReturnTransaction>
 
     /**
      * Sign the transaction
-     * @param {string} privateKey - Transaction data
+     * @param {PrivateKey} privateKey - Transaction data
      * @returns {Promise<this>} Signed transaction data
      */
-    async sign(privateKey: string): Promise<this> {
+    async sign(privateKey: PrivateKey): Promise<this> {
         this.rawData.recentBlockhash = (
             await this.provider.web3.getLatestBlockhash('finalized')
         ).blockhash
@@ -79,12 +78,10 @@ export class TransactionSigner<ReturnTransaction>
 
     /**
      * Send the transaction to the blockchain network
-     * @returns {Promise<ReturnTransaction>}
+     * @returns {Promise<TransactionId>}
      */
-    async send(): Promise<ReturnTransaction> {
-        return new Transaction(
-            await this.provider.web3.sendRawTransaction(this.signedData)
-        ) as ReturnTransaction
+    async send(): Promise<TransactionId> {
+        return await this.provider.web3.sendRawTransaction(this.signedData)
     }
 
     /**

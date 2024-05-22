@@ -1,7 +1,12 @@
 import { Contract } from './Contract.ts'
 import { math } from '@multiplechain/utils'
 import { Metaplex } from '@metaplex-foundation/js'
-import { ErrorTypeEnum, type TokenInterface } from '@multiplechain/types'
+import {
+    ErrorTypeEnum,
+    type TokenInterface,
+    type TransferAmount,
+    type WalletAddress
+} from '@multiplechain/types'
 import {
     PublicKey,
     Transaction,
@@ -20,7 +25,6 @@ import {
     createApproveInstruction
 } from '@solana/spl-token'
 import { TransactionSigner } from '../services/TransactionSigner.ts'
-import type { TokenTransaction } from '../models/TokenTransaction.ts'
 
 interface Metadata {
     name: string
@@ -29,7 +33,7 @@ interface Metadata {
     decimals: number
 }
 
-export class Token extends Contract implements TokenInterface<TransactionSigner<TokenTransaction>> {
+export class Token extends Contract implements TokenInterface<TransactionSigner> {
     metadata: Metadata
 
     /**
@@ -102,10 +106,10 @@ export class Token extends Contract implements TokenInterface<TransactionSigner<
     }
 
     /**
-     * @param {string} owner Wallet address
+     * @param {WalletAddress} owner Wallet address
      * @returns {Promise<number>} Wallet balance as currency of TOKEN
      */
-    async getBalance(owner: string): Promise<number> {
+    async getBalance(owner: WalletAddress): Promise<number> {
         try {
             const res = await this.provider.web3.getParsedTokenAccountsByOwner(
                 new PublicKey(owner),
@@ -130,11 +134,11 @@ export class Token extends Contract implements TokenInterface<TransactionSigner<
     }
 
     /**
-     * @param {string} owner Address of owner of the tokens that is being used
-     * @param {string} spender Address of the spender that is using the tokens of owner
+     * @param {WalletAddress} owner Address of owner of the tokens that is being used
+     * @param {WalletAddress} spender Address of the spender that is using the tokens of owner
      * @returns {Promise<number>} Amount of tokens that the spender is allowed to spend
      */
-    async getAllowance(owner: string, spender?: string): Promise<number> {
+    async getAllowance(owner: WalletAddress, spender?: WalletAddress): Promise<number> {
         try {
             const ownerResult = await this.provider.web3.getParsedTokenAccountsByOwner(
                 new PublicKey(owner),
@@ -173,32 +177,32 @@ export class Token extends Contract implements TokenInterface<TransactionSigner<
 
     /**
      * transfer() method is the main method for processing transfers for fungible assets (TOKEN, COIN)
-     * @param {string} sender Sender wallet address
-     * @param {string} receiver Receiver wallet address
-     * @param {number} amount Amount of assets that will be transferred
-     * @returns {Promise<TransactionSigner<TokenTransaction>>} Transaction signer
+     * @param {WalletAddress} sender Sender wallet address
+     * @param {WalletAddress} receiver Receiver wallet address
+     * @param {TransferAmount} amount Amount of assets that will be transferred
+     * @returns {Promise<TransactionSigner>} Transaction signer
      */
     async transfer(
-        sender: string,
-        receiver: string,
-        amount: number
-    ): Promise<TransactionSigner<TokenTransaction>> {
+        sender: WalletAddress,
+        receiver: WalletAddress,
+        amount: TransferAmount
+    ): Promise<TransactionSigner> {
         return await this.transferFrom(sender, sender, receiver, amount)
     }
 
     /**
-     * @param {string} spender Address of the spender of transaction
-     * @param {string} owner Sender wallet address
-     * @param {string} receiver Receiver wallet address
-     * @param {number} amount Amount of tokens that will be transferred
-     * @returns {Promise<TransactionSigner<TokenTransaction>>} Transaction signer
+     * @param {WalletAddress} spender Address of the spender of transaction
+     * @param {WalletAddress} owner Sender wallet address
+     * @param {WalletAddress} receiver Receiver wallet address
+     * @param {TransferAmount} amount Amount of tokens that will be transferred
+     * @returns {Promise<TransactionSigner>} Transaction signer
      */
     async transferFrom(
-        spender: string,
-        owner: string,
-        receiver: string,
-        amount: number
-    ): Promise<TransactionSigner<TokenTransaction>> {
+        spender: WalletAddress,
+        owner: WalletAddress,
+        receiver: WalletAddress,
+        amount: TransferAmount
+    ): Promise<TransactionSigner> {
         if (amount < 0) {
             throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
         }
@@ -275,16 +279,16 @@ export class Token extends Contract implements TokenInterface<TransactionSigner<
 
     /**
      * Gives permission to the spender to spend owner's tokens
-     * @param {string} owner Address of owner of the tokens that will be used
-     * @param {string} spender Address of the spender that will use the tokens of owner
-     * @param {number} amount Amount of the tokens that will be used
-     * @returns {Promise<TransactionSigner<TokenTransaction>>} Transaction signer
+     * @param {WalletAddress} owner Address of owner of the tokens that will be used
+     * @param {WalletAddress} spender Address of the spender that will use the tokens of owner
+     * @param {TransferAmount} amount Amount of the tokens that will be used
+     * @returns {Promise<TransactionSigner>} Transaction signer
      */
     async approve(
-        owner: string,
-        spender: string,
-        amount: number
-    ): Promise<TransactionSigner<TokenTransaction>> {
+        owner: WalletAddress,
+        spender: WalletAddress,
+        amount: TransferAmount
+    ): Promise<TransactionSigner> {
         if (amount < 0) {
             throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
         }

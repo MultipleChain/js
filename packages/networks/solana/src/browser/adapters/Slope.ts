@@ -1,7 +1,9 @@
+import type { WalletAdapter } from '../Wallet.ts'
 import { WalletPlatformEnum } from '@multiplechain/types'
+import type { Provider } from '../../services/Provider.ts'
+import { WalletReadyState } from '@solana/wallet-adapter-base'
 import { SlopeWalletAdapter } from '@solana/wallet-adapter-slope'
-import type { ProviderInterface, WalletAdapterInterface } from '@multiplechain/types'
-import { WalletReadyState, type BaseMessageSignerWalletAdapter } from '@solana/wallet-adapter-base'
+import type { ConnectConfig, WalletAdapterInterface } from '@multiplechain/types'
 
 const slope = new SlopeWalletAdapter()
 
@@ -16,12 +18,9 @@ const Slope: WalletAdapterInterface<Provider, WalletAdapter> = {
     disconnect: async () => {
         await slope.disconnect()
     },
-    connect: async (
-        _provider?: ProviderInterface,
-        _ops?: object
-    ): Promise<BaseMessageSignerWalletAdapter> => {
+    connect: async (_provider?: Provider, _config?: ConnectConfig): Promise<WalletAdapter> => {
         await slope.connect()
-        return slope as BaseMessageSignerWalletAdapter
+        return slope as WalletAdapter
     }
 }
 

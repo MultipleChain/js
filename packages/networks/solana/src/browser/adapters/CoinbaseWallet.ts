@@ -2,8 +2,8 @@ import type { WalletAdapter } from '../Wallet.ts'
 import { WalletPlatformEnum } from '@multiplechain/types'
 import type { Provider } from '../../services/Provider.ts'
 import { WalletReadyState } from '@solana/wallet-adapter-base'
-import type { WalletAdapterInterface } from '@multiplechain/types'
 import { CoinbaseWalletAdapter } from '@solana/wallet-adapter-coinbase'
+import type { ConnectConfig, UnknownConfig, WalletAdapterInterface } from '@multiplechain/types'
 
 const coinbase = new CoinbaseWalletAdapter()
 
@@ -13,7 +13,7 @@ const CoinbaseWallet: WalletAdapterInterface<Provider, WalletAdapter> = {
     icon: coinbase.icon,
     platforms: [WalletPlatformEnum.BROWSER, WalletPlatformEnum.MOBILE],
     downloadLink: 'https://www.coinbase.com/wallet/downloads',
-    createDeepLink(url: string, _ops?: object): string {
+    createDeepLink(url: string, _config?: UnknownConfig): string {
         return `https://go.cb-w.com/dapp?cb_url=${url}`
     },
     isDetected: () => coinbase.readyState === WalletReadyState.Installed,
@@ -21,7 +21,7 @@ const CoinbaseWallet: WalletAdapterInterface<Provider, WalletAdapter> = {
     disconnect: async () => {
         await coinbase.disconnect()
     },
-    connect: async (_provider?: Provider, _ops?: object): Promise<WalletAdapter> => {
+    connect: async (_provider?: Provider, _config?: ConnectConfig): Promise<WalletAdapter> => {
         await coinbase.connect()
         return coinbase
     }

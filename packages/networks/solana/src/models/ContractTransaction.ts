@@ -1,6 +1,6 @@
 import { Transaction } from './Transaction.ts'
 import type { ParsedInstruction } from '@solana/web3.js'
-import type { ContractTransactionInterface } from '@multiplechain/types'
+import type { ContractAddress, ContractTransactionInterface } from '@multiplechain/types'
 
 export class ContractTransaction extends Transaction implements ContractTransactionInterface {
     /**
@@ -12,9 +12,9 @@ export class ContractTransaction extends Transaction implements ContractTransact
     }
 
     /**
-     * @returns {Promise<string>} Contract address of the transaction
+     * @returns {Promise<ContractAddress>} Contract address of the transaction
      */
-    async getAddress(): Promise<string> {
+    async getAddress(): Promise<ContractAddress> {
         const data = await this.getData()
         if (data === null) {
             return ''

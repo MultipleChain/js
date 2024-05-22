@@ -1,9 +1,14 @@
 import { PublicKey } from '@solana/web3.js'
 import { math } from '@multiplechain/utils'
-import { TransactionStatusEnum } from '@multiplechain/types'
 import { ContractTransaction } from './ContractTransaction.ts'
 import type { ParsedAccountData, ParsedInstruction } from '@solana/web3.js'
-import { AssetDirectionEnum, type TokenTransactionInterface } from '@multiplechain/types'
+import { TransactionStatusEnum, AssetDirectionEnum } from '@multiplechain/types'
+import type {
+    ContractAddress,
+    TokenTransactionInterface,
+    TransferAmount,
+    WalletAddress
+} from '@multiplechain/types'
 
 export class TokenTransaction extends ContractTransaction implements TokenTransactionInterface {
     /**
@@ -22,9 +27,9 @@ export class TokenTransaction extends ContractTransaction implements TokenTransa
     }
 
     /**
-     * @returns {Promise<string>} Contract address of the transaction
+     * @returns {Promise<ContractAddress>} Contract address of the transaction
      */
-    async getAddress(): Promise<string> {
+    async getAddress(): Promise<ContractAddress> {
         const data = await this.getData()
         if (data === null) {
             return ''
@@ -48,9 +53,9 @@ export class TokenTransaction extends ContractTransaction implements TokenTransa
     }
 
     /**
-     * @returns {Promise<string>} Wallet address of the receiver of transaction
+     * @returns {Promise<WalletAddress>} Wallet address of the receiver of transaction
      */
-    async getReceiver(): Promise<string> {
+    async getReceiver(): Promise<WalletAddress> {
         const data = await this.getData()
         if (data === null) {
             return ''
@@ -65,9 +70,9 @@ export class TokenTransaction extends ContractTransaction implements TokenTransa
     }
 
     /**
-     * @returns {Promise<string>} Wallet address of the sender of transaction
+     * @returns {Promise<WalletAddress>} Wallet address of the sender of transaction
      */
-    async getSender(): Promise<string> {
+    async getSender(): Promise<WalletAddress> {
         const data = await this.getData()
         if (data === null) {
             return ''
@@ -77,9 +82,9 @@ export class TokenTransaction extends ContractTransaction implements TokenTransa
     }
 
     /**
-     * @returns {Promise<number>} Amount of tokens that will be transferred
+     * @returns {Promise<TransferAmount>} Amount of tokens that will be transferred
      */
-    async getAmount(): Promise<number> {
+    async getAmount(): Promise<TransferAmount> {
         const data = await this.getData()
         if (data === null) {
             return 0
@@ -104,14 +109,14 @@ export class TokenTransaction extends ContractTransaction implements TokenTransa
 
     /**
      * @param {AssetDirectionEnum} direction - Direction of the transaction (token)
-     * @param {string} address - Wallet address of the owner or spender of the transaction, dependant on direction
-     * @param {number} amount Amount of tokens that will be approved
+     * @param {WalletAddress} address - Wallet address of the owner or spender of the transaction, dependant on direction
+     * @param {TransferAmount} amount Amount of tokens that will be approved
      * @returns {Promise<TransactionStatusEnum>} Status of the transaction
      */
     async verifyTransfer(
         direction: AssetDirectionEnum,
-        address: string,
-        amount: number
+        address: WalletAddress,
+        amount: TransferAmount
     ): Promise<TransactionStatusEnum> {
         const status = await this.getStatus()
 
