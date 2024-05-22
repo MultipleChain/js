@@ -14,7 +14,7 @@ export class TransactionSigner implements TransactionSignerInterface {
     /**
      * Signed transaction data
      */
-    signedData?: any
+    signedData: any
 
     /**
      * Blockchain network provider

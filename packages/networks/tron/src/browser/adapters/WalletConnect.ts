@@ -1,5 +1,5 @@
 import type { CustomAdapter } from '../Wallet.ts'
-import { WalletPlatformEnum } from '@multiplechain/types'
+import { ErrorTypeEnum, WalletPlatformEnum } from '@multiplechain/types'
 import { WalletConnectAdapter } from '@multiplechain/tron-walletconnect'
 import type {
     ProviderInterface,
@@ -17,18 +17,6 @@ const WalletConnect: WalletAdapterInterface = {
     id: 'walletconnect',
     name: 'WalletConnect',
     platforms: [WalletPlatformEnum.UNIVERSAL],
-    downloadLink: 'https://www.tronlink.org/dlDetails/',
-    createDeepLink(url: string): string {
-        return (
-            'tronlinkoutside://pull.activity?param=' +
-            JSON.stringify({
-                url,
-                action: 'open',
-                protocol: 'tronlink',
-                version: '1.0'
-            })
-        )
-    },
     isDetected: () => true,
     isConnected: () => isConnected,
     disconnect: async () => {
@@ -40,7 +28,7 @@ const WalletConnect: WalletAdapterInterface = {
             })
         localStorage.removeItem('walletconnect')
         localStorage.removeItem('WALLETCONNECT_DEEPLINK_CHOICE')
-        document.cookie = 'wl-connected' + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+        indexedDB.deleteDatabase('WALLET_CONNECT_V2_INDEXED_DB')
     },
     connect: async (
         provider?: ProviderInterface,
@@ -50,15 +38,15 @@ const WalletConnect: WalletAdapterInterface = {
             const ops = _ops as WalletConnectOps
 
             if (provider === undefined) {
-                throw new Error('Provider is required')
+                throw new Error(ErrorTypeEnum.PROVIDER_IS_REQUIRED)
             }
 
             if (ops === undefined) {
-                throw new Error('Ops is required')
+                throw new Error(ErrorTypeEnum.OPS_IS_REQUIRED)
             }
 
             if (ops.projectId === undefined) {
-                throw new Error('Project ID is required')
+                throw new Error(ErrorTypeEnum.PROJECT_ID_IS_REQUIRED)
             }
 
             const walletProvider = new WalletConnectAdapter({
@@ -80,6 +68,7 @@ const WalletConnect: WalletAdapterInterface = {
                 walletProvider
                     .connect()
                     .then(async () => {
+                        isConnected = true
                         resolve(walletProvider as CustomAdapter)
                     })
                     .catch((error) => {

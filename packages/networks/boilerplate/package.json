@@ -41,6 +41,7 @@
         "typecheck": "tsc --noEmit",
         "lint": "eslint . --ext .ts",
         "test": "vitest run --dir tests",
+        "test-ui": "vitest watch --ui",
         "prepublishOnly": "pnpm run build",
         "build": "pnpm run build:vite && pnpm run build:node"
     },
@@ -61,7 +62,7 @@
         "url": "https://github.com/MultipleChain/js/issues"
     },
     "dependencies": {
-        "@multiplechain/types": "^0.1.55",
-        "@multiplechain/utils": "^0.1.18"
+        "@multiplechain/types": "^0.1.56",
+        "@multiplechain/utils": "^0.1.20"
     }
 }

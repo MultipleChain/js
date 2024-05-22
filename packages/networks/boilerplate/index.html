@@ -188,9 +188,6 @@
             <span>Deep link: </span> <span class="deep-link"></span>
         </div>
         <div class="info">
-            <span>Chain id: </span> <span class="chain-id"></span>
-        </div>
-        <div class="info">
             <span>Connected address: </span> <span class="connected-address"></span>
         </div>
         <button class="action-btn sign-message">
@@ -215,7 +212,7 @@
 
     <script type="module">
         import * as Boilerplate from './src/browser/index.ts'
-        import { isMobile, isWebview } from '@multiplechain/utils'
+        import { isMobile } from '@multiplechain/utils'
         window.Boilerplate = Boilerplate
 
         const provider = new Boilerplate.Provider({
@@ -224,6 +221,10 @@
 
         window.adapters = {}
         window.connectAdapter = async (adapter) => {
+            if (await adapter.isDetected() === false) {
+                return alert('Adapter is not detected')
+            }
+
             if (adapter.disconnect) {
                 await adapter.disconnect()
             }
@@ -242,7 +243,6 @@
             document.querySelector('.platforms').innerText = wallet.getPlatforms().join(', ')
             document.querySelector('.download-link').innerText = wallet.getDownloadLink()
             document.querySelector('.deep-link').innerText = wallet.createDeepLink('https://google.com')
-            document.querySelector('.chain-id').innerText = await wallet.getChainId()
             document.querySelector('.connected-address').innerText = sender
 
             document.querySelector('.action-result .sign-message').innerText = ''
@@ -331,17 +331,6 @@
             return sortedObj;
         }, {});
     
-        // if one wallet detected, remove other adapters
-        if (isWebview()) {
-            Object.values(adapters).forEach(wallet => {
-                if (wallet.isDetected()) {
-                    adapters = {}
-                    adapters[wallet.key] = wallet;
-                    return true;
-                }
-            });
-        }
-
         Object.values(adapters).forEach(adapter => {
             container.innerHTML += adapterTemplate(adapter)
         })

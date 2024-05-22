@@ -1,0 +1,6 @@
+src
+tests
+node_modules
+.eslintrc.cjs
+pnpm-lock.yaml
+tsconfig.json

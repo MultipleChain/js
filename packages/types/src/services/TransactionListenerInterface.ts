@@ -1,40 +1,35 @@
-import type {
-    TransactionInterface,
-    ContractTransactionInterface,
-    CoinTransactionInterface,
-    TokenTransactionInterface,
-    NftTransactionInterface
-} from '../models.ts'
-
 import { TransactionTypeEnum } from '../enums.ts'
 
 /**
  * Filter types for each transaction type in TransactionListenerInterface
  */
-interface TransactionListenerFilterInterface {
+export interface TransactionListenerFilterInterface {
     signer?: string
 }
 
-interface ContractTransactionListenerFilterInterface extends TransactionListenerFilterInterface {
+export interface ContractTransactionListenerFilterInterface
+    extends TransactionListenerFilterInterface {
     address?: string
 }
 
-interface AssetTransactionListenerFilterInterface extends TransactionListenerFilterInterface {
+export interface AssetTransactionListenerFilterInterface
+    extends TransactionListenerFilterInterface {
     sender?: string
     receiver?: string
 }
 
-interface CoinTransactionListenerFilterInterface extends AssetTransactionListenerFilterInterface {
+export interface CoinTransactionListenerFilterInterface
+    extends AssetTransactionListenerFilterInterface {
     amount?: number
 }
 
-interface TokenTransactionListenerFilterInterface
+export interface TokenTransactionListenerFilterInterface
     extends AssetTransactionListenerFilterInterface,
         ContractTransactionListenerFilterInterface {
     amount?: number
 }
 
-interface NftTransactionListenerFilterInterface
+export interface NftTransactionListenerFilterInterface
     extends AssetTransactionListenerFilterInterface,
         ContractTransactionListenerFilterInterface {
     nftId?: number | string
@@ -42,24 +37,6 @@ interface NftTransactionListenerFilterInterface
 /**
  * Filter types for each transaction type in TransactionListenerInterface
  */
-
-/**
- * 'DynamicTransactionType' connects transaction types to their corresponding transaction interfaces
- * Every type of transaction has its own unique transaction interface.
- * A sender's wallet address is a common value.
- */
-export type DynamicTransactionType<T extends TransactionTypeEnum> =
-    T extends TransactionTypeEnum.GENERAL
-        ? TransactionInterface
-        : T extends TransactionTypeEnum.CONTRACT
-          ? ContractTransactionInterface
-          : T extends TransactionTypeEnum.COIN
-            ? CoinTransactionInterface
-            : T extends TransactionTypeEnum.TOKEN
-              ? TokenTransactionInterface
-              : T extends TransactionTypeEnum.NFT
-                ? NftTransactionInterface
-                : never
 
 /**
  * 'DynamicTransactionListenerFilterInterface' connects transaction types to their corresponding filter interfaces
@@ -92,23 +69,41 @@ export const TransactionListenerProcessIndex = {
 }
 
 /**
- * 'TransactionListenerCallbackType' is a type of function that is triggered when a transaction is detected.
- * It takes a transaction as an argument.
+ * Dynamic types for transaction trigger and callback methods
  */
-export type TransactionListenerCallbackType = (
-    transaction: DynamicTransactionType<TransactionTypeEnum>
-) => void
+/**
+ * 'DynamicTransactionType' connects transaction types to their corresponding transaction interfaces
+ * Every type of transaction has its own unique transaction interface.
+ * A sender's wallet address is a common value.
+ */
+export type DynamicTransactionType<
+    T extends TransactionTypeEnum,
+    Transaction,
+    ContractTransaction,
+    CoinTransaction,
+    TokenTransaction,
+    NftTransaction
+> = T extends TransactionTypeEnum.GENERAL
+    ? Transaction
+    : T extends TransactionTypeEnum.CONTRACT
+      ? ContractTransaction
+      : T extends TransactionTypeEnum.COIN
+        ? CoinTransaction
+        : T extends TransactionTypeEnum.TOKEN
+          ? TokenTransaction
+          : T extends TransactionTypeEnum.NFT
+            ? NftTransaction
+            : never
 
-export interface TransactionListenerInterface<T extends TransactionTypeEnum> {
+export interface TransactionListenerInterface<
+    T extends TransactionTypeEnum,
+    Transaction,
+    CallBackType
+> {
     /**
      * The 'type' property is a generic type that is used to define the type of transaction listener.
      */
     type: T
-
-    /**
-     * 'callback' is an array of callback functions that are triggered when a transaction is detected.
-     */
-    callbacks: TransactionListenerCallbackType[]
 
     /**
      * 'status' is a boolean that shows the status of the listener.
@@ -116,6 +111,16 @@ export interface TransactionListenerInterface<T extends TransactionTypeEnum> {
      * If 'status' is false, the listener is inactive.
      */
     status: boolean
+
+    /**
+     * 'callback' is an array of callback functions that are triggered when a transaction is detected.
+     */
+    callbacks: CallBackType[]
+
+    /**
+     * Triggered transactions
+     */
+    triggeredTransactions: string[]
 
     /**
      * 'filter' is an object that has values depending on transaction listener type.
@@ -144,17 +149,17 @@ export interface TransactionListenerInterface<T extends TransactionTypeEnum> {
     /**
      * on() method is a listener that listens to the transaction events.
      * When a transaction is detected, it triggers the event.
-     * @param {TransactionListenerCallbackType} callback - a function that is triggered when a transaction is detected.
+     * @param {CallBackType} callback - a function that is triggered when a transaction is detected.
      * @return {Promise<boolean>}
      */
-    on: (callback: TransactionListenerCallbackType) => Promise<boolean>
+    on: (callback: CallBackType) => Promise<boolean>
 
     /**
      * trigger() method triggers the event when a transaction is detected.
-     * @param {DynamicTransactionType<T>} transaction - a transaction that is detected.
+     * @param {Transaction} transaction - a transaction that is detected.
      * @return {void}
      */
-    trigger: (transaction: DynamicTransactionType<T>) => void
+    trigger: (transaction: Transaction) => void
 
     /**
      * listener methods for each transaction type

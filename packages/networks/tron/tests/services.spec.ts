@@ -13,14 +13,10 @@ describe('Provider', () => {
     })
 
     it('checkRpcConnection', async () => {
-        expect(
-            await provider.checkRpcConnection(process.env.EVM_RPC_URL as unknown as string)
-        ).toBe(true)
+        expect(await provider.checkRpcConnection()).toBe(true)
     })
 
     it('checkWsConnection', async () => {
-        expect(await provider.checkWsConnection(process.env.EVM_WS_URL as unknown as string)).toBe(
-            true
-        )
+        expect(await provider.checkWsConnection()).toBe(true)
     })
 })

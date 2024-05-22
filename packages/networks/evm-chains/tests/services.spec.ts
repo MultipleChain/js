@@ -148,18 +148,24 @@ describe('Transaction Listener', () => {
             signer: senderTestAddress
         })
 
-        void listener.on((transaction) => {
-            listener.stop()
-            expect(transaction).toBeInstanceOf(Transaction)
-        })
-
         const signer = await new Coin().transfer(senderTestAddress, receiverTestAddress, 0.0001)
 
-        const transaction = await (await signer.sign(senderPrivateKey)).send()
+        const waitListenerEvent = async (): Promise<any> => {
+            return await new Promise((resolve, reject) => {
+                void listener
+                    .on((transaction) => {
+                        listener.stop()
+                        resolve(transaction)
+                    })
+                    .then(async () => {
+                        await waitSecondsBeforeThanNewTx(2)
+                        void (await signer.sign(senderPrivateKey)).send()
+                    })
+                    .catch(reject)
+            })
+        }
 
-        expect(transaction).toBeInstanceOf(Transaction)
-
-        void (await transaction.wait())
+        expect(await waitListenerEvent()).toBeInstanceOf(Transaction)
     })
 
     it('Contract', async () => {
@@ -170,22 +176,28 @@ describe('Transaction Listener', () => {
             address: tokenTestAddress
         })
 
-        void listener.on((transaction) => {
-            listener.stop()
-            expect(transaction).toBeInstanceOf(ContractTransaction)
-        })
-
         const signer = await new Token(tokenTestAddress).transfer(
             senderTestAddress,
             receiverTestAddress,
             0.01
         )
 
-        const transaction = await (await signer.sign(senderPrivateKey)).send()
+        const waitListenerEvent = async (): Promise<any> => {
+            return await new Promise((resolve, reject) => {
+                void listener
+                    .on((transaction) => {
+                        listener.stop()
+                        resolve(transaction)
+                    })
+                    .then(async () => {
+                        await waitSecondsBeforeThanNewTx(2)
+                        void (await signer.sign(senderPrivateKey)).send()
+                    })
+                    .catch(reject)
+            })
+        }
 
-        expect(transaction).toBeInstanceOf(ContractTransaction)
-
-        void (await transaction.wait())
+        expect(await waitListenerEvent()).toBeInstanceOf(ContractTransaction)
     })
 
     it('Coin', async () => {
@@ -196,18 +208,24 @@ describe('Transaction Listener', () => {
             receiver: receiverTestAddress
         })
 
-        void listener.on((transaction) => {
-            listener.stop()
-            expect(transaction).toBeInstanceOf(CoinTransaction)
-        })
-
         const signer = await new Coin().transfer(senderTestAddress, receiverTestAddress, 0.0001)
 
-        const transaction = await (await signer.sign(senderPrivateKey)).send()
+        const waitListenerEvent = async (): Promise<any> => {
+            return await new Promise((resolve, reject) => {
+                void listener
+                    .on((transaction) => {
+                        listener.stop()
+                        resolve(transaction)
+                    })
+                    .then(async () => {
+                        await waitSecondsBeforeThanNewTx(2)
+                        void (await signer.sign(senderPrivateKey)).send()
+                    })
+                    .catch(reject)
+            })
+        }
 
-        expect(transaction).toBeInstanceOf(CoinTransaction)
-
-        void (await transaction.wait())
+        expect(await waitListenerEvent()).toBeInstanceOf(CoinTransaction)
     })
 
     it('Token', async () => {
@@ -219,22 +237,28 @@ describe('Transaction Listener', () => {
             address: tokenTestAddress
         })
 
-        void listener.on((transaction) => {
-            listener.stop()
-            expect(transaction).toBeInstanceOf(TokenTransaction)
-        })
-
         const signer = await new Token(tokenTestAddress).transfer(
             senderTestAddress,
             receiverTestAddress,
             0.01
         )
 
-        const transaction = await (await signer.sign(senderPrivateKey)).send()
+        const waitListenerEvent = async (): Promise<any> => {
+            return await new Promise((resolve, reject) => {
+                void listener
+                    .on((transaction) => {
+                        listener.stop()
+                        resolve(transaction)
+                    })
+                    .then(async () => {
+                        await waitSecondsBeforeThanNewTx(2)
+                        void (await signer.sign(senderPrivateKey)).send()
+                    })
+                    .catch(reject)
+            })
+        }
 
-        expect(transaction).toBeInstanceOf(TokenTransaction)
-
-        void (await transaction.wait())
+        expect(await waitListenerEvent()).toBeInstanceOf(TokenTransaction)
     })
 
     it('NFT', async () => {
@@ -246,20 +270,27 @@ describe('Transaction Listener', () => {
             address: nftTestAddress
         })
 
-        void listener.on((transaction) => {
-            listener.stop()
-            expect(transaction).toBeInstanceOf(NftTransaction)
-        })
-
         const nft = new NFT(nftTestAddress)
         const signer = await nft.transfer(senderTestAddress, receiverTestAddress, 9)
 
-        const transaction = await (await signer.sign(senderPrivateKey)).send()
+        const waitListenerEvent = async (): Promise<any> => {
+            return await new Promise((resolve, reject) => {
+                void listener
+                    .on((transaction) => {
+                        listener.stop()
+                        resolve(transaction)
+                    })
+                    .then(async () => {
+                        await waitSecondsBeforeThanNewTx(2)
+                        void (await signer.sign(senderPrivateKey)).send()
+                    })
+                    .catch(reject)
+            })
+        }
 
+        const transaction = await waitListenerEvent()
         expect(transaction).toBeInstanceOf(NftTransaction)
-
-        void (await transaction.wait())
-
+        await transaction.wait()
         await waitSecondsBeforeThanNewTx(10)
 
         const newSigner = await nft.transfer(receiverTestAddress, senderTestAddress, 9)

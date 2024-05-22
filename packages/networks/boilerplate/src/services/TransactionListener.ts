@@ -1,16 +1,39 @@
+import { Provider } from './Provider.ts'
+import { Transaction } from '../models/Transaction.ts'
+import { NftTransaction } from '../models/NftTransaction.ts'
+import { CoinTransaction } from '../models/CoinTransaction.ts'
+import { TokenTransaction } from '../models/TokenTransaction.ts'
+import { ContractTransaction } from '../models/ContractTransaction.ts'
+import { TransactionListenerProcessIndex, TransactionTypeEnum } from '@multiplechain/types'
 import type {
-    TransactionTypeEnum,
     DynamicTransactionType,
     TransactionListenerInterface,
-    TransactionListenerCallbackType,
-    DynamicTransactionListenerFilterType
+    DynamicTransactionListenerFilterType,
+    NftTransactionListenerFilterInterface,
+    TokenTransactionListenerFilterInterface,
+    CoinTransactionListenerFilterInterface,
+    ContractTransactionListenerFilterInterface
 } from '@multiplechain/types'
 
-import { Provider } from './Provider.ts'
-import { TransactionListenerProcessIndex } from '@multiplechain/types'
+type TransactionListenerTriggerType<T extends TransactionTypeEnum> = DynamicTransactionType<
+    T,
+    Transaction,
+    ContractTransaction,
+    CoinTransaction,
+    TokenTransaction,
+    NftTransaction
+>
 
-export class TransactionListener<T extends TransactionTypeEnum>
-    implements TransactionListenerInterface<T>
+type TransactionListenerCallbackType<
+    T extends TransactionTypeEnum,
+    Transaction = TransactionListenerTriggerType<T>
+> = (transaction: Transaction) => void
+
+export class TransactionListener<
+    T extends TransactionTypeEnum,
+    DTransaction extends TransactionListenerTriggerType<T>,
+    CallBackType extends TransactionListenerCallbackType<T>
+> implements TransactionListenerInterface<T, DTransaction, CallBackType>
 {
     /**
      * Transaction type
@@ -20,12 +43,12 @@ export class TransactionListener<T extends TransactionTypeEnum>
     /**
      * Transaction listener callback
      */
-    callbacks: TransactionListenerCallbackType[] = []
+    callbacks: CallBackType[] = []
 
     /**
      * Transaction listener filter
      */
-    filter?: DynamicTransactionListenerFilterType<T>
+    filter?: DynamicTransactionListenerFilterType<T> | Record<string, never>
 
     /**
      * Provider
@@ -49,7 +72,7 @@ export class TransactionListener<T extends TransactionTypeEnum>
      */
     constructor(type: T, filter?: DynamicTransactionListenerFilterType<T>, provider?: Provider) {
         this.type = type
-        this.filter = filter
+        this.filter = filter ?? {}
         this.provider = provider ?? Provider.instance
     }
 
@@ -86,24 +109,24 @@ export class TransactionListener<T extends TransactionTypeEnum>
 
     /**
      * Listen to the transaction events
-     * @param {TransactionListenerCallbackType} callback - Transaction listener callback
+     * @param {CallBackType} callback - Transaction listener callback
      * @returns {Promise<boolean>}
      */
-    async on(callback: TransactionListenerCallbackType): Promise<boolean> {
+    async on(callback: CallBackType): Promise<boolean> {
         this.callbacks.push(callback)
         return true
     }
 
     /**
      * Trigger the event when a transaction is detected
-     * @param {DynamicTransactionType<T>} transaction - Transaction data
+     * @param {TransactionListenerTriggerType<T>} transaction - Transaction data
      * @returns {void}
      */
-    trigger<T extends TransactionTypeEnum>(transaction: DynamicTransactionType<T>): void {
+    trigger<T extends TransactionTypeEnum>(transaction: TransactionListenerTriggerType<T>): void {
         if (!this.triggeredTransactions.includes(transaction.id)) {
             this.triggeredTransactions.push(transaction.id)
             this.callbacks.forEach((callback) => {
-                callback(transaction)
+                callback(transaction as unknown as DTransaction)
             })
         }
     }
@@ -112,16 +135,14 @@ export class TransactionListener<T extends TransactionTypeEnum>
      * General transaction process
      * @returns {void}
      */
-    generalProcess(): void {
-        // General transaction process
-    }
+    generalProcess(): void {}
 
     /**
      * Contract transaction process
      * @returns {void}
      */
     contractProcess(): void {
-        // Contract transaction process
+        const filter = this.filter as ContractTransactionListenerFilterInterface
     }
 
     /**
@@ -129,7 +150,7 @@ export class TransactionListener<T extends TransactionTypeEnum>
      * @returns {void}
      */
     coinProcess(): void {
-        // Coin transaction process
+        const filter = this.filter as CoinTransactionListenerFilterInterface
     }
 
     /**
@@ -137,7 +158,7 @@ export class TransactionListener<T extends TransactionTypeEnum>
      * @returns {void}
      */
     tokenProcess(): void {
-        // Token transaction process
+        const filter = this.filter as TokenTransactionListenerFilterInterface
     }
 
     /**
@@ -145,6 +166,6 @@ export class TransactionListener<T extends TransactionTypeEnum>
      * @returns {void}
      */
     nftProcess(): void {
-        // NFT transaction process
+        const filter = this.filter as NftTransactionListenerFilterInterface
     }
 }

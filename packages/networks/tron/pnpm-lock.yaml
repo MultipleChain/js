@@ -12,11 +12,11 @@ dependencies:
     specifier: ^0.1.0
     version: 0.1.0(typescript@5.4.5)
   '@multiplechain/types':
-    specifier: ^0.1.55
-    version: 0.1.55
+    specifier: ^0.1.56
+    version: 0.1.56
   '@multiplechain/utils':
-    specifier: ^0.1.18
-    version: 0.1.18
+    specifier: ^0.1.20
+    version: 0.1.20
   '@noble/secp256k1':
     specifier: ^1.7.1
     version: 1.7.1
@@ -348,12 +348,12 @@ packages:
       - vite
     dev: false
 
-  /@multiplechain/types@0.1.55:
-    resolution: {integrity: sha512-9fYrLaDxX2pj9zfIbmvk1hPF3FH/bK+Q3uTF+k3zdsitP/HzQ1S9zImNz20Tvoqkk1ns+/8ecE0Y6GNowsDOQA==}
+  /@multiplechain/types@0.1.56:
+    resolution: {integrity: sha512-tnkgDwW0AWxEfhE/392LR6ZPE7Pxz5/Ei1XYsQISGkOfYYZrsvJXr69fXTjDOHCq7RCuQqytKmhnKs5K4xHd7w==}
     dev: false
 
-  /@multiplechain/utils@0.1.18:
-    resolution: {integrity: sha512-UCoOOBJrawp/lInepxuoEiYwId0wMPg7rX8p78FLqzGl8f/b93sAtv7sP87/VVKwhdoEuNZ/uQjckycmNeks/w==}
+  /@multiplechain/utils@0.1.20:
+    resolution: {integrity: sha512-4eEs4YR/V4F2Qnkl5KTZvPpewRQiX7C193d0tjpQuIfyumTEBJtdHYm1CW9CoJ6EjQUaB0oqSRKXomhzfK1qkw==}
     dependencies:
       '@types/ws': 8.5.10
       bignumber.js: 9.1.2
@@ -488,6 +488,7 @@ packages:
     dependencies:
       is-glob: 4.0.3
       micromatch: 4.0.5
+      napi-wasm: 1.1.0
     dev: false
     bundledDependencies:
       - napi-wasm
@@ -2329,6 +2330,10 @@ packages:
 
   /multiformats@9.9.0:
     resolution: {integrity: sha512-HoMUjhH9T8DDBNT+6xzkrd9ga/XiBI4xLr58LJACwK6G3HTOPeMz4nB4KJs33L2BelrIJa7P0VuNaVF3hMYfjg==}
+    dev: false
+
+  /napi-wasm@1.1.0:
+    resolution: {integrity: sha512-lHwIAJbmLSjF9VDRm9GoVOy9AGp3aIvkjv+Kvz9h16QR3uSVYH78PNQUnT2U4X53mhlnV2M7wrhibQ3GHicDmg==}
     dev: false
 
   /node-addon-api@7.1.0:

@@ -215,7 +215,7 @@
 
     <script type="module">
         import * as EvmChains from './src/browser/index.ts'
-        import { isMobile, isWebview } from '@multiplechain/utils'
+        import { isMobile } from '@multiplechain/utils'
         window.EvmChains = EvmChains
 
         const provider = new EvmChains.Provider({
@@ -235,6 +235,10 @@
 
         window.adapters = {}
         window.connectAdapter = async (adapter) => {
+            if (await adapter.isDetected() === false) {
+                return alert('Adapter is not detected')
+            }
+
             if (adapter.disconnect) {
                 await adapter.disconnect()
             }
@@ -348,17 +352,6 @@
                 sortedObj[key] = adapters[key];
                 return sortedObj;
             }, {});
-        
-            // if one wallet detected, remove other adapters
-            if (isWebview()) {
-                Object.values(adapters).forEach(wallet => {
-                    if (wallet.isDetected()) {
-                        adapters = {}
-                        adapters[wallet.key] = wallet;
-                        return true;
-                    }
-                });
-            }
 
             Object.values(adapters).forEach(adapter => {
                 container.innerHTML += adapterTemplate(adapter)

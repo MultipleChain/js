@@ -1,6 +1,6 @@
 {
     "name": "@multiplechain/utils",
-    "version": "0.1.18",
+    "version": "0.1.20",
     "type": "module",
     "main": "./src/index.ts",
     "types": "./src/index.ts",
@@ -11,6 +11,7 @@
     ],
     "scripts": {
         "lint": "eslint . --ext .ts",
+        "test-ui": "vitest watch --ui",
         "test": "vitest run --dir tests"
     },
     "keywords": [

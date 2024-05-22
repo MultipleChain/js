@@ -88,7 +88,7 @@ export class Contract implements ContractInterface {
     async setTronContract(): Promise<void> {
         if (this.tronContract !== undefined) return
         this.tronWeb.setAddress(this.address)
-        this.tronContract = await this.tronWeb.contract(this.ABI).at(this.address)
+        this.tronContract = await this.tronWeb.contract(this.ABI, this.address)
     }
 
     /**

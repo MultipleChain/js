@@ -109,6 +109,24 @@ export const objectsEqual = (o1: object, o2: object): boolean => {
 }
 
 /**
+ * Converts the given number to a readable string
+ * @param {number} num
+ * @returns string
+ */
+export const toReadableString = (num: number): string => {
+    const [coefficient, exponent] = num
+        .toExponential()
+        .split('e')
+        .map((item) => parseFloat(item))
+
+    let result = (coefficient * Math.pow(10, exponent)).toString()
+
+    result = parseFloat(result).toString()
+
+    return result
+}
+
+/**
  * checks if the given url is a valid websocket url
  * @param {string} url
  * @returns {Promise<boolean>}

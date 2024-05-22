@@ -1,3 +1,4 @@
+import axios from 'axios'
 import { Ethers } from './Ethers.ts'
 import {
     ErrorTypeEnum,
@@ -76,21 +77,15 @@ export class Provider implements Omit<ProviderInterface, 'update'> {
      */
     async checkRpcConnection(url?: string): Promise<boolean | Error> {
         try {
-            const response = await fetch(url ?? this.network.rpcUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    jsonrpc: '2.0',
-                    method: 'eth_getChainId',
-                    params: [],
-                    id: 1
-                })
+            const response = await axios.post(url ?? this.network.rpcUrl, {
+                jsonrpc: '2.0',
+                method: 'eth_blockNumber',
+                params: [],
+                id: 1
             })
 
-            if (!response.ok) {
-                return new Error(response.statusText + ': ' + (await response.text()))
+            if (response.status !== 200) {
+                return new Error(response.statusText + ': ' + JSON.stringify(response.data))
             }
 
             return true
@@ -106,7 +101,7 @@ export class Provider implements Omit<ProviderInterface, 'update'> {
      */
     async checkWsConnection(url?: string): Promise<boolean | Error> {
         try {
-            const result: any = await checkWebSocket(url ?? this.network.rpcUrl)
+            const result: any = await checkWebSocket(url ?? this.network.wsUrl ?? '')
 
             if (result instanceof Error) {
                 return result

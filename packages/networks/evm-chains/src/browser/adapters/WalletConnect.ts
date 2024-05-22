@@ -1,6 +1,6 @@
 import icons from './icons.ts'
 import type { EIP1193Provider } from './EIP6963.ts'
-import { WalletPlatformEnum } from '@multiplechain/types'
+import { ErrorTypeEnum, WalletPlatformEnum } from '@multiplechain/types'
 import { EthereumProvider } from '@walletconnect/ethereum-provider'
 import type { EvmNetworkConfigInterface } from '../../services/Provider.ts'
 import type {
@@ -29,15 +29,15 @@ const WalletConnect: WalletAdapterInterface = {
         const ops = _ops as WalletConnectOps
 
         if (provider === undefined) {
-            throw new Error('Provider is required')
+            throw new Error(ErrorTypeEnum.PROVIDER_IS_REQUIRED)
         }
 
         if (ops === undefined) {
-            throw new Error('Ops is required')
+            throw new Error(ErrorTypeEnum.OPS_IS_REQUIRED)
         }
 
         if (ops.projectId === undefined) {
-            throw new Error('Project ID is required')
+            throw new Error(ErrorTypeEnum.PROJECT_ID_IS_REQUIRED)
         }
 
         const rpcIdMapping = {}
