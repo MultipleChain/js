@@ -1,6 +1,6 @@
 import type { AssetDirectionEnum, TransactionStatusEnum } from './enums.ts'
 
-export interface TransactionInterface {
+export interface TransactionInterface<TxData> {
     /**
      * Each transaction has its own unique ID defined by the user
      */
@@ -13,9 +13,9 @@ export interface TransactionInterface {
     wait: (ms?: number) => Promise<TransactionStatusEnum>
 
     /**
-     * @returns {Promise<object | null>} Raw transaction data that is taken by blockchain network via RPC.
+     * @returns {Promise<TxData | null>} Raw transaction data that is taken by blockchain network via RPC.
      */
-    getData: () => Promise<object | null>
+    getData: () => Promise<TxData | null>
 
     /**
      * @returns {string} ID of the transaction
@@ -59,14 +59,14 @@ export interface TransactionInterface {
     getStatus: () => Promise<TransactionStatusEnum>
 }
 
-export interface ContractTransactionInterface extends TransactionInterface {
+export interface ContractTransactionInterface<TxData> extends TransactionInterface<TxData> {
     /**
      * @returns {Promise<string>} Smart contract address of the transaction
      */
     getAddress: () => Promise<string>
 }
 
-export interface AssetTransactionInterface extends TransactionInterface {
+export interface AssetTransactionInterface<TxData> extends TransactionInterface<TxData> {
     /**
      * @returns {Promise<string>} Receiver wallet address of the transaction (asset)
      */
@@ -95,15 +95,15 @@ export interface AssetTransactionInterface extends TransactionInterface {
     ) => Promise<TransactionStatusEnum>
 }
 
-export interface CoinTransactionInterface extends AssetTransactionInterface {}
+export interface CoinTransactionInterface<TxData> extends AssetTransactionInterface<TxData> {}
 
-export interface TokenTransactionInterface
-    extends AssetTransactionInterface,
-        ContractTransactionInterface {}
+export interface TokenTransactionInterface<TxData>
+    extends AssetTransactionInterface<TxData>,
+        ContractTransactionInterface<TxData> {}
 
-export interface NftTransactionInterface
-    extends Omit<AssetTransactionInterface, 'verifyTransfer' | 'getAmount'>,
-        ContractTransactionInterface {
+export interface NftTransactionInterface<TxData>
+    extends Omit<AssetTransactionInterface<TxData>, 'verifyTransfer' | 'getAmount'>,
+        ContractTransactionInterface<TxData> {
     /**
      * @returns {Promise<number | string>} ID of the NFT
      */

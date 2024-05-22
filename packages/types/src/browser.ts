@@ -1,17 +1,24 @@
 import type { WalletPlatformEnum } from './enums.ts'
-import type { ProviderInterface } from './services/ProviderInterface.ts'
-import type { TransactionSignerInterface } from './services/TransactionSignerInterface.ts'
 
-export type RegisterWalletAdapterType = (walletAdapter: WalletAdapterInterface) => void
+export type RegisterWalletAdapterType<Provider, Adapter> = (
+    walletAdapter: WalletAdapterInterface<Provider, Adapter>
+) => void
 
-export type WalletAdapterListType = Record<string, WalletAdapterInterface>
+export type WalletAdapterListType<Provider, Adapter> = Record<
+    string,
+    WalletAdapterInterface<Provider, Adapter>
+>
 
-export interface WalletConnectOps {
+export interface WalletConnectConfig {
     projectId: string
     themeMode?: 'dark' | 'light'
 }
 
-export interface WalletAdapterInterface {
+type Config = Record<string, any>
+
+type ConnectConfig = Config & WalletConnectConfig
+
+export interface WalletAdapterInterface<Provider, Adapter> {
     id: string
     name: string
     icon: string
@@ -21,12 +28,16 @@ export interface WalletAdapterInterface {
     disconnect?: () => void | Promise<void>
     isDetected: () => boolean | Promise<boolean>
     isConnected: () => boolean | Promise<boolean>
-    createDeepLink?: (url: string, ops?: object) => string
-    connect: (provider?: ProviderInterface, ops?: object | WalletConnectOps) => Promise<object>
+    createDeepLink?: (url: string, config?: Config) => string
+    connect: (provider?: Provider, config?: ConnectConfig) => Promise<Adapter>
 }
 
-export interface WalletInterface {
-    adapter: WalletAdapterInterface
+export interface WalletInterface<Provider, Signer, Adapter> {
+    adapter: WalletAdapterInterface<Provider, Adapter>
+
+    walletProvider: Adapter
+
+    networkProvider: Provider
 
     /**
      * @returns {String}
@@ -55,17 +66,16 @@ export interface WalletInterface {
 
     /**
      * @param {String} url
-     * @param {Object} ops
+     * @param {Config} config
      * @returns {String | null}
      */
-    createDeepLink: (url: string, ops?: object) => string | null
+    createDeepLink: (url: string, config?: Config) => string | null
 
     /**
-     * @param {ProviderInterface} provider
-     * @param {Object | WalletConnectOps} ops
+     * @param {ConnectConfig} config
      * @returns {Promise<string>}
      */
-    connect: (provider?: ProviderInterface, ops?: object | WalletConnectOps) => Promise<string>
+    connect: (config?: ConnectConfig) => Promise<string>
 
     /**
      * @returns {Boolean | Promise<Boolean>}
@@ -89,10 +99,10 @@ export interface WalletInterface {
     signMessage: (message: string) => Promise<string>
 
     /**
-     * @param {TransactionSignerInterface} transactionSigner
+     * @param {Signer} transactionSigner
      * @returns {Promise<string>}
      */
-    sendTransaction: (transactionSigner: TransactionSignerInterface) => Promise<string>
+    sendTransaction: (transactionSigner: Signer) => Promise<string>
 
     /**
      * @param {string} eventName

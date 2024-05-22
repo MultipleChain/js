@@ -1,37 +1,35 @@
-import type { TransactionInterface } from '../models.ts'
-
 /**
  * "any" is dependent on the blockchain network, it can be a string, object or any other type
  * so, you need define the type of the transaction data in your implementation
  */
-export interface TransactionSignerInterface {
+export interface TransactionSignerInterface<RawData, SignedData, Transaction> {
     /**
      * Transaction data from the blockchain network
      */
-    rawData: any
+    rawData: RawData
 
     /**
      * Signed transaction data
      */
-    signedData?: any
+    signedData?: SignedData
 
     /**
      * @param {string} privateKey - Private key of the wallet to sign the transaction
      */
-    sign: (privateKey: string) => Promise<TransactionSignerInterface>
+    sign: (privateKey: string) => Promise<this>
 
     /**
-     * @returns {Promise<TransactionInterface | Error>} Send the transaction to the blockchain network, returns a promise of the transaction
+     * @returns {Promise<Transaction | Error>} Send the transaction to the blockchain network, returns a promise of the transaction
      */
-    send: () => Promise<TransactionInterface | Error>
+    send: () => Promise<Transaction | Error>
 
     /**
-     * @returns {any} Unsigned transaction raw data
+     * @returns {RawData} Unsigned transaction raw data
      */
-    getRawData: () => any
+    getRawData: () => RawData
 
     /**
-     * @returns {any} Signed transaction data
+     * @returns {SignedData} Signed transaction data
      */
-    getSignedData: () => any
+    getSignedData: () => SignedData
 }

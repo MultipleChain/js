@@ -9,17 +9,17 @@ export interface NetworkConfigInterface {
     testnet?: boolean
 }
 
-export interface ProviderInterface {
+export interface ProviderInterface<NetworkConfig = NetworkConfigInterface> {
     /**
      * Network configuration of the provider
      */
-    network: NetworkConfigInterface
+    network: NetworkConfig
 
     /**
      * Update network configuration of the provider
-     * @param {NetworkConfigInterface} network - Network configuration
+     * @param {NetworkConfig} network - Network configuration
      */
-    update: (network: NetworkConfigInterface) => void
+    update: (network: NetworkConfig) => void
 
     /**
      * Get the current network configuration is testnet or not
