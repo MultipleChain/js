@@ -1,6 +1,6 @@
 import { Contract } from './Contract.ts'
 import type { InterfaceAbi } from 'ethers'
-import ERC20 from '../../resources/erc20.json'
+import ERC20 from '../../resources/ERC20.json'
 import type { Provider } from '../services/Provider.ts'
 import { hexToNumber, numberToHex } from '@multiplechain/utils'
 import { TransactionSigner } from '../services/TransactionSigner.ts'

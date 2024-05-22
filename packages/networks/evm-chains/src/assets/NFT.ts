@@ -1,6 +1,6 @@
 import { Contract } from './Contract.ts'
 import type { InterfaceAbi } from 'ethers'
-import ERC721 from '../../resources/erc721.json'
+import ERC721 from '../../resources/ERC721.json'
 import type { Provider } from '../services/Provider.ts'
 import { TransactionSigner } from '../services/TransactionSigner.ts'
 import {
