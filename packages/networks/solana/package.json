@@ -27,6 +27,16 @@
             "types": "./dist/browser/index.d.ts"
         }
     },
+    "typesVersions": {
+        "*": {
+            "node": [
+                "./dist/index.d.ts"
+            ],
+            "browser": [
+                "./dist/browser/index.d.ts"
+            ]
+        }
+    },
     "files": [
         "dist",
         "README.md",
