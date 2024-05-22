@@ -1,12 +1,12 @@
 import type { WalletPlatformEnum } from './enums.ts'
 
-export type RegisterWalletAdapterType<Provider, Adapter> = (
-    walletAdapter: WalletAdapterInterface<Provider, Adapter>
+export type RegisterWalletAdapterType<NetworkProvider, WalletProvider> = (
+    walletAdapter: WalletAdapterInterface<NetworkProvider, WalletProvider>
 ) => void
 
-export type WalletAdapterListType<Provider, Adapter> = Record<
+export type WalletAdapterListType<NetworkProvider, WalletProvider> = Record<
     string,
-    WalletAdapterInterface<Provider, Adapter>
+    WalletAdapterInterface<NetworkProvider, WalletProvider>
 >
 
 export interface WalletConnectConfig {
@@ -18,7 +18,7 @@ export type UnknownConfig = Record<string, unknown>
 
 export type ConnectConfig = UnknownConfig & WalletConnectConfig
 
-export interface WalletAdapterInterface<Provider, Adapter> {
+export interface WalletAdapterInterface<NetworkProvider, WalletProvider> {
     id: string
     name: string
     icon: string
@@ -29,15 +29,15 @@ export interface WalletAdapterInterface<Provider, Adapter> {
     isDetected: () => boolean | Promise<boolean>
     isConnected: () => boolean | Promise<boolean>
     createDeepLink?: (url: string, config?: UnknownConfig) => string
-    connect: (provider?: Provider, config?: ConnectConfig) => Promise<Adapter>
+    connect: (provider?: NetworkProvider, config?: ConnectConfig) => Promise<WalletProvider>
 }
 
-export interface WalletInterface<Provider, Signer, Adapter> {
-    adapter: WalletAdapterInterface<Provider, Adapter>
+export interface WalletInterface<NetworkProvider, WalletProvider, TransactionSigner> {
+    adapter: WalletAdapterInterface<NetworkProvider, WalletProvider>
 
-    walletProvider: Adapter
+    walletProvider: WalletProvider
 
-    networkProvider: Provider
+    networkProvider: NetworkProvider
 
     /**
      * @returns {String}
@@ -102,7 +102,7 @@ export interface WalletInterface<Provider, Signer, Adapter> {
      * @param {Signer} transactionSigner
      * @returns {Promise<string>}
      */
-    sendTransaction: (transactionSigner: Signer) => Promise<string>
+    sendTransaction: (transactionSigner: TransactionSigner) => Promise<string>
 
     /**
      * @param {string} eventName
