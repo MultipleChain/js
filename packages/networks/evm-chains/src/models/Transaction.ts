@@ -18,7 +18,7 @@ interface TransactionData {
     receipt: TransactionReceipt | null
 }
 
-export class Transaction implements TransactionInterface {
+export class Transaction implements TransactionInterface<TransactionData> {
     /**
      * Each transaction has its own unique ID defined by the user
      */
