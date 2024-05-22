@@ -7,7 +7,7 @@ export interface BitcoinNetworkConfigInterface {
     blockCypherToken?: string
 }
 
-export class Provider implements Omit<ProviderInterface, 'update'> {
+export class Provider implements ProviderInterface<BitcoinNetworkConfigInterface> {
     /**
      * Network configuration of the provider
      */

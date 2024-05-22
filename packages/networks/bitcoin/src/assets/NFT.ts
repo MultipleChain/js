@@ -1,8 +1,8 @@
 import { Contract } from './Contract.ts'
-import type { NftInterface } from '@multiplechain/types'
-import { NftTransactionSigner } from '../services/TransactionSigner.ts'
+import type { NftId, NftInterface, WalletAddress } from '@multiplechain/types'
+import { TransactionSigner } from '../services/TransactionSigner.ts'
 
-export class NFT extends Contract implements NftInterface {
+export class NFT extends Contract implements NftInterface<TransactionSigner> {
     /**
      * @returns {Promise<string>} NFT name
      */
@@ -18,79 +18,82 @@ export class NFT extends Contract implements NftInterface {
     }
 
     /**
-     * @param {string} owner Wallet address
+     * @param {WalletAddress} owner Wallet address
      * @returns {Promise<number>} Wallet balance as currency of NFT
      */
-    async getBalance(owner: string): Promise<number> {
+    async getBalance(owner: WalletAddress): Promise<number> {
         return 0
     }
 
     /**
-     * @param {number | string} nftId NFT ID
-     * @returns {Promise<string>} Wallet address of the owner of the NFT
+     * @param {NftId} nftId NFT ID
+     * @returns {Promise<WalletAddress>} Wallet address of the owner of the NFT
      */
-    async getOwner(nftId: number | string): Promise<string> {
+    async getOwner(nftId: NftId): Promise<WalletAddress> {
         return 'example'
     }
 
     /**
-     * @param {number | string} nftId NFT ID
+     * @param {NftId} nftId NFT ID
      * @returns {Promise<string>} URI of the NFT
      */
-    async getTokenURI(nftId: number | string): Promise<string> {
+    async getTokenURI(nftId: NftId): Promise<string> {
         return 'example'
     }
 
     /**
-     * @param {number | string} nftId ID of the NFT that will be transferred
-     * @returns {Promise<string | null>} Wallet address of the approved spender
+     * @param {NftId} nftId ID of the NFT that will be transferred
+     * @returns {Promise<WalletAddress | null>} Wallet address of the approved spender
      */
-    async getApproved(nftId: number | string): Promise<string | null> {
+    async getApproved(nftId: NftId): Promise<WalletAddress | null> {
         return 'example'
     }
 
     /**
-     * @param {string} sender Sender address
-     * @param {string} receiver Receiver address
-     * @param {number | string} nftId NFT ID
-     * @returns {Promise<NftTransactionSigner>} Transaction signer
+     * @param {WalletAddress} sender Sender address
+     * @param {WalletAddress} receiver Receiver address
+     * @param {NftId} nftId NFT ID
+     * @returns {Promise<TransactionSigner>} Transaction signer
      */
     async transfer(
-        sender: string,
-        receiver: string,
-        nftId: number | string
-    ): Promise<NftTransactionSigner> {
-        return new NftTransactionSigner('example')
+        sender: WalletAddress,
+        receiver: WalletAddress,
+        nftId: NftId
+    ): Promise<TransactionSigner> {
+        // @ts-expect-error just example
+        return new TransactionSigner('example')
     }
 
     /**
-     * @param {string} spender Spender address
-     * @param {string} owner Owner address
-     * @param {string} receiver Receiver address
-     * @param {number | string} nftId NFT ID
-     * @returns {Promise<NftTransactionSigner>} Transaction signer
+     * @param {WalletAddress} spender Spender address
+     * @param {WalletAddress} owner Owner address
+     * @param {WalletAddress} receiver Receiver address
+     * @param {NftId} nftId NFT ID
+     * @returns {Promise<TransactionSigner>} Transaction signer
      */
     async transferFrom(
-        spender: string,
-        owner: string,
-        receiver: string,
-        nftId: number | string
-    ): Promise<NftTransactionSigner> {
-        return new NftTransactionSigner('example')
+        spender: WalletAddress,
+        owner: WalletAddress,
+        receiver: WalletAddress,
+        nftId: NftId
+    ): Promise<TransactionSigner> {
+        // @ts-expect-error just example
+        return new TransactionSigner('example')
     }
 
     /**
      * Gives permission to the spender to spend owner's tokens
-     * @param {string} owner Address of owner of the tokens that will be used
-     * @param {string} spender Address of the spender that will use the tokens of owner
-     * @param {number | string} nftId ID of the NFT that will be transferred
+     * @param {WalletAddress} owner Address of owner of the tokens that will be used
+     * @param {WalletAddress} spender Address of the spender that will use the tokens of owner
+     * @param {NftId} nftId ID of the NFT that will be transferred
      * @returns {Promise<TransactionSigner>} Transaction signer
      */
     async approve(
-        owner: string,
-        spender: string,
-        nftId: number | string
-    ): Promise<NftTransactionSigner> {
-        return new NftTransactionSigner('example')
+        owner: WalletAddress,
+        spender: WalletAddress,
+        nftId: NftId
+    ): Promise<TransactionSigner> {
+        // @ts-expect-error just example
+        return new TransactionSigner('example')
     }
 }

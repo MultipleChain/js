@@ -1,7 +1,8 @@
 import icons from './icons.ts'
 import { WalletPlatformEnum } from '@multiplechain/types'
-import type { ProviderInterface, WalletAdapterInterface } from '@multiplechain/types'
+import type { WalletAdapterInterface } from '@multiplechain/types'
 import type { BitcoinWalletAdapter } from '../Wallet.ts'
+import type { Provider } from '../../services/Provider.ts'
 
 declare global {
     interface Window {
@@ -16,7 +17,7 @@ declare global {
 
 let connected = false
 
-const Leather: WalletAdapterInterface = {
+const Leather: WalletAdapterInterface<Provider, BitcoinWalletAdapter> = {
     id: 'leather',
     name: 'Leather',
     icon: icons.Leather,
@@ -24,7 +25,7 @@ const Leather: WalletAdapterInterface = {
     downloadLink: 'https://leather.io/install-extension',
     isDetected: () => Boolean(window.LeatherProvider),
     isConnected: async () => connected,
-    connect: async (provider?: ProviderInterface): Promise<BitcoinWalletAdapter> => {
+    connect: async (provider?: Provider): Promise<BitcoinWalletAdapter> => {
         return await new Promise((resolve, reject) => {
             const leather = window.LeatherProvider
 

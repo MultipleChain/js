@@ -2,10 +2,15 @@ import axios from 'axios'
 import { Provider } from '../services/Provider.ts'
 import { fromSatoshi, toSatoshi } from '../utils.ts'
 import { Transaction, Script, Address } from 'bitcore-lib'
-import { ErrorTypeEnum, type CoinInterface } from '@multiplechain/types'
-import { CoinTransactionSigner } from '../services/TransactionSigner.ts'
+import { TransactionSigner } from '../services/TransactionSigner.ts'
+import {
+    ErrorTypeEnum,
+    type CoinInterface,
+    type TransferAmount,
+    type WalletAddress
+} from '@multiplechain/types'
 
-export class Coin implements CoinInterface {
+export class Coin implements CoinInterface<TransactionSigner> {
     /**
      * Blockchain network provider
      */
@@ -40,10 +45,10 @@ export class Coin implements CoinInterface {
     }
 
     /**
-     * @param {string} owner Wallet address
+     * @param {WalletAddress} owner Wallet address
      * @returns {Promise<number>} Wallet balance as currency of COIN
      */
-    async getBalance(owner: string): Promise<number> {
+    async getBalance(owner: WalletAddress): Promise<number> {
         const addressStatsApi = this.provider.createEndpoint('address/' + owner)
         const addressStats = await axios.get(addressStatsApi).then((res) => res.data)
         const balanceSat =
@@ -52,16 +57,16 @@ export class Coin implements CoinInterface {
     }
 
     /**
-     * @param {string} sender Sender wallet address
-     * @param {string} receiver Receiver wallet address
-     * @param {number} amount Amount of assets that will be transferred
+     * @param {WalletAddress} sender Sender wallet address
+     * @param {WalletAddress} receiver Receiver wallet address
+     * @param {TransferAmount} amount Amount of assets that will be transferred
      * @returns {Promise<TransactionSigner>} Transaction signer
      */
     async transfer(
-        sender: string,
-        receiver: string,
-        amount: number
-    ): Promise<CoinTransactionSigner> {
+        sender: WalletAddress,
+        receiver: WalletAddress,
+        amount: TransferAmount
+    ): Promise<TransactionSigner> {
         if (amount < 0) {
             throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
         }
@@ -99,7 +104,7 @@ export class Coin implements CoinInterface {
         transaction.change(sender)
         transaction.to(receiver, satoshiToSend)
 
-        return new CoinTransactionSigner({
+        return new TransactionSigner({
             sender,
             receiver,
             amount: satoshiToSend,

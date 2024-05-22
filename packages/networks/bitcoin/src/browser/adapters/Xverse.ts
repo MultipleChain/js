@@ -3,7 +3,6 @@ import type { BitcoinWalletAdapter } from '../Wallet.ts'
 import {
     ErrorTypeEnum,
     WalletPlatformEnum,
-    type ProviderInterface,
     type WalletAdapterInterface
 } from '@multiplechain/types'
 import {
@@ -13,10 +12,11 @@ import {
     signMessage,
     AddressPurpose
 } from 'sats-connect'
+import type { Provider } from '../../services/Provider.ts'
 
 let connected = false
 
-const Xverse: WalletAdapterInterface = {
+const Xverse: WalletAdapterInterface<Provider, BitcoinWalletAdapter> = {
     id: 'xverse',
     name: 'Xverse',
     icon: icons.Xverse,
@@ -24,7 +24,7 @@ const Xverse: WalletAdapterInterface = {
     downloadLink: 'https://www.xverse.app/download',
     isDetected: () => Boolean(window.XverseProviders?.BitcoinProvider),
     isConnected: async () => connected,
-    connect: async (provider?: ProviderInterface): Promise<BitcoinWalletAdapter> => {
+    connect: async (provider?: Provider): Promise<BitcoinWalletAdapter> => {
         return await new Promise((resolve, reject) => {
             const type =
                 provider !== undefined && provider?.isTestnet()
