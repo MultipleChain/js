@@ -2,7 +2,6 @@ import { Contract } from './Contract.ts'
 import { math } from '@multiplechain/utils'
 import { Metaplex } from '@metaplex-foundation/js'
 import { ErrorTypeEnum, type TokenInterface } from '@multiplechain/types'
-import { TokenTransactionSigner } from '../services/TransactionSigner.ts'
 import {
     PublicKey,
     Transaction,
@@ -20,6 +19,8 @@ import {
     createTransferInstruction,
     createApproveInstruction
 } from '@solana/spl-token'
+import { TransactionSigner } from '../services/TransactionSigner.ts'
+import type { TokenTransaction } from '../models/TokenTransaction.ts'
 
 interface Metadata {
     name: string
@@ -28,7 +29,7 @@ interface Metadata {
     decimals: number
 }
 
-export class Token extends Contract implements TokenInterface {
+export class Token extends Contract implements TokenInterface<TransactionSigner<TokenTransaction>> {
     metadata: Metadata
 
     /**
@@ -175,13 +176,13 @@ export class Token extends Contract implements TokenInterface {
      * @param {string} sender Sender wallet address
      * @param {string} receiver Receiver wallet address
      * @param {number} amount Amount of assets that will be transferred
-     * @returns {Promise<TransactionSigner>} Transaction signer
+     * @returns {Promise<TransactionSigner<TokenTransaction>>} Transaction signer
      */
     async transfer(
         sender: string,
         receiver: string,
         amount: number
-    ): Promise<TokenTransactionSigner> {
+    ): Promise<TransactionSigner<TokenTransaction>> {
         return await this.transferFrom(sender, sender, receiver, amount)
     }
 
@@ -190,14 +191,14 @@ export class Token extends Contract implements TokenInterface {
      * @param {string} owner Sender wallet address
      * @param {string} receiver Receiver wallet address
      * @param {number} amount Amount of tokens that will be transferred
-     * @returns {Promise<TokenTransactionSigner>} Transaction signer
+     * @returns {Promise<TransactionSigner<TokenTransaction>>} Transaction signer
      */
     async transferFrom(
         spender: string,
         owner: string,
         receiver: string,
         amount: number
-    ): Promise<TokenTransactionSigner> {
+    ): Promise<TransactionSigner<TokenTransaction>> {
         if (amount < 0) {
             throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
         }
@@ -269,7 +270,7 @@ export class Token extends Contract implements TokenInterface {
 
         transaction.feePayer = spenderPubKey
 
-        return new TokenTransactionSigner(transaction)
+        return new TransactionSigner(transaction)
     }
 
     /**
@@ -277,9 +278,13 @@ export class Token extends Contract implements TokenInterface {
      * @param {string} owner Address of owner of the tokens that will be used
      * @param {string} spender Address of the spender that will use the tokens of owner
      * @param {number} amount Amount of the tokens that will be used
-     * @returns {Promise<TransactionSigner>} Transaction signer
+     * @returns {Promise<TransactionSigner<TokenTransaction>>} Transaction signer
      */
-    async approve(owner: string, spender: string, amount: number): Promise<TokenTransactionSigner> {
+    async approve(
+        owner: string,
+        spender: string,
+        amount: number
+    ): Promise<TransactionSigner<TokenTransaction>> {
         if (amount < 0) {
             throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
         }
@@ -316,6 +321,6 @@ export class Token extends Contract implements TokenInterface {
 
         transaction.feePayer = ownerPubKey
 
-        return new TokenTransactionSigner(transaction)
+        return new TransactionSigner(transaction)
     }
 }

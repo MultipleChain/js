@@ -4,7 +4,7 @@ import type { TransactionInterface } from '@multiplechain/types'
 import type { ParsedTransactionWithMeta } from '@solana/web3.js'
 import { ErrorTypeEnum, TransactionStatusEnum } from '@multiplechain/types'
 
-export class Transaction implements TransactionInterface {
+export class Transaction implements TransactionInterface<ParsedTransactionWithMeta> {
     /**
      * Each transaction has its own unique ID defined by the user
      */

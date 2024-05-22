@@ -1,7 +1,6 @@
 import { Contract } from './Contract.ts'
 import { Metaplex } from '@metaplex-foundation/js'
 import { ErrorTypeEnum, type NftInterface } from '@multiplechain/types'
-import { NftTransactionSigner } from '../services/TransactionSigner.ts'
 import type { Sft, SftWithToken, Nft, NftWithToken } from '@metaplex-foundation/js'
 import {
     PublicKey,
@@ -18,10 +17,12 @@ import {
     createTransferInstruction,
     createApproveInstruction
 } from '@solana/spl-token'
+import { TransactionSigner } from '../services/TransactionSigner.ts'
+import type { NftTransaction } from '../models/NftTransaction.ts'
 
 type Metadata = Sft | SftWithToken | Nft | NftWithToken
 
-export class NFT extends Contract implements NftInterface {
+export class NFT extends Contract implements NftInterface<TransactionSigner<NftTransaction>> {
     metadata: Metadata
 
     /**
@@ -116,13 +117,13 @@ export class NFT extends Contract implements NftInterface {
      * @param {string} sender Sender address
      * @param {string} receiver Receiver address
      * @param {number | string} nftId NFT ID
-     * @returns {Promise<NftTransactionSigner>} Transaction signer
+     * @returns {Promise<TransactionSigner<NftTransaction>>} Transaction signer
      */
     async transfer(
         sender: string,
         receiver: string,
         nftId: number | string
-    ): Promise<NftTransactionSigner> {
+    ): Promise<TransactionSigner<NftTransaction>> {
         return await this.transferFrom(sender, sender, receiver, nftId)
     }
 
@@ -131,14 +132,14 @@ export class NFT extends Contract implements NftInterface {
      * @param {string} owner Owner address
      * @param {string} receiver Receiver address
      * @param {number | string} nftId NFT ID
-     * @returns {Promise<NftTransactionSigner>} Transaction signer
+     * @returns {Promise<TransactionSigner<NftTransaction>>} Transaction signer
      */
     async transferFrom(
         spender: string,
         owner: string,
         receiver: string,
         nftId: number | string
-    ): Promise<NftTransactionSigner> {
+    ): Promise<TransactionSigner<NftTransaction>> {
         // Check if tokens exist
         const balance = await this.getBalance(owner)
 
@@ -202,7 +203,7 @@ export class NFT extends Contract implements NftInterface {
 
         transaction.feePayer = spenderPubKey
 
-        return new NftTransactionSigner(transaction)
+        return new TransactionSigner(transaction)
     }
 
     /**
@@ -210,13 +211,13 @@ export class NFT extends Contract implements NftInterface {
      * @param {string} owner Address of owner of the tokens that will be used
      * @param {string} spender Address of the spender that will use the tokens of owner
      * @param {number | string} nftId ID of the NFT that will be transferred
-     * @returns {Promise<TransactionSigner>} Transaction signer
+     * @returns {Promise<TransactionSigner<NftTransaction>>} Transaction signer
      */
     async approve(
         owner: string,
         spender: string,
         nftId: number | string
-    ): Promise<NftTransactionSigner> {
+    ): Promise<TransactionSigner<NftTransaction>> {
         // Check if tokens exist
         const balance = await this.getBalance(owner)
 
@@ -244,6 +245,6 @@ export class NFT extends Contract implements NftInterface {
 
         transaction.feePayer = ownerPubKey
 
-        return new NftTransactionSigner(transaction)
+        return new TransactionSigner(transaction)
     }
 }

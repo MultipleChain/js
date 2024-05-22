@@ -1,7 +1,8 @@
+import type { WalletAdapter } from '../Wallet.ts'
 import { WalletPlatformEnum } from '@multiplechain/types'
+import type { Provider } from '../../services/Provider.ts'
+import type { WalletAdapterInterface } from '@multiplechain/types'
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom'
-import type { BaseMessageSignerWalletAdapter } from '@solana/wallet-adapter-base'
-import type { ProviderInterface, WalletAdapterInterface } from '@multiplechain/types'
 
 const phantomAdapter = new PhantomWalletAdapter()
 
@@ -16,7 +17,7 @@ declare global {
     }
 }
 
-const Phantom: WalletAdapterInterface = {
+const Phantom: WalletAdapterInterface<Provider, WalletAdapter> = {
     id: 'phantom',
     name: phantomAdapter.name,
     icon: phantomAdapter.icon,
@@ -33,10 +34,7 @@ const Phantom: WalletAdapterInterface = {
     disconnect: async () => {
         await phantomAdapter.disconnect()
     },
-    connect: async (
-        _provider?: ProviderInterface,
-        _ops?: object
-    ): Promise<BaseMessageSignerWalletAdapter> => {
+    connect: async (_provider?: Provider, _ops?: object): Promise<WalletAdapter> => {
         await phantomAdapter.connect()
         return phantomAdapter
     }

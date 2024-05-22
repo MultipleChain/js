@@ -1,11 +1,13 @@
+import type { WalletAdapter } from '../Wallet.ts'
 import { WalletPlatformEnum } from '@multiplechain/types'
+import type { Provider } from '../../services/Provider.ts'
+import { WalletReadyState } from '@solana/wallet-adapter-base'
+import type { WalletAdapterInterface } from '@multiplechain/types'
 import { CoinbaseWalletAdapter } from '@solana/wallet-adapter-coinbase'
-import type { ProviderInterface, WalletAdapterInterface } from '@multiplechain/types'
-import { WalletReadyState, type BaseMessageSignerWalletAdapter } from '@solana/wallet-adapter-base'
 
 const coinbase = new CoinbaseWalletAdapter()
 
-const CoinbaseWallet: WalletAdapterInterface = {
+const CoinbaseWallet: WalletAdapterInterface<Provider, WalletAdapter> = {
     id: 'coinbasewallet',
     name: coinbase.name,
     icon: coinbase.icon,
@@ -19,10 +21,7 @@ const CoinbaseWallet: WalletAdapterInterface = {
     disconnect: async () => {
         await coinbase.disconnect()
     },
-    connect: async (
-        _provider?: ProviderInterface,
-        _ops?: object
-    ): Promise<BaseMessageSignerWalletAdapter> => {
+    connect: async (_provider?: Provider, _ops?: object): Promise<WalletAdapter> => {
         await coinbase.connect()
         return coinbase
     }

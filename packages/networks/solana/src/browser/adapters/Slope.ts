@@ -5,7 +5,7 @@ import { WalletReadyState, type BaseMessageSignerWalletAdapter } from '@solana/w
 
 const slope = new SlopeWalletAdapter()
 
-const Slope: WalletAdapterInterface = {
+const Slope: WalletAdapterInterface<Provider, WalletAdapter> = {
     id: 'slope',
     name: slope.name,
     icon: slope.icon,

@@ -1,11 +1,13 @@
+import type { WalletAdapter } from '../Wallet.ts'
 import { WalletPlatformEnum } from '@multiplechain/types'
+import type { Provider } from '../../services/Provider.ts'
+import { WalletReadyState } from '@solana/wallet-adapter-base'
+import type { WalletAdapterInterface } from '@multiplechain/types'
 import { BitgetWalletAdapter } from '@solana/wallet-adapter-bitkeep'
-import type { ProviderInterface, WalletAdapterInterface } from '@multiplechain/types'
-import { WalletReadyState, type BaseMessageSignerWalletAdapter } from '@solana/wallet-adapter-base'
 
 const bitget = new BitgetWalletAdapter()
 
-const BitgetWallet: WalletAdapterInterface = {
+const BitgetWallet: WalletAdapterInterface<Provider, WalletAdapter> = {
     id: 'bitgetwallet',
     name: bitget.name,
     icon: bitget.icon,
@@ -19,12 +21,9 @@ const BitgetWallet: WalletAdapterInterface = {
     disconnect: async () => {
         await bitget.disconnect()
     },
-    connect: async (
-        _provider?: ProviderInterface,
-        _ops?: object
-    ): Promise<BaseMessageSignerWalletAdapter> => {
+    connect: async (_provider?: Provider, _ops?: object): Promise<WalletAdapter> => {
         await bitget.connect()
-        return bitget as BaseMessageSignerWalletAdapter
+        return bitget as WalletAdapter
     }
 }
 

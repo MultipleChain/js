@@ -1,15 +1,14 @@
 import { Provider } from '../services/Provider.ts'
 import { base58Decode } from '@multiplechain/utils'
 import { Transaction } from '../models/Transaction.ts'
-import { NftTransaction } from '../models/NftTransaction.ts'
-import { CoinTransaction } from '../models/CoinTransaction.ts'
-import { TokenTransaction } from '../models/TokenTransaction.ts'
 import type { TransactionSignerInterface } from '@multiplechain/types'
 import { Keypair, VersionedTransaction, Transaction as RawTransaction } from '@solana/web3.js'
 
 type SignedTransaction = Buffer | Uint8Array
 
-export class TransactionSigner implements TransactionSignerInterface {
+export class TransactionSigner<ReturnTransaction>
+    implements TransactionSignerInterface<RawTransaction, SignedTransaction, ReturnTransaction>
+{
     /**
      * Transaction data from the blockchain network
      */
@@ -36,9 +35,9 @@ export class TransactionSigner implements TransactionSignerInterface {
     /**
      * Sign the transaction
      * @param {string} privateKey - Transaction data
-     * @returns {Promise<TransactionSigner>} Signed transaction data
+     * @returns {Promise<this>} Signed transaction data
      */
-    async sign(privateKey: string): Promise<TransactionSigner> {
+    async sign(privateKey: string): Promise<this> {
         this.rawData.recentBlockhash = (
             await this.provider.web3.getLatestBlockhash('finalized')
         ).blockhash
@@ -80,10 +79,12 @@ export class TransactionSigner implements TransactionSignerInterface {
 
     /**
      * Send the transaction to the blockchain network
-     * @returns {Promise<Transaction>}
+     * @returns {Promise<ReturnTransaction>}
      */
-    async send(): Promise<Transaction> {
-        return new Transaction(await this.provider.web3.sendRawTransaction(this.signedData))
+    async send(): Promise<ReturnTransaction> {
+        return new Transaction(
+            await this.provider.web3.sendRawTransaction(this.signedData)
+        ) as ReturnTransaction
     }
 
     /**
@@ -100,35 +101,5 @@ export class TransactionSigner implements TransactionSignerInterface {
      */
     getSignedData(): SignedTransaction {
         return this.signedData
-    }
-}
-
-export class CoinTransactionSigner extends TransactionSigner {
-    /**
-     * Send the transaction to the blockchain network
-     * @returns {Promise<CoinTransaction>} Transaction data
-     */
-    async send(): Promise<CoinTransaction> {
-        return new CoinTransaction((await super.send()).getId())
-    }
-}
-
-export class TokenTransactionSigner extends TransactionSigner {
-    /**
-     * Send the transaction to the blockchain network
-     * @returns {Promise<TokenTransaction>} Transaction data
-     */
-    async send(): Promise<TokenTransaction> {
-        return new TokenTransaction((await super.send()).getId())
-    }
-}
-
-export class NftTransactionSigner extends TransactionSigner {
-    /**
-     * Send the transaction to the blockchain network
-     * @returns {Promise<NftTransaction>} Transaction data
-     */
-    async send(): Promise<NftTransaction> {
-        return new NftTransaction((await super.send()).getId())
     }
 }

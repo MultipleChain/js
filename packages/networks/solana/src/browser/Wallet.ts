@@ -1,10 +1,10 @@
 import {
     type WalletInterface,
-    type WalletAdapterInterface,
     type WalletPlatformEnum,
-    type TransactionSignerInterface,
-    type ProviderInterface,
-    ErrorTypeEnum
+    type WalletAdapterInterface,
+    ErrorTypeEnum,
+    type ConnectConfig,
+    type UnknownConfig
 } from '@multiplechain/types'
 import { Provider } from '../services/Provider.ts'
 import type {
@@ -13,6 +13,7 @@ import type {
 } from '@solana/wallet-adapter-base'
 import { base58Encode } from '@multiplechain/utils'
 import type { TransactionSigner } from '../services/TransactionSigner.ts'
+import type { Transaction } from '../models/Transaction.ts'
 
 const rejectMap = (error: any, reject: (a: any) => any): any => {
     console.error('MultipleChain Solana Wallet Error:', error)
@@ -73,20 +74,26 @@ const rejectMap = (error: any, reject: (a: any) => any): any => {
     return reject(error)
 }
 
-export class Wallet implements WalletInterface {
-    adapter: WalletAdapterInterface
+export type WalletAdapter = BaseMessageSignerWalletAdapter
 
-    walletProvider: BaseMessageSignerWalletAdapter
+type WalletAdapterType = WalletAdapterInterface<Provider, WalletAdapter>
+
+export class Wallet
+    implements WalletInterface<Provider, WalletAdapter, TransactionSigner<Transaction>>
+{
+    adapter: WalletAdapterType
+
+    walletProvider: WalletAdapter
 
     networkProvider: Provider
 
     currentReject: (a: any) => any
 
     /**
-     * @param {WalletAdapterInterface} adapter
+     * @param {WalletAdapterType} adapter
      * @param {Provider} provider
      */
-    constructor(adapter: WalletAdapterInterface, provider?: Provider) {
+    constructor(adapter: WalletAdapterType, provider?: Provider) {
         this.adapter = adapter
         this.networkProvider = provider ?? Provider.instance
     }
@@ -128,27 +135,26 @@ export class Wallet implements WalletInterface {
 
     /**
      * @param {string} url
-     * @param {object} ops
+     * @param {UnknownConfig} config
      * @returns {string}
      */
-    createDeepLink(url: string, ops?: object): string | null {
+    createDeepLink(url: string, config?: UnknownConfig): string | null {
         if (this.adapter.createDeepLink === undefined) {
             return null
         }
 
-        return this.adapter.createDeepLink(url, ops)
+        return this.adapter.createDeepLink(url, config)
     }
 
     /**
-     * @param {ProviderInterface} provider
-     * @param {Object} ops
+     * @param {ConnectConfig} config
      * @returns {Promise<string>}
      */
-    async connect(provider?: ProviderInterface, ops?: object): Promise<string> {
+    async connect(config?: ConnectConfig): Promise<string> {
         return await new Promise((resolve, reject) => {
             this.currentReject = reject
             this.adapter
-                .connect(provider, ops)
+                .connect(this.networkProvider, config)
                 .then(async (provider) => {
                     this.walletProvider = provider as BaseMessageSignerWalletAdapter
                     this.on('error', (error) => rejectMap(error, this.currentReject))
@@ -206,11 +212,10 @@ export class Wallet implements WalletInterface {
     }
 
     /**
-     * @param {TransactionSignerInterface} _transactionSigner
+     * @param {TransactionSigner} transactionSigner
      * @returns {Promise<string>}
      */
-    async sendTransaction(_transactionSigner: TransactionSignerInterface): Promise<string> {
-        const transactionSigner = _transactionSigner as TransactionSigner
+    async sendTransaction(transactionSigner: TransactionSigner<Transaction>): Promise<string> {
         return await new Promise((resolve, reject) => {
             this.currentReject = reject
             try {

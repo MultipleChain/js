@@ -2,9 +2,10 @@ import { Provider } from '../services/Provider.ts'
 import { fromLamports, toLamports } from '../utils.ts'
 import { PublicKey, SystemProgram, Transaction } from '@solana/web3.js'
 import { ErrorTypeEnum, type CoinInterface } from '@multiplechain/types'
-import { CoinTransactionSigner } from '../services/TransactionSigner.ts'
+import { TransactionSigner } from '../services/TransactionSigner.ts'
+import type { CoinTransaction } from '../models/CoinTransaction.ts'
 
-export class Coin implements CoinInterface {
+export class Coin implements CoinInterface<TransactionSigner<CoinTransaction>> {
     /**
      * Blockchain network provider
      */
@@ -56,7 +57,7 @@ export class Coin implements CoinInterface {
         sender: string,
         receiver: string,
         amount: number
-    ): Promise<CoinTransactionSigner> {
+    ): Promise<TransactionSigner<CoinTransaction>> {
         if (amount < 0) {
             throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
         }
@@ -79,6 +80,6 @@ export class Coin implements CoinInterface {
 
         transaction.feePayer = senderPubKey
 
-        return new CoinTransactionSigner(transaction)
+        return new TransactionSigner<CoinTransaction>(transaction)
     }
 }
