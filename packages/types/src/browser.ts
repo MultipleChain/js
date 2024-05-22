@@ -1,3 +1,4 @@
+import type { SignedMessage, TransactionId, WalletAddress } from './defines.ts'
 import type { WalletPlatformEnum } from './enums.ts'
 
 export type RegisterWalletAdapterType<NetworkProvider, WalletProvider> = (
@@ -78,31 +79,31 @@ export interface WalletInterface<NetworkProvider, WalletProvider, TransactionSig
     connect: (config?: ConnectConfig) => Promise<string>
 
     /**
-     * @returns {Boolean | Promise<Boolean>}
+     * @returns {boolean | Promise<boolean>}
      */
     isDetected: () => boolean | Promise<boolean>
 
     /**
-     * @returns {Boolean | Promise<Boolean>}
+     * @returns {boolean | Promise<boolean>}
      */
     isConnected: () => boolean | Promise<boolean>
 
     /**
-     * @returns {Promise<string>}
+     * @returns {Promise<WalletAddress>}
      */
-    getAddress: () => Promise<string>
+    getAddress: () => Promise<WalletAddress>
 
     /**
      * @param {string} message
-     * @returns {Promise<string>}
+     * @returns {Promise<SignedMessage>}
      */
-    signMessage: (message: string) => Promise<string>
+    signMessage: (message: string) => Promise<SignedMessage>
 
     /**
-     * @param {Signer} transactionSigner
-     * @returns {Promise<string>}
+     * @param {TransactionSigner} transactionSigner
+     * @returns {Promise<TransactionId>}
      */
-    sendTransaction: (transactionSigner: TransactionSigner) => Promise<string>
+    sendTransaction: (transactionSigner: TransactionSigner) => Promise<TransactionId>
 
     /**
      * @param {string} eventName

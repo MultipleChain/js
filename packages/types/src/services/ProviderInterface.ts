@@ -30,14 +30,14 @@ export interface ProviderInterface<NetworkConfig = NetworkConfigInterface> {
     /**
      * Check RPC connection
      * @param {string} url - RPC URL
-     * @returns {Promise<boolean | Error>}
+     * @returns {Promise<boolean>}
      */
-    checkRpcConnection: (url?: string) => Promise<boolean | Error>
+    checkRpcConnection: (url?: string) => Promise<boolean>
 
     /**
      * Check WS connection
      * @param {string} url - Websocket URL
-     * @returns {Promise<boolean | Error>}
+     * @returns {Promise<boolean>}
      */
-    checkWsConnection: (url?: string) => Promise<boolean | Error>
+    checkWsConnection: (url?: string) => Promise<boolean>
 }

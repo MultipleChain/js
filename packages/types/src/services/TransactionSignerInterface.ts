@@ -1,4 +1,6 @@
-export interface TransactionSignerInterface<RawData, SignedData, Transaction> {
+import type { PrivateKey, TransactionId } from '../defines.ts'
+
+export interface TransactionSignerInterface<RawData, SignedData> {
     /**
      * Transaction data from the blockchain network
      */
@@ -10,14 +12,14 @@ export interface TransactionSignerInterface<RawData, SignedData, Transaction> {
     signedData?: SignedData
 
     /**
-     * @param {string} privateKey - Private key of the wallet to sign the transaction
+     * @param {PrivateKey} privateKey - Private key of the wallet to sign the transaction
      */
-    sign: (privateKey: string) => Promise<this>
+    sign: (privateKey: PrivateKey) => Promise<this>
 
     /**
-     * @returns {Promise<Transaction | Error>} Send the transaction to the blockchain network, returns a promise of the transaction
+     * @returns {Promise<TransactionId>} Send the transaction to the blockchain network, returns a promise of the transaction
      */
-    send: () => Promise<Transaction | Error>
+    send: () => Promise<TransactionId>
 
     /**
      * @returns {RawData} Unsigned transaction raw data

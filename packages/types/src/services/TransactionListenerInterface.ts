@@ -1,38 +1,45 @@
+import type {
+    ContractAddress,
+    NftId,
+    TransactionId,
+    TransferAmount,
+    WalletAddress
+} from '../defines.ts'
 import { TransactionTypeEnum } from '../enums.ts'
 
 /**
  * Filter types for each transaction type in TransactionListenerInterface
  */
 export interface TransactionListenerFilterInterface {
-    signer?: string
+    signer?: WalletAddress
 }
 
 export interface ContractTransactionListenerFilterInterface
     extends TransactionListenerFilterInterface {
-    address?: string
+    address?: ContractAddress
 }
 
 export interface AssetTransactionListenerFilterInterface
     extends TransactionListenerFilterInterface {
-    sender?: string
-    receiver?: string
+    sender?: WalletAddress
+    receiver?: WalletAddress
 }
 
 export interface CoinTransactionListenerFilterInterface
     extends AssetTransactionListenerFilterInterface {
-    amount?: number
+    amount?: TransferAmount
 }
 
 export interface TokenTransactionListenerFilterInterface
     extends AssetTransactionListenerFilterInterface,
         ContractTransactionListenerFilterInterface {
-    amount?: number
+    amount?: TransferAmount
 }
 
 export interface NftTransactionListenerFilterInterface
     extends AssetTransactionListenerFilterInterface,
         ContractTransactionListenerFilterInterface {
-    nftId?: number | string
+    nftId?: NftId
 }
 /**
  * Filter types for each transaction type in TransactionListenerInterface
@@ -120,7 +127,7 @@ export interface TransactionListenerInterface<
     /**
      * Triggered transactions
      */
-    triggeredTransactions: string[]
+    triggeredTransactions: TransactionId[]
 
     /**
      * 'filter' is an object that has values depending on transaction listener type.
