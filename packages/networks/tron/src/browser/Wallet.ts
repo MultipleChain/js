@@ -183,7 +183,7 @@ export class Wallet implements WalletInterface {
                     resolve(signature)
                 })
                 .catch((error: any) => {
-                    reject(error)
+                    rejectMap(error, reject)
                 })
         })
     }
@@ -193,12 +193,28 @@ export class Wallet implements WalletInterface {
      * @returns {Promise<string>}
      */
     async sendTransaction(transactionSigner: TransactionSignerInterface): Promise<string> {
-        const signedTx = await this.walletProvider.signTransaction(
-            transactionSigner.getRawData() as Transaction
-        )
-        const { transaction } = await this.networkProvider.tronWeb.trx.sendRawTransaction(signedTx)
-        if (transaction === undefined) throw new Error(ErrorTypeEnum.TRANSACTION_CREATION_FAILED)
-        return transaction.txID as string
+        return await new Promise((resolve, reject) => {
+            try {
+                void (async () => {
+                    const signedTx = await this.walletProvider
+                        .signTransaction(transactionSigner.getRawData() as Transaction)
+                        .catch((error) => rejectMap(error, reject))
+
+                    if (signedTx === undefined) return
+
+                    const { transaction } =
+                        await this.networkProvider.tronWeb.trx.sendRawTransaction(signedTx)
+
+                    if (transaction === undefined) {
+                        throw new Error(ErrorTypeEnum.TRANSACTION_CREATION_FAILED)
+                    }
+
+                    resolve(transaction.txID as string)
+                })()
+            } catch (error) {
+                rejectMap(error, reject)
+            }
+        })
     }
 
     /**
