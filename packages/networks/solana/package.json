@@ -46,7 +46,7 @@
         "dev": "vite",
         "clean": "rm -rf dist",
         "watch": "tsc --watch",
-        "build:vite": "vite build",
+        "build:vite": "set NODE_OPTIONS=--max-old-space-size=4096 && vite build",
         "build:node": "tsx esbuild.ts",
         "typecheck": "tsc --noEmit",
         "lint": "eslint . --ext .ts",
