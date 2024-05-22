@@ -206,7 +206,7 @@ export class Wallet implements WalletInterface {
     }
 
     /**
-     * @param {TransactionSignerInterface} transactionSigner
+     * @param {TransactionSignerInterface} _transactionSigner
      * @returns {Promise<string>}
      */
     async sendTransaction(_transactionSigner: TransactionSignerInterface): Promise<string> {
