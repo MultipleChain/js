@@ -1,5 +1,9 @@
 import { Transaction } from './Transaction.ts'
-import type { ContractTransactionInterface } from '@multiplechain/types'
+import type {
+    ContractAddress,
+    ContractTransactionInterface,
+    TransactionId
+} from '@multiplechain/types'
 import {
     Interface,
     type InterfaceAbi,
@@ -15,19 +19,19 @@ export class ContractTransaction extends Transaction implements ContractTransact
     ABI: InterfaceAbi
 
     /**
-     * @param {string} id Transaction id
+     * @param {TransactionId} id Transaction id
      * @param {Provider} provider Blockchain network provider
      * @param {InterfaceAbi} ABI Contract ABI
      */
-    constructor(id: string, provider?: Provider, ABI?: InterfaceAbi) {
+    constructor(id: TransactionId, provider?: Provider, ABI?: InterfaceAbi) {
         super(id, provider)
         this.ABI = ABI ?? []
     }
 
     /**
-     * @returns {Promise<string>} Contract address of the transaction
+     * @returns {Promise<ContractAddress>} Contract address of the transaction
      */
-    async getAddress(): Promise<string> {
+    async getAddress(): Promise<ContractAddress> {
         const data = await this.getData()
         return data?.response.to ?? ''
     }

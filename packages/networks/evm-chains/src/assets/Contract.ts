@@ -1,6 +1,6 @@
 import { Provider } from '../services/Provider.ts'
 import type { Ethers } from '../services/Ethers.ts'
-import type { ContractInterface } from '@multiplechain/types'
+import type { ContractAddress, ContractInterface, WalletAddress } from '@multiplechain/types'
 import type { Contract as EthersContract, InterfaceAbi } from 'ethers'
 import type { TransactionData } from '../services/TransactionSigner.ts'
 
@@ -8,7 +8,7 @@ export class Contract implements ContractInterface {
     /**
      * Contract address
      */
-    address: string
+    address: ContractAddress
 
     /**
      * Contract ABI
@@ -31,11 +31,11 @@ export class Contract implements ContractInterface {
     ethers: Ethers
 
     /**
-     * @param {string} address Contract address
+     * @param {ContractAddress} address Contract address
      * @param {Provider} provider Blockchain network provider
      * @param {InterfaceAbi} ABI Contract ABI
      */
-    constructor(address: string, provider?: Provider, ABI?: InterfaceAbi) {
+    constructor(address: ContractAddress, provider?: Provider, ABI?: InterfaceAbi) {
         this.ABI = ABI ?? []
         this.address = address
         this.provider = provider ?? Provider.instance
@@ -44,50 +44,50 @@ export class Contract implements ContractInterface {
     }
 
     /**
-     * @returns {string} Contract address
+     * @returns {ContractAddress} Contract address
      */
-    getAddress(): string {
+    getAddress(): ContractAddress {
         return this.address
     }
 
     /**
      * @param {string} method Method name
-     * @param {any[]} args Method parameters
-     * @returns {Promise<any>} Method result
+     * @param {unknown[]} args Method parameters
+     * @returns {Promise<unknown>} Method result
      */
-    async callMethod(method: string, ...args: any[]): Promise<any> {
+    async callMethod(method: string, ...args: unknown[]): Promise<unknown> {
         return this.ethersContract[method](...args) // eslint-disable-line
     }
 
     /**
      * @param {string} method Method name
-     * @param {any[]} args Sender wallet address
+     * @param {unknown[]} args Sender wallet address
      * @returns {Promise<string>} Encoded method data
      */
-    async getMethodData(method: string, ...args: any[]): Promise<string> {
+    async getMethodData(method: string, ...args: unknown[]): Promise<string> {
         return this.ethersContract.interface.encodeFunctionData(method, args)
     }
 
     /**
      * @param {string} method Method name
      * @param {string} from Sender wallet address
-     * @param {any[]} args Method parameters
+     * @param {unknown[]} args Method parameters
      * @returns {Promise<number>} Gas limit
      */
-    async getMethodEstimateGas(method: string, from: string, ...args: any[]): Promise<number> {
+    async getMethodEstimateGas(method: string, from: string, ...args: unknown[]): Promise<number> {
         return Number(await this.ethersContract[method].estimateGas(...args, { from })) // eslint-disable-line
     }
 
     /**
      * @param {string} method Method name
-     * @param {string} from Sender wallet address
-     * @param {any[]} args Method parameters
+     * @param {WalletAddress} from Sender wallet address
+     * @param {unknown[]} args Method parameters
      * @returns {Promise<TransactionData>} Transaction data
      */
     async createTransactionData(
         method: string,
-        from: string,
-        ...args: any[]
+        from: WalletAddress,
+        ...args: unknown[]
     ): Promise<TransactionData> {
         const [gasPrice, nonce, data, gasLimit] = await Promise.all([
             this.provider.ethers.getGasPrice(),

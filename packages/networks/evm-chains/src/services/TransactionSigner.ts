@@ -1,18 +1,18 @@
 import type { EthersError } from './Ethers.ts'
 import { Provider } from '../services/Provider.ts'
-import { Transaction } from '../models/Transaction.ts'
-import { NftTransaction } from '../models/NftTransaction.ts'
-import { CoinTransaction } from '../models/CoinTransaction.ts'
-import { TokenTransaction } from '../models/TokenTransaction.ts'
-import { ContractTransaction } from '../models/ContractTransaction.ts'
 import type { TransactionRequest, Wallet, BigNumberish } from 'ethers'
-import { ErrorTypeEnum, type TransactionSignerInterface } from '@multiplechain/types'
+import {
+    ErrorTypeEnum,
+    type PrivateKey,
+    type TransactionId,
+    type TransactionSignerInterface
+} from '@multiplechain/types'
 
 export interface TransactionData extends TransactionRequest {
     gas?: BigNumberish
 }
 
-export class TransactionSigner implements TransactionSignerInterface {
+export class TransactionSigner implements TransactionSignerInterface<TransactionData, string> {
     /**
      * Transaction data from the blockchain network
      */
@@ -44,10 +44,10 @@ export class TransactionSigner implements TransactionSignerInterface {
 
     /**
      * Sign the transaction
-     * @param {string} privateKey - Transaction data
-     * @returns {Promise<TransactionSigner>} Signed transaction data
+     * @param {PrivateKey} privateKey - Transaction data
+     * @returns {Promise<this>} Signed transaction data
      */
-    public async sign(privateKey: string): Promise<TransactionSigner> {
+    public async sign(privateKey: PrivateKey): Promise<this> {
         try {
             this.wallet = this.provider.ethers.wallet(privateKey)
             this.signedData = await this.wallet.signTransaction(this.rawData)
@@ -64,14 +64,12 @@ export class TransactionSigner implements TransactionSignerInterface {
 
     /**
      * Send the transaction to the blockchain network
-     * @returns {Promise<Transaction>} Transaction data
+     * @returns {Promise<TransactionId>} Transaction data
      */
-    async send(): Promise<Transaction> {
-        return new Transaction(
-            (await this.provider.ethers.jsonRpc.send('eth_sendRawTransaction', [
-                this.signedData
-            ])) as string
-        )
+    async send(): Promise<TransactionId> {
+        return (await this.provider.ethers.jsonRpc.send('eth_sendRawTransaction', [
+            this.signedData
+        ])) as TransactionId
     }
 
     /**
@@ -88,45 +86,5 @@ export class TransactionSigner implements TransactionSignerInterface {
      */
     getSignedData(): string {
         return this.signedData
-    }
-}
-
-export class ContractTransactionSigner extends TransactionSigner {
-    /**
-     * Send the transaction to the blockchain network
-     * @returns {Promise<ContractTransaction>} Transaction data
-     */
-    async send(): Promise<ContractTransaction> {
-        return new ContractTransaction((await super.send()).getId())
-    }
-}
-
-export class CoinTransactionSigner extends TransactionSigner {
-    /**
-     * Send the transaction to the blockchain network
-     * @returns {Promise<CoinTransaction>} Transaction data
-     */
-    async send(): Promise<CoinTransaction> {
-        return new CoinTransaction((await super.send()).getId())
-    }
-}
-
-export class TokenTransactionSigner extends TransactionSigner {
-    /**
-     * Send the transaction to the blockchain network
-     * @returns {Promise<TokenTransaction>} Transaction data
-     */
-    async send(): Promise<TokenTransaction> {
-        return new TokenTransaction((await super.send()).getId())
-    }
-}
-
-export class NftTransactionSigner extends TransactionSigner {
-    /**
-     * Send the transaction to the blockchain network
-     * @returns {Promise<NftTransaction>} Transaction data
-     */
-    async send(): Promise<NftTransaction> {
-        return new NftTransaction((await super.send()).getId())
     }
 }

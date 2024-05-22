@@ -2,23 +2,28 @@ import type { InterfaceAbi } from 'ethers'
 import ERC721 from '../../resources/erc721.json'
 import type { Provider } from '../services/Provider.ts'
 import { ContractTransaction } from './ContractTransaction.ts'
-import type { NftTransactionInterface } from '@multiplechain/types'
+import type {
+    NftId,
+    NftTransactionInterface,
+    TransactionId,
+    WalletAddress
+} from '@multiplechain/types'
 import { TransactionStatusEnum, AssetDirectionEnum } from '@multiplechain/types'
 
 export class NftTransaction extends ContractTransaction implements NftTransactionInterface {
     /**
-     * @param {string} id Transaction id
+     * @param {TransactionId} id Transaction id
      * @param {Provider} provider Blockchain network provider
      * @param {InterfaceAbi} ABI Contract ABI
      */
-    constructor(id: string, provider?: Provider, ABI?: InterfaceAbi) {
+    constructor(id: TransactionId, provider?: Provider, ABI?: InterfaceAbi) {
         super(id, provider, ABI ?? (ERC721 as InterfaceAbi))
     }
 
     /**
-     * @returns {Promise<string>} Receiver wallet address
+     * @returns {Promise<WalletAddress>} Receiver wallet address
      */
-    async getReceiver(): Promise<string> {
+    async getReceiver(): Promise<WalletAddress> {
         const decoded = await this.decodeData()
 
         if (decoded === null) {
@@ -33,9 +38,9 @@ export class NftTransaction extends ContractTransaction implements NftTransactio
     }
 
     /**
-     * @returns {Promise<string>} Sender wallet address
+     * @returns {Promise<WalletAddress>} Sender wallet address
      */
-    async getSender(): Promise<string> {
+    async getSender(): Promise<WalletAddress> {
         const decoded = await this.decodeData()
 
         if (decoded === null) {
@@ -50,23 +55,23 @@ export class NftTransaction extends ContractTransaction implements NftTransactio
     }
 
     /**
-     * @returns {Promise<number | string>} NFT ID
+     * @returns {Promise<NftId>} NFT ID
      */
-    async getNftId(): Promise<number | string> {
+    async getNftId(): Promise<NftId> {
         return Number((await this.decodeData())?.args[2] ?? 0)
     }
 
     /**
      * @param {AssetDirectionEnum} direction - Direction of the transaction (nft)
-     * @param {string} address - Wallet address of the receiver or sender of the transaction, dependant on direction
-     * @param {number | string} nftId ID of the NFT that will be transferred
+     * @param {WalletAddress} address - Wallet address of the receiver or sender of the transaction, dependant on direction
+     * @param {NftId} nftId ID of the NFT that will be transferred
      * @override verifyTransfer() in AssetTransactionInterface
      * @returns {Promise<TransactionStatusEnum>} Status of the transaction
      */
     async verifyTransfer(
         direction: AssetDirectionEnum,
-        address: string,
-        nftId: number | string
+        address: WalletAddress,
+        nftId: NftId
     ): Promise<TransactionStatusEnum> {
         const status = await this.getStatus()
 

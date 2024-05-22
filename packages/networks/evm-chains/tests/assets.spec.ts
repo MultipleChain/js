@@ -5,7 +5,7 @@ import { Coin } from '../src/assets/Coin.ts'
 import { Token } from '../src/assets/Token.ts'
 import { math } from '@multiplechain/utils'
 import { Transaction } from '../src/models/Transaction.ts'
-import { TransactionStatusEnum } from '@multiplechain/types'
+import { TransactionStatusEnum, type TransactionId } from '@multiplechain/types'
 import { TransactionSigner } from '../src/services/TransactionSigner.ts'
 
 const coinBalanceTestAmount = Number(process.env.EVM_COIN_BALANCE_TEST_AMOUNT)
@@ -50,8 +50,8 @@ const checkSigner = async (signer: TransactionSigner, privateKey?: string): Prom
     assert.isString(signer.getSignedData())
 }
 
-const checkTx = async (transaction: Transaction): Promise<any> => {
-    expect(transaction).toBeInstanceOf(Transaction)
+const checkTx = async (transactionId: TransactionId): Promise<any> => {
+    const transaction = new Transaction(transactionId)
     const status = await transaction.wait(10 * 1000)
     expect(status).toBe(TransactionStatusEnum.CONFIRMED)
 }
@@ -88,7 +88,7 @@ describe('Coin', () => {
         await checkTx(await signer.send())
 
         const afterBalance = await coin.getBalance(receiverTestAddress)
-        expect(afterBalance).toBe(math.add(beforeBalance, transferTestAmount))
+        expect(afterBalance).toBe(math.add(beforeBalance, transferTestAmount, coin.getDecimals()))
     })
 })
 
@@ -132,7 +132,9 @@ describe('Token', () => {
         await checkTx(await signer.send())
 
         const afterBalance = await token.getBalance(receiverTestAddress)
-        expect(afterBalance).toBe(math.add(beforeBalance, tokenTransferTestAmount))
+        expect(afterBalance).toBe(
+            math.add(beforeBalance, tokenTransferTestAmount, await token.getDecimals())
+        )
     })
 
     it('Approve and Allowance', async () => {
@@ -174,7 +176,7 @@ describe('Token', () => {
         await checkTx(await signer.send())
 
         const afterBalance = await token.getBalance(receiverTestAddress)
-        expect(afterBalance).toBe(math.add(beforeBalance, 2))
+        expect(afterBalance).toBe(math.add(beforeBalance, 2, await token.getDecimals()))
     })
 })
 

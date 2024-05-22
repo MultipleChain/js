@@ -3,16 +3,22 @@ import type { InterfaceAbi } from 'ethers'
 import ERC20 from '../../resources/erc20.json'
 import type { Provider } from '../services/Provider.ts'
 import { hexToNumber, numberToHex } from '@multiplechain/utils'
-import { TokenTransactionSigner } from '../services/TransactionSigner.ts'
-import { ErrorTypeEnum, type TokenInterface } from '@multiplechain/types'
+import { TransactionSigner } from '../services/TransactionSigner.ts'
+import {
+    ErrorTypeEnum,
+    type ContractAddress,
+    type TokenInterface,
+    type TransferAmount,
+    type WalletAddress
+} from '@multiplechain/types'
 
-export class Token extends Contract implements TokenInterface {
+export class Token extends Contract implements TokenInterface<TransactionSigner> {
     /**
-     * @param {string} address Contract address
+     * @param {ContractAddress} address Contract address
      * @param {Provider} provider Blockchain network provider
      * @param {InterfaceAbi} ABI Contract ABI
      */
-    constructor(address: string, provider?: Provider, ABI?: InterfaceAbi) {
+    constructor(address: ContractAddress, provider?: Provider, ABI?: InterfaceAbi) {
         super(address, provider, ABI ?? ERC20)
     }
 
@@ -20,14 +26,14 @@ export class Token extends Contract implements TokenInterface {
      * @returns {Promise<string>} Token name
      */
     async getName(): Promise<string> {
-        return await this.callMethod('name')
+        return (await this.callMethod('name')) as string
     }
 
     /**
      * @returns {Promise<string>} Token symbol
      */
     async getSymbol(): Promise<string> {
-        return await this.callMethod('symbol')
+        return (await this.callMethod('symbol')) as string
     }
 
     /**
@@ -38,10 +44,10 @@ export class Token extends Contract implements TokenInterface {
     }
 
     /**
-     * @param {string} owner Wallet address
+     * @param {WalletAddress} owner Wallet address
      * @returns {Promise<number>} Wallet balance as currency of TOKEN
      */
-    async getBalance(owner: string): Promise<number> {
+    async getBalance(owner: WalletAddress): Promise<number> {
         const [decimals, balance] = await Promise.all([
             this.getDecimals(),
             this.callMethod('balanceOf', owner)
@@ -61,11 +67,11 @@ export class Token extends Contract implements TokenInterface {
     }
 
     /**
-     * @param {string} owner Address of owner of the tokens that is being used
-     * @param {string} spender Address of the spender that is using the tokens of owner
+     * @param {WalletAddress} owner Address of owner of the tokens that is being used
+     * @param {WalletAddress} spender Address of the spender that is using the tokens of owner
      * @returns {Promise<number>} Amount of tokens that the spender is allowed to spend
      */
-    async getAllowance(owner: string, spender: string): Promise<number> {
+    async getAllowance(owner: WalletAddress, spender: WalletAddress): Promise<number> {
         const [decimals, allowance] = await Promise.all([
             this.getDecimals(),
             await this.callMethod('allowance', owner, spender)
@@ -75,16 +81,16 @@ export class Token extends Contract implements TokenInterface {
 
     /**
      * transfer() method is the main method for processing transfers for fungible assets (TOKEN, COIN)
-     * @param {string} sender Sender wallet address
-     * @param {string} receiver Receiver wallet address
-     * @param {number} amount Amount of assets that will be transferred
+     * @param {WalletAddress} sender Sender wallet address
+     * @param {WalletAddress} receiver Receiver wallet address
+     * @param {TransferAmount} amount Amount of assets that will be transferred
      * @returns {Promise<TransactionSigner>} Transaction signer
      */
     async transfer(
-        sender: string,
-        receiver: string,
-        amount: number
-    ): Promise<TokenTransactionSigner> {
+        sender: WalletAddress,
+        receiver: WalletAddress,
+        amount: TransferAmount
+    ): Promise<TransactionSigner> {
         if (amount <= 0) {
             throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
         }
@@ -97,24 +103,24 @@ export class Token extends Contract implements TokenInterface {
 
         const hexAmount = numberToHex(amount, await this.getDecimals())
 
-        return new TokenTransactionSigner(
+        return new TransactionSigner(
             await this.createTransactionData('transfer', sender, receiver, hexAmount)
         )
     }
 
     /**
-     * @param {string} spender Address of the spender of transaction
-     * @param {string} owner Sender wallet address
-     * @param {string} receiver Receiver wallet address
-     * @param {number} amount Amount of tokens that will be transferred
+     * @param {WalletAddress} spender Address of the spender of transaction
+     * @param {WalletAddress} owner Sender wallet address
+     * @param {WalletAddress} receiver Receiver wallet address
+     * @param {TransferAmount} amount Amount of tokens that will be transferred
      * @returns {Promise<TransactionSigner>} Transaction signer
      */
     async transferFrom(
-        spender: string,
-        owner: string,
-        receiver: string,
-        amount: number
-    ): Promise<TokenTransactionSigner> {
+        spender: WalletAddress,
+        owner: WalletAddress,
+        receiver: WalletAddress,
+        amount: TransferAmount
+    ): Promise<TransactionSigner> {
         if (amount < 0) {
             throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
         }
@@ -137,19 +143,23 @@ export class Token extends Contract implements TokenInterface {
 
         const hexAmount = numberToHex(amount, await this.getDecimals())
 
-        return new TokenTransactionSigner(
+        return new TransactionSigner(
             await this.createTransactionData('transferFrom', spender, owner, receiver, hexAmount)
         )
     }
 
     /**
      * Gives permission to the spender to spend owner's tokens
-     * @param {string} owner Address of owner of the tokens that will be used
-     * @param {string} spender Address of the spender that will use the tokens of owner
-     * @param {number} amount Amount of the tokens that will be used
+     * @param {WalletAddress} owner Address of owner of the tokens that will be used
+     * @param {WalletAddress} spender Address of the spender that will use the tokens of owner
+     * @param {TransferAmount} amount Amount of the tokens that will be used
      * @returns {Promise<TransactionSigner>} Transaction signer
      */
-    async approve(owner: string, spender: string, amount: number): Promise<TokenTransactionSigner> {
+    async approve(
+        owner: WalletAddress,
+        spender: WalletAddress,
+        amount: TransferAmount
+    ): Promise<TransactionSigner> {
         if (amount < 0) {
             throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
         }
@@ -162,7 +172,7 @@ export class Token extends Contract implements TokenInterface {
 
         const hexAmount = numberToHex(amount, await this.getDecimals())
 
-        return new TokenTransactionSigner(
+        return new TransactionSigner(
             await this.createTransactionData('approve', owner, spender, hexAmount)
         )
     }

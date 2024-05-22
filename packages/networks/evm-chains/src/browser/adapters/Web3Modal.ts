@@ -1,12 +1,13 @@
 import icons from './icons.ts'
+import { networks } from '../../index.ts'
 import type { EIP1193Provider } from './EIP6963.ts'
+import type { Provider } from '../../services/Provider.ts'
 import type { Chain } from '@web3modal/scaffold-utils/ethers'
 import type { CustomWallet, Metadata } from '@web3modal/core'
 import { createWeb3Modal, defaultConfig } from '@web3modal/ethers'
 import type { Web3Modal as Web3ModalType } from '@web3modal/ethers'
+import type { WalletAdapterInterface } from '@multiplechain/types'
 import { ErrorTypeEnum, WalletPlatformEnum } from '@multiplechain/types'
-import { networks, type EvmNetworkConfigInterface } from '../../index.ts'
-import type { WalletAdapterInterface, ProviderInterface } from '@multiplechain/types'
 
 export interface Web3ModalOps {
     projectId: string
@@ -18,10 +19,6 @@ export interface Web3ModalOps {
     defaultChainId?: number
     metadata: Metadata
     customWallets?: CustomWallet[]
-}
-
-export interface Web3ModalAdapterInterface extends Omit<WalletAdapterInterface, 'connect'> {
-    connect: (provider?: ProviderInterface, ops?: Web3ModalOps | object) => Promise<EIP1193Provider>
 }
 
 let modal: Web3ModalType
@@ -96,7 +93,7 @@ const web3Modal = (ops: Web3ModalOps): Web3ModalType => {
     return modal
 }
 
-const Web3Modal: Web3ModalAdapterInterface = {
+const Web3Modal: WalletAdapterInterface<Provider, EIP1193Provider> = {
     id: 'web3modal',
     name: 'Web3Modal',
     icon: icons.web3modal,
@@ -127,7 +124,7 @@ const Web3Modal: Web3ModalAdapterInterface = {
         }
     },
     connect: async (
-        provider?: ProviderInterface,
+        provider?: Provider,
         _ops?: Web3ModalOps | object
     ): Promise<EIP1193Provider> => {
         const ops = _ops as Web3ModalOps
@@ -137,7 +134,7 @@ const Web3Modal: Web3ModalAdapterInterface = {
         }
 
         if (ops === undefined) {
-            throw new Error(ErrorTypeEnum.OPS_IS_REQUIRED)
+            throw new Error(ErrorTypeEnum.CONFIG_IS_REQUIRED)
         }
 
         if (ops.projectId === undefined) {
@@ -148,7 +145,7 @@ const Web3Modal: Web3ModalAdapterInterface = {
             throw new Error(ErrorTypeEnum.METADATA_IS_REQUIRED)
         }
 
-        const network = provider.network as EvmNetworkConfigInterface
+        const network = provider.network
 
         currentNetwork = {
             chainId: network.id,

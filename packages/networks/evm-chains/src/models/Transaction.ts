@@ -1,6 +1,14 @@
 import { Provider } from '../services/Provider.ts'
 import { ErrorTypeEnum, TransactionStatusEnum } from '@multiplechain/types'
-import type { TransactionInterface } from '@multiplechain/types'
+import type {
+    BlockConfirmationCount,
+    BlockNumber,
+    BlockTimestamp,
+    TransactionFee,
+    TransactionId,
+    TransactionInterface,
+    WalletAddress
+} from '@multiplechain/types'
 import type { TransactionReceipt, TransactionResponse } from 'ethers'
 import type { Ethers } from '../services/Ethers.ts'
 import { hexToNumber } from '@multiplechain/utils'
@@ -14,7 +22,7 @@ export class Transaction implements TransactionInterface {
     /**
      * Each transaction has its own unique ID defined by the user
      */
-    id: string
+    id: TransactionId
 
     /**
      * Blockchain network provider
@@ -32,10 +40,10 @@ export class Transaction implements TransactionInterface {
     data: TransactionData
 
     /**
-     * @param {string} id Transaction id
+     * @param {TransactionId} id Transaction id
      * @param {Provider} provider Blockchain network provider
      */
-    constructor(id: string, provider?: Provider) {
+    constructor(id: TransactionId, provider?: Provider) {
         this.id = id
         this.provider = provider ?? Provider.instance
         this.ethers = this.provider.ethers
@@ -89,9 +97,9 @@ export class Transaction implements TransactionInterface {
     }
 
     /**
-     * @returns {string} Transaction id from the blockchain network
+     * @returns {TransactionId} Transaction id from the blockchain network
      */
-    getId(): string {
+    getId(): TransactionId {
         return this.id
     }
 
@@ -106,17 +114,17 @@ export class Transaction implements TransactionInterface {
     }
 
     /**
-     * @returns {Promise<string>} Signer wallet address of the transaction
+     * @returns {Promise<WalletAddress>} Signer wallet address of the transaction
      */
-    async getSigner(): Promise<string> {
+    async getSigner(): Promise<WalletAddress> {
         const data = await this.getData()
         return data?.response.from ?? ''
     }
 
     /**
-     * @returns {Promise<number>} Fee of the transaction
+     * @returns {Promise<TransactionFee>} Fee of the transaction
      */
-    async getFee(): Promise<number> {
+    async getFee(): Promise<TransactionFee> {
         const data = await this.getData()
         if (data?.response?.gasPrice === undefined || data?.receipt?.gasUsed === undefined) {
             return 0
@@ -128,26 +136,26 @@ export class Transaction implements TransactionInterface {
     }
 
     /**
-     * @returns {Promise<number>} Block number that transaction
+     * @returns {Promise<BlockNumber>} Block number that transaction
      */
-    async getBlockNumber(): Promise<number> {
+    async getBlockNumber(): Promise<BlockNumber> {
         const data = await this.getData()
         return data?.response.blockNumber ?? 0
     }
 
     /**
-     * @returns {Promise<number>} Timestamp of the block that transaction
+     * @returns {Promise<BlockTimestamp>} Timestamp of the block that transaction
      */
-    async getBlockTimestamp(): Promise<number> {
+    async getBlockTimestamp(): Promise<BlockTimestamp> {
         const blockNumber = await this.getBlockNumber()
         const block = await this.ethers.getBlock(blockNumber)
         return block?.timestamp ?? 0
     }
 
     /**
-     * @returns {Promise<number>} Confirmation count of the block that transaction
+     * @returns {Promise<BlockConfirmationCount>} Confirmation count of the block that transaction
      */
-    async getBlockConfirmationCount(): Promise<number> {
+    async getBlockConfirmationCount(): Promise<BlockConfirmationCount> {
         const blockNumber = await this.getBlockNumber()
         const blockCount = await this.ethers.getBlockNumber()
         const confirmations = blockCount - blockNumber

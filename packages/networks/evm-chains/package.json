@@ -75,7 +75,7 @@
         "url": "https://github.com/MultipleChain/js/issues"
     },
     "dependencies": {
-        "@multiplechain/types": "^0.1.56",
+        "@multiplechain/types": "^0.1.62",
         "@multiplechain/utils": "^0.1.20",
         "@wagmi/chains": "^1.8.0",
         "@walletconnect/ethereum-provider": "^2.12.2",

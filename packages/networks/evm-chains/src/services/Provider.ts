@@ -22,7 +22,7 @@ export interface EvmNetworkConfigInterface extends NetworkConfigInterface {
     }
 }
 
-export class Provider implements Omit<ProviderInterface, 'update'> {
+export class Provider implements ProviderInterface<EvmNetworkConfigInterface> {
     /**
      * Network configuration of the provider
      */
@@ -42,9 +42,7 @@ export class Provider implements Omit<ProviderInterface, 'update'> {
      * @param network - Network configuration of the provider
      */
     constructor(network: EvmNetworkConfigInterface) {
-        this.network = network
-        Provider._instance = this
-        this.ethers = new Ethers(network)
+        this.update(network)
     }
 
     /**
