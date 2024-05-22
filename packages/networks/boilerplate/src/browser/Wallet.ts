@@ -1,24 +1,30 @@
+import { Provider } from '../services/Provider.ts'
+import type { TransactionSigner } from '../services/TransactionSigner.ts'
 import type {
     WalletInterface,
     WalletAdapterInterface,
     WalletPlatformEnum,
-    TransactionSignerInterface,
-    ProviderInterface
+    TransactionId,
+    SignedMessage,
+    WalletAddress,
+    ConnectConfig,
+    UnknownConfig
 } from '@multiplechain/types'
-import { Provider } from '../services/Provider.ts'
 
-export class Wallet implements WalletInterface {
-    adapter: WalletAdapterInterface
+type WalletAdapter = WalletAdapterInterface<Provider, object>
+
+export class Wallet implements WalletInterface<Provider, object, TransactionSigner> {
+    adapter: WalletAdapter
 
     walletProvider: object
 
     networkProvider: Provider
 
     /**
-     * @param {WalletAdapterInterface} adapter
+     * @param {WalletAdapter} adapter
      * @param {Provider} provider
      */
-    constructor(adapter: WalletAdapterInterface, provider?: Provider) {
+    constructor(adapter: WalletAdapter, provider?: Provider) {
         this.adapter = adapter
         this.networkProvider = provider ?? Provider.instance
     }
@@ -60,23 +66,22 @@ export class Wallet implements WalletInterface {
 
     /**
      * @param {string} url
-     * @param {object} ops
+     * @param {UnknownConfig} config
      * @returns {string}
      */
-    createDeepLink(url: string, ops?: object): string | null {
+    createDeepLink(url: string, config?: UnknownConfig): string | null {
         if (this.adapter.createDeepLink === undefined) {
             return null
         }
 
-        return this.adapter.createDeepLink(url, ops)
+        return this.adapter.createDeepLink(url, config)
     }
 
     /**
-     * @param {ProviderInterface} provider
-     * @param {Object} ops
+     * @param {ConnectConfig} config
      * @returns {Promise<string>}
      */
-    async connect(provider?: ProviderInterface, ops?: object): Promise<string> {
+    async connect(config?: ConnectConfig): Promise<WalletAddress> {
         await this.adapter.connect()
         return 'wallet address'
     }
@@ -96,24 +101,24 @@ export class Wallet implements WalletInterface {
     }
 
     /**
-     * @returns {Promise<string>}
+     * @returns {Promise<WalletAddress>}
      */
-    async getAddress(): Promise<string> {
+    async getAddress(): Promise<WalletAddress> {
         return 'wallet address'
     }
 
     /**
-     * @param {string} message
+     * @param {SignedMessage} message
      */
-    async signMessage(message: string): Promise<string> {
+    async signMessage(message: string): Promise<SignedMessage> {
         return 'signed message'
     }
 
     /**
-     * @param {TransactionSignerInterface} transactionSigner
-     * @returns {Promise<string>}
+     * @param {TransactionSigner} transactionSigner
+     * @returns {Promise<TransactionId>}
      */
-    async sendTransaction(transactionSigner: TransactionSignerInterface): Promise<string> {
+    async sendTransaction(transactionSigner: TransactionSigner): Promise<TransactionId> {
         return 'transaction hash'
     }
 

@@ -5,7 +5,7 @@ import { Coin } from '../src/assets/Coin.ts'
 import { Token } from '../src/assets/Token.ts'
 import { math } from '@multiplechain/utils'
 import { Transaction } from '../src/models/Transaction.ts'
-import { TransactionStatusEnum } from '@multiplechain/types'
+import { TransactionStatusEnum, type TransactionId } from '@multiplechain/types'
 import { TransactionSigner } from '../src/services/TransactionSigner.ts'
 
 const coinBalanceTestAmount = Number(process.env.BLP_COIN_BALANCE_TEST_AMOUNT)
@@ -50,8 +50,8 @@ const checkSigner = async (signer: TransactionSigner, privateKey?: string): Prom
     assert.isString(signer.getSignedData())
 }
 
-const checkTx = async (transaction: Transaction): Promise<any> => {
-    expect(transaction).toBeInstanceOf(Transaction)
+const checkTx = async (transactionId: TransactionId): Promise<any> => {
+    const transaction = new Transaction(transactionId)
     const status = await transaction.wait(10000)
     expect(status).toBe(TransactionStatusEnum.CONFIRMED)
 }

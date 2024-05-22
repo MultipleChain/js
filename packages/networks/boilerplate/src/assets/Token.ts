@@ -1,8 +1,8 @@
 import { Contract } from './Contract.ts'
-import type { TokenInterface } from '@multiplechain/types'
-import { TokenTransactionSigner } from '../services/TransactionSigner.ts'
+import { TransactionSigner } from '../services/TransactionSigner.ts'
+import type { TokenInterface, TransferAmount, WalletAddress } from '@multiplechain/types'
 
-export class Token extends Contract implements TokenInterface {
+export class Token extends Contract implements TokenInterface<TransactionSigner> {
     /**
      * @returns {Promise<string>} Token name
      */
@@ -25,10 +25,10 @@ export class Token extends Contract implements TokenInterface {
     }
 
     /**
-     * @param {string} owner Wallet address
+     * @param {WalletAddress} owner Wallet address
      * @returns {Promise<number>} Wallet balance as currency of TOKEN
      */
-    async getBalance(owner: string): Promise<number> {
+    async getBalance(owner: WalletAddress): Promise<number> {
         return 0
     }
 
@@ -40,57 +40,57 @@ export class Token extends Contract implements TokenInterface {
     }
 
     /**
-     * @param {string} owner Address of owner of the tokens that is being used
-     * @param {string} spender Address of the spender that is using the tokens of owner
+     * @param {WalletAddress} owner Address of owner of the tokens that is being used
+     * @param {WalletAddress} spender Address of the spender that is using the tokens of owner
      * @returns {Promise<number>} Amount of tokens that the spender is allowed to spend
      */
-    async getAllowance(owner: string, spender: string): Promise<number> {
+    async getAllowance(owner: WalletAddress, spender: WalletAddress): Promise<number> {
         return 0
     }
 
     /**
      * transfer() method is the main method for processing transfers for fungible assets (TOKEN, COIN)
-     * @param {string} sender Sender wallet address
-     * @param {string} receiver Receiver wallet address
-     * @param {number} amount Amount of assets that will be transferred
+     * @param {WalletAddress} sender Sender wallet address
+     * @param {WalletAddress} receiver Receiver wallet address
+     * @param {TransferAmount} amount Amount of assets that will be transferred
      * @returns {Promise<TransactionSigner>} Transaction signer
      */
     async transfer(
-        sender: string,
-        receiver: string,
-        amount: number
-    ): Promise<TokenTransactionSigner> {
-        return new TokenTransactionSigner('example')
+        sender: WalletAddress,
+        receiver: WalletAddress,
+        amount: TransferAmount
+    ): Promise<TransactionSigner> {
+        return new TransactionSigner('example')
     }
 
     /**
-     * @param {string} spender Address of the spender of transaction
-     * @param {string} owner Sender wallet address
-     * @param {string} receiver Receiver wallet address
-     * @param {number} amount Amount of tokens that will be transferred
-     * @returns {Promise<TokenTransactionSigner>} Transaction signer
+     * @param {WalletAddress} spender Address of the spender of transaction
+     * @param {WalletAddress} owner Sender wallet address
+     * @param {WalletAddress} receiver Receiver wallet address
+     * @param {TransferAmount} amount Amount of tokens that will be transferred
+     * @returns {Promise<TransactionSigner>} Transaction signer
      */
     async transferFrom(
-        spender: string,
-        owner: string,
-        receiver: string,
-        amount: number
-    ): Promise<TokenTransactionSigner> {
-        return new TokenTransactionSigner('example')
+        spender: WalletAddress,
+        owner: WalletAddress,
+        receiver: WalletAddress,
+        amount: TransferAmount
+    ): Promise<TransactionSigner> {
+        return new TransactionSigner('example')
     }
 
     /**
      * Gives permission to the spender to spend owner's tokens
-     * @param {string} owner Address of owner of the tokens that will be used
-     * @param {string} spender Address of the spender that will use the tokens of owner
-     * @param {number} amount Amount of the tokens that will be used
+     * @param {WalletAddress} owner Address of owner of the tokens that will be used
+     * @param {WalletAddress} spender Address of the spender that will use the tokens of owner
+     * @param {TransferAmount} amount Amount of the tokens that will be used
      * @returns {Promise<TransactionSigner>} Transaction signer
      */
     async approve(
-        owner: string,
-        spender: string,
-        amount: number
-    ): Promise<TokenTransactionSigner> {
-        return new TokenTransactionSigner('example')
+        owner: WalletAddress,
+        spender: WalletAddress,
+        amount: TransferAmount
+    ): Promise<TransactionSigner> {
+        return new TransactionSigner('example')
     }
 }

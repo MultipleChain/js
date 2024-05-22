@@ -12,7 +12,8 @@ import type {
     NftTransactionListenerFilterInterface,
     TokenTransactionListenerFilterInterface,
     CoinTransactionListenerFilterInterface,
-    ContractTransactionListenerFilterInterface
+    ContractTransactionListenerFilterInterface,
+    TransactionId
 } from '@multiplechain/types'
 
 type TransactionListenerTriggerType<T extends TransactionTypeEnum> = DynamicTransactionType<
@@ -41,16 +42,6 @@ export class TransactionListener<
     type: T
 
     /**
-     * Transaction listener callback
-     */
-    callbacks: CallBackType[] = []
-
-    /**
-     * Transaction listener filter
-     */
-    filter?: DynamicTransactionListenerFilterType<T> | Record<string, never>
-
-    /**
      * Provider
      */
     provider: Provider
@@ -59,11 +50,21 @@ export class TransactionListener<
      * Listener status
      */
     status: boolean = false
+    
+    /**
+     * Transaction listener callback
+     */
+    callbacks: CallBackType[] = []
 
     /**
      * Triggered transactions
      */
-    triggeredTransactions: string[] = []
+    triggeredTransactions: TransactionId[] = []
+    
+    /**
+     * Transaction listener filter
+     */
+    filter?: DynamicTransactionListenerFilterType<T> | Record<string, never>
 
     /**
      * @param {T} type - Transaction type
