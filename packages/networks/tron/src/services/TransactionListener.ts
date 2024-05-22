@@ -2,7 +2,8 @@ import type {
     TransactionTypeEnum,
     DynamicTransactionType,
     TransactionListenerInterface,
-    DynamicTransactionListenerFilterType
+    DynamicTransactionListenerFilterType,
+    TransactionId
 } from '@multiplechain/types'
 
 import { Provider } from './Provider.ts'
@@ -63,7 +64,7 @@ export class TransactionListener<
     /**
      * Triggered transactions
      */
-    triggeredTransactions: string[] = []
+    triggeredTransactions: TransactionId[] = []
 
     /**
      * Dynamic stop method

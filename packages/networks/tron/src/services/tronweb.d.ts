@@ -50,7 +50,7 @@ declare module 'tronweb' {
             getTransactionsFromAddress(address: any, limit: number, offset: number, callback?: any): Promise<any>;
             getTransactionsRelated(address: any, direction: any, limit: number, offset: number, callback?: any): Promise<any>;
             getAccount(address: any, callback?: any): Promise<any>;
-            getBalance(address: any, callback?: any): Promise<any>;
+            getBalance(address: any, callback?: any): Promise<number>;
             getUnconfirmedAccount(address: any, callback?: any): Promise<any>;
             getUnconfirmedBalance(address: any, callback?: any): Promise<any>;
             getBandwidth(address: any, callback?: any): Promise<any>;

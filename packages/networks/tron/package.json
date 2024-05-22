@@ -74,7 +74,7 @@
     "dependencies": {
         "@beycandeveloper/tron-tx-decoder": "^2.0.5",
         "@multiplechain/tron-walletconnect": "^0.1.0",
-        "@multiplechain/types": "^0.1.56",
+        "@multiplechain/types": "^0.1.62",
         "@multiplechain/utils": "^0.1.20",
         "@noble/secp256k1": "^1.7.1",
         "@tronweb3/tronwallet-adapter-bitkeep": "^1.1.1",

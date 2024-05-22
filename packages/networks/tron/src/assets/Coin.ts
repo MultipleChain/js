@@ -1,8 +1,13 @@
 import { Provider } from '../services/Provider.ts'
-import { CoinTransactionSigner, type TransactionData } from '../services/TransactionSigner.ts'
-import { ErrorTypeEnum, type CoinInterface } from '@multiplechain/types'
+import {
+    ErrorTypeEnum,
+    type CoinInterface,
+    type TransferAmount,
+    type WalletAddress
+} from '@multiplechain/types'
+import { TransactionSigner, type TransactionData } from '../services/TransactionSigner.ts'
 
-export class Coin implements CoinInterface {
+export class Coin implements CoinInterface<TransactionSigner> {
     /**
      * Blockchain network provider
      */
@@ -37,25 +42,25 @@ export class Coin implements CoinInterface {
     }
 
     /**
-     * @param {string} owner Wallet address
+     * @param {WalletAddress} owner Wallet address
      * @returns {Promise<number>} Wallet balance as currency of COIN
      */
-    async getBalance(owner: string): Promise<number> {
+    async getBalance(owner: WalletAddress): Promise<number> {
         const balance = await this.provider.tronWeb.trx.getBalance(owner)
         return parseFloat(this.provider.tronWeb.fromSun(balance) as unknown as string)
     }
 
     /**
-     * @param {string} sender Sender wallet address
-     * @param {string} receiver Receiver wallet address
-     * @param {number} amount Amount of assets that will be transferred
-     * @returns {Promise<CoinTransactionSigner>} Transaction signer
+     * @param {WalletAddress} sender Sender wallet address
+     * @param {WalletAddress} receiver Receiver wallet address
+     * @param {TransferAmount} amount Amount of assets that will be transferred
+     * @returns {Promise<TransactionSigner>} Transaction signer
      */
     async transfer(
-        sender: string,
-        receiver: string,
-        amount: number
-    ): Promise<CoinTransactionSigner> {
+        sender: WalletAddress,
+        receiver: WalletAddress,
+        amount: TransferAmount
+    ): Promise<TransactionSigner> {
         if (amount < 0) {
             throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
         }
@@ -70,7 +75,7 @@ export class Coin implements CoinInterface {
 
         const sunFormat = this.provider.tronWeb.toSun(amount)
 
-        return new CoinTransactionSigner(
+        return new TransactionSigner(
             (await this.provider.tronWeb.transactionBuilder.sendTrx(
                 receiver,
                 sunFormat,

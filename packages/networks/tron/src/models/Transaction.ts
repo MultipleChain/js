@@ -1,5 +1,13 @@
 import { Provider } from '../services/Provider.ts'
-import type { TransactionInterface } from '@multiplechain/types'
+import type {
+    BlockConfirmationCount,
+    BlockNumber,
+    BlockTimestamp,
+    TransactionFee,
+    TransactionId,
+    TransactionInterface,
+    WalletAddress
+} from '@multiplechain/types'
 import { ErrorTypeEnum, TransactionStatusEnum } from '@multiplechain/types'
 
 interface RetObject {
@@ -62,11 +70,11 @@ export interface TransactionData {
     }
 }
 
-export class Transaction implements TransactionInterface {
+export class Transaction implements TransactionInterface<TransactionData> {
     /**
      * Each transaction has its own unique ID defined by the user
      */
-    id: string
+    id: TransactionId
 
     /**
      * Blockchain network provider
@@ -79,10 +87,10 @@ export class Transaction implements TransactionInterface {
     data: TransactionData
 
     /**
-     * @param {string} id Transaction id
+     * @param {TransactionId} id Transaction id
      * @param {Provider} provider Blockchain network provider
      */
-    constructor(id: string, provider?: Provider) {
+    constructor(id: TransactionId, provider?: Provider) {
         this.id = id
         this.provider = provider ?? Provider.instance
     }
@@ -133,9 +141,9 @@ export class Transaction implements TransactionInterface {
     }
 
     /**
-     * @returns {string} Transaction ID
+     * @returns {TransactionId} Transaction ID
      */
-    getId(): string {
+    getId(): TransactionId {
         return this.id
     }
 
@@ -150,9 +158,9 @@ export class Transaction implements TransactionInterface {
     }
 
     /**
-     * @returns {Promise<string>} Wallet address of the sender of transaction
+     * @returns {Promise<WalletAddress>} Wallet address of the sender of transaction
      */
-    async getSigner(): Promise<string> {
+    async getSigner(): Promise<WalletAddress> {
         const data = await this.getData()
         return this.provider.tronWeb.address.fromHex(
             data?.raw_data.contract[0].parameter.value.owner_address ?? ''
@@ -160,33 +168,33 @@ export class Transaction implements TransactionInterface {
     }
 
     /**
-     * @returns {Promise<number>} Transaction fee
+     * @returns {Promise<TransactionFee>} Transaction fee
      */
-    async getFee(): Promise<number> {
+    async getFee(): Promise<TransactionFee> {
         const data = await this.getData()
         return parseFloat(this.provider.tronWeb.fromSun(data?.info?.fee ?? 0) as unknown as string)
     }
 
     /**
-     * @returns {Promise<number>} Block number that transaction
+     * @returns {Promise<BlockNumber>} Block number that transaction
      */
-    async getBlockNumber(): Promise<number> {
+    async getBlockNumber(): Promise<BlockNumber> {
         const data = await this.getData()
         return data?.info?.blockNumber ?? 0
     }
 
     /**
-     * @returns {Promise<number>} Block timestamp that transaction
+     * @returns {Promise<BlockTimestamp>} Block timestamp that transaction
      */
-    async getBlockTimestamp(): Promise<number> {
+    async getBlockTimestamp(): Promise<BlockTimestamp> {
         const data = await this.getData()
         return parseInt((data?.info?.blockTimeStamp ?? 0).toString().replace(/0+$/, ''))
     }
 
     /**
-     * @returns {Promise<number>} Confirmation count of the block
+     * @returns {Promise<BlockConfirmationCount>} Confirmation count of the block
      */
-    async getBlockConfirmationCount(): Promise<number> {
+    async getBlockConfirmationCount(): Promise<BlockConfirmationCount> {
         const data = await this.getData()
         const blockNumber = data?.info?.blockNumber ?? 0
         const latestBlock = await this.provider.tronWeb.trx.getCurrentBlock()

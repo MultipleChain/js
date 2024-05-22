@@ -12,6 +12,7 @@ export class TronWeb extends TronWebBase {
             data.from
         )
 
+        // eslint-disable-next-line
         if (response?.result?.result !== true) {
             return false
         }

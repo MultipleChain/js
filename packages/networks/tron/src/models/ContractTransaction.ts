@@ -1,7 +1,7 @@
 // @ts-expect-error no need type
 import TxDecoder from '@beycandeveloper/tron-tx-decoder'
 import { Transaction, type TransactionData } from './Transaction.ts'
-import type { ContractTransactionInterface } from '@multiplechain/types'
+import type { ContractAddress, ContractTransactionInterface } from '@multiplechain/types'
 
 export interface DecodedInputData {
     methodName: string
@@ -15,9 +15,9 @@ export interface DecodedInputData {
 
 export class ContractTransaction extends Transaction implements ContractTransactionInterface {
     /**
-     * @returns {Promise<string>} Contract address of the transaction
+     * @returns {Promise<ContractAddress>} Contract address of the transaction
      */
-    async getAddress(): Promise<string> {
+    async getAddress(): Promise<ContractAddress> {
         const data = await this.getData()
         return this.provider.tronWeb.address.fromHex(
             data?.raw_data.contract[0].parameter.value.contract_address ?? ''

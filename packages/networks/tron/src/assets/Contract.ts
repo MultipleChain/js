@@ -1,5 +1,5 @@
 import { Provider } from '../services/Provider.ts'
-import type { ContractInterface } from '@multiplechain/types'
+import type { ContractAddress, ContractInterface, WalletAddress } from '@multiplechain/types'
 import type { TronWeb } from '../services/TronWeb.ts'
 
 interface InputOutputInterface {
@@ -48,7 +48,7 @@ export class Contract implements ContractInterface {
     /**
      * Contract address
      */
-    address: string
+    address: ContractAddress
 
     /**
      * Blockchain network provider
@@ -71,11 +71,11 @@ export class Contract implements ContractInterface {
     tronContract: TronContract
 
     /**
-     * @param {string} address Contract address
+     * @param {ContractAddress} address Contract address
      * @param {Provider} provider Blockchain network provider
      * @param {InterfaceAbi} ABI Contract ABI
      */
-    constructor(address: string, provider?: Provider, ABI?: InterfaceAbi) {
+    constructor(address: ContractAddress, provider?: Provider, ABI?: InterfaceAbi) {
         this.ABI = ABI ?? []
         this.address = address
         this.provider = provider ?? Provider.instance
@@ -92,28 +92,28 @@ export class Contract implements ContractInterface {
     }
 
     /**
-     * @returns {string} Contract address
+     * @returns {ContractAddress} Contract address
      */
-    getAddress(): string {
+    getAddress(): ContractAddress {
         return this.address
     }
 
     /**
      * @param {string} method Method name
-     * @param {any[]} args Method parameters
-     * @returns {Promise<any>} Method result
+     * @param {unknown[]} args Method parameters
+     * @returns {Promise<unknown>} Method result
      */
-    async callMethod(method: string, ...args: any[]): Promise<any> {
+    async callMethod(method: string, ...args: unknown[]): Promise<unknown> {
         await this.setTronContract()
         return this.tronContract[method](...args).call() // eslint-disable-line
     }
 
     /**
      * @param {string} _method Method name
-     * @param {any[]} _args Sender wallet address
+     * @param {unknown[]} _args Sender wallet address
      * @returns {Promise<string>} Encoded method data
      */
-    async getMethodData(_method: string, ..._args: any[]): Promise<any> {
+    async getMethodData(_method: string, ..._args: unknown[]): Promise<unknown> {
         throw new Error('Method not implemented.')
     }
 
@@ -158,14 +158,14 @@ export class Contract implements ContractInterface {
 
     /**
      * @param {string} method Method name
-     * @param {string} from Sender wallet address
-     * @param {any[]} args Method parameters
+     * @param {WalletAddress} from Sender wallet address
+     * @param {unknown[]} args Method parameters
      * @returns {Promise<TransactionRawData>} Encoded method data
      */
     async createTransactionData(
         method: string,
-        from: string,
-        ...args: any[]
+        from: WalletAddress,
+        ...args: unknown[]
     ): Promise<TransactionRawData> {
         return {
             address: this.address,

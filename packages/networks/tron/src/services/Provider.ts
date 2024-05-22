@@ -63,7 +63,6 @@ export class Provider implements ProviderInterface {
      * @param network - Network configuration of the provider
      */
     constructor(network: NetworkConfigInterface) {
-        this.network = network
         this.update(network)
     }
 
