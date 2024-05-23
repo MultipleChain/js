@@ -1,16 +1,16 @@
 import { Provider } from '../services/Provider.ts'
 import type { PrivateKey, TransactionId, TransactionSignerInterface } from '@multiplechain/types'
 
-export class TransactionSigner implements TransactionSignerInterface<any, any>{
+export class TransactionSigner implements TransactionSignerInterface<unknown, unknown>{
     /**
      * Transaction data from the blockchain network
      */
-    rawData: any
+    rawData: unknown
 
     /**
      * Signed transaction data
      */
-    signedData: any
+    signedData: unknown
 
     /**
      * Blockchain network provider
@@ -18,9 +18,10 @@ export class TransactionSigner implements TransactionSignerInterface<any, any>{
     provider: Provider
 
     /**
-     * @param {any} rawData - Transaction data
+     * @param {unknown} rawData - Transaction data
+     * @param {Provider} provider - Blockchain network provider
      */
-    constructor(rawData: any, provider?: Provider) {
+    constructor(rawData: unknown, provider?: Provider) {
         this.rawData = rawData
         this.provider = provider ?? Provider.instance
     }
@@ -44,17 +45,17 @@ export class TransactionSigner implements TransactionSignerInterface<any, any>{
 
     /**
      * Get the raw transaction data
-     * @returns Transaction data
+     * @returns {unknown}
      */
-    getRawData(): any {
+    getRawData(): unknown {
         return this.rawData
     }
 
     /**
      * Get the signed transaction data
-     * @returns Signed transaction data
+     * @returns {unknown}
      */
-    getSignedData(): any {
+    getSignedData(): unknown {
         return this.signedData
     }
 }

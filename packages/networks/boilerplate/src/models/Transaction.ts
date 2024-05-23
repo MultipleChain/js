@@ -1,13 +1,14 @@
 import { Provider } from '../services/Provider.ts'
 import { TransactionStatusEnum } from '@multiplechain/types'
-import type {
-    BlockConfirmationCount,
-    BlockNumber,
-    BlockTimestamp,
-    TransactionFee,
-    TransactionId,
-    TransactionInterface,
-    WalletAddress
+import {
+    TransactionTypeEnum,
+    type BlockConfirmationCount,
+    type BlockNumber,
+    type BlockTimestamp,
+    type TransactionFee,
+    type TransactionId,
+    type TransactionInterface,
+    type WalletAddress
 } from '@multiplechain/types'
 
 // custom tx data for each blockchain
@@ -18,6 +19,11 @@ export class Transaction implements TransactionInterface<TxData> {
      * Each transaction has its own unique ID defined by the user
      */
     id: TransactionId
+
+    /**
+     * Transaction data
+     */
+    data: TxData | null = null
 
     /**
      * Blockchain network provider
@@ -55,6 +61,13 @@ export class Transaction implements TransactionInterface<TxData> {
         return this.id
     }
 
+    /**
+     * @returns {Promise<TransactionTypeEnum>} Type of the transaction
+     */
+    getType(): Promise<TransactionTypeEnum> {
+        return Promise.resolve(TransactionTypeEnum.GENERAL)
+    }
+    
     /**
      * @returns {string} Transaction URL
      */

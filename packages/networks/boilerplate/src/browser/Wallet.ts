@@ -11,13 +11,22 @@ import type {
     UnknownConfig
 } from '@multiplechain/types'
 
-type WalletAdapter = WalletAdapterInterface<Provider, object>
+type WalletAdapter = WalletAdapterInterface<Provider, unknown>
 
-export class Wallet implements WalletInterface<Provider, object, TransactionSigner> {
+export class Wallet implements WalletInterface<Provider, unknown, TransactionSigner> {
+    /**
+     * WalletAdapter instance
+     */
     adapter: WalletAdapter
 
-    walletProvider: object
+    /**
+     * Wallet provider is the instance of the wallet connection
+     */
+    walletProvider: unknown
 
+    /**
+     * Network provider is the instance of the blockchain network connection
+     */
     networkProvider: Provider
 
     /**
@@ -79,7 +88,7 @@ export class Wallet implements WalletInterface<Provider, object, TransactionSign
 
     /**
      * @param {ConnectConfig} config
-     * @returns {Promise<string>}
+     * @returns {Promise<WalletAddress>}
      */
     async connect(config?: ConnectConfig): Promise<WalletAddress> {
         await this.adapter.connect()
@@ -108,7 +117,8 @@ export class Wallet implements WalletInterface<Provider, object, TransactionSign
     }
 
     /**
-     * @param {SignedMessage} message
+     * @param {string} message
+     * @returns {Promise<SignedMessage>}
      */
     async signMessage(message: string): Promise<SignedMessage> {
         return 'signed message'

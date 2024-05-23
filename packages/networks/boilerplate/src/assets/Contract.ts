@@ -33,14 +33,14 @@ export class Contract implements ContractInterface {
      * @param {unknown[]} args Method parameters
      * @returns {Promise<unknown>} Method result
      */
-    async callMethod(method: string, ...args: any[]): Promise<unknown> {
+    async callMethod(method: string, ...args: unknown[]): Promise<unknown> {
         return {}
     }
 
     /**
      * @param {string} method Method name
      * @param {unknown[]} args Sender wallet address
-     * @returns {Promise<string>} Encoded method data
+     * @returns {Promise<unknown>} Encoded method data
      */
     async getMethodData(method: string, ...args: unknown[]): Promise<unknown> {
         return {}
