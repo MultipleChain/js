@@ -118,6 +118,27 @@ export class Contract implements ContractInterface {
     }
 
     /**
+     * @param {string} _function Method name
+     * @param {any} parameters Method parameters
+     * @param {WalletAddress} from Sender wallet address
+     */
+    async getEstimateEnergy(
+        _function: string,
+        parameters: any,
+        from: WalletAddress
+    ): Promise<number> {
+        const res = await this.provider.tronWeb.transactionBuilder.estimateEnergy(
+            this.address,
+            _function,
+            {},
+            parameters,
+            from
+        )
+
+        return res.energy_required ?? 0
+    }
+
+    /**
      * @param {string} method Method name
      * @returns {string} Method output
      */
@@ -172,11 +193,13 @@ export class Contract implements ContractInterface {
         from: WalletAddress,
         ...args: unknown[]
     ): Promise<TransactionRawData> {
+        const _function = this.generateFunction(method)
+        const parameters = this.generateParameters(method, ...args)
         return {
             address: this.address,
-            method: this.generateFunction(method),
+            method: _function,
             options: {},
-            parameters: this.generateParameters(method, ...args), // eslint-disable-line
+            parameters,
             from
         }
     }
