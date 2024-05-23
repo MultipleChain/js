@@ -21,9 +21,9 @@ export class CoinTransaction extends Transaction implements CoinTransactionInter
     }
 
     /**
-     * @returns {Promise<number>} Amount of coin that will be transferred
+     * @returns {Promise<TransferAmount>} Amount of coin that will be transferred
      */
-    async getAmount(): Promise<number> {
+    async getAmount(): Promise<TransferAmount> {
         const data = await this.getData()
         return parseFloat(
             this.provider.tronWeb.fromSun(

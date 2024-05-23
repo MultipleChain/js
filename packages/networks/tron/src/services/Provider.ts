@@ -109,7 +109,8 @@ export class Provider implements ProviderInterface {
 
     /**
      * Update network configuration of the provider
-     * @param network - Network configuration of the provider
+     * @param {NetworkConfigInterface} network - Network configuration of the provider
+     * @returns {void}
      */
     update(network: NetworkConfigInterface): void {
         this.network = network
@@ -126,7 +127,7 @@ export class Provider implements ProviderInterface {
 
     /**
      * Get the current network configuration is testnet or not
-     * @returns boolean
+     * @returns {boolean} Testnet or not
      */
     isTestnet(): boolean {
         return this.network?.testnet ?? false

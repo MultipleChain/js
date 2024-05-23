@@ -42,16 +42,6 @@ export class TransactionListener<
     type: T
 
     /**
-     * Transaction listener callback
-     */
-    callbacks: CallBackType[] = []
-
-    /**
-     * Transaction listener filter
-     */
-    filter?: DynamicTransactionListenerFilterType<T>
-
-    /**
      * Provider
      */
     provider: Provider
@@ -62,9 +52,19 @@ export class TransactionListener<
     status: boolean = false
 
     /**
+     * Transaction listener callback
+     */
+    callbacks: CallBackType[] = []
+
+    /**
      * Triggered transactions
      */
     triggeredTransactions: TransactionId[] = []
+
+    /**
+     * Transaction listener filter
+     */
+    filter?: DynamicTransactionListenerFilterType<T>
 
     /**
      * Dynamic stop method

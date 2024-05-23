@@ -4,7 +4,10 @@ import {
     type WalletPlatformEnum,
     ErrorTypeEnum,
     type UnknownConfig,
-    type ConnectConfig
+    type ConnectConfig,
+    type WalletAddress,
+    type SignedMessage,
+    type TransactionId
 } from '@multiplechain/types'
 import { Provider } from '../services/Provider.ts'
 import type { TransactionSigner } from '../services/TransactionSigner.ts'
@@ -61,6 +64,7 @@ export class Wallet implements WalletInterface<Provider, CustomAdapter, Transact
 
     /**
      * @param {WalletAdapter} adapter
+     * @param {Provider} provider
      */
     constructor(adapter: WalletAdapter, provider?: Provider) {
         this.adapter = adapter
@@ -117,9 +121,9 @@ export class Wallet implements WalletInterface<Provider, CustomAdapter, Transact
 
     /**
      * @param {ConnectConfig} config
-     * @returns {Promise<string>}
+     * @returns {Promise<WalletAddress>}
      */
-    async connect(config?: ConnectConfig): Promise<string> {
+    async connect(config?: ConnectConfig): Promise<WalletAddress> {
         return await new Promise((resolve, reject) => {
             this.adapter
                 .connect(this.networkProvider, config)
@@ -172,16 +176,17 @@ export class Wallet implements WalletInterface<Provider, CustomAdapter, Transact
     }
 
     /**
-     * @returns {Promise<string>}
+     * @returns {Promise<WalletAddress>}
      */
-    async getAddress(): Promise<string> {
+    async getAddress(): Promise<WalletAddress> {
         return this.walletProvider.address ?? ''
     }
 
     /**
      * @param {string} message
+     * @returns {Promise<SignedMessage>}
      */
-    async signMessage(message: string): Promise<string> {
+    async signMessage(message: string): Promise<SignedMessage> {
         return await new Promise((resolve, reject) => {
             this.walletProvider
                 .signMessage(message)
@@ -196,9 +201,9 @@ export class Wallet implements WalletInterface<Provider, CustomAdapter, Transact
 
     /**
      * @param {TransactionSigner} transactionSigner
-     * @returns {Promise<string>}
+     * @returns {Promise<TransactionId>}
      */
-    async sendTransaction(transactionSigner: TransactionSigner): Promise<string> {
+    async sendTransaction(transactionSigner: TransactionSigner): Promise<TransactionId> {
         return await new Promise((resolve, reject) => {
             try {
                 void (async () => {

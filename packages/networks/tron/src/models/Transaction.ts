@@ -1,14 +1,16 @@
 import { Provider } from '../services/Provider.ts'
-import type {
-    BlockConfirmationCount,
-    BlockNumber,
-    BlockTimestamp,
-    TransactionFee,
-    TransactionId,
-    TransactionInterface,
-    WalletAddress
+import {
+    TransactionTypeEnum,
+    type BlockConfirmationCount,
+    type BlockNumber,
+    type BlockTimestamp,
+    type TransactionFee,
+    type TransactionId,
+    type TransactionInterface,
+    type WalletAddress
 } from '@multiplechain/types'
 import { ErrorTypeEnum, TransactionStatusEnum } from '@multiplechain/types'
+import { NFT } from '../assets/NFT.ts'
 
 interface RetObject {
     contractRet: string
@@ -145,6 +147,31 @@ export class Transaction implements TransactionInterface<TransactionData> {
      */
     getId(): TransactionId {
         return this.id
+    }
+
+    /**
+     * @returns {Promise<TransactionTypeEnum>} Type of the transaction
+     */
+    async getType(): Promise<TransactionTypeEnum> {
+        const data = await this.getData()
+
+        if (data === null) {
+            return TransactionTypeEnum.GENERAL
+        }
+
+        if (data.raw_data.contract[0].type === 'TriggerSmartContract') {
+            const tryNft = new NFT(data.raw_data.contract[0].parameter.value.contract_address ?? '')
+            try {
+                await tryNft.getApproved(1)
+                return TransactionTypeEnum.NFT
+            } catch {
+                return TransactionTypeEnum.TOKEN
+            }
+        } else if (data.raw_data.contract[0].type === 'TransferContract') {
+            return TransactionTypeEnum.COIN
+        }
+
+        return TransactionTypeEnum.GENERAL
     }
 
     /**

@@ -111,7 +111,7 @@ export class Contract implements ContractInterface {
     /**
      * @param {string} _method Method name
      * @param {unknown[]} _args Sender wallet address
-     * @returns {Promise<string>} Encoded method data
+     * @returns {Promise<unknown>} Encoded method data
      */
     async getMethodData(_method: string, ..._args: unknown[]): Promise<unknown> {
         throw new Error('Method not implemented.')
@@ -139,11 +139,16 @@ export class Contract implements ContractInterface {
         }
     }
 
-    generateParameters(method: string, ...args: any[]): any {
+    /**
+     * @param {string} method Method name
+     * @param {unknown[]} args Method parameters
+     * @returns {any[]} Method parameters
+     */
+    generateParameters(method: string, ...args: unknown[]): any {
         const matchedItem = this.ABI.find((func: FunctionInterface) => func.name === method)
         if (matchedItem !== undefined) {
             const inputs = matchedItem.inputs ?? []
-            const parameters = [] as any[]
+            const parameters = [] as unknown[]
             inputs.forEach((input, index) => {
                 parameters.push({
                     type: input.type,

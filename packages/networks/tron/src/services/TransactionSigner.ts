@@ -62,6 +62,7 @@ export class TransactionSigner
 
     /**
      * @param {TransactionData} rawData - Transaction data
+     * @param {Provider} provider - Blockchain network provider
      */
     constructor(rawData: TransactionData, provider?: Provider) {
         this.rawData = rawData
@@ -90,7 +91,7 @@ export class TransactionSigner
 
     /**
      * Get the raw transaction data
-     * @returns Transaction data
+     * @returns {TransactionData}
      */
     getRawData(): TransactionData {
         return this.rawData
@@ -98,7 +99,7 @@ export class TransactionSigner
 
     /**
      * Get the signed transaction data
-     * @returns Signed transaction data
+     * @returns {SignedTransactionData}
      */
     getSignedData(): SignedTransactionData {
         return this.signedData

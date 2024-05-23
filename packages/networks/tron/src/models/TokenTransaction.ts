@@ -40,9 +40,9 @@ export class TokenTransaction extends ContractTransaction implements TokenTransa
     }
 
     /**
-     * @returns {Promise<number>} Amount of tokens that will be transferred
+     * @returns {Promise<TransferAmount>} Amount of tokens that will be transferred
      */
-    async getAmount(): Promise<number> {
+    async getAmount(): Promise<TransferAmount> {
         const token = new Token(await this.getAddress())
         const decoded = await this.decodeData()
         if (decoded === null) {

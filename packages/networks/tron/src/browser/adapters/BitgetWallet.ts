@@ -26,7 +26,7 @@ const BitgetWallet: WalletAdapterInterface<Provider, CustomAdapter> = {
     },
     isDetected: () => Boolean(window.bitkeep?.tronLink),
     isConnected: () => Boolean(walletProvider.connected),
-    connect: async (_provider?: Provider): Promise<CustomAdapter> => {
+    connect: async (): Promise<CustomAdapter> => {
         return await new Promise((resolve, reject) => {
             try {
                 walletProvider

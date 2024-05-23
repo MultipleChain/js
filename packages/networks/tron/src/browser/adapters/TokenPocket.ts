@@ -33,7 +33,7 @@ const TokenPocket: WalletAdapterInterface<Provider, CustomAdapter> = {
     },
     isDetected: () => Boolean(window.tokenpocket?.tron),
     isConnected: () => Boolean(walletProvider.connected),
-    connect: async (_provider?: Provider): Promise<CustomAdapter> => {
+    connect: async (): Promise<CustomAdapter> => {
         return await new Promise((resolve, reject) => {
             try {
                 walletProvider
