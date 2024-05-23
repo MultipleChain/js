@@ -32,5 +32,5 @@
         "vite-env.d.ts",
         "esbuild.ts",
     ],
-    "exclude": ["node_modules", "dist", "packages/**/*.d.ts", "test*.ts"]
+    "exclude": ["node_modules", "dist", "test*.ts"]
 }

@@ -244,7 +244,7 @@ export class TransactionListener<
             this.webSocket.send(message)
         })
 
-        this.webSocket.addEventListener('message', async (res) => {
+        this.webSocket.addEventListener('message', async (res: WebSocket.MessageEvent) => {
             const values = this.getValues(JSON.parse(res.data as string))
 
             if (
@@ -291,7 +291,7 @@ export class TransactionListener<
             this.webSocket.send(message)
         })
 
-        this.webSocket.addEventListener('message', async (res) => {
+        this.webSocket.addEventListener('message', async (res: WebSocket.MessageEvent) => {
             const data = JSON.parse(res.data as string)
 
             interface ParamsType {
