@@ -7,7 +7,14 @@ import type {
     TransactionReceipt,
     TransactionResponse
 } from 'ethers'
-import { ErrorTypeEnum } from '@multiplechain/types'
+import {
+    ErrorTypeEnum,
+    type BlockNumber,
+    type ContractAddress,
+    type PrivateKey,
+    type TransactionId,
+    type WalletAddress
+} from '@multiplechain/types'
 import { sleep, checkWebSocket } from '@multiplechain/utils'
 import type { EvmNetworkConfigInterface } from './Provider.ts'
 import type { TransactionData } from '../services/TransactionSigner.ts'
@@ -54,7 +61,7 @@ export class Ethers {
     }
 
     /**
-     * @returns {WebSocketProvider}
+     * @returns {Promise<WebSocketProvider>}
      */
     public async connectWebSocket(): Promise<WebSocketProvider> {
         return await new Promise((resolve, reject) => {
@@ -78,8 +85,8 @@ export class Ethers {
     /**
      * @param {String} address
      * @param {InterfaceAbi} abi
-     * @param {JsonRpcSigner} signer
-     * @returns {Promise<Contract>}
+     * @param {JsonRpcSigner | JsonRpcProvider} signer
+     * @returns {Contract}
      */
     public contract(
         address: string,
@@ -90,19 +97,19 @@ export class Ethers {
     }
 
     /**
-     * @param {string} privateKey private key of the wallet
+     * @param {PrivateKey} privateKey private key of the wallet
      * @param {JsonRpcProvider} provider provider of the blockchain network
      * @returns {Wallet}
      */
-    public wallet(privateKey: string, provider?: JsonRpcProvider): Wallet {
+    public wallet(privateKey: PrivateKey, provider?: JsonRpcProvider): Wallet {
         return new Wallet(privateKey, provider ?? this.jsonRpc)
     }
 
     /**
      * @param {InterfaceAbi} abi
-     * @param {String} bytecode
-     * @param {JsonRpcSigner} signer
-     * @returns {Promise<ContractFactory>}
+     * @param {string} bytecode
+     * @param {JsonRpcSigner | JsonRpcProvider} signer
+     * @returns {ContractFactory}
      */
     public contractFactory(
         abi: InterfaceAbi,
@@ -113,10 +120,10 @@ export class Ethers {
     }
 
     /**
-     * @param {string} address
+     * @param {ContractAddress} address
      * @returns {Promise<string>}
      */
-    async getByteCode(address: string): Promise<string> {
+    async getByteCode(address: ContractAddress): Promise<string> {
         try {
             return await this.jsonRpc.getCode(address)
         } catch (error) {
@@ -131,7 +138,7 @@ export class Ethers {
     }
 
     /**
-     * @param {Object} data
+     * @param {TransactionData} data
      * @returns {Promise<number>}
      */
     public async getEstimateGas(data: TransactionData): Promise<number> {
@@ -146,10 +153,10 @@ export class Ethers {
     }
 
     /**
-     * @param {String} address
+     * @param {WalletAddress} address
      * @returns {Promise<number>}
      */
-    public async getNonce(address: string): Promise<number> {
+    public async getNonce(address: WalletAddress): Promise<number> {
         return await this.jsonRpcProvider.getTransactionCount(address)
     }
 
@@ -163,34 +170,37 @@ export class Ethers {
     }
 
     /**
-     * @returns {Promise<number>}
+     * @returns {Promise<BlockNumber>}
      */
-    async getBlockNumber(): Promise<number> {
+    async getBlockNumber(): Promise<BlockNumber> {
         return await this.jsonRpcProvider.getBlockNumber()
     }
 
     /**
-     * @param {String} id
-     * @returns {Promise<null | TransactionResponse>}
+     * @param {TransactionId} id
+     * @returns {Promise<TransactionResponse | null>}
      */
-    async getTransaction(id: string): Promise<null | TransactionResponse> {
+    async getTransaction(id: TransactionId): Promise<TransactionResponse | null> {
         return await this.jsonRpcProvider.getTransaction(id)
     }
 
     /**
-     * @param {String} id
-     * @returns {Promise<null | TransactionReceipt>}
+     * @param {TransactionId} id
+     * @returns {Promise<TransactionReceipt | null>}
      */
-    async getTransactionReceipt(id: string): Promise<null | TransactionReceipt> {
+    async getTransactionReceipt(id: TransactionId): Promise<TransactionReceipt | null> {
         return await this.jsonRpcProvider.getTransactionReceipt(id)
     }
 
     /**
-     * @param {string} address
+     * @param {WalletAddress} address
      * @param {number} limit how many block to go back
      * @returns {Promise<TransactionResponse[]>}
      */
-    async getLastTransactions(address: string, limit: number = 0): Promise<TransactionResponse[]> {
+    async getLastTransactions(
+        address: WalletAddress,
+        limit: number = 0
+    ): Promise<TransactionResponse[]> {
         const txPromises = []
         const blockPromises = []
         const transactions: TransactionResponse[] = []
@@ -227,12 +237,12 @@ export class Ethers {
     }
 
     /**
-     * @param {String} address
+     * @param {WalletAddress} address
      * @param {number} limit
      * @returns {Promise<TransactionResponse | null>}
      */
     async getLastTransaction(
-        address: string,
+        address: WalletAddress,
         limit: number = 0
     ): Promise<TransactionResponse | null> {
         const block = await this.getBlock('pending')
@@ -257,10 +267,10 @@ export class Ethers {
     }
 
     /**
-     * @param {String} address
+     * @param {WalletAddress} address
      * @returns {Promise<bigint>}
      */
-    async getBalance(address: string): Promise<bigint> {
+    async getBalance(address: WalletAddress): Promise<bigint> {
         return await this.jsonRpcProvider.getBalance(address)
     }
 }

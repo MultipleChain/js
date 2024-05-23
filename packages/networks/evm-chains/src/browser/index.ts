@@ -8,6 +8,7 @@ import type {
     WalletAdapterListType,
     RegisterWalletAdapterType
 } from '@multiplechain/types'
+import type { Provider } from '../services/Provider.ts'
 
 const EIP6963AdapterUUIDIndex: Record<string, string> = {
     'app.phantom': 'phantom',
@@ -18,9 +19,11 @@ const EIP6963AdapterUUIDIndex: Record<string, string> = {
     'io.xdefi': 'xdefiwallet'
 }
 
-const adapters: WalletAdapterListType = {}
+const adapters: WalletAdapterListType<Provider, EIP1193Provider> = {}
 
-const registerAdapter: RegisterWalletAdapterType = (adapter: WalletAdapterInterface): void => {
+const registerAdapter: RegisterWalletAdapterType<Provider, EIP1193Provider> = (
+    adapter: WalletAdapterInterface<Provider, EIP1193Provider>
+): void => {
     if (EIP6963AdapterUUIDIndex[adapter.id] !== undefined) {
         console.warn(
             `Adapter is not registered, because it is already registered default: ${adapter.id}`
@@ -35,7 +38,9 @@ const registerAdapter: RegisterWalletAdapterType = (adapter: WalletAdapterInterf
     adapters[adapter.id] = adapter
 }
 
-const fromEIP6963ProviderDetail = (detail: EIP6963ProviderDetail): WalletAdapterInterface => {
+const fromEIP6963ProviderDetail = (
+    detail: EIP6963ProviderDetail
+): WalletAdapterInterface<Provider, EIP1193Provider> => {
     return {
         name: detail.info.name,
         icon: detail.info.icon,
@@ -65,7 +70,9 @@ const fromEIP6963ProviderDetail = (detail: EIP6963ProviderDetail): WalletAdapter
     }
 }
 
-const toEIP6963ProviderDetail = (adapter: WalletAdapterInterface): EIP6963ProviderDetail => {
+const toEIP6963ProviderDetail = (
+    adapter: WalletAdapterInterface<Provider, EIP1193Provider>
+): EIP6963ProviderDetail => {
     if (adapter.provider === undefined) {
         throw new Error('Cannot convert adapter without provider to EIP6963ProviderDetail')
     }
@@ -76,7 +83,7 @@ const toEIP6963ProviderDetail = (adapter: WalletAdapterInterface): EIP6963Provid
             name: adapter.name,
             icon: adapter.icon
         },
-        provider: adapter.provider
+        provider: adapter.provider as any
     }
 }
 

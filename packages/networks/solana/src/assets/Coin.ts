@@ -1,10 +1,15 @@
 import { Provider } from '../services/Provider.ts'
 import { fromLamports, toLamports } from '../utils.ts'
+import { TransactionSigner } from '../services/TransactionSigner.ts'
 import { PublicKey, SystemProgram, Transaction } from '@solana/web3.js'
-import { ErrorTypeEnum, type CoinInterface } from '@multiplechain/types'
-import { CoinTransactionSigner } from '../services/TransactionSigner.ts'
+import {
+    ErrorTypeEnum,
+    type CoinInterface,
+    type TransferAmount,
+    type WalletAddress
+} from '@multiplechain/types'
 
-export class Coin implements CoinInterface {
+export class Coin implements CoinInterface<TransactionSigner> {
     /**
      * Blockchain network provider
      */
@@ -39,24 +44,24 @@ export class Coin implements CoinInterface {
     }
 
     /**
-     * @param {string} owner Wallet address
+     * @param {WalletAddress} owner Wallet address
      * @returns {Promise<number>} Wallet balance as currency of COIN
      */
-    async getBalance(owner: string): Promise<number> {
+    async getBalance(owner: WalletAddress): Promise<number> {
         return fromLamports(await this.provider.web3.getBalance(new PublicKey(owner)))
     }
 
     /**
-     * @param {string} sender Sender wallet address
-     * @param {string} receiver Receiver wallet address
-     * @param {number} amount Amount of assets that will be transferred
+     * @param {WalletAddress} sender Sender wallet address
+     * @param {WalletAddress} receiver Receiver wallet address
+     * @param {TransferAmount} amount Amount of assets that will be transferred
      * @returns {Promise<TransactionSigner>} Transaction signer
      */
     async transfer(
-        sender: string,
-        receiver: string,
-        amount: number
-    ): Promise<CoinTransactionSigner> {
+        sender: WalletAddress,
+        receiver: WalletAddress,
+        amount: TransferAmount
+    ): Promise<TransactionSigner> {
         if (amount < 0) {
             throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
         }
@@ -79,6 +84,6 @@ export class Coin implements CoinInterface {
 
         transaction.feePayer = senderPubKey
 
-        return new CoinTransactionSigner(transaction)
+        return new TransactionSigner(transaction)
     }
 }

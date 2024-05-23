@@ -1,9 +1,10 @@
 import { Provider } from '../services/Provider.ts'
-import { Transaction } from '../models/Transaction.ts'
-import { NftTransaction } from '../models/NftTransaction.ts'
-import { CoinTransaction } from '../models/CoinTransaction.ts'
-import { TokenTransaction } from '../models/TokenTransaction.ts'
-import { ErrorTypeEnum, type TransactionSignerInterface } from '@multiplechain/types'
+import {
+    ErrorTypeEnum,
+    type PrivateKey,
+    type TransactionId,
+    type TransactionSignerInterface
+} from '@multiplechain/types'
 
 interface ParameterInterface {
     value: {
@@ -33,13 +34,17 @@ export interface TransactionData {
         timestamp: number
     }
     raw_data_hex: string
+    signature?: string[]
+    [key: string]: unknown
 }
 
 export interface SignedTransactionData extends TransactionData {
     signature: string[]
 }
 
-export class TransactionSigner implements TransactionSignerInterface {
+export class TransactionSigner
+    implements TransactionSignerInterface<TransactionData, SignedTransactionData>
+{
     /**
      * Transaction data from the blockchain network
      */
@@ -57,6 +62,7 @@ export class TransactionSigner implements TransactionSignerInterface {
 
     /**
      * @param {TransactionData} rawData - Transaction data
+     * @param {Provider} provider - Blockchain network provider
      */
     constructor(rawData: TransactionData, provider?: Provider) {
         this.rawData = rawData
@@ -65,27 +71,27 @@ export class TransactionSigner implements TransactionSignerInterface {
 
     /**
      * Sign the transaction
-     * @param {string} privateKey - Transaction data
-     * @returns {Promise<TransactionSigner>} Signed transaction data
+     * @param {PrivateKey} privateKey - Transaction data
+     * @returns {Promise<this>} Signed transaction data
      */
-    async sign(privateKey: string): Promise<TransactionSigner> {
+    async sign(privateKey: PrivateKey): Promise<this> {
         this.signedData = await this.provider.tronWeb.trx.sign(this.rawData, privateKey)
         return this
     }
 
     /**
      * Send the transaction to the blockchain network
-     * @returns {Promise<Transaction>}
+     * @returns {Promise<TransactionId>}
      */
-    async send(): Promise<Transaction> {
+    async send(): Promise<TransactionId> {
         const { transaction } = await this.provider.tronWeb.trx.sendRawTransaction(this.signedData)
         if (transaction === undefined) throw new Error(ErrorTypeEnum.TRANSACTION_CREATION_FAILED)
-        return new Transaction(transaction.txID as string)
+        return transaction.txID as string
     }
 
     /**
      * Get the raw transaction data
-     * @returns Transaction data
+     * @returns {TransactionData}
      */
     getRawData(): TransactionData {
         return this.rawData
@@ -93,39 +99,9 @@ export class TransactionSigner implements TransactionSignerInterface {
 
     /**
      * Get the signed transaction data
-     * @returns Signed transaction data
+     * @returns {SignedTransactionData}
      */
     getSignedData(): SignedTransactionData {
         return this.signedData
-    }
-}
-
-export class CoinTransactionSigner extends TransactionSigner {
-    /**
-     * Send the transaction to the blockchain network
-     * @returns {Promise<CoinTransaction>} Transaction data
-     */
-    async send(): Promise<CoinTransaction> {
-        return new CoinTransaction((await super.send()).getId())
-    }
-}
-
-export class TokenTransactionSigner extends TransactionSigner {
-    /**
-     * Send the transaction to the blockchain network
-     * @returns {Promise<TokenTransaction>} Transaction data
-     */
-    async send(): Promise<TokenTransaction> {
-        return new TokenTransaction((await super.send()).getId())
-    }
-}
-
-export class NftTransactionSigner extends TransactionSigner {
-    /**
-     * Send the transaction to the blockchain network
-     * @returns {Promise<NftTransaction>} Transaction data
-     */
-    async send(): Promise<NftTransaction> {
-        return new NftTransaction((await super.send()).getId())
     }
 }

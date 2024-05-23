@@ -7,7 +7,7 @@ export interface BitcoinNetworkConfigInterface {
     blockCypherToken?: string
 }
 
-export class Provider implements Omit<ProviderInterface, 'update'> {
+export class Provider implements ProviderInterface<BitcoinNetworkConfigInterface> {
     /**
      * Network configuration of the provider
      */
@@ -113,7 +113,8 @@ export class Provider implements Omit<ProviderInterface, 'update'> {
 
     /**
      * Update network configuration of the provider
-     * @param network - Network configuration of the provider
+     * @param {BitcoinNetworkConfigInterface} network - Network configuration
+     * @returns {void}
      */
     update(network: BitcoinNetworkConfigInterface): void {
         this.network = network
@@ -148,7 +149,7 @@ export class Provider implements Omit<ProviderInterface, 'update'> {
 
     /**
      * Get the current network configuration is testnet or not
-     * @returns boolean
+     * @returns {boolean} Testnet or not
      */
     isTestnet(): boolean {
         return this.network?.testnet ?? false

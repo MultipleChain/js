@@ -3,9 +3,10 @@ import { switcher } from './switcher.ts'
 import type { WindowEthereum } from './types.ts'
 import type { EIP1193Provider } from './EIP6963.ts'
 import { WalletPlatformEnum } from '@multiplechain/types'
-import type { WalletAdapterInterface, ProviderInterface } from '@multiplechain/types'
+import type { Provider } from '../../services/Provider.ts'
+import type { WalletAdapterInterface } from '@multiplechain/types'
 
-const TrustWallet: WalletAdapterInterface = {
+const TrustWallet: WalletAdapterInterface<Provider, EIP1193Provider> = {
     id: 'trustwallet',
     name: 'TrustWallet',
     icon: icons.trustWallet,
@@ -23,7 +24,7 @@ const TrustWallet: WalletAdapterInterface = {
             : window.trustwallet) as unknown as WindowEthereum
         return Boolean((await trustWalletProvider?.request({ method: 'eth_accounts' })).length)
     },
-    connect: async (provider?: ProviderInterface): Promise<EIP1193Provider> => {
+    connect: async (provider?: Provider): Promise<EIP1193Provider> => {
         return await new Promise((resolve, reject) => {
             try {
                 // eslint-disable-next-line

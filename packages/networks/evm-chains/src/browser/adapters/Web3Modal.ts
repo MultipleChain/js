@@ -1,14 +1,15 @@
 import icons from './icons.ts'
+import { networks } from '../../index.ts'
 import type { EIP1193Provider } from './EIP6963.ts'
+import type { Provider } from '../../services/Provider.ts'
 import type { Chain } from '@web3modal/scaffold-utils/ethers'
 import type { CustomWallet, Metadata } from '@web3modal/core'
 import { createWeb3Modal, defaultConfig } from '@web3modal/ethers'
 import type { Web3Modal as Web3ModalType } from '@web3modal/ethers'
+import type { WalletAdapterInterface } from '@multiplechain/types'
 import { ErrorTypeEnum, WalletPlatformEnum } from '@multiplechain/types'
-import { networks, type EvmNetworkConfigInterface } from '../../index.ts'
-import type { WalletAdapterInterface, ProviderInterface } from '@multiplechain/types'
 
-export interface Web3ModalOps {
+export interface Web3ModalConfig {
     projectId: string
     themeMode?: 'dark' | 'light'
     enableEIP6963?: boolean
@@ -20,11 +21,8 @@ export interface Web3ModalOps {
     customWallets?: CustomWallet[]
 }
 
-export interface Web3ModalAdapterInterface extends Omit<WalletAdapterInterface, 'connect'> {
-    connect: (provider?: ProviderInterface, ops?: Web3ModalOps | object) => Promise<EIP1193Provider>
-}
-
 let modal: Web3ModalType
+let walletProvider: EIP1193Provider | undefined
 
 const chains: Chain[] = networks
     .getAll()
@@ -44,24 +42,24 @@ let clickedAnyWallet = false
 let connectRejectMethod: (reason?: any) => void
 let connectResolveMethod: (value: EIP1193Provider | PromiseLike<EIP1193Provider>) => void
 
-const web3Modal = (ops: Web3ModalOps): Web3ModalType => {
+const web3Modal = (config: Web3ModalConfig): Web3ModalType => {
     if (modal !== undefined) {
         return modal
     }
 
     const ethersConfig = defaultConfig({
-        metadata: ops.metadata,
-        enableEIP6963: ops.enableEIP6963,
-        enableInjected: ops.enableInjected,
-        enableCoinbase: ops.enableCoinbase
+        metadata: config.metadata,
+        enableEIP6963: config.enableEIP6963,
+        enableInjected: config.enableInjected,
+        enableCoinbase: config.enableCoinbase
     })
 
     modal = createWeb3Modal({
         chains,
         ethersConfig,
-        projectId: ops.projectId,
-        themeMode: ops.themeMode,
-        customWallets: ops.customWallets,
+        projectId: config.projectId,
+        themeMode: config.themeMode,
+        customWallets: config.customWallets,
         allowUnsupportedChain: true,
         themeVariables: {
             '--w3m-z-index': 999999999999
@@ -72,6 +70,7 @@ const web3Modal = (ops: Web3ModalOps): Web3ModalType => {
         if (event.data.event === 'SELECT_WALLET') {
             clickedAnyWallet = true
         }
+
         if (event.data.event === 'MODAL_CLOSE') {
             if (clickedAnyWallet) {
                 clickedAnyWallet = false
@@ -85,21 +84,24 @@ const web3Modal = (ops: Web3ModalOps): Web3ModalType => {
         if (provider === undefined) {
             return
         }
+
         if (currentNetwork.chainId !== chainId) {
             await modal.switchNetwork(currentNetwork.chainId).catch(() => {
                 connectRejectMethod(new Error(ErrorTypeEnum.WALLET_CONNECT_REJECTED))
             })
         }
-        connectResolveMethod(provider as EIP1193Provider)
+
+        connectResolveMethod((walletProvider = provider as EIP1193Provider))
     })
 
     return modal
 }
 
-const Web3Modal: Web3ModalAdapterInterface = {
+const Web3Modal: WalletAdapterInterface<Provider, EIP1193Provider> = {
     id: 'web3modal',
     name: 'Web3Modal',
     icon: icons.web3modal,
+    provider: walletProvider,
     platforms: [WalletPlatformEnum.UNIVERSAL],
     isDetected: () => true,
     isConnected: () => {
@@ -127,28 +129,28 @@ const Web3Modal: Web3ModalAdapterInterface = {
         }
     },
     connect: async (
-        provider?: ProviderInterface,
-        _ops?: Web3ModalOps | object
+        provider?: Provider,
+        _config?: Web3ModalConfig | object
     ): Promise<EIP1193Provider> => {
-        const ops = _ops as Web3ModalOps
+        const config = _config as Web3ModalConfig
 
         if (provider === undefined) {
             throw new Error(ErrorTypeEnum.PROVIDER_IS_REQUIRED)
         }
 
-        if (ops === undefined) {
-            throw new Error(ErrorTypeEnum.OPS_IS_REQUIRED)
+        if (config === undefined) {
+            throw new Error(ErrorTypeEnum.CONFIG_IS_REQUIRED)
         }
 
-        if (ops.projectId === undefined) {
+        if (config.projectId === undefined) {
             throw new Error(ErrorTypeEnum.PROJECT_ID_IS_REQUIRED)
         }
 
-        if (ops.metadata === undefined) {
+        if (config.metadata === undefined) {
             throw new Error(ErrorTypeEnum.METADATA_IS_REQUIRED)
         }
 
-        const network = provider.network as EvmNetworkConfigInterface
+        const network = provider.network
 
         currentNetwork = {
             chainId: network.id,
@@ -160,7 +162,7 @@ const Web3Modal: Web3ModalAdapterInterface = {
 
         return await new Promise((resolve, reject) => {
             try {
-                const modal = web3Modal(ops)
+                const modal = web3Modal(config)
                 connectRejectMethod = async (reason) => {
                     await modal.disconnect()
                     reject(reason)

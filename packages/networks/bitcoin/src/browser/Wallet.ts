@@ -2,12 +2,15 @@ import {
     type WalletInterface,
     type WalletAdapterInterface,
     type WalletPlatformEnum,
-    type TransactionSignerInterface,
-    type ProviderInterface,
-    ErrorTypeEnum
+    ErrorTypeEnum,
+    type UnknownConfig,
+    type ConnectConfig,
+    type WalletAddress,
+    type SignedMessage,
+    type TransactionId
 } from '@multiplechain/types'
 import { Provider } from '../services/Provider.ts'
-import type { TransactionData } from '../services/TransactionSigner.ts'
+import type { TransactionSigner } from '../services/TransactionSigner.ts'
 
 export interface BitcoinWalletAdapter {
     getAddress: () => Promise<string>
@@ -30,18 +33,20 @@ const rejectMap = (error: any, reject: (a: any) => any): any => {
     return reject(error)
 }
 
-export class Wallet implements WalletInterface {
-    adapter: WalletAdapterInterface
+type WalletAdapter = WalletAdapterInterface<Provider, BitcoinWalletAdapter>
+
+export class Wallet implements WalletInterface<Provider, BitcoinWalletAdapter, TransactionSigner> {
+    adapter: WalletAdapter
 
     walletProvider: BitcoinWalletAdapter
 
     networkProvider: Provider
 
     /**
-     * @param {WalletAdapterInterface} adapter
+     * @param {WalletAdapter} adapter
      * @param {Provider} provider
      */
-    constructor(adapter: WalletAdapterInterface, provider?: Provider) {
+    constructor(adapter: WalletAdapter, provider?: Provider) {
         this.adapter = adapter
         this.networkProvider = provider ?? Provider.instance
     }
@@ -83,28 +88,27 @@ export class Wallet implements WalletInterface {
 
     /**
      * @param {string} url
-     * @param {object} ops
+     * @param {UnknownConfig} config
      * @returns {string}
      */
-    createDeepLink(url: string, ops?: object): string | null {
+    createDeepLink(url: string, config?: UnknownConfig): string | null {
         if (this.adapter.createDeepLink === undefined) {
             return null
         }
 
-        return this.adapter.createDeepLink(url, ops)
+        return this.adapter.createDeepLink(url, config)
     }
 
     /**
-     * @param {ProviderInterface} provider
-     * @param {Object} ops
-     * @returns {Promise<string>}
+     * @param {ConnectConfig} config
+     * @returns {Promise<WalletAddress>}
      */
-    async connect(provider?: ProviderInterface, ops?: object): Promise<string> {
+    async connect(config?: ConnectConfig): Promise<WalletAddress> {
         return await new Promise((resolve, reject) => {
             this.adapter
-                .connect(provider, ops)
+                .connect(this.networkProvider, config)
                 .then(async (provider) => {
-                    this.walletProvider = provider as BitcoinWalletAdapter
+                    this.walletProvider = provider
                     resolve(await this.getAddress())
                 })
                 .catch((error) => {
@@ -135,26 +139,45 @@ export class Wallet implements WalletInterface {
     }
 
     /**
-     * @returns {Promise<string>}
+     * @returns {Promise<WalletAddress>}
      */
-    async getAddress(): Promise<string> {
+    async getAddress(): Promise<WalletAddress> {
         return await this.walletProvider.getAddress()
     }
 
     /**
      * @param {string} message
+     * @returns {Promise<SignedMessage>}
      */
-    async signMessage(message: string): Promise<string> {
-        return await this.walletProvider.signMessage(message)
+    async signMessage(message: string): Promise<SignedMessage> {
+        return await new Promise((resolve, reject) => {
+            this.walletProvider
+                .signMessage(message)
+                .then((signature) => {
+                    resolve(signature)
+                })
+                .catch((error) => {
+                    rejectMap(error, reject)
+                })
+        })
     }
 
     /**
-     * @param {TransactionSignerInterface} transactionSigner
-     * @returns {Promise<string>}
+     * @param {TransactionSigner} transactionSigner
+     * @returns {Promise<TransactionId>}
      */
-    async sendTransaction(transactionSigner: TransactionSignerInterface): Promise<string> {
-        const data = (await transactionSigner.getRawData()) as TransactionData
-        return await this.walletProvider.sendBitcoin(data.receiver, data.amount)
+    async sendTransaction(transactionSigner: TransactionSigner): Promise<TransactionId> {
+        const data = transactionSigner.getRawData()
+        return await new Promise((resolve, reject) => {
+            this.walletProvider
+                .sendBitcoin(data.receiver, data.amount)
+                .then((txHash) => {
+                    resolve(txHash)
+                })
+                .catch((error) => {
+                    rejectMap(error, reject)
+                })
+        })
     }
 
     /**

@@ -1,32 +1,56 @@
 import type { WalletPlatformEnum } from './enums.ts'
-import type { ProviderInterface } from './services/ProviderInterface.ts'
-import type { TransactionSignerInterface } from './services/TransactionSignerInterface.ts'
+import type { SignedMessage, TransactionId, WalletAddress } from './defines.ts'
 
-export type RegisterWalletAdapterType = (walletAdapter: WalletAdapterInterface) => void
+// WalletAdapter registration function for WalletInterface
+export type RegisterWalletAdapterType<NetworkProvider, WalletProvider> = (
+    walletAdapter: WalletAdapterInterface<NetworkProvider, WalletProvider>
+) => void
 
-export type WalletAdapterListType = Record<string, WalletAdapterInterface>
+export type WalletAdapterListType<NetworkProvider, WalletProvider> = Record<
+    string,
+    WalletAdapterInterface<NetworkProvider, WalletProvider>
+>
 
-export interface WalletConnectOps {
+export interface WalletConnectConfig {
     projectId: string
     themeMode?: 'dark' | 'light'
 }
 
-export interface WalletAdapterInterface {
+export type UnknownConfig = Record<string, unknown>
+
+export type ConnectConfig = UnknownConfig & WalletConnectConfig
+
+// This is WalletAdapter definition for using in WalletInterface
+export interface WalletAdapterInterface<NetworkProvider, WalletProvider> {
     id: string
     name: string
     icon: string
-    provider?: any
+    provider?: unknown
     downloadLink?: string
     platforms: WalletPlatformEnum[]
     disconnect?: () => void | Promise<void>
     isDetected: () => boolean | Promise<boolean>
     isConnected: () => boolean | Promise<boolean>
-    createDeepLink?: (url: string, ops?: object) => string
-    connect: (provider?: ProviderInterface, ops?: object | WalletConnectOps) => Promise<object>
+    createDeepLink?: (url: string, config?: UnknownConfig) => string
+    connect: (provider?: NetworkProvider, config?: ConnectConfig) => Promise<WalletProvider>
 }
 
-export interface WalletInterface {
-    adapter: WalletAdapterInterface
+// For signing generated transactions with wallets and for wallet connection processes.
+export interface WalletInterface<NetworkProvider, WalletProvider, TransactionSigner> {
+    /**
+     * WalletAdapter instance
+     */
+    adapter: WalletAdapterInterface<NetworkProvider, WalletProvider>
+
+    /**
+     * Wallet provider is the instance of the wallet connection
+     */
+    walletProvider: WalletProvider
+
+    /**
+     * Network provider is the instance of the blockchain network connection
+     */
+    networkProvider: NetworkProvider
 
     /**
      * @returns {String}
@@ -55,49 +79,48 @@ export interface WalletInterface {
 
     /**
      * @param {String} url
-     * @param {Object} ops
+     * @param {UnknownConfig} config
      * @returns {String | null}
      */
-    createDeepLink: (url: string, ops?: object) => string | null
+    createDeepLink: (url: string, config?: UnknownConfig) => string | null
 
     /**
-     * @param {ProviderInterface} provider
-     * @param {Object | WalletConnectOps} ops
-     * @returns {Promise<string>}
+     * @param {ConnectConfig} config
+     * @returns {Promise<WalletAddress>}
      */
-    connect: (provider?: ProviderInterface, ops?: object | WalletConnectOps) => Promise<string>
+    connect: (config?: ConnectConfig) => Promise<WalletAddress>
 
     /**
-     * @returns {Boolean | Promise<Boolean>}
+     * @returns {boolean | Promise<boolean>}
      */
     isDetected: () => boolean | Promise<boolean>
 
     /**
-     * @returns {Boolean | Promise<Boolean>}
+     * @returns {boolean | Promise<boolean>}
      */
     isConnected: () => boolean | Promise<boolean>
 
     /**
-     * @returns {Promise<string>}
+     * @returns {Promise<WalletAddress>}
      */
-    getAddress: () => Promise<string>
+    getAddress: () => Promise<WalletAddress>
 
     /**
      * @param {string} message
-     * @returns {Promise<string>}
+     * @returns {Promise<SignedMessage>}
      */
-    signMessage: (message: string) => Promise<string>
+    signMessage: (message: string) => Promise<SignedMessage>
 
     /**
-     * @param {TransactionSignerInterface} transactionSigner
-     * @returns {Promise<string>}
+     * @param {TransactionSigner} transactionSigner
+     * @returns {Promise<TransactionId>}
      */
-    sendTransaction: (transactionSigner: TransactionSignerInterface) => Promise<string>
+    sendTransaction: (transactionSigner: TransactionSigner) => Promise<TransactionId>
 
     /**
      * @param {string} eventName
      * @param {Function} callback
      * @returns {void}
      */
-    on: (eventName: string, callback: (...args: any[]) => void) => void
+    on: (eventName: string, callback: (...args: unknown[]) => void) => void
 }

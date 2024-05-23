@@ -1,38 +1,45 @@
+import type {
+    NftId,
+    ContractAddress,
+    TransactionId,
+    TransferAmount,
+    WalletAddress
+} from '../defines.ts'
 import { TransactionTypeEnum } from '../enums.ts'
 
 /**
  * Filter types for each transaction type in TransactionListenerInterface
  */
 export interface TransactionListenerFilterInterface {
-    signer?: string
+    signer?: WalletAddress
 }
 
 export interface ContractTransactionListenerFilterInterface
     extends TransactionListenerFilterInterface {
-    address?: string
+    address?: ContractAddress
 }
 
 export interface AssetTransactionListenerFilterInterface
     extends TransactionListenerFilterInterface {
-    sender?: string
-    receiver?: string
+    sender?: WalletAddress
+    receiver?: WalletAddress
 }
 
 export interface CoinTransactionListenerFilterInterface
     extends AssetTransactionListenerFilterInterface {
-    amount?: number
+    amount?: TransferAmount
 }
 
 export interface TokenTransactionListenerFilterInterface
     extends AssetTransactionListenerFilterInterface,
         ContractTransactionListenerFilterInterface {
-    amount?: number
+    amount?: TransferAmount
 }
 
 export interface NftTransactionListenerFilterInterface
     extends AssetTransactionListenerFilterInterface,
         ContractTransactionListenerFilterInterface {
-    nftId?: number | string
+    nftId?: NftId
 }
 /**
  * Filter types for each transaction type in TransactionListenerInterface
@@ -58,7 +65,7 @@ export type DynamicTransactionListenerFilterType<T extends TransactionTypeEnum> 
 
 /**
  * 'TransactionListenerProcessIndex' is an object that connects transaction types to their corresponding process methods.
- * Example: this[TransactionListenerProcessIndex[type] as keyof TransactionListener]()
+ * Example: this[TransactionListenerProcessIndex[type]]()
  */
 export const TransactionListenerProcessIndex = {
     [TransactionTypeEnum.GENERAL]: 'generalProcess',
@@ -69,12 +76,8 @@ export const TransactionListenerProcessIndex = {
 }
 
 /**
- * Dynamic types for transaction trigger and callback methods
- */
-/**
  * 'DynamicTransactionType' connects transaction types to their corresponding transaction interfaces
  * Every type of transaction has its own unique transaction interface.
- * A sender's wallet address is a common value.
  */
 export type DynamicTransactionType<
     T extends TransactionTypeEnum,
@@ -118,44 +121,43 @@ export interface TransactionListenerInterface<
     callbacks: CallBackType[]
 
     /**
-     * Triggered transactions
+     * Triggered transactions are stored in the 'triggeredTransactions' array.
      */
-    triggeredTransactions: string[]
+    triggeredTransactions: TransactionId[]
 
     /**
      * 'filter' is an object that has values depending on transaction listener type.
-     * E.g. no matter which type of transaction is listening, 'filter' has to have a 'sender' value
+     * E.g. no matter which type of transaction is listening, 'filter' has to have a 'signer' value
      */
     filter?: DynamicTransactionListenerFilterType<T> | Record<string, never>
 
     /**
-     * stop() method closes the corresponding listener of the instance it's called from.
+     * If the listener is active, the 'stop' method deactivates the listener.
      * @returns {void}
      */
     stop: () => void
 
     /**
-     * start() method starts the corresponding listener of the instance it's called from.
+     * If the listener is inactive, the 'start' method activates the listener.
      * @returns {void}
      */
     start: () => void
 
     /**
-     * getStatus() method returns the status of the listener.
+     * The 'getStatus' method returns the status of the listener.
      * @returns {boolean}
      */
     getStatus: () => boolean
 
     /**
-     * on() method is a listener that listens to the transaction events.
-     * When a transaction is detected, it triggers the event.
+     * The 'on' method adds a callback function to the 'callbacks' array and starts the listener.
      * @param {CallBackType} callback - a function that is triggered when a transaction is detected.
      * @return {Promise<boolean>}
      */
     on: (callback: CallBackType) => Promise<boolean>
 
     /**
-     * trigger() method triggers the event when a transaction is detected.
+     * The 'trigger' method is triggered when a transaction is detected.
      * @param {Transaction} transaction - a transaction that is detected.
      * @return {void}
      */

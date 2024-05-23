@@ -27,6 +27,16 @@
             "types": "./dist/browser/index.d.ts"
         }
     },
+    "typesVersions": {
+        "*": {
+            "node": [
+                "./dist/index.d.ts"
+            ],
+            "browser": [
+                "./dist/browser/index.d.ts"
+            ]
+        }
+    },
     "files": [
         "dist",
         "README.md",
@@ -62,8 +72,8 @@
         "url": "https://github.com/MultipleChain/js/issues"
     },
     "dependencies": {
-        "@multiplechain/types": "^0.1.56",
-        "@multiplechain/utils": "^0.1.20",
+        "@multiplechain/types": "^0.1.63",
+        "@multiplechain/utils": "^0.1.21",
         "axios": "^1.6.8",
         "bitcore-lib": "^10.0.28",
         "sats-connect": "^2.3.1",

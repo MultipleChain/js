@@ -2,9 +2,10 @@ import icons from './icons.ts'
 import { switcher } from './switcher.ts'
 import type { EIP1193Provider } from './EIP6963.ts'
 import { WalletPlatformEnum } from '@multiplechain/types'
-import type { WalletAdapterInterface, ProviderInterface } from '@multiplechain/types'
+import type { Provider } from '../../services/Provider.ts'
+import type { WalletAdapterInterface } from '@multiplechain/types'
 
-const OkxWallet: WalletAdapterInterface = {
+const OkxWallet: WalletAdapterInterface<Provider, EIP1193Provider> = {
     id: 'okxwallet',
     name: 'OkxWallet',
     icon: icons.okxWallet,
@@ -16,7 +17,7 @@ const OkxWallet: WalletAdapterInterface = {
     isConnected: async () => {
         return Boolean((await window?.okxwallet?.request({ method: 'eth_accounts' })).length)
     },
-    connect: async (provider?: ProviderInterface): Promise<EIP1193Provider> => {
+    connect: async (provider?: Provider): Promise<EIP1193Provider> => {
         return await new Promise((resolve, reject) => {
             const okx = window?.okxwallet
             try {

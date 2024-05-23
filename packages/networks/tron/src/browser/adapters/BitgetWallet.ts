@@ -1,7 +1,8 @@
 import type { CustomAdapter } from '../Wallet.ts'
 import { WalletPlatformEnum } from '@multiplechain/types'
+import type { Provider } from '../../services/Provider.ts'
+import type { WalletAdapterInterface } from '@multiplechain/types'
 import { BitKeepAdapter } from '@tronweb3/tronwallet-adapter-bitkeep'
-import type { ProviderInterface, WalletAdapterInterface } from '@multiplechain/types'
 
 const walletProvider = new BitKeepAdapter()
 
@@ -13,7 +14,7 @@ declare global {
     }
 }
 
-const BitgetWallet: WalletAdapterInterface = {
+const BitgetWallet: WalletAdapterInterface<Provider, CustomAdapter> = {
     id: 'bitgetwallet',
     name: 'BitgetWallet',
     icon: walletProvider.icon,
@@ -25,7 +26,7 @@ const BitgetWallet: WalletAdapterInterface = {
     },
     isDetected: () => Boolean(window.bitkeep?.tronLink),
     isConnected: () => Boolean(walletProvider.connected),
-    connect: async (_provider?: ProviderInterface): Promise<CustomAdapter> => {
+    connect: async (): Promise<CustomAdapter> => {
         return await new Promise((resolve, reject) => {
             try {
                 walletProvider

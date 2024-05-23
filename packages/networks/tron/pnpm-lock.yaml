@@ -12,11 +12,11 @@ dependencies:
     specifier: ^0.1.0
     version: 0.1.0(typescript@5.4.5)
   '@multiplechain/types':
-    specifier: ^0.1.56
-    version: 0.1.56
+    specifier: ^0.1.63
+    version: 0.1.63
   '@multiplechain/utils':
-    specifier: ^0.1.20
-    version: 0.1.20
+    specifier: ^0.1.21
+    version: 0.1.21
   '@noble/secp256k1':
     specifier: ^1.7.1
     version: 1.7.1
@@ -348,12 +348,12 @@ packages:
       - vite
     dev: false
 
-  /@multiplechain/types@0.1.56:
-    resolution: {integrity: sha512-tnkgDwW0AWxEfhE/392LR6ZPE7Pxz5/Ei1XYsQISGkOfYYZrsvJXr69fXTjDOHCq7RCuQqytKmhnKs5K4xHd7w==}
+  /@multiplechain/types@0.1.63:
+    resolution: {integrity: sha512-4C201vUsN6F1S/M7vT+GZS0wTdKGZXHqn4YmC6ouC8n0uxMCEFdI2sSCadyHKFKG5OBPo16X1oFCX9MVwPqMoA==}
     dev: false
 
-  /@multiplechain/utils@0.1.20:
-    resolution: {integrity: sha512-4eEs4YR/V4F2Qnkl5KTZvPpewRQiX7C193d0tjpQuIfyumTEBJtdHYm1CW9CoJ6EjQUaB0oqSRKXomhzfK1qkw==}
+  /@multiplechain/utils@0.1.21:
+    resolution: {integrity: sha512-4mRlnhvXcS+7Hb1By5s2eoCH02kqOSQzV8qj0DHqZK20FtxtduaoGCtcClrFgEjN/HAXnHgdDc1pxTpveIkvRQ==}
     dependencies:
       '@types/ws': 8.5.10
       bignumber.js: 9.1.2

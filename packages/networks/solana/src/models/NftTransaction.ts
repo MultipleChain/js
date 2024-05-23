@@ -1,13 +1,19 @@
-import type { ParsedInstruction } from '@solana/web3.js'
-import { TransactionStatusEnum } from '@multiplechain/types'
 import { ContractTransaction } from './ContractTransaction.ts'
-import { type NftTransactionInterface, AssetDirectionEnum } from '@multiplechain/types'
+import { TransactionStatusEnum, AssetDirectionEnum } from '@multiplechain/types'
+import type { ParsedInstruction, ParsedTransactionWithMeta } from '@solana/web3.js'
+import type {
+    NftId,
+    WalletAddress,
+    ContractAddress,
+    NftTransactionInterface
+} from '@multiplechain/types'
 
 export class NftTransaction extends ContractTransaction implements NftTransactionInterface {
     /**
+     * @param {ParsedTransactionWithMeta} data Transaction data
      * @returns {Promise<ParsedInstruction>} Wallet address of the receiver of transaction
      */
-    findTransferInstruction(data: any): ParsedInstruction | null {
+    findTransferInstruction(data: ParsedTransactionWithMeta): ParsedInstruction | null {
         return (
             (data.transaction.message.instructions.find((instruction: any): boolean => {
                 return (
@@ -20,9 +26,9 @@ export class NftTransaction extends ContractTransaction implements NftTransactio
     }
 
     /**
-     * @returns {Promise<string>} Contract address of the transaction
+     * @returns {Promise<ContractAddress>} Contract address of the transaction
      */
-    async getAddress(): Promise<string> {
+    async getAddress(): Promise<ContractAddress> {
         const data = await this.getData()
         if (data === null) {
             return ''
@@ -46,9 +52,9 @@ export class NftTransaction extends ContractTransaction implements NftTransactio
     }
 
     /**
-     * @returns {Promise<string>} Receiver wallet address
+     * @returns {Promise<WalletAddress>} Receiver wallet address
      */
-    async getReceiver(): Promise<string> {
+    async getReceiver(): Promise<WalletAddress> {
         const data = await this.getData()
         if (data === null) {
             return ''
@@ -62,9 +68,9 @@ export class NftTransaction extends ContractTransaction implements NftTransactio
     }
 
     /**
-     * @returns {Promise<string>} Wallet address of the sender of transaction
+     * @returns {Promise<WalletAddress>} Wallet address of the sender of transaction
      */
-    async getSender(): Promise<string> {
+    async getSender(): Promise<WalletAddress> {
         const data = await this.getData()
 
         if (data === null) {
@@ -75,9 +81,9 @@ export class NftTransaction extends ContractTransaction implements NftTransactio
     }
 
     /**
-     * @returns {Promise<string>} NFT ID
+     * @returns {Promise<NftId>} NFT ID
      */
-    async getNftId(): Promise<string> {
+    async getNftId(): Promise<NftId> {
         const data = await this.getData()
 
         if (data === null) {
@@ -89,15 +95,15 @@ export class NftTransaction extends ContractTransaction implements NftTransactio
 
     /**
      * @param {AssetDirectionEnum} direction - Direction of the transaction (nft)
-     * @param {string} address - Wallet address of the receiver or sender of the transaction, dependant on direction
-     * @param {string} nftId ID of the NFT that will be transferred
+     * @param {WalletAddress} address - Wallet address of the receiver or sender of the transaction, dependant on direction
+     * @param {NftId} nftId ID of the NFT that will be transferred
      * @override verifyTransfer() in AssetTransactionInterface
      * @returns {Promise<TransactionStatusEnum>} Status of the transaction
      */
     async verifyTransfer(
         direction: AssetDirectionEnum,
-        address: string,
-        nftId: string | number
+        address: WalletAddress,
+        nftId: NftId
     ): Promise<TransactionStatusEnum> {
         const status = await this.getStatus()
 

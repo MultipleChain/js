@@ -2,12 +2,16 @@ import {
     type WalletInterface,
     type WalletAdapterInterface,
     type WalletPlatformEnum,
-    type TransactionSignerInterface,
     ErrorTypeEnum,
-    type ProviderInterface
+    type UnknownConfig,
+    type ConnectConfig,
+    type WalletAddress,
+    type SignedMessage,
+    type TransactionId
 } from '@multiplechain/types'
 import { Provider } from '../services/Provider.ts'
-import type { Adapter, AdapterEvents, Transaction } from '@tronweb3/tronwallet-abstract-adapter'
+import type { TransactionSigner } from '../services/TransactionSigner.ts'
+import type { Adapter, AdapterEvents } from '@tronweb3/tronwallet-abstract-adapter'
 
 export interface CustomAdapter extends Adapter {
     network?: () => Promise<any>
@@ -45,17 +49,24 @@ const rejectMap = (error: any, reject: (a: any) => any): any => {
     return reject(error)
 }
 
-export class Wallet implements WalletInterface {
-    adapter: WalletAdapterInterface
+type WalletAdapter = WalletAdapterInterface<Provider, CustomAdapter> & {
+    provider?:
+        | CustomAdapter
+        | { on: (eventName: string, callback: (...args: any[]) => void) => void }
+}
+
+export class Wallet implements WalletInterface<Provider, CustomAdapter, TransactionSigner> {
+    adapter: WalletAdapter
 
     walletProvider: CustomAdapter
 
     networkProvider: Provider
 
     /**
-     * @param {WalletAdapterInterface} adapter
+     * @param {WalletAdapter} adapter
+     * @param {Provider} provider
      */
-    constructor(adapter: WalletAdapterInterface, provider?: Provider) {
+    constructor(adapter: WalletAdapter, provider?: Provider) {
         this.adapter = adapter
         this.networkProvider = provider ?? Provider.instance
     }
@@ -97,28 +108,27 @@ export class Wallet implements WalletInterface {
 
     /**
      * @param {string} url
-     * @param {object} ops
+     * @param {UnknownConfig} config
      * @returns {string}
      */
-    createDeepLink(url: string, ops?: object): string | null {
+    createDeepLink(url: string, config?: UnknownConfig): string | null {
         if (this.adapter.createDeepLink === undefined) {
             return null
         }
 
-        return this.adapter.createDeepLink(url, ops)
+        return this.adapter.createDeepLink(url, config)
     }
 
     /**
-     * @param {ProviderInterface} provider
-     * @param {Object} ops
-     * @returns {Promise<string>}
+     * @param {ConnectConfig} config
+     * @returns {Promise<WalletAddress>}
      */
-    async connect(provider?: ProviderInterface, ops?: object): Promise<string> {
+    async connect(config?: ConnectConfig): Promise<WalletAddress> {
         return await new Promise((resolve, reject) => {
             this.adapter
-                .connect(provider, ops)
+                .connect(this.networkProvider, config)
                 .then(async (provider) => {
-                    this.walletProvider = provider as CustomAdapter
+                    this.walletProvider = provider
 
                     if (
                         this.walletProvider.network !== undefined &&
@@ -166,16 +176,17 @@ export class Wallet implements WalletInterface {
     }
 
     /**
-     * @returns {Promise<string>}
+     * @returns {Promise<WalletAddress>}
      */
-    async getAddress(): Promise<string> {
+    async getAddress(): Promise<WalletAddress> {
         return this.walletProvider.address ?? ''
     }
 
     /**
      * @param {string} message
+     * @returns {Promise<SignedMessage>}
      */
-    async signMessage(message: string): Promise<string> {
+    async signMessage(message: string): Promise<SignedMessage> {
         return await new Promise((resolve, reject) => {
             this.walletProvider
                 .signMessage(message)
@@ -183,22 +194,38 @@ export class Wallet implements WalletInterface {
                     resolve(signature)
                 })
                 .catch((error: any) => {
-                    reject(error)
+                    rejectMap(error, reject)
                 })
         })
     }
 
     /**
-     * @param {TransactionSignerInterface} transactionSigner
-     * @returns {Promise<string>}
+     * @param {TransactionSigner} transactionSigner
+     * @returns {Promise<TransactionId>}
      */
-    async sendTransaction(transactionSigner: TransactionSignerInterface): Promise<string> {
-        const signedTx = await this.walletProvider.signTransaction(
-            transactionSigner.getRawData() as Transaction
-        )
-        const { transaction } = await this.networkProvider.tronWeb.trx.sendRawTransaction(signedTx)
-        if (transaction === undefined) throw new Error(ErrorTypeEnum.TRANSACTION_CREATION_FAILED)
-        return transaction.txID as string
+    async sendTransaction(transactionSigner: TransactionSigner): Promise<TransactionId> {
+        return await new Promise((resolve, reject) => {
+            try {
+                void (async () => {
+                    const signedTx = await this.walletProvider
+                        .signTransaction(transactionSigner.getRawData())
+                        .catch((error) => rejectMap(error, reject))
+
+                    if (signedTx === undefined) return
+
+                    const { transaction } =
+                        await this.networkProvider.tronWeb.trx.sendRawTransaction(signedTx)
+
+                    if (transaction === undefined) {
+                        throw new Error(ErrorTypeEnum.TRANSACTION_CREATION_FAILED)
+                    }
+
+                    resolve(transaction.txID as string)
+                })()
+            } catch (error) {
+                rejectMap(error, reject)
+            }
+        })
     }
 
     /**
@@ -208,7 +235,7 @@ export class Wallet implements WalletInterface {
      */
     on(eventName: string, callback: (...args: any[]) => void): void {
         if (this.adapter?.provider?.on !== undefined) {
-            this.adapter.provider.on(eventName, callback)
+            this.adapter.provider.on(eventName as keyof AdapterEvents, callback)
         } else {
             this.walletProvider.on(eventName as keyof AdapterEvents, callback)
         }

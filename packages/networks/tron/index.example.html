@@ -214,44 +214,23 @@
     </div>
 
     <script type="module">
-        import * as EvmChains from './src/browser/index.ts'
+        import * as Tron from './src/browser/index.ts'
         import { isMobile } from '@multiplechain/utils'
-        window.EvmChains = EvmChains
+        window.Tron = Tron
 
-        const provider = new EvmChains.Provider({
-            id: 11155111,
-            hexId: '0xaa36a7',
-            mainnetId: 1,
-            rpcUrl: 'https://sepolia.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
-            wsUrl: 'wss://sepolia.infura.io/ws/v3/9aa3d95b3bc440fa88ea12eaa4456161',
-            name: 'Ethereum Sepolia Testnet (QR)',
-            explorerUrl: 'https://sepolia.etherscan.io/',
-            nativeCurrency: {
-                symbol: 'ETH',
-                name: 'Ethereum',
-                decimals: 18
-            }
+        const provider = new Tron.Provider({
+            testnet: true
         });
 
         window.adapters = {}
         window.connectAdapter = async (adapter) => {
-            if (await adapter.isDetected() === false) {
-                return alert('Adapter is not detected')
-            }
-
             if (adapter.disconnect) {
                 await adapter.disconnect()
             }
 
-            const wallet = new EvmChains.browser.Wallet(adapter)
-            const adapterProvider = await wallet.connect(provider, {
-                projectId: '113d9f5689edd84ff230c2a6d679c80c',
-                metadata: {
-                    name: 'MultipleChain',
-                    description: 'MultipleChain is a best standard',
-                    url: 'http://localhost:3000/',
-                    icons: []
-                }
+            const wallet = new Tron.browser.Wallet(adapter)
+            const adapterProvider = await wallet.connect({
+                projectId: '113d9f5689edd84ff230c2a6d679c80c'
             })
             
             document.querySelector('.methods').style.display = 'block'
@@ -263,7 +242,7 @@
             document.querySelector('.platforms').innerText = wallet.getPlatforms().join(', ')
             document.querySelector('.download-link').innerText = wallet.getDownloadLink()
             document.querySelector('.deep-link').innerText = wallet.createDeepLink('https://google.com')
-            document.querySelector('.chain-id').innerText = await wallet.getChainId()
+            document.querySelector('.chain-id').innerText = wallet.getChainId ? await wallet.getChainId() : 'N/A'
             document.querySelector('.connected-address').innerText = sender
 
             document.querySelector('.action-result .sign-message').innerText = ''
@@ -272,12 +251,12 @@
                 document.querySelector('.action-result .sign-message').innerText = result
             }
 
-            const receiver = '0xbBa4d06D1cEf94b35aDeCfDa893523907fdD36DE';
-            const tokenAddress = '0x4294cb0dD25dC9140B5127f247cBd47Eeb673431';
+            const receiver = 'TSVufyvTBhWPMbvAaZr6ESYszpzXfBs8WA';
+            const tokenAddress = 'TJkmHT9gWNyELDaCbz9ui5PPQ6EPezgegu';
 
             document.querySelector('.action-result .send-coin').innerText = ''
             document.querySelector('.action-btn.send-coin').onclick = async () => {
-                const coin = new EvmChains.assets.Coin();
+                const coin = new Tron.assets.Coin();
                 const signer = await coin.transfer(sender, receiver, 0.00001)
                 const result = await wallet.sendTransaction(signer)
                 document.querySelector('.action-result .send-coin').innerText = result
@@ -285,7 +264,7 @@
 
             document.querySelector('.action-result .send-token').innerText = ''
             document.querySelector('.action-btn.send-token').onclick = async () => {
-                const token = new EvmChains.assets.Token(tokenAddress);
+                const token = new Tron.assets.Token(tokenAddress);
                 const signer = await token.transfer(sender, receiver, 0.1)
                 const result = await wallet.sendTransaction(signer)
                 document.querySelector('.action-result .send-token').innerText = result
@@ -332,37 +311,29 @@
             `
         }
 
-        const updateWalletList = () => {
-            const container = document.querySelector('.wallet-list-container')
-            container.innerHTML = ''
+        const container = document.querySelector('.wallet-list-container')
+        container.innerHTML = ''
 
-            let adapters = EvmChains.browser.adapters
+        let adapters = Tron.browser.adapters
 
-            const sortedKeys = Object.keys(adapters).sort(function(a, b) {
-                const order = { true: 1, universal: 2, false: 3 };
-                
-                const valueA = adapters[a].platforms.includes('UNIVERSAL') ? 'universal' : adapters[a].isDetected();
-                const valueB = adapters[b].platforms.includes('UNIVERSAL') ? 'universal' : adapters[b].isDetected();
-                
-                return order[valueA] - order[valueB];                     
-            });
-        
-            // set sorted adapters
-            adapters = sortedKeys.reduce((sortedObj, key) => {
-                sortedObj[key] = adapters[key];
-                return sortedObj;
-            }, {});
-
-            Object.values(adapters).forEach(adapter => {
-                container.innerHTML += adapterTemplate(adapter)
-            })
-        }
-
-        window.addEventListener("eip6963:announceProvider", (event) => {
-            EvmChains.browser.registerAdapter(EvmChains.browser.fromEIP6963ProviderDetail(event.detail))
-            updateWalletList()
+        const sortedKeys = Object.keys(adapters).sort(function(a, b) {
+            const order = { true: 1, universal: 2, false: 3 };
+            
+            const valueA = adapters[a].platforms.includes('UNIVERSAL') ? 'universal' : adapters[a].isDetected();
+            const valueB = adapters[b].platforms.includes('UNIVERSAL') ? 'universal' : adapters[b].isDetected();
+            
+            return order[valueA] - order[valueB];                     
         });
-        window.dispatchEvent(new Event("eip6963:requestProvider"));
+    
+        // set sorted adapters
+        adapters = sortedKeys.reduce((sortedObj, key) => {
+            sortedObj[key] = adapters[key];
+            return sortedObj;
+        }, {});
+
+        Object.values(adapters).forEach(adapter => {
+            container.innerHTML += adapterTemplate(adapter)
+        })
     </script>
 </body>
 </html>

@@ -1,20 +1,18 @@
 import icons from './icons.ts'
 import type { EIP1193Provider } from './EIP6963.ts'
-import { ErrorTypeEnum, WalletPlatformEnum } from '@multiplechain/types'
+import type { Provider } from '../../services/Provider.ts'
 import { EthereumProvider } from '@walletconnect/ethereum-provider'
-import type { EvmNetworkConfigInterface } from '../../services/Provider.ts'
-import type {
-    WalletConnectOps,
-    WalletAdapterInterface,
-    ProviderInterface
-} from '@multiplechain/types'
+import { ErrorTypeEnum, WalletPlatformEnum } from '@multiplechain/types'
+import type { WalletConnectConfig, WalletAdapterInterface } from '@multiplechain/types'
 
 let isConnected = false
+let walletProvider: EIP1193Provider | undefined
 
-const WalletConnect: WalletAdapterInterface = {
+const WalletConnect: WalletAdapterInterface<Provider, EIP1193Provider> = {
     id: 'walletconnect',
     name: 'WalletConnect',
     icon: icons.walletConnect,
+    provider: walletProvider,
     platforms: [WalletPlatformEnum.UNIVERSAL],
     isDetected: () => true,
     isConnected: () => isConnected,
@@ -23,37 +21,35 @@ const WalletConnect: WalletAdapterInterface = {
         indexedDB.deleteDatabase('WALLET_CONNECT_V2_INDEXED_DB')
     },
     connect: async (
-        provider?: ProviderInterface,
-        _ops?: WalletConnectOps | object
+        provider?: Provider,
+        config?: WalletConnectConfig
     ): Promise<EIP1193Provider> => {
-        const ops = _ops as WalletConnectOps
-
         if (provider === undefined) {
             throw new Error(ErrorTypeEnum.PROVIDER_IS_REQUIRED)
         }
 
-        if (ops === undefined) {
-            throw new Error(ErrorTypeEnum.OPS_IS_REQUIRED)
+        if (config === undefined) {
+            throw new Error(ErrorTypeEnum.CONFIG_IS_REQUIRED)
         }
 
-        if (ops.projectId === undefined) {
+        if (config.projectId === undefined) {
             throw new Error(ErrorTypeEnum.PROJECT_ID_IS_REQUIRED)
         }
 
         const rpcIdMapping = {}
-        const network = provider.network as EvmNetworkConfigInterface
+        const network = provider.network
         // @ts-expect-error allow number index
         rpcIdMapping[network.id] = network.rpcUrl
 
         const connector = await EthereumProvider.init({
-            projectId: ops.projectId,
+            projectId: config.projectId,
             relayUrl: 'wss://relay.walletconnect.com',
             optionalChains: [network.id],
             rpcMap: rpcIdMapping,
             chains: [network.id],
             showQrModal: true,
             qrModalOptions: {
-                themeMode: ops.themeMode,
+                themeMode: config.themeMode,
                 themeVariables: {
                     '--wcm-z-index': '999999999999'
                 },
@@ -84,7 +80,7 @@ const WalletConnect: WalletAdapterInterface = {
                 .enable()
                 .then(() => {
                     isConnected = true
-                    resolve(connector as EIP1193Provider)
+                    resolve((walletProvider = connector as EIP1193Provider))
                 })
                 .catch((error) => {
                     reject(error)

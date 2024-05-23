@@ -215,6 +215,6 @@ describe('Transaction Listener', () => {
             nftTransferId
         )
 
-        void (await newSigner.sign(receiverPrivateKey)).send()
+        await (await newSigner.sign(receiverPrivateKey)).send()
     })
 })

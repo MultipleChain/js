@@ -1,13 +1,13 @@
 import { sleep } from '@multiplechain/utils'
 import type { CustomAdapter } from '../Wallet.ts'
-import { WalletPlatformEnum } from '@multiplechain/types'
 import type { Provider } from '../../services/Provider.ts'
+import type { WalletAdapterInterface } from '@multiplechain/types'
 import { TronLinkAdapter } from '@tronweb3/tronwallet-adapter-tronlink'
-import type { ProviderInterface, WalletAdapterInterface } from '@multiplechain/types'
+import { ErrorTypeEnum, WalletPlatformEnum } from '@multiplechain/types'
 
 const walletProvider = new TronLinkAdapter()
 
-const TronLink: WalletAdapterInterface = {
+const TronLink: WalletAdapterInterface<Provider, CustomAdapter> = {
     id: 'tronlink',
     name: 'TronLink',
     icon: walletProvider.icon,
@@ -27,8 +27,11 @@ const TronLink: WalletAdapterInterface = {
     },
     isDetected: () => Boolean(window.tronLink),
     isConnected: () => Boolean(walletProvider.connected),
-    connect: async (_provider?: ProviderInterface): Promise<CustomAdapter> => {
-        const provider = _provider as Provider
+    connect: async (provider?: Provider): Promise<CustomAdapter> => {
+        if (provider === undefined) {
+            throw new Error(ErrorTypeEnum.PROVIDER_IS_REQUIRED)
+        }
+
         return await new Promise((resolve, reject) => {
             try {
                 walletProvider

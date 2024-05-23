@@ -1,7 +1,8 @@
 import icons from './icons.ts'
 import { WalletPlatformEnum } from '@multiplechain/types'
-import type { ProviderInterface, WalletAdapterInterface } from '@multiplechain/types'
 import type { BitcoinWalletAdapter } from '../Wallet.ts'
+import type { Provider } from '../../services/Provider.ts'
+import type { WalletAdapterInterface } from '@multiplechain/types'
 
 declare global {
     interface Window {
@@ -17,15 +18,16 @@ declare global {
     }
 }
 
-const UniSat: WalletAdapterInterface = {
+const UniSat: WalletAdapterInterface<Provider, BitcoinWalletAdapter> = {
     id: 'unisat',
     name: 'UniSat',
     icon: icons.UniSat,
+    provider: window.unisat,
     platforms: [WalletPlatformEnum.BROWSER],
     downloadLink: 'https://unisat.io/download',
     isDetected: () => Boolean(window.unisat?.requestAccounts),
     isConnected: async () => window?.unisat?._isConnected ?? false,
-    connect: async (provider?: ProviderInterface): Promise<BitcoinWalletAdapter> => {
+    connect: async (provider?: Provider): Promise<BitcoinWalletAdapter> => {
         return await new Promise((resolve, reject) => {
             const network = provider !== undefined && provider?.isTestnet() ? 'testnet' : 'livenet'
 

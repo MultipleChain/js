@@ -27,6 +27,7 @@ jobs:
       - name: Check if version changed
         run: |
           npm install -g pnpm
+          pnpm install
 
           for dir in packages/*/ packages/networks/*/; do
             if [ -d "$dir" ] && [ "$(basename "$dir")" != "boilerplate" ]; then

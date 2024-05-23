@@ -1,11 +1,11 @@
 import { Provider } from '../services/Provider.ts'
-import type { ContractInterface } from '@multiplechain/types'
+import type { ContractAddress, ContractInterface, WalletAddress } from '@multiplechain/types'
 
 export class Contract implements ContractInterface {
     /**
      * Contract address
      */
-    address: string
+    address: ContractAddress
 
     /**
      * Blockchain network provider
@@ -13,46 +13,50 @@ export class Contract implements ContractInterface {
     provider: Provider
 
     /**
-     * @param {string} address Contract address
+     * @param {ContractAddress} address Contract address
      * @param {Provider} provider Blockchain network provider
      */
-    constructor(address: string, provider?: Provider) {
+    constructor(address: ContractAddress, provider?: Provider) {
         this.address = address
         this.provider = provider ?? Provider.instance
     }
 
     /**
-     * @returns {string} Contract address
+     * @returns {ContractAddress} Contract address
      */
-    getAddress(): string {
+    getAddress(): ContractAddress {
         return this.address
     }
 
     /**
      * @param {string} method Method name
-     * @param {any[]} args Method parameters
-     * @returns {Promise<any>} Method result
+     * @param {unknown[]} args Method parameters
+     * @returns {Promise<unknown>} Method result
      */
-    async callMethod(method: string, ...args: any[]): Promise<any> {
+    async callMethod(method: string, ...args: unknown[]): Promise<unknown> {
         return {}
     }
 
     /**
      * @param {string} method Method name
-     * @param {any[]} args Sender wallet address
-     * @returns {Promise<string>} Encoded method data
+     * @param {unknown[]} args Sender wallet address
+     * @returns {Promise<unknown>} Encoded method data
      */
-    async getMethodData(method: string, ...args: any[]): Promise<any> {
+    async getMethodData(method: string, ...args: unknown[]): Promise<unknown> {
         return {}
     }
 
     /**
      * @param {string} method Method name
-     * @param {string} from Sender wallet address
-     * @param {any[]} args Method parameters
-     * @returns {Promise<any>} Encoded method data
+     * @param {WalletAddress} from Sender wallet address
+     * @param {unknown[]} args Method parameters
+     * @returns {Promise<unknown>} Encoded method data
      */
-    async createTransactionData(method: string, from: string, ...args: any[]): Promise<any> {
+    async createTransactionData(
+        method: string,
+        from: WalletAddress,
+        ...args: any[]
+    ): Promise<unknown> {
         return ''
     }
 }

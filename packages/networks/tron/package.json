@@ -27,6 +27,16 @@
             "types": "./dist/browser/index.d.ts"
         }
     },
+    "typesVersions": {
+        "*": {
+            "node": [
+                "./dist/index.d.ts"
+            ],
+            "browser": [
+                "./dist/browser/index.d.ts"
+            ]
+        }
+    },
     "files": [
         "dist",
         "README.md",
@@ -64,8 +74,8 @@
     "dependencies": {
         "@beycandeveloper/tron-tx-decoder": "^2.0.5",
         "@multiplechain/tron-walletconnect": "^0.1.0",
-        "@multiplechain/types": "^0.1.56",
-        "@multiplechain/utils": "^0.1.20",
+        "@multiplechain/types": "^0.1.63",
+        "@multiplechain/utils": "^0.1.21",
         "@noble/secp256k1": "^1.7.1",
         "@tronweb3/tronwallet-adapter-bitkeep": "^1.1.1",
         "@tronweb3/tronwallet-adapter-okxwallet": "^1.0.3",

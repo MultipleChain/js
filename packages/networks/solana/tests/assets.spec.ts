@@ -5,8 +5,8 @@ import { Coin } from '../src/assets/Coin.ts'
 import { Token } from '../src/assets/Token.ts'
 import { math } from '@multiplechain/utils'
 import { Transaction } from '../src/models/Transaction.ts'
-import { TransactionStatusEnum } from '@multiplechain/types'
 import { TransactionSigner } from '../src/services/TransactionSigner.ts'
+import { TransactionStatusEnum, type PrivateKey, type TransactionId } from '@multiplechain/types'
 
 const coinBalanceTestAmount = Number(process.env.SOL_COIN_BALANCE_TEST_AMOUNT)
 const tokenBalanceTestAmount = Number(process.env.SOL_TOKEN_BALANCE_TEST_AMOUNT)
@@ -39,7 +39,7 @@ const waitSecondsBeforeThanNewTx = async (seconds: number): Promise<any> => {
     return await new Promise((resolve) => setTimeout(resolve, seconds * 1000))
 }
 
-const checkSigner = async (signer: TransactionSigner, privateKey?: string): Promise<any> => {
+const checkSigner = async (signer: TransactionSigner, privateKey?: PrivateKey): Promise<any> => {
     expect(signer).toBeInstanceOf(TransactionSigner)
 
     const rawData = signer.getRawData()
@@ -51,8 +51,8 @@ const checkSigner = async (signer: TransactionSigner, privateKey?: string): Prom
     expect(signer.getSignedData()).toBeInstanceOf(Buffer)
 }
 
-const checkTx = async (transaction: Transaction): Promise<any> => {
-    expect(transaction).toBeInstanceOf(Transaction)
+const checkTx = async (transactionId: TransactionId): Promise<any> => {
+    const transaction = new Transaction(transactionId)
     const status = await transaction.wait(10 * 1000)
     expect(status).toBe(TransactionStatusEnum.CONFIRMED)
 }

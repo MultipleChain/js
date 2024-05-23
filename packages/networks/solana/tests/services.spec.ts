@@ -205,8 +205,8 @@ describe('Transaction Listener', () => {
 
         const transaction = await waitListenerEvent()
         expect(transaction).toBeInstanceOf(NftTransaction)
-        await transaction.wait()
-        await waitSecondsBeforeThanNewTx(10)
+        await (transaction as NftTransaction).wait()
+        await waitSecondsBeforeThanNewTx(20)
 
         const newSigner = await nft.transfer(
             receiverTestAddress,
@@ -214,6 +214,6 @@ describe('Transaction Listener', () => {
             nftTestAddress2
         )
 
-        void (await newSigner.sign(receiverPrivateKey)).send()
+        await (await newSigner.sign(receiverPrivateKey)).send()
     })
 })

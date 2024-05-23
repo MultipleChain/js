@@ -18,7 +18,12 @@ import {
 import type {
     DynamicTransactionType,
     TransactionListenerInterface,
-    DynamicTransactionListenerFilterType
+    DynamicTransactionListenerFilterType,
+    TransactionId,
+    WalletAddress,
+    ContractAddress,
+    TransferAmount,
+    NftId
 } from '@multiplechain/types'
 import {
     ErrorTypeEnum,
@@ -52,16 +57,6 @@ export class TransactionListener<
     type: T
 
     /**
-     * Transaction listener callback
-     */
-    callbacks: CallBackType[] = []
-
-    /**
-     * Transaction listener filter
-     */
-    filter?: DynamicTransactionListenerFilterType<T> | Record<string, never>
-
-    /**
      * Provider
      */
     provider: Provider
@@ -77,6 +72,11 @@ export class TransactionListener<
     connected: boolean = false
 
     /**
+     * Transaction listener callback
+     */
+    callbacks: CallBackType[] = []
+
+    /**
      * Dynamic stop method
      */
     dynamicStop: () => void = () => {}
@@ -84,7 +84,12 @@ export class TransactionListener<
     /**
      * Triggered transactions
      */
-    triggeredTransactions: string[] = []
+    triggeredTransactions: TransactionId[] = []
+
+    /**
+     * Transaction listener filter
+     */
+    filter?: DynamicTransactionListenerFilterType<T> | Record<string, never>
 
     /**
      * @param {T} type - Transaction type
@@ -246,8 +251,8 @@ export class TransactionListener<
                 }
 
                 interface ParamsType {
-                    signer?: string
-                    address?: string
+                    signer?: WalletAddress
+                    address?: ContractAddress
                 }
 
                 const expectedParams: ParamsType = {}
@@ -307,10 +312,10 @@ export class TransactionListener<
                 }
 
                 interface ParamsType {
-                    signer?: string
-                    sender?: string
-                    receiver?: string
-                    amount?: number
+                    signer?: WalletAddress
+                    sender?: WalletAddress
+                    receiver?: WalletAddress
+                    amount?: TransferAmount
                 }
 
                 const expectedParams: ParamsType = {}
@@ -367,12 +372,12 @@ export class TransactionListener<
                 : (_transaction as NftTransaction)
 
         interface ParamsType {
-            signer?: string
-            sender?: string
-            receiver?: string
-            address?: string
-            amount?: number
-            nftId?: number | string
+            signer?: WalletAddress
+            sender?: WalletAddress
+            receiver?: WalletAddress
+            address?: ContractAddress
+            amount?: TransferAmount
+            nftId?: NftId
         }
 
         const expectedParams: ParamsType = {}
@@ -475,7 +480,11 @@ export class TransactionListener<
 
                 const instruction = transaction.findTransferInstruction(data)
 
-                if (instruction === null || instruction.parsed?.info?.tokenAmount?.decimals === 0) {
+                if (
+                    instruction === null ||
+                    (Number(instruction.parsed?.info?.amount) === 1 &&
+                        instruction.parsed?.info?.tokenAmount?.decimals === 0)
+                ) {
                     return
                 }
 
@@ -517,7 +526,11 @@ export class TransactionListener<
 
                 const instruction = transaction.findTransferInstruction(data)
 
-                if (instruction === null || instruction.parsed?.info?.tokenAmount?.decimals !== 0) {
+                if (
+                    instruction === null ||
+                    (Number(instruction.parsed?.info?.amount) !== 1 &&
+                        instruction.parsed?.info?.tokenAmount?.decimals !== 0)
+                ) {
                     return
                 }
 

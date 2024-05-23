@@ -211,12 +211,12 @@
     </div>
 
     <script type="module">
-        import * as Boilerplate from './src/browser/index.ts'
+        import * as Solana from './src/browser/index.ts'
         import { isMobile } from '@multiplechain/utils'
-        window.Boilerplate = Boilerplate
+        window.Solana = Solana
 
-        const provider = new Boilerplate.Provider({
-            // options
+        const provider = new Solana.Provider({
+            testnet: true
         });
 
         window.adapters = {}
@@ -229,9 +229,15 @@
                 await adapter.disconnect()
             }
 
-            const wallet = new Boilerplate.browser.Wallet(adapter)
-            const adapterProvider = await wallet.connect(provider, {
-                projectId: '113d9f5689edd84ff230c2a6d679c80c'
+            const wallet = new Solana.browser.Wallet(adapter)
+            const adapterProvider = await wallet.connect({
+                projectId: '113d9f5689edd84ff230c2a6d679c80c',
+                metadata: {
+                    name: 'MultipleChain',
+                    description: 'MultipleChain is a best standard',
+                    url: 'http://localhost:3000/',
+                    icons: []
+                }
             })
             
             document.querySelector('.methods').style.display = 'block'
@@ -251,12 +257,12 @@
                 document.querySelector('.action-result .sign-message').innerText = result
             }
 
-            const receiver = '0xbBa4d06D1cEf94b35aDeCfDa893523907fdD36DE';
-            const tokenAddress = '0x4294cb0dD25dC9140B5127f247cBd47Eeb673431';
+            const receiver = 'GHVMV3zZscR8V4K5GEgQTUjuV4jEixB9a4QX3KhgvVKy';
+            const tokenAddress = '2ZHwL3dXk3szRgiBLZi244NmKs2VmoBx764AYMY2tQfx';
 
             document.querySelector('.action-result .send-coin').innerText = ''
             document.querySelector('.action-btn.send-coin').onclick = async () => {
-                const coin = new Boilerplate.assets.Coin();
+                const coin = new Solana.assets.Coin();
                 const signer = await coin.transfer(sender, receiver, 0.00001)
                 const result = await wallet.sendTransaction(signer)
                 document.querySelector('.action-result .send-coin').innerText = result
@@ -264,7 +270,7 @@
 
             document.querySelector('.action-result .send-token').innerText = ''
             document.querySelector('.action-btn.send-token').onclick = async () => {
-                const token = new Boilerplate.assets.Token(tokenAddress);
+                const token = new Solana.assets.Token(tokenAddress);
                 const signer = await token.transfer(sender, receiver, 0.1)
                 const result = await wallet.sendTransaction(signer)
                 document.querySelector('.action-result .send-token').innerText = result
@@ -314,7 +320,7 @@
         const container = document.querySelector('.wallet-list-container')
         container.innerHTML = ''
 
-        let adapters = Boilerplate.browser.adapters
+        let adapters = Solana.browser.adapters
 
         const sortedKeys = Object.keys(adapters).sort(function(a, b) {
             const order = { true: 1, universal: 2, false: 3 };

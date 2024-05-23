@@ -2,7 +2,8 @@ import type {
     TransactionTypeEnum,
     DynamicTransactionType,
     TransactionListenerInterface,
-    DynamicTransactionListenerFilterType
+    DynamicTransactionListenerFilterType,
+    TransactionId
 } from '@multiplechain/types'
 
 import { Provider } from './Provider.ts'
@@ -49,16 +50,6 @@ export class TransactionListener<
     type: T
 
     /**
-     * Transaction listener callback
-     */
-    callbacks: CallBackType[] = []
-
-    /**
-     * Transaction listener filter
-     */
-    filter?: DynamicTransactionListenerFilterType<T> | Record<string, never>
-
-    /**
      * Provider
      */
     provider: Provider
@@ -84,6 +75,11 @@ export class TransactionListener<
     webSocket: WebSocketProvider
 
     /**
+     * Transaction listener callback
+     */
+    callbacks: CallBackType[] = []
+
+    /**
      * Dynamic stop method
      */
     dynamicStop: () => void = () => {}
@@ -91,7 +87,12 @@ export class TransactionListener<
     /**
      * Triggered transactions
      */
-    triggeredTransactions: string[] = []
+    triggeredTransactions: TransactionId[] = []
+
+    /**
+     * Transaction listener filter
+     */
+    filter?: DynamicTransactionListenerFilterType<T> | Record<string, never>
 
     /**
      * @param {T} type - Transaction type

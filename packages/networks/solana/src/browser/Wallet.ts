@@ -1,10 +1,13 @@
 import {
     type WalletInterface,
-    type WalletAdapterInterface,
     type WalletPlatformEnum,
-    type TransactionSignerInterface,
-    type ProviderInterface,
-    ErrorTypeEnum
+    type WalletAdapterInterface,
+    ErrorTypeEnum,
+    type ConnectConfig,
+    type UnknownConfig,
+    type WalletAddress,
+    type SignedMessage,
+    type TransactionId
 } from '@multiplechain/types'
 import { Provider } from '../services/Provider.ts'
 import type {
@@ -73,20 +76,24 @@ const rejectMap = (error: any, reject: (a: any) => any): any => {
     return reject(error)
 }
 
-export class Wallet implements WalletInterface {
-    adapter: WalletAdapterInterface
+export type WalletAdapter = BaseMessageSignerWalletAdapter
 
-    walletProvider: BaseMessageSignerWalletAdapter
+type WalletAdapterType = WalletAdapterInterface<Provider, WalletAdapter>
+
+export class Wallet implements WalletInterface<Provider, WalletAdapter, TransactionSigner> {
+    adapter: WalletAdapterType
+
+    walletProvider: WalletAdapter
 
     networkProvider: Provider
 
     currentReject: (a: any) => any
 
     /**
-     * @param {WalletAdapterInterface} adapter
+     * @param {WalletAdapterType} adapter
      * @param {Provider} provider
      */
-    constructor(adapter: WalletAdapterInterface, provider?: Provider) {
+    constructor(adapter: WalletAdapterType, provider?: Provider) {
         this.adapter = adapter
         this.networkProvider = provider ?? Provider.instance
     }
@@ -128,27 +135,26 @@ export class Wallet implements WalletInterface {
 
     /**
      * @param {string} url
-     * @param {object} ops
+     * @param {UnknownConfig} config
      * @returns {string}
      */
-    createDeepLink(url: string, ops?: object): string | null {
+    createDeepLink(url: string, config?: UnknownConfig): string | null {
         if (this.adapter.createDeepLink === undefined) {
             return null
         }
 
-        return this.adapter.createDeepLink(url, ops)
+        return this.adapter.createDeepLink(url, config)
     }
 
     /**
-     * @param {ProviderInterface} provider
-     * @param {Object} ops
-     * @returns {Promise<string>}
+     * @param {ConnectConfig} config
+     * @returns {Promise<WalletAddress>}
      */
-    async connect(provider?: ProviderInterface, ops?: object): Promise<string> {
+    async connect(config?: ConnectConfig): Promise<WalletAddress> {
         return await new Promise((resolve, reject) => {
             this.currentReject = reject
             this.adapter
-                .connect(provider, ops)
+                .connect(this.networkProvider, config)
                 .then(async (provider) => {
                     this.walletProvider = provider as BaseMessageSignerWalletAdapter
                     this.on('error', (error) => rejectMap(error, this.currentReject))
@@ -182,16 +188,17 @@ export class Wallet implements WalletInterface {
     }
 
     /**
-     * @returns {Promise<string>}
+     * @returns {Promise<WalletAddress>}
      */
-    async getAddress(): Promise<string> {
+    async getAddress(): Promise<WalletAddress> {
         return this.walletProvider.publicKey?.toBase58() ?? ''
     }
 
     /**
      * @param {string} message
+     * @returns {Promise<SignedMessage>}
      */
-    async signMessage(message: string): Promise<string> {
+    async signMessage(message: string): Promise<SignedMessage> {
         return await new Promise((resolve, reject) => {
             this.currentReject = reject
             this.walletProvider
@@ -206,11 +213,10 @@ export class Wallet implements WalletInterface {
     }
 
     /**
-     * @param {TransactionSignerInterface} transactionSigner
-     * @returns {Promise<string>}
+     * @param {TransactionSigner} transactionSigner
+     * @returns {Promise<TransactionId>}
      */
-    async sendTransaction(_transactionSigner: TransactionSignerInterface): Promise<string> {
-        const transactionSigner = _transactionSigner as TransactionSigner
+    async sendTransaction(transactionSigner: TransactionSigner): Promise<TransactionId> {
         return await new Promise((resolve, reject) => {
             this.currentReject = reject
             try {

@@ -1,14 +1,14 @@
 import { hexToNumber } from '@multiplechain/utils'
 import { Token } from '../assets/Token.ts'
 import { ContractTransaction } from './ContractTransaction.ts'
-import { TransactionStatusEnum } from '@multiplechain/types'
-import { AssetDirectionEnum, type TokenTransactionInterface } from '@multiplechain/types'
+import { TransactionStatusEnum, AssetDirectionEnum } from '@multiplechain/types'
+import type { WalletAddress, TokenTransactionInterface, TransferAmount } from '@multiplechain/types'
 
 export class TokenTransaction extends ContractTransaction implements TokenTransactionInterface {
     /**
-     * @returns {Promise<string>} Wallet address of the receiver of transaction
+     * @returns {Promise<WalletAddress>} Wallet address of the receiver of transaction
      */
-    async getReceiver(): Promise<string> {
+    async getReceiver(): Promise<WalletAddress> {
         const decoded = await this.decodeData()
 
         if (decoded === null) {
@@ -23,9 +23,9 @@ export class TokenTransaction extends ContractTransaction implements TokenTransa
     }
 
     /**
-     * @returns {Promise<string>} Wallet address of the sender of transaction
+     * @returns {Promise<WalletAddress>} Wallet address of the sender of transaction
      */
-    async getSender(): Promise<string> {
+    async getSender(): Promise<WalletAddress> {
         const decoded = await this.decodeData()
 
         if (decoded === null) {
@@ -40,9 +40,9 @@ export class TokenTransaction extends ContractTransaction implements TokenTransa
     }
 
     /**
-     * @returns {Promise<number>} Amount of tokens that will be transferred
+     * @returns {Promise<TransferAmount>} Amount of tokens that will be transferred
      */
-    async getAmount(): Promise<number> {
+    async getAmount(): Promise<TransferAmount> {
         const token = new Token(await this.getAddress())
         const decoded = await this.decodeData()
         if (decoded === null) {
@@ -60,14 +60,14 @@ export class TokenTransaction extends ContractTransaction implements TokenTransa
 
     /**
      * @param {AssetDirectionEnum} direction - Direction of the transaction (token)
-     * @param {string} address - Wallet address of the owner or spender of the transaction, dependant on direction
-     * @param {number} amount Amount of tokens that will be approved
+     * @param {WalletAddress} address - Wallet address of the owner or spender of the transaction, dependant on direction
+     * @param {TransferAmount} amount Amount of tokens that will be approved
      * @returns {Promise<TransactionStatusEnum>} Status of the transaction
      */
     async verifyTransfer(
         direction: AssetDirectionEnum,
-        address: string,
-        amount: number
+        address: WalletAddress,
+        amount: TransferAmount
     ): Promise<TransactionStatusEnum> {
         const status = await this.getStatus()
 

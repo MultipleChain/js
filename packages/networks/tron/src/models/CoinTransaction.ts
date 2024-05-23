@@ -1,12 +1,12 @@
 import { Transaction } from './Transaction.ts'
-import { TransactionStatusEnum } from '@multiplechain/types'
-import { AssetDirectionEnum, type CoinTransactionInterface } from '@multiplechain/types'
+import { TransactionStatusEnum, AssetDirectionEnum } from '@multiplechain/types'
+import type { WalletAddress, CoinTransactionInterface, TransferAmount } from '@multiplechain/types'
 
 export class CoinTransaction extends Transaction implements CoinTransactionInterface {
     /**
-     * @returns {Promise<string>} Wallet address of the receiver of transaction
+     * @returns {Promise<WalletAddress>} Wallet address of the receiver of transaction
      */
-    async getReceiver(): Promise<string> {
+    async getReceiver(): Promise<WalletAddress> {
         const data = await this.getData()
         return this.provider.tronWeb.address.fromHex(
             data?.raw_data.contract[0].parameter.value.to_address ?? ''
@@ -14,16 +14,16 @@ export class CoinTransaction extends Transaction implements CoinTransactionInter
     }
 
     /**
-     * @returns {Promise<string>} Wallet address of the sender of transaction
+     * @returns {Promise<WalletAddress>} Wallet address of the sender of transaction
      */
-    async getSender(): Promise<string> {
+    async getSender(): Promise<WalletAddress> {
         return await this.getSigner()
     }
 
     /**
-     * @returns {Promise<number>} Amount of coin that will be transferred
+     * @returns {Promise<TransferAmount>} Amount of coin that will be transferred
      */
-    async getAmount(): Promise<number> {
+    async getAmount(): Promise<TransferAmount> {
         const data = await this.getData()
         return parseFloat(
             this.provider.tronWeb.fromSun(
@@ -34,14 +34,14 @@ export class CoinTransaction extends Transaction implements CoinTransactionInter
 
     /**
      * @param {AssetDirectionEnum} direction - Direction of the transaction (asset)
-     * @param {string} address - Wallet address of the receiver or sender of the transaction, dependant on direction
-     * @param {number} amount Amount of assets that will be transferred
+     * @param {WalletAddress} address - Wallet address of the receiver or sender of the transaction, dependant on direction
+     * @param {TransferAmount} amount Amount of assets that will be transferred
      * @returns {Promise<TransactionStatusEnum>} Status of the transaction
      */
     async verifyTransfer(
         direction: AssetDirectionEnum,
-        address: string,
-        amount: number
+        address: WalletAddress,
+        amount: TransferAmount
     ): Promise<TransactionStatusEnum> {
         const status = await this.getStatus()
 

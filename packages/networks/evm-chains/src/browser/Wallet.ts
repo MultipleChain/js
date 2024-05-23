@@ -1,16 +1,18 @@
 import {
-    type WalletConnectOps,
     type WalletInterface,
     type WalletAdapterInterface,
     type WalletPlatformEnum,
-    type TransactionSignerInterface,
     ErrorTypeEnum,
-    type ProviderInterface
+    type ConnectConfig,
+    type UnknownConfig,
+    type TransactionId,
+    type SignedMessage,
+    type WalletAddress
 } from '@multiplechain/types'
 import { Provider } from '../services/Provider.ts'
 import type { EIP1193Provider } from './adapters/EIP6963.ts'
 import { toHex } from '@multiplechain/utils'
-import type { Web3ModalAdapterInterface, Web3ModalOps } from './adapters/Web3Modal.ts'
+import type { TransactionSigner } from '../services/TransactionSigner.ts'
 
 const rejectMap = (error: any, reject: (a: any) => any): any => {
     console.error('MultipleChain EVM Wallet Error:', error)
@@ -69,27 +71,38 @@ const rejectMap = (error: any, reject: (a: any) => any): any => {
     return reject(error)
 }
 
-export class Wallet implements Omit<WalletInterface, 'adapter'> {
-    adapter: WalletAdapterInterface | Web3ModalAdapterInterface
+type WalletAdapter = WalletAdapterInterface<Provider, EIP1193Provider> & {
+    provider?:
+        | EIP1193Provider
+        | { on: (eventName: string, callback: (...args: any[]) => void) => void }
+}
+
+export interface RequestType {
+    method: string
+    params?: any[] | object
+}
+
+export class Wallet implements WalletInterface<Provider, EIP1193Provider, TransactionSigner> {
+    adapter: WalletAdapter
 
     walletProvider: EIP1193Provider
 
     networkProvider: Provider
 
     /**
-     * @param {WalletAdapterInterface} adapter
+     * @param {WalletAdapter} adapter
      * @param {Provider} provider
      */
-    constructor(adapter: WalletAdapterInterface | Web3ModalAdapterInterface, provider?: Provider) {
+    constructor(adapter: WalletAdapter, provider?: Provider) {
         this.adapter = adapter
         this.networkProvider = provider ?? Provider.instance
     }
 
     /**
-     * @param {{ method: string; params?: any[] | object }} payload
+     * @param {RequestType} payload
      * @returns {Promise<any>}
      */
-    async request(payload: { method: string; params?: any[] | object }): Promise<any> {
+    async request(payload: RequestType): Promise<any> {
         const res = await this.walletProvider.request(payload)
         if (res?.error !== undefined) {
             const error = res.error as {
@@ -141,31 +154,27 @@ export class Wallet implements Omit<WalletInterface, 'adapter'> {
 
     /**
      * @param {string} url
-     * @param {object} ops
+     * @param {UnknownConfig} config
      * @returns {string}
      */
-    createDeepLink(url: string, ops?: object): string | null {
+    createDeepLink(url: string, config?: UnknownConfig): string | null {
         if (this.adapter.createDeepLink === undefined) {
             return null
         }
 
-        return this.adapter.createDeepLink(url, ops)
+        return this.adapter.createDeepLink(url, config)
     }
 
     /**
-     * @param {ProviderInterface} provider
-     * @param {Object | WalletConnectOps | Web3ModalOps} ops
-     * @returns {Promise<string>}
+     * @param {ConnectConfig} config
+     * @returns {Promise<WalletAddress>}
      */
-    async connect(
-        provider?: ProviderInterface,
-        ops?: object | WalletConnectOps | Web3ModalOps
-    ): Promise<string> {
+    async connect(config?: ConnectConfig): Promise<WalletAddress> {
         return await new Promise((resolve, reject) => {
             this.adapter
-                .connect(provider, ops)
+                .connect(this.networkProvider, config)
                 .then(async (provider) => {
-                    this.walletProvider = provider as EIP1193Provider
+                    this.walletProvider = provider
 
                     const chainId = await this.getChainId()
 
@@ -212,16 +221,17 @@ export class Wallet implements Omit<WalletInterface, 'adapter'> {
     }
 
     /**
-     * @returns {Promise<string>}
+     * @returns {Promise<WalletAddress>}
      */
-    async getAddress(): Promise<string> {
+    async getAddress(): Promise<WalletAddress> {
         return (await this.walletProvider.request({ method: 'eth_accounts' }))[0]
     }
 
     /**
      * @param {string} message
+     * @returns {Promise<SignedMessage>}
      */
-    async signMessage(message: string): Promise<string> {
+    async signMessage(message: string): Promise<SignedMessage> {
         const address = await this.getAddress()
         return await new Promise((resolve, reject) => {
             this.walletProvider
@@ -239,10 +249,10 @@ export class Wallet implements Omit<WalletInterface, 'adapter'> {
     }
 
     /**
-     * @param {TransactionSignerInterface} transactionSigner
-     * @returns {Promise<string>}
+     * @param {TransactionSigner} transactionSigner
+     * @returns {Promise<TransactionId>}
      */
-    async sendTransaction(transactionSigner: TransactionSignerInterface): Promise<string> {
+    async sendTransaction(transactionSigner: TransactionSigner): Promise<TransactionId> {
         return await new Promise((resolve, reject) => {
             const data = transactionSigner.getRawData()
             data.gas = toHex(data.gasLimit as number)

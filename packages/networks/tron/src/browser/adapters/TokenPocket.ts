@@ -1,7 +1,8 @@
 import type { CustomAdapter } from '../Wallet.ts'
 import { WalletPlatformEnum } from '@multiplechain/types'
+import type { Provider } from '../../services/Provider.ts'
+import type { WalletAdapterInterface } from '@multiplechain/types'
 import { TokenPocketAdapter } from '@tronweb3/tronwallet-adapter-tokenpocket'
-import type { ProviderInterface, WalletAdapterInterface } from '@multiplechain/types'
 
 const walletProvider = new TokenPocketAdapter()
 
@@ -13,7 +14,7 @@ declare global {
     }
 }
 
-const TokenPocket: WalletAdapterInterface = {
+const TokenPocket: WalletAdapterInterface<Provider, CustomAdapter> = {
     id: 'tokenpocket',
     name: 'TokenPocket',
     icon: walletProvider.icon,
@@ -32,7 +33,7 @@ const TokenPocket: WalletAdapterInterface = {
     },
     isDetected: () => Boolean(window.tokenpocket?.tron),
     isConnected: () => Boolean(walletProvider.connected),
-    connect: async (_provider?: ProviderInterface): Promise<CustomAdapter> => {
+    connect: async (): Promise<CustomAdapter> => {
         return await new Promise((resolve, reject) => {
             try {
                 walletProvider

@@ -1,11 +1,13 @@
+import type { RequestType } from '../Wallet.ts'
 import networks from '../../services/Networks.ts'
-import { ErrorTypeEnum, type ProviderInterface } from '@multiplechain/types'
-import type { EvmNetworkConfigInterface } from '../../services/Provider.ts'
+import type { EIP1193Provider } from './EIP6963.ts'
+import { ErrorTypeEnum } from '@multiplechain/types'
+import type { EvmNetworkConfigInterface, Provider } from '../../services/Provider.ts'
 
-export const switcher = async (wallet: any, provider?: ProviderInterface): Promise<boolean> => {
-    const network = provider?.network as EvmNetworkConfigInterface
+export const switcher = async (wallet: EIP1193Provider, provider?: Provider): Promise<boolean> => {
+    const network = provider?.network
 
-    const request = async (params: any): Promise<any> => {
+    const request = async (params: RequestType): Promise<any> => {
         const res = await wallet.request(params)
         if (res?.error !== undefined) {
             const error = res.error as {
@@ -50,12 +52,7 @@ export const switcher = async (wallet: any, provider?: ProviderInterface): Promi
 
     const changeNetwork = async (_network: EvmNetworkConfigInterface): Promise<boolean> => {
         return await new Promise((resolve, reject) => {
-            const network = networks.findById(_network.id)
-            if (network === undefined) {
-                resolve(true)
-                return
-            }
-            const chainId = `0x${network.id.toString(16)}`
+            const chainId = `0x${_network.id.toString(16)}`
             request({
                 method: 'wallet_switchEthereumChain',
                 params: [{ chainId }]
@@ -68,6 +65,11 @@ export const switcher = async (wallet: any, provider?: ProviderInterface): Promi
                         error.code === 4902 ||
                         String(error.message).includes('wallet_addEthereumChain')
                     ) {
+                        const network = networks.findById(_network.id)
+                        if (network === undefined) {
+                            resolve(true)
+                            return
+                        }
                         addNetwork(network)
                             .then(() => {
                                 resolve(true)

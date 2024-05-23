@@ -1,10 +1,11 @@
 import icons from './icons.ts'
 import { switcher } from './switcher.ts'
 import type { EIP1193Provider } from './EIP6963.ts'
+import type { Provider } from '../../services/Provider.ts'
 import { WalletPlatformEnum } from '@multiplechain/types'
-import type { WalletAdapterInterface, ProviderInterface } from '@multiplechain/types'
+import type { WalletAdapterInterface } from '@multiplechain/types'
 
-const XdefiWallet: WalletAdapterInterface = {
+const XdefiWallet: WalletAdapterInterface<Provider, EIP1193Provider> = {
     id: 'xdefiwallet',
     name: 'XdefiWallet',
     icon: icons.xdefiWallet,
@@ -15,7 +16,7 @@ const XdefiWallet: WalletAdapterInterface = {
     isConnected: async () => {
         return Boolean((await window?.xfi?.ethereum?.request({ method: 'eth_accounts' })).length)
     },
-    connect: async (provider?: ProviderInterface): Promise<EIP1193Provider> => {
+    connect: async (provider?: Provider): Promise<EIP1193Provider> => {
         return await new Promise((resolve, reject) => {
             const xfi = window?.xfi?.ethereum
             try {

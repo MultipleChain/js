@@ -1,33 +1,50 @@
 import { fromLamports } from '../utils.ts'
 import { Provider } from '../services/Provider.ts'
-import type { TransactionInterface } from '@multiplechain/types'
-import type { ParsedTransactionWithMeta } from '@solana/web3.js'
 import { ErrorTypeEnum, TransactionStatusEnum } from '@multiplechain/types'
+import {
+    SystemProgram,
+    type ParsedInstruction,
+    type ParsedTransactionWithMeta
+} from '@solana/web3.js'
+import {
+    type BlockTimestamp,
+    type BlockNumber,
+    type TransactionFee,
+    type TransactionId,
+    type TransactionInterface,
+    type WalletAddress,
+    type BlockConfirmationCount,
+    TransactionTypeEnum
+} from '@multiplechain/types'
+import { TOKEN_2022_PROGRAM_ID, TOKEN_PROGRAM_ID } from '@solana/spl-token'
 
-export class Transaction implements TransactionInterface {
+export class Transaction implements TransactionInterface<ParsedTransactionWithMeta> {
     /**
      * Each transaction has its own unique ID defined by the user
      */
-    id: string
+    id: TransactionId
 
     /**
      * Blockchain network provider
      */
     provider: Provider
 
+    /**
+     * Transaction data
+     */
     data: ParsedTransactionWithMeta | null = null
 
     /**
-     * @param {string} id Transaction id
+     * @param {TransactionId} id Transaction id
      * @param {Provider} provider Blockchain network provider
      */
-    constructor(id: string, provider?: Provider) {
+    constructor(id: TransactionId, provider?: Provider) {
         this.id = id
         this.provider = provider ?? Provider.instance
     }
 
     /**
-     * @returns {Promise<object | null>} Transaction data
+     * @returns {Promise<ParsedTransactionWithMeta | null>} Transaction data
      */
     async getData(): Promise<ParsedTransactionWithMeta | null> {
         if (this.data !== null) {
@@ -86,10 +103,51 @@ export class Transaction implements TransactionInterface {
     }
 
     /**
-     * @returns {string} Transaction ID
+     * @returns {TransactionId} Transaction ID
      */
-    getId(): string {
+    getId(): TransactionId {
         return this.id
+    }
+
+    /**
+     * @returns {Promise<TransactionTypeEnum>} Type of the transaction
+     */
+    async getType(): Promise<TransactionTypeEnum> {
+        const data = await this.getData()
+
+        if (data === null) {
+            return TransactionTypeEnum.GENERAL
+        }
+
+        const instructions = data.transaction.message.instructions as ParsedInstruction[]
+
+        return await new Promise((resolve) => {
+            instructions.forEach((instruction) => {
+                if (
+                    instruction.programId.equals(SystemProgram.programId) &&
+                    (instruction.parsed.type === 'createAccount' ||
+                        instruction.parsed.type === 'transfer')
+                ) {
+                    resolve(TransactionTypeEnum.COIN)
+                } else if (instruction.programId.equals(TOKEN_2022_PROGRAM_ID)) {
+                    resolve(TransactionTypeEnum.TOKEN)
+                } else if (instruction.programId.equals(TOKEN_PROGRAM_ID)) {
+                    const postBalance = data.meta?.postTokenBalances?.find(
+                        (balance: any): boolean => {
+                            return balance.mint !== undefined
+                        }
+                    )
+
+                    if (postBalance?.uiTokenAmount.decimals === 0) {
+                        resolve(TransactionTypeEnum.NFT)
+                    } else {
+                        resolve(TransactionTypeEnum.TOKEN)
+                    }
+                } else {
+                    resolve(TransactionTypeEnum.CONTRACT)
+                }
+            })
+        })
     }
 
     /**
@@ -103,9 +161,9 @@ export class Transaction implements TransactionInterface {
     }
 
     /**
-     * @returns {Promise<string>} Wallet address of the sender of transaction
+     * @returns {Promise<WalletAddress>} Wallet address of the sender of transaction
      */
-    async getSigner(): Promise<string> {
+    async getSigner(): Promise<WalletAddress> {
         const data = await this.getData()
         return (
             data?.transaction?.message?.accountKeys
@@ -117,33 +175,33 @@ export class Transaction implements TransactionInterface {
     }
 
     /**
-     * @returns {Promise<number>} Transaction fee
+     * @returns {Promise<TransactionFee>} Transaction fee
      */
-    async getFee(): Promise<number> {
+    async getFee(): Promise<TransactionFee> {
         const data = await this.getData()
         return fromLamports(data?.meta?.fee ?? 0)
     }
 
     /**
-     * @returns {Promise<number>} Block number that transaction
+     * @returns {Promise<BlockNumber>} Block number that transaction
      */
-    async getBlockNumber(): Promise<number> {
+    async getBlockNumber(): Promise<BlockNumber> {
         const data = await this.getData()
         return data?.slot ?? 0
     }
 
     /**
-     * @returns {Promise<number>} Block timestamp that transaction
+     * @returns {Promise<BlockTimestamp>} Block timestamp that transaction
      */
-    async getBlockTimestamp(): Promise<number> {
+    async getBlockTimestamp(): Promise<BlockTimestamp> {
         const data = await this.getData()
         return data?.blockTime ?? 0
     }
 
     /**
-     * @returns {Promise<number>} Confirmation count of the block
+     * @returns {Promise<BlockConfirmationCount>} Confirmation count of the block
      */
-    async getBlockConfirmationCount(): Promise<number> {
+    async getBlockConfirmationCount(): Promise<BlockConfirmationCount> {
         const data = await this.getData()
         const currentSlot = await this.provider.web3.getSlot()
         return currentSlot - (data?.slot ?? 0)
