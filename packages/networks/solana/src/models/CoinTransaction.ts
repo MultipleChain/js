@@ -1,6 +1,6 @@
 import { fromLamports } from '../utils.ts'
 import { Transaction } from './Transaction.ts'
-import type { ParsedInstruction } from '@solana/web3.js'
+import type { ParsedInstruction, ParsedTransactionWithMeta } from '@solana/web3.js'
 import {
     AssetDirectionEnum,
     TransactionStatusEnum,
@@ -11,9 +11,10 @@ import {
 
 export class CoinTransaction extends Transaction implements CoinTransactionInterface {
     /**
+     * @param {ParsedTransactionWithMeta} data Transaction data
      * @returns {Promise<ParsedInstruction>} Wallet address of the receiver of transaction
      */
-    findTransferInstruction(data: any): ParsedInstruction | null {
+    findTransferInstruction(data: ParsedTransactionWithMeta): ParsedInstruction | null {
         return (
             (data.transaction.message.instructions.find((instruction: any): boolean => {
                 return (

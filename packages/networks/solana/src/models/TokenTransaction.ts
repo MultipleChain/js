@@ -1,8 +1,12 @@
 import { PublicKey } from '@solana/web3.js'
 import { math } from '@multiplechain/utils'
 import { ContractTransaction } from './ContractTransaction.ts'
-import type { ParsedAccountData, ParsedInstruction } from '@solana/web3.js'
 import { TransactionStatusEnum, AssetDirectionEnum } from '@multiplechain/types'
+import type {
+    ParsedAccountData,
+    ParsedInstruction,
+    ParsedTransactionWithMeta
+} from '@solana/web3.js'
 import type {
     ContractAddress,
     TokenTransactionInterface,
@@ -12,9 +16,10 @@ import type {
 
 export class TokenTransaction extends ContractTransaction implements TokenTransactionInterface {
     /**
+     * @param {ParsedTransactionWithMeta} data Transaction data
      * @returns {Promise<ParsedInstruction>} Wallet address of the receiver of transaction
      */
-    findTransferInstruction(data: any): ParsedInstruction | null {
+    findTransferInstruction(data: ParsedTransactionWithMeta): ParsedInstruction | null {
         return (
             (data.transaction.message.instructions.find((instruction: any): boolean => {
                 return (

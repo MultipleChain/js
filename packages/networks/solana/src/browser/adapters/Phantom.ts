@@ -1,8 +1,8 @@
 import type { WalletAdapter } from '../Wallet.ts'
 import { WalletPlatformEnum } from '@multiplechain/types'
 import type { Provider } from '../../services/Provider.ts'
+import type { WalletAdapterInterface } from '@multiplechain/types'
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom'
-import type { ConnectConfig, UnknownConfig, WalletAdapterInterface } from '@multiplechain/types'
 
 const phantomAdapter = new PhantomWalletAdapter()
 
@@ -21,9 +21,10 @@ const Phantom: WalletAdapterInterface<Provider, WalletAdapter> = {
     id: 'phantom',
     name: phantomAdapter.name,
     icon: phantomAdapter.icon,
+    provider: phantomAdapter,
     platforms: [WalletPlatformEnum.BROWSER, WalletPlatformEnum.MOBILE],
     downloadLink: 'https://phantom.app/download',
-    createDeepLink(url: string, _config?: UnknownConfig): string {
+    createDeepLink(url: string): string {
         return `https://phantom.app/ul/browse/${url}?ref=${url}`
     },
     isDetected: () =>
@@ -34,7 +35,7 @@ const Phantom: WalletAdapterInterface<Provider, WalletAdapter> = {
     disconnect: async () => {
         await phantomAdapter.disconnect()
     },
-    connect: async (_provider?: Provider, _config?: ConnectConfig): Promise<WalletAdapter> => {
+    connect: async (): Promise<WalletAdapter> => {
         await phantomAdapter.connect()
         return phantomAdapter
     }

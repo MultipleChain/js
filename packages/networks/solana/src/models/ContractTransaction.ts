@@ -1,12 +1,13 @@
 import { Transaction } from './Transaction.ts'
-import type { ParsedInstruction } from '@solana/web3.js'
+import type { ParsedInstruction, ParsedTransactionWithMeta } from '@solana/web3.js'
 import type { ContractAddress, ContractTransactionInterface } from '@multiplechain/types'
 
 export class ContractTransaction extends Transaction implements ContractTransactionInterface {
     /**
+     * @param {ParsedTransactionWithMeta} data Transaction data
      * @returns {Promise<ParsedInstruction>} Wallet address of the receiver of transaction
      */
-    findTransferInstruction(data: any): ParsedInstruction | null {
+    findTransferInstruction(data: ParsedTransactionWithMeta): ParsedInstruction | null {
         const length = data.transaction.message.instructions.length
         return data.transaction.message.instructions[length - 1] as ParsedInstruction
     }

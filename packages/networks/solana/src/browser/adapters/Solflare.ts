@@ -1,9 +1,9 @@
 import type { WalletAdapter } from '../Wallet.ts'
 import { WalletPlatformEnum } from '@multiplechain/types'
 import type { Provider } from '../../services/Provider.ts'
+import type { WalletAdapterInterface } from '@multiplechain/types'
 import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare'
 import { WalletReadyState, WalletAdapterNetwork } from '@solana/wallet-adapter-base'
-import type { ConnectConfig, UnknownConfig, WalletAdapterInterface } from '@multiplechain/types'
 
 const solflare = new SolflareWalletAdapter()
 
@@ -19,9 +19,10 @@ const Solflare: WalletAdapterInterface<Provider, WalletAdapter> = {
     id: 'solflare',
     name: solflare.name,
     icon: solflare.icon,
+    provider: solflare,
     platforms: [WalletPlatformEnum.BROWSER, WalletPlatformEnum.MOBILE],
     downloadLink: 'https://solflare.com/download#extension',
-    createDeepLink(url: string, _config?: UnknownConfig): string {
+    createDeepLink(url: string): string {
         return `https://solflare.com/ul/v1/browse/${url}?ref=${url}`
     },
     isDetected: () => solflare.readyState === WalletReadyState.Installed,
@@ -29,10 +30,10 @@ const Solflare: WalletAdapterInterface<Provider, WalletAdapter> = {
     disconnect: async () => {
         await solflare.disconnect()
     },
-    connect: async (_provider?: Provider, _config?: ConnectConfig): Promise<WalletAdapter> => {
+    connect: async (provider?: Provider): Promise<WalletAdapter> => {
         const solflare = new SolflareWalletAdapter({
             network:
-                _provider !== undefined && _provider?.isTestnet()
+                provider !== undefined && provider?.isTestnet()
                     ? WalletAdapterNetwork.Devnet
                     : WalletAdapterNetwork.Mainnet
         })

@@ -38,6 +38,7 @@ interface Chain {
 let modal: Web3ModalType
 let currentNetwork: Chain
 let clickedAnyWallet = false
+let walletProvider: BaseMessageSignerWalletAdapter | undefined
 let connectRejectMethod: (reason?: any) => void
 let connectResolveMethod: (
     value: BaseMessageSignerWalletAdapter | PromiseLike<BaseMessageSignerWalletAdapter>
@@ -106,7 +107,7 @@ const web3Modal = (config: Web3ModalConfig): Web3ModalType => {
         }
 
         // @ts-expect-error this provider methods enought for our needs
-        connectResolveMethod(ctx.provider as BaseMessageSignerWalletAdapter)
+        connectResolveMethod((walletProvider = ctx.provider as BaseMessageSignerWalletAdapter))
     })
 
     return modal
@@ -116,6 +117,7 @@ const Web3Modal: Web3ModalAdapterInterface = {
     icon,
     id: 'web3modal',
     name: 'Web3Modal',
+    provider: walletProvider,
     platforms: [WalletPlatformEnum.UNIVERSAL],
     isDetected: () => true,
     isConnected: () => {

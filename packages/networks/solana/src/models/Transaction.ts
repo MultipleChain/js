@@ -1,16 +1,22 @@
 import { fromLamports } from '../utils.ts'
 import { Provider } from '../services/Provider.ts'
 import { ErrorTypeEnum, TransactionStatusEnum } from '@multiplechain/types'
-import type { ParsedTransactionWithMeta } from '@solana/web3.js'
-import type {
-    BlockTimestamp,
-    BlockNumber,
-    TransactionFee,
-    TransactionId,
-    TransactionInterface,
-    WalletAddress,
-    BlockConfirmationCount
+import {
+    SystemProgram,
+    type ParsedInstruction,
+    type ParsedTransactionWithMeta
+} from '@solana/web3.js'
+import {
+    type BlockTimestamp,
+    type BlockNumber,
+    type TransactionFee,
+    type TransactionId,
+    type TransactionInterface,
+    type WalletAddress,
+    type BlockConfirmationCount,
+    TransactionTypeEnum
 } from '@multiplechain/types'
+import { TOKEN_2022_PROGRAM_ID, TOKEN_PROGRAM_ID } from '@solana/spl-token'
 
 export class Transaction implements TransactionInterface<ParsedTransactionWithMeta> {
     /**
@@ -101,6 +107,47 @@ export class Transaction implements TransactionInterface<ParsedTransactionWithMe
      */
     getId(): TransactionId {
         return this.id
+    }
+
+    /**
+     * @returns {Promise<TransactionTypeEnum>} Type of the transaction
+     */
+    async getType(): Promise<TransactionTypeEnum> {
+        const data = await this.getData()
+
+        if (data === null) {
+            return TransactionTypeEnum.GENERAL
+        }
+
+        const instructions = data.transaction.message.instructions as ParsedInstruction[]
+
+        return await new Promise((resolve) => {
+            instructions.forEach((instruction) => {
+                if (
+                    instruction.programId.equals(SystemProgram.programId) &&
+                    (instruction.parsed.type === 'createAccount' ||
+                        instruction.parsed.type === 'transfer')
+                ) {
+                    resolve(TransactionTypeEnum.COIN)
+                } else if (instruction.programId.equals(TOKEN_2022_PROGRAM_ID)) {
+                    resolve(TransactionTypeEnum.TOKEN)
+                } else if (instruction.programId.equals(TOKEN_PROGRAM_ID)) {
+                    const postBalance = data.meta?.postTokenBalances?.find(
+                        (balance: any): boolean => {
+                            return balance.mint !== undefined
+                        }
+                    )
+
+                    if (postBalance?.uiTokenAmount.decimals === 0) {
+                        resolve(TransactionTypeEnum.NFT)
+                    } else {
+                        resolve(TransactionTypeEnum.TOKEN)
+                    }
+                } else {
+                    resolve(TransactionTypeEnum.CONTRACT)
+                }
+            })
+        })
     }
 
     /**

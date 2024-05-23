@@ -47,7 +47,7 @@ export class Contract implements ContractInterface {
     /**
      * @param {string} _method Method name
      * @param {unknown[]} _args Sender wallet address
-     * @returns {Promise<string>} Encoded method data
+     * @returns {Promise<unknown>} Encoded method data
      */
     async getMethodData(_method: string, ..._args: unknown[]): Promise<unknown> {
         throw new Error('Method not implemented.')

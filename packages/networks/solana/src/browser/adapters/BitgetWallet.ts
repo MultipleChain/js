@@ -3,7 +3,7 @@ import { WalletPlatformEnum } from '@multiplechain/types'
 import type { Provider } from '../../services/Provider.ts'
 import { WalletReadyState } from '@solana/wallet-adapter-base'
 import { BitgetWalletAdapter } from '@solana/wallet-adapter-bitkeep'
-import type { ConnectConfig, UnknownConfig, WalletAdapterInterface } from '@multiplechain/types'
+import type { WalletAdapterInterface } from '@multiplechain/types'
 
 const bitget = new BitgetWalletAdapter()
 
@@ -11,9 +11,10 @@ const BitgetWallet: WalletAdapterInterface<Provider, WalletAdapter> = {
     id: 'bitgetwallet',
     name: bitget.name,
     icon: bitget.icon,
+    provider: bitget,
     platforms: [WalletPlatformEnum.BROWSER, WalletPlatformEnum.MOBILE],
     downloadLink: 'https://web3.bitget.com/en/wallet-download?type=3',
-    createDeepLink(url: string, _config?: UnknownConfig): string {
+    createDeepLink(url: string): string {
         return `https://bkcode.vip?action=dapp&url=${url}`
     },
     isDetected: () => bitget.readyState === WalletReadyState.Installed,
@@ -21,7 +22,7 @@ const BitgetWallet: WalletAdapterInterface<Provider, WalletAdapter> = {
     disconnect: async () => {
         await bitget.disconnect()
     },
-    connect: async (_provider?: Provider, _config?: ConnectConfig): Promise<WalletAdapter> => {
+    connect: async (): Promise<WalletAdapter> => {
         await bitget.connect()
         return bitget as WalletAdapter
     }

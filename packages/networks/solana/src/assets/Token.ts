@@ -38,6 +38,7 @@ export class Token extends Contract implements TokenInterface<TransactionSigner>
 
     /**
      * Token metadata
+     * @returns {Promise<Metadata | null>} Metadata of the token
      */
     async getMetadata(): Promise<Metadata | null> {
         if (this.metadata !== undefined) return this.metadata
@@ -76,6 +77,9 @@ export class Token extends Contract implements TokenInterface<TransactionSigner>
         }
     }
 
+    /**
+     * @returns {Promise<PublicKey>} Program ID
+     */
     async getProgramId(): Promise<PublicKey> {
         const accountInfo = await this.provider.web3.getAccountInfo(this.pubKey)
         return accountInfo !== null ? accountInfo.owner : TOKEN_PROGRAM_ID

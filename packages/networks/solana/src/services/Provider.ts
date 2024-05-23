@@ -42,6 +42,11 @@ export class Provider implements ProviderInterface {
     }
 
     /**
+     * Web3 connection
+     */
+    web3: Connection
+
+    /**
      * Node information
      */
     node: SolanaNodeInfoInterface
@@ -50,8 +55,6 @@ export class Provider implements ProviderInterface {
      * Static instance of the provider
      */
     private static _instance: Provider
-
-    web3: Connection
 
     /**
      * @param network - Network configuration of the provider
@@ -127,7 +130,8 @@ export class Provider implements ProviderInterface {
 
     /**
      * Update network configuration of the provider
-     * @param network - Network configuration of the provider
+     * @param {NetworkConfigInterface} network - Network configuration of the provider
+     * @returns {void}
      */
     update(network: NetworkConfigInterface): void {
         this.network = network
@@ -142,7 +146,7 @@ export class Provider implements ProviderInterface {
 
     /**
      * Get the current network configuration is testnet or not
-     * @returns boolean
+     * @returns {boolean} Testnet status
      */
     isTestnet(): boolean {
         return this.network?.testnet ?? false

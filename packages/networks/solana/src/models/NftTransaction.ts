@@ -1,6 +1,6 @@
-import type { ParsedInstruction } from '@solana/web3.js'
 import { ContractTransaction } from './ContractTransaction.ts'
 import { TransactionStatusEnum, AssetDirectionEnum } from '@multiplechain/types'
+import type { ParsedInstruction, ParsedTransactionWithMeta } from '@solana/web3.js'
 import type {
     NftId,
     WalletAddress,
@@ -10,9 +10,10 @@ import type {
 
 export class NftTransaction extends ContractTransaction implements NftTransactionInterface {
     /**
+     * @param {ParsedTransactionWithMeta} data Transaction data
      * @returns {Promise<ParsedInstruction>} Wallet address of the receiver of transaction
      */
-    findTransferInstruction(data: any): ParsedInstruction | null {
+    findTransferInstruction(data: ParsedTransactionWithMeta): ParsedInstruction | null {
         return (
             (data.transaction.message.instructions.find((instruction: any): boolean => {
                 return (

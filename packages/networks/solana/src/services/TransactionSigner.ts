@@ -25,6 +25,7 @@ export class TransactionSigner
 
     /**
      * @param {RawTransaction} rawData - Transaction data
+     * @param {Provider} provider - Blockchain network provider
      */
     constructor(rawData: RawTransaction, provider?: Provider) {
         this.rawData = rawData
@@ -61,8 +62,8 @@ export class TransactionSigner
     }
 
     /**
-     * Get the raw transaction data
-     * @returns Transaction data
+     * @param {string} encodedTransaction - Encoded transaction
+     * @returns {RawTransaction | VersionedTransaction} Transaction data
      */
     private getRawTransaction(encodedTransaction: string): RawTransaction | VersionedTransaction {
         let recoveredTransaction: RawTransaction | VersionedTransaction
