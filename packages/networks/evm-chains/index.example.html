@@ -188,6 +188,9 @@
             <span>Deep link: </span> <span class="deep-link"></span>
         </div>
         <div class="info">
+            <span>Chain id: </span> <span class="chain-id"></span>
+        </div>
+        <div class="info">
             <span>Connected address: </span> <span class="connected-address"></span>
         </div>
         <button class="action-btn sign-message">
@@ -202,15 +205,32 @@
         <div class="action-result">
             <span>Result:</span> <span class="send-coin"></span>
         </div>
+        <button class="action-btn send-token">
+            Send Token
+        </button>
+        <div class="action-result">
+            <span>Result:</span> <span class="send-token"></span>
+        </div>
     </div>
 
     <script type="module">
-        import * as Bitcoin from './src/browser/index.ts'
+        import * as EvmChains from './src/browser/index.ts'
         import { isMobile } from '@multiplechain/utils'
-        window.Bitcoin = Bitcoin
+        window.EvmChains = EvmChains
 
-        const provider = new Bitcoin.Provider({
-            testnet: true
+        const provider = new EvmChains.Provider({
+            id: 11155111,
+            hexId: '0xaa36a7',
+            mainnetId: 1,
+            rpcUrl: 'https://sepolia.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
+            wsUrl: 'wss://sepolia.infura.io/ws/v3/9aa3d95b3bc440fa88ea12eaa4456161',
+            name: 'Ethereum Sepolia Testnet (QR)',
+            explorerUrl: 'https://sepolia.etherscan.io/',
+            nativeCurrency: {
+                symbol: 'ETH',
+                name: 'Ethereum',
+                decimals: 18
+            }
         });
 
         window.adapters = {}
@@ -223,9 +243,15 @@
                 await adapter.disconnect()
             }
 
-            const wallet = new Bitcoin.browser.Wallet(adapter)
-            const adapterProvider = await wallet.connect(provider, {
-                projectId: '113d9f5689edd84ff230c2a6d679c80c'
+            const wallet = new EvmChains.browser.Wallet(adapter)
+            const adapterProvider = await wallet.connect({
+                projectId: '113d9f5689edd84ff230c2a6d679c80c',
+                metadata: {
+                    name: 'MultipleChain',
+                    description: 'MultipleChain is a best standard',
+                    url: 'http://localhost:3000/',
+                    icons: []
+                }
             })
             
             document.querySelector('.methods').style.display = 'block'
@@ -237,6 +263,7 @@
             document.querySelector('.platforms').innerText = wallet.getPlatforms().join(', ')
             document.querySelector('.download-link').innerText = wallet.getDownloadLink()
             document.querySelector('.deep-link').innerText = wallet.createDeepLink('https://google.com')
+            document.querySelector('.chain-id').innerText = await wallet.getChainId()
             document.querySelector('.connected-address').innerText = sender
 
             document.querySelector('.action-result .sign-message').innerText = ''
@@ -245,14 +272,23 @@
                 document.querySelector('.action-result .sign-message').innerText = result
             }
 
-            const receiver = 'tb1q9uxj8p043sjkm0qzlsys7677mv98j76k8cvgtg';
+            const receiver = '0xbBa4d06D1cEf94b35aDeCfDa893523907fdD36DE';
+            const tokenAddress = '0x4294cb0dD25dC9140B5127f247cBd47Eeb673431';
 
             document.querySelector('.action-result .send-coin').innerText = ''
             document.querySelector('.action-btn.send-coin').onclick = async () => {
-                const coin = new Bitcoin.assets.Coin();
-                const signer = await coin.transfer(sender, receiver, 0.0001)
+                const coin = new EvmChains.assets.Coin();
+                const signer = await coin.transfer(sender, receiver, 0.00001)
                 const result = await wallet.sendTransaction(signer)
                 document.querySelector('.action-result .send-coin').innerText = result
+            }
+
+            document.querySelector('.action-result .send-token').innerText = ''
+            document.querySelector('.action-btn.send-token').onclick = async () => {
+                const token = new EvmChains.assets.Token(tokenAddress);
+                const signer = await token.transfer(sender, receiver, 0.1)
+                const result = await wallet.sendTransaction(signer)
+                document.querySelector('.action-result .send-token').innerText = result
             }
         }
 
@@ -296,29 +332,37 @@
             `
         }
 
-        const container = document.querySelector('.wallet-list-container')
-        container.innerHTML = ''
+        const updateWalletList = () => {
+            const container = document.querySelector('.wallet-list-container')
+            container.innerHTML = ''
 
-        let adapters = Bitcoin.browser.adapters
+            let adapters = EvmChains.browser.adapters
 
-        const sortedKeys = Object.keys(adapters).sort(function(a, b) {
-            const order = { true: 1, universal: 2, false: 3 };
-            
-            const valueA = adapters[a].platforms.includes('UNIVERSAL') ? 'universal' : adapters[a].isDetected();
-            const valueB = adapters[b].platforms.includes('UNIVERSAL') ? 'universal' : adapters[b].isDetected();
-            
-            return order[valueA] - order[valueB];                     
+            const sortedKeys = Object.keys(adapters).sort(function(a, b) {
+                const order = { true: 1, universal: 2, false: 3 };
+                
+                const valueA = adapters[a].platforms.includes('UNIVERSAL') ? 'universal' : adapters[a].isDetected();
+                const valueB = adapters[b].platforms.includes('UNIVERSAL') ? 'universal' : adapters[b].isDetected();
+                
+                return order[valueA] - order[valueB];                     
+            });
+        
+            // set sorted adapters
+            adapters = sortedKeys.reduce((sortedObj, key) => {
+                sortedObj[key] = adapters[key];
+                return sortedObj;
+            }, {});
+
+            Object.values(adapters).forEach(adapter => {
+                container.innerHTML += adapterTemplate(adapter)
+            })
+        }
+
+        window.addEventListener("eip6963:announceProvider", (event) => {
+            EvmChains.browser.registerAdapter(EvmChains.browser.fromEIP6963ProviderDetail(event.detail))
+            updateWalletList()
         });
-    
-        // set sorted adapters
-        adapters = sortedKeys.reduce((sortedObj, key) => {
-            sortedObj[key] = adapters[key];
-            return sortedObj;
-        }, {});
-    
-        Object.values(adapters).forEach(adapter => {
-            container.innerHTML += adapterTemplate(adapter)
-        })
+        window.dispatchEvent(new Event("eip6963:requestProvider"));
     </script>
 </body>
 </html>

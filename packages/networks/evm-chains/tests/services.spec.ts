@@ -295,6 +295,6 @@ describe('Transaction Listener', () => {
 
         const newSigner = await nft.transfer(receiverTestAddress, senderTestAddress, 9)
 
-        void (await newSigner.sign(receiverPrivateKey)).send()
+        await (await newSigner.sign(receiverPrivateKey)).send()
     })
 })

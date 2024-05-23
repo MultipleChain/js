@@ -188,9 +188,6 @@
             <span>Deep link: </span> <span class="deep-link"></span>
         </div>
         <div class="info">
-            <span>Chain id: </span> <span class="chain-id"></span>
-        </div>
-        <div class="info">
             <span>Connected address: </span> <span class="connected-address"></span>
         </div>
         <button class="action-btn sign-message">
@@ -205,31 +202,29 @@
         <div class="action-result">
             <span>Result:</span> <span class="send-coin"></span>
         </div>
-        <button class="action-btn send-token">
-            Send Token
-        </button>
-        <div class="action-result">
-            <span>Result:</span> <span class="send-token"></span>
-        </div>
     </div>
 
     <script type="module">
-        import * as Tron from './src/browser/index.ts'
+        import * as Bitcoin from './src/browser/index.ts'
         import { isMobile } from '@multiplechain/utils'
-        window.Tron = Tron
+        window.Bitcoin = Bitcoin
 
-        const provider = new Tron.Provider({
+        const provider = new Bitcoin.Provider({
             testnet: true
         });
 
         window.adapters = {}
         window.connectAdapter = async (adapter) => {
+            if (await adapter.isDetected() === false) {
+                return alert('Adapter is not detected')
+            }
+
             if (adapter.disconnect) {
                 await adapter.disconnect()
             }
 
-            const wallet = new Tron.browser.Wallet(adapter)
-            const adapterProvider = await wallet.connect(provider, {
+            const wallet = new Bitcoin.browser.Wallet(adapter)
+            const adapterProvider = await wallet.connect({
                 projectId: '113d9f5689edd84ff230c2a6d679c80c'
             })
             
@@ -242,7 +237,6 @@
             document.querySelector('.platforms').innerText = wallet.getPlatforms().join(', ')
             document.querySelector('.download-link').innerText = wallet.getDownloadLink()
             document.querySelector('.deep-link').innerText = wallet.createDeepLink('https://google.com')
-            document.querySelector('.chain-id').innerText = wallet.getChainId ? await wallet.getChainId() : 'N/A'
             document.querySelector('.connected-address').innerText = sender
 
             document.querySelector('.action-result .sign-message').innerText = ''
@@ -251,23 +245,14 @@
                 document.querySelector('.action-result .sign-message').innerText = result
             }
 
-            const receiver = 'TSVufyvTBhWPMbvAaZr6ESYszpzXfBs8WA';
-            const tokenAddress = 'TJkmHT9gWNyELDaCbz9ui5PPQ6EPezgegu';
+            const receiver = 'tb1q9uxj8p043sjkm0qzlsys7677mv98j76k8cvgtg';
 
             document.querySelector('.action-result .send-coin').innerText = ''
             document.querySelector('.action-btn.send-coin').onclick = async () => {
-                const coin = new Tron.assets.Coin();
-                const signer = await coin.transfer(sender, receiver, 0.00001)
+                const coin = new Bitcoin.assets.Coin();
+                const signer = await coin.transfer(sender, receiver, 0.0001)
                 const result = await wallet.sendTransaction(signer)
                 document.querySelector('.action-result .send-coin').innerText = result
-            }
-
-            document.querySelector('.action-result .send-token').innerText = ''
-            document.querySelector('.action-btn.send-token').onclick = async () => {
-                const token = new Tron.assets.Token(tokenAddress);
-                const signer = await token.transfer(sender, receiver, 0.1)
-                const result = await wallet.sendTransaction(signer)
-                document.querySelector('.action-result .send-token').innerText = result
             }
         }
 
@@ -314,7 +299,7 @@
         const container = document.querySelector('.wallet-list-container')
         container.innerHTML = ''
 
-        let adapters = Tron.browser.adapters
+        let adapters = Bitcoin.browser.adapters
 
         const sortedKeys = Object.keys(adapters).sort(function(a, b) {
             const order = { true: 1, universal: 2, false: 3 };
@@ -330,7 +315,7 @@
             sortedObj[key] = adapters[key];
             return sortedObj;
         }, {});
-
+    
         Object.values(adapters).forEach(adapter => {
             container.innerHTML += adapterTemplate(adapter)
         })
