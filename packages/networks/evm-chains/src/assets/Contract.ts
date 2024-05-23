@@ -70,11 +70,15 @@ export class Contract implements ContractInterface {
 
     /**
      * @param {string} method Method name
-     * @param {string} from Sender wallet address
+     * @param {WalletAddress} from Sender wallet address
      * @param {unknown[]} args Method parameters
      * @returns {Promise<number>} Gas limit
      */
-    async getMethodEstimateGas(method: string, from: string, ...args: unknown[]): Promise<number> {
+    async getMethodEstimateGas(
+        method: string,
+        from: WalletAddress,
+        ...args: unknown[]
+    ): Promise<number> {
         return Number(await this.ethersContract[method].estimateGas(...args, { from })) // eslint-disable-line
     }
 

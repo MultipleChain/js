@@ -6,7 +6,8 @@ import {
     type ConnectConfig,
     type UnknownConfig,
     type TransactionId,
-    type SignedMessage
+    type SignedMessage,
+    type WalletAddress
 } from '@multiplechain/types'
 import { Provider } from '../services/Provider.ts'
 import type { EIP1193Provider } from './adapters/EIP6963.ts'
@@ -76,6 +77,11 @@ type WalletAdapter = WalletAdapterInterface<Provider, EIP1193Provider> & {
         | { on: (eventName: string, callback: (...args: any[]) => void) => void }
 }
 
+export interface RequestType {
+    method: string
+    params?: any[] | object
+}
+
 export class Wallet implements WalletInterface<Provider, EIP1193Provider, TransactionSigner> {
     adapter: WalletAdapter
 
@@ -93,10 +99,10 @@ export class Wallet implements WalletInterface<Provider, EIP1193Provider, Transa
     }
 
     /**
-     * @param {{ method: string; params?: any[] | object }} payload
+     * @param {RequestType} payload
      * @returns {Promise<any>}
      */
-    async request(payload: { method: string; params?: any[] | object }): Promise<any> {
+    async request(payload: RequestType): Promise<any> {
         const res = await this.walletProvider.request(payload)
         if (res?.error !== undefined) {
             const error = res.error as {
@@ -148,7 +154,7 @@ export class Wallet implements WalletInterface<Provider, EIP1193Provider, Transa
 
     /**
      * @param {string} url
-     * @param {object} config
+     * @param {UnknownConfig} config
      * @returns {string}
      */
     createDeepLink(url: string, config?: UnknownConfig): string | null {
@@ -161,9 +167,9 @@ export class Wallet implements WalletInterface<Provider, EIP1193Provider, Transa
 
     /**
      * @param {ConnectConfig} config
-     * @returns {Promise<string>}
+     * @returns {Promise<WalletAddress>}
      */
-    async connect(config?: ConnectConfig): Promise<string> {
+    async connect(config?: ConnectConfig): Promise<WalletAddress> {
         return await new Promise((resolve, reject) => {
             this.adapter
                 .connect(this.networkProvider, config)
@@ -215,9 +221,9 @@ export class Wallet implements WalletInterface<Provider, EIP1193Provider, Transa
     }
 
     /**
-     * @returns {Promise<string>}
+     * @returns {Promise<WalletAddress>}
      */
-    async getAddress(): Promise<string> {
+    async getAddress(): Promise<WalletAddress> {
         return (await this.walletProvider.request({ method: 'eth_accounts' }))[0]
     }
 

@@ -1,17 +1,40 @@
 import { Provider } from '../services/Provider.ts'
 import { ErrorTypeEnum, TransactionStatusEnum } from '@multiplechain/types'
-import type {
-    BlockConfirmationCount,
-    BlockNumber,
-    BlockTimestamp,
-    TransactionFee,
-    TransactionId,
-    TransactionInterface,
-    WalletAddress
+import {
+    TransactionTypeEnum,
+    type BlockConfirmationCount,
+    type BlockNumber,
+    type BlockTimestamp,
+    type TransactionFee,
+    type TransactionId,
+    type TransactionInterface,
+    type WalletAddress
 } from '@multiplechain/types'
 import type { TransactionReceipt, TransactionResponse } from 'ethers'
 import type { Ethers } from '../services/Ethers.ts'
 import { hexToNumber } from '@multiplechain/utils'
+import { NFT } from '../assets/NFT.ts'
+
+const selectors = {
+    // ERC20
+    [TransactionTypeEnum.TOKEN]: [
+        '0xa9059cbb', // transfer(address,uint256)
+        '0x095ea7b3', // approve(address,uint256)
+        '0x23b872dd' // transferFrom(address,address,uint256)
+    ],
+    // ERC721, ERC1155
+    [TransactionTypeEnum.NFT]: [
+        // ERC721
+        '0x23b872dd', // transferFrom(address,address,uint256)
+        '0x095ea7b3', // approve(address,uint256)
+        '0x42842e0e', // safeTransferFrom(address,address,uint256)
+        '0xb88d4fde', // safeTransferFrom(address,address,uint256,bytes)
+        // ERC1155
+        '0xf242432a', // safeTransferFrom(address,address,uint256,uint256,bytes)
+        '0x2eb2c2d6', // safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)
+        '0x29535c7e' // setApprovalForAll(address,bool)
+    ]
+}
 
 interface TransactionData {
     response: TransactionResponse
@@ -101,6 +124,39 @@ export class Transaction implements TransactionInterface<TransactionData> {
      */
     getId(): TransactionId {
         return this.id
+    }
+
+    /**
+     * @returns {Promise<TransactionTypeEnum>} Type of the transaction
+     */
+    async getType(): Promise<TransactionTypeEnum> {
+        const txData = await this.getData()
+
+        if (txData === null) {
+            return TransactionTypeEnum.GENERAL
+        }
+
+        const contractBytecode = await this.provider.ethers.getByteCode(txData.response.to ?? '')
+
+        if (contractBytecode === '0x' || txData.response.data === '0x') {
+            return TransactionTypeEnum.COIN
+        }
+
+        const type = Object.entries(selectors).find(([_key, values]) => {
+            return values.includes(txData.response.data.slice(0, 10))
+        })
+
+        if (type !== undefined) {
+            const tryNft = new NFT(txData.response.to ?? '')
+            try {
+                await tryNft.getApproved(1)
+                return TransactionTypeEnum.NFT
+            } catch {
+                return TransactionTypeEnum.TOKEN
+            }
+        }
+
+        return TransactionTypeEnum.CONTRACT
     }
 
     /**

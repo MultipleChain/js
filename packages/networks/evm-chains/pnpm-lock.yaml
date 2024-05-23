@@ -6,11 +6,11 @@ settings:
 
 dependencies:
   '@multiplechain/types':
-    specifier: ^0.1.62
-    version: 0.1.62
+    specifier: ^0.1.63
+    version: 0.1.63
   '@multiplechain/utils':
-    specifier: ^0.1.20
-    version: 0.1.20
+    specifier: ^0.1.21
+    version: 0.1.21
   '@wagmi/chains':
     specifier: ^1.8.0
     version: 1.8.0
@@ -239,12 +239,12 @@ packages:
       tslib: 2.4.0
     dev: false
 
-  /@multiplechain/types@0.1.62:
-    resolution: {integrity: sha512-PV5tLW6qGuULnCQ5h7lUYVwB+xFIm+i0yLPrEtICc0u6v7p8FLPEn9wcSbWRRvRiR2S9Q31oo6bvrp+XkfatFw==}
+  /@multiplechain/types@0.1.63:
+    resolution: {integrity: sha512-4C201vUsN6F1S/M7vT+GZS0wTdKGZXHqn4YmC6ouC8n0uxMCEFdI2sSCadyHKFKG5OBPo16X1oFCX9MVwPqMoA==}
     dev: false
 
-  /@multiplechain/utils@0.1.20:
-    resolution: {integrity: sha512-4eEs4YR/V4F2Qnkl5KTZvPpewRQiX7C193d0tjpQuIfyumTEBJtdHYm1CW9CoJ6EjQUaB0oqSRKXomhzfK1qkw==}
+  /@multiplechain/utils@0.1.21:
+    resolution: {integrity: sha512-4mRlnhvXcS+7Hb1By5s2eoCH02kqOSQzV8qj0DHqZK20FtxtduaoGCtcClrFgEjN/HAXnHgdDc1pxTpveIkvRQ==}
     dependencies:
       '@types/ws': 8.5.10
       bignumber.js: 9.1.2

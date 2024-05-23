@@ -13,7 +13,7 @@ import { Transaction } from '../src/models/Transaction.ts'
 import { TokenTransaction } from '../src/models/TokenTransaction.ts'
 import { NftTransaction } from '../src/models/NftTransaction.ts'
 import { NFT } from '../src/assets/NFT.ts'
-import ERC20 from '../resources/erc20.json'
+import ERC20 from '../resources/ERC20.json'
 import type { InterfaceAbi } from 'ethers'
 import { ContractFactory, WebSocketProvider } from 'ethers'
 

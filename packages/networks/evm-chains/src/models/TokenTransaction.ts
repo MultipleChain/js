@@ -40,7 +40,7 @@ export class TokenTransaction extends ContractTransaction implements TokenTransa
     }
 
     /**
-     * @returns {WalletAddress} Wallet address of the sender of transaction
+     * @returns {Promise<WalletAddress>} Wallet address of the sender of transaction
      */
     async getSender(): Promise<WalletAddress> {
         const decoded = await this.decodeData()

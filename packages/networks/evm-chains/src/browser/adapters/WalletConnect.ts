@@ -6,11 +6,13 @@ import { ErrorTypeEnum, WalletPlatformEnum } from '@multiplechain/types'
 import type { WalletConnectConfig, WalletAdapterInterface } from '@multiplechain/types'
 
 let isConnected = false
+let walletProvider: EIP1193Provider | undefined
 
 const WalletConnect: WalletAdapterInterface<Provider, EIP1193Provider> = {
     id: 'walletconnect',
     name: 'WalletConnect',
     icon: icons.walletConnect,
+    provider: walletProvider,
     platforms: [WalletPlatformEnum.UNIVERSAL],
     isDetected: () => true,
     isConnected: () => isConnected,
@@ -78,7 +80,7 @@ const WalletConnect: WalletAdapterInterface<Provider, EIP1193Provider> = {
                 .enable()
                 .then(() => {
                     isConnected = true
-                    resolve(connector as EIP1193Provider)
+                    resolve((walletProvider = connector as EIP1193Provider))
                 })
                 .catch((error) => {
                     reject(error)
