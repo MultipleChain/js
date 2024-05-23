@@ -65,7 +65,7 @@ export class TransactionSigner implements TransactionSignerInterface<Transaction
 
     /**
      * Get the raw transaction data
-     * @returns Transaction data
+     * @returns {TransactionData}
      */
     getRawData(): TransactionData {
         return this.rawData
@@ -73,7 +73,7 @@ export class TransactionSigner implements TransactionSignerInterface<Transaction
 
     /**
      * Get the signed transaction data
-     * @returns Signed transaction data
+     * @returns {string}
      */
     getSignedData(): string {
         return this.signedData ?? ''

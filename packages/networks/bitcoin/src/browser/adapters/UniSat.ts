@@ -22,6 +22,7 @@ const UniSat: WalletAdapterInterface<Provider, BitcoinWalletAdapter> = {
     id: 'unisat',
     name: 'UniSat',
     icon: icons.UniSat,
+    provider: window.unisat,
     platforms: [WalletPlatformEnum.BROWSER],
     downloadLink: 'https://unisat.io/download',
     isDetected: () => Boolean(window.unisat?.requestAccounts),

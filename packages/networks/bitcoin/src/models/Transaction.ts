@@ -2,14 +2,15 @@ import { fromSatoshi, sleep } from '../utils.ts'
 import axios, { type AxiosError } from 'axios'
 import { Provider } from '../services/Provider.ts'
 import { ErrorTypeEnum, TransactionStatusEnum } from '@multiplechain/types'
-import type {
-    BlockConfirmationCount,
-    BlockNumber,
-    BlockTimestamp,
-    TransactionFee,
-    TransactionId,
-    TransactionInterface,
-    WalletAddress
+import {
+    TransactionTypeEnum,
+    type BlockConfirmationCount,
+    type BlockNumber,
+    type BlockTimestamp,
+    type TransactionFee,
+    type TransactionId,
+    type TransactionInterface,
+    type WalletAddress
 } from '@multiplechain/types'
 
 export interface VinObject {
@@ -141,6 +142,13 @@ export class Transaction implements TransactionInterface<TransactionData> {
      */
     getId(): TransactionId {
         return this.id
+    }
+
+    /**
+     * @returns {Promise<TransactionTypeEnum>} Transaction type
+     */
+    async getType(): Promise<TransactionTypeEnum> {
+        return TransactionTypeEnum.COIN
     }
 
     /**

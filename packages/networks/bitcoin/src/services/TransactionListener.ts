@@ -9,10 +9,7 @@ import WebSocket from 'ws'
 import { Provider } from './Provider.ts'
 import { fromSatoshi } from '../utils.ts'
 import { Transaction } from '../models/Transaction.ts'
-import type { NftTransaction } from '../models/NftTransaction.ts'
 import { CoinTransaction } from '../models/CoinTransaction.ts'
-import type { TokenTransaction } from '../models/TokenTransaction.ts'
-import type { ContractTransaction } from '../models/ContractTransaction.ts'
 import { checkWebSocket, objectsEqual } from '@multiplechain/utils'
 import { TransactionListenerProcessIndex } from '@multiplechain/types'
 
@@ -26,10 +23,10 @@ interface Values {
 type TransactionListenerTriggerType<T extends TransactionTypeEnum> = DynamicTransactionType<
     T,
     Transaction,
-    ContractTransaction,
+    Transaction,
     CoinTransaction,
-    TokenTransaction,
-    NftTransaction
+    Transaction,
+    Transaction
 >
 
 type TransactionListenerCallbackType<
@@ -49,16 +46,6 @@ export class TransactionListener<
     type: T
 
     /**
-     * Transaction listener callback
-     */
-    callbacks: CallBackType[] = []
-
-    /**
-     * Transaction listener filter
-     */
-    filter?: DynamicTransactionListenerFilterType<T> | Record<string, never>
-
-    /**
      * Provider
      */
     provider: Provider
@@ -69,9 +56,19 @@ export class TransactionListener<
     status: boolean = false
 
     /**
+     * Transaction listener callback
+     */
+    callbacks: CallBackType[] = []
+
+    /**
      * Triggered transactions
      */
     triggeredTransactions: TransactionId[] = []
+
+    /**
+     * Transaction listener filter
+     */
+    filter?: DynamicTransactionListenerFilterType<T> | Record<string, never>
 
     /**
      * WebSocket

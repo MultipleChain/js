@@ -21,6 +21,7 @@ const Leather: WalletAdapterInterface<Provider, BitcoinWalletAdapter> = {
     id: 'leather',
     name: 'Leather',
     icon: icons.Leather,
+    provider: window.LeatherProvider,
     platforms: [WalletPlatformEnum.BROWSER],
     downloadLink: 'https://leather.io/install-extension',
     isDetected: () => Boolean(window.LeatherProvider),

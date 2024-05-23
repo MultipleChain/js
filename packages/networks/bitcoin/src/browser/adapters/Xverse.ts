@@ -20,6 +20,7 @@ const Xverse: WalletAdapterInterface<Provider, BitcoinWalletAdapter> = {
     id: 'xverse',
     name: 'Xverse',
     icon: icons.Xverse,
+    provider: window.XverseProviders?.BitcoinProvider,
     platforms: [WalletPlatformEnum.BROWSER, WalletPlatformEnum.MOBILE],
     downloadLink: 'https://www.xverse.app/download',
     isDetected: () => Boolean(window.XverseProviders?.BitcoinProvider),
