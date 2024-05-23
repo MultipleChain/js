@@ -1,5 +1,3 @@
-// eslint-disable-next-line
-/// <reference path="tronweb.d.ts" />
 import TronWebBase from 'tronweb'
 import type { TransactionData } from './TransactionSigner.ts'
 import type { TransactionRawData } from '../assets/Contract.ts'
