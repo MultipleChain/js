@@ -1,4 +1,4 @@
-import type { AssetDirectionEnum, TransactionStatusEnum } from './enums.ts'
+import type { AssetDirectionEnum, TransactionStatusEnum, TransactionTypeEnum } from './enums.ts'
 import type {
     BlockConfirmationCount,
     BlockNumber,
@@ -18,6 +18,11 @@ export interface TransactionInterface<TxData = unknown> {
     id: TransactionId
 
     /**
+     * Raw transaction data that is taken by blockchain network via RPC.
+     */
+    data: TxData | null
+
+    /**
      * @param {number} ms - Milliseconds to wait
      * @returns {Promise<TransactionStatusEnum>} Promise of the transaction status
      */
@@ -29,10 +34,15 @@ export interface TransactionInterface<TxData = unknown> {
     getData: () => Promise<TxData | null>
 
     /**
-     * @returns {TransactionId} ID of the transaction
      * this can be different names like txid, hash, signature etc.
+     * @returns {TransactionId} ID of the transaction
      */
     getId: () => TransactionId
+
+    /**
+     * @returns {Promise<TransactionTypeEnum>} Type of the transaction
+     */
+    getType: () => Promise<TransactionTypeEnum>
 
     /**
      * @returns {string} Blockchain explorer URL of the transaction. Dependant on network.
@@ -116,15 +126,16 @@ export interface NftTransactionInterface
     extends Omit<AssetTransactionInterface, 'verifyTransfer' | 'getAmount'>,
         ContractTransactionInterface {
     /**
+     * Replaces getAmount in the Asset interface.
      * @returns {Promise<NftId>} ID of the NFT
      */
     getNftId: () => Promise<NftId>
 
     /**
+     * @override verifyTransfer() in AssetTransactionInterface
      * @param {AssetDirectionEnum} direction - Direction of the transaction (nft)
      * @param {WalletAddress} address - Wallet address of the receiver or sender of the transaction, dependant on direction
      * @param {NftId} nftId ID of the NFT that will be transferred
-     * @override verifyTransfer() in AssetTransactionInterface
      * @returns {Promise<TransactionStatusEnum>} Status of the transaction
      */
     verifyTransfer: (

@@ -1,6 +1,7 @@
-import type { SignedMessage, TransactionId, WalletAddress } from './defines.ts'
 import type { WalletPlatformEnum } from './enums.ts'
+import type { SignedMessage, TransactionId, WalletAddress } from './defines.ts'
 
+// WalletAdapter registration function for WalletInterface
 export type RegisterWalletAdapterType<NetworkProvider, WalletProvider> = (
     walletAdapter: WalletAdapterInterface<NetworkProvider, WalletProvider>
 ) => void
@@ -19,6 +20,7 @@ export type UnknownConfig = Record<string, unknown>
 
 export type ConnectConfig = UnknownConfig & WalletConnectConfig
 
+// This is WalletAdapter definition for using in WalletInterface
 export interface WalletAdapterInterface<NetworkProvider, WalletProvider> {
     id: string
     name: string
@@ -33,11 +35,21 @@ export interface WalletAdapterInterface<NetworkProvider, WalletProvider> {
     connect: (provider?: NetworkProvider, config?: ConnectConfig) => Promise<WalletProvider>
 }
 
+// For signing generated transactions with wallets and for wallet connection processes.
 export interface WalletInterface<NetworkProvider, WalletProvider, TransactionSigner> {
+    /**
+     * WalletAdapter instance
+     */
     adapter: WalletAdapterInterface<NetworkProvider, WalletProvider>
 
+    /**
+     * Wallet provider is the instance of the wallet connection
+     */
     walletProvider: WalletProvider
 
+    /**
+     * Network provider is the instance of the blockchain network connection
+     */
     networkProvider: NetworkProvider
 
     /**
@@ -74,9 +86,9 @@ export interface WalletInterface<NetworkProvider, WalletProvider, TransactionSig
 
     /**
      * @param {ConnectConfig} config
-     * @returns {Promise<string>}
+     * @returns {Promise<WalletAddress>}
      */
-    connect: (config?: ConnectConfig) => Promise<string>
+    connect: (config?: ConnectConfig) => Promise<WalletAddress>
 
     /**
      * @returns {boolean | Promise<boolean>}

@@ -1,7 +1,7 @@
 /**
  * wsUrl: Websocket URL
- * rpcUrl: RPC URL of the blockchain network
- * testnet: @default true
+ * rpcUrl: RPC API URL
+ * testnet: @default false
  */
 export interface NetworkConfigInterface {
     wsUrl?: string

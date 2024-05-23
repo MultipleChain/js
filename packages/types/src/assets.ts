@@ -18,17 +18,18 @@ export interface ContractInterface {
     getAddress: () => ContractAddress
 
     /**
+     * Runs the contract methods dynamically
      * @param {string} method Method name
      * @param {unknown[]} args Method parameters
-     * Runs the contract methods dynamically
+     * @returns {Promise<unknown>} Result of the method
      */
     callMethod: (method: string, ...args: unknown[]) => Promise<unknown>
 
     /**
+     * To get method data from called method
      * @param {string} method Method name
      * @param {unknown[]} args Method parameters
-     * To get information from called method
-     * @returns Data used in transaction
+     * @returns {Promise<unknown>} Method data
      */
     getMethodData: (method: string, ...args: unknown[]) => Promise<unknown>
 
@@ -45,6 +46,8 @@ export interface ContractInterface {
     ) => Promise<unknown>
 }
 
+// The Asset interface covers blockchain-specific standards that can vary between addresses.
+// Example Coin (Native currency), Token, NFT etc.
 export interface AssetInterface<TransactionSigner> {
     /**
      * @returns {string} Name of the asset (long name)
@@ -58,12 +61,12 @@ export interface AssetInterface<TransactionSigner> {
 
     /**
      * @param {WalletAddress} owner Address of the wallet
-     * @returns {Promise<number>} Wallet balance as currency of TOKEN or COIN assets
+     * @returns {Promise<number>} Balance of assets
      */
     getBalance: (owner: WalletAddress) => Promise<number>
 
     /**
-     * transfer() method is the main method for processing transfers for fungible assets (TOKEN, COIN)
+     * Asset transfer between wallets
      * @param {WalletAddress} sender Sender wallet address
      * @param {WalletAddress} receiver Receiver wallet address
      * @param {TransferAmount} amount Amount of assets that will be transferred
@@ -79,6 +82,7 @@ export interface AssetInterface<TransactionSigner> {
 // Sub Interfaces
 export interface CoinInterface<TransactionSigner> extends AssetInterface<TransactionSigner> {
     /**
+     * Generally is static value you have to return
      * @returns {number} Decimal value of the coin
      */
     getDecimals: () => number
@@ -88,11 +92,13 @@ export interface TokenInterface<TransactionSigner>
     extends Omit<AssetInterface<TransactionSigner>, 'getName' | 'getSymbol'>,
         ContractInterface {
     /**
+     * @override getName() in AssetInterface
      * @returns {Promise<string>} Name of the asset (long name)
      */
     getName: () => Promise<string>
 
     /**
+     * @override getName() in AssetInterface
      * @returns {Promise<string>} Symbol of the asset (short name)
      */
     getSymbol: () => Promise<string>
@@ -108,6 +114,7 @@ export interface TokenInterface<TransactionSigner>
     getTotalSupply: () => Promise<number>
 
     /**
+     * If another wallet has been authorized to spend, it allows you to get this value.
      * @param {WalletAddress} owner Address of owner of the tokens that is being used
      * @param {WalletAddress} spender Address of the spender that is using the tokens of owner
      * @returns {Promise<number>} Amount of the tokens that is being used by spender
@@ -115,6 +122,7 @@ export interface TokenInterface<TransactionSigner>
     getAllowance: (owner: WalletAddress, spender: WalletAddress) => Promise<number>
 
     /**
+     * Allowance spending with spender from owner to receiver
      * @param {WalletAddress} spender Address of the spender of transaction
      * @param {WalletAddress} owner Sender wallet address
      * @param {WalletAddress} receiver Receiver wallet address
@@ -146,11 +154,13 @@ export interface NftInterface<TransactionSigner>
     extends Omit<AssetInterface<TransactionSigner>, 'transfer' | 'getName' | 'getSymbol'>,
         ContractInterface {
     /**
+     * @override getName() in AssetInterface
      * @returns {Promise<string>} Name of the asset (long name)
      */
     getName: () => Promise<string>
 
     /**
+     * @override getName() in AssetInterface
      * @returns {Promise<string>} Symbol of the asset (short name)
      */
     getSymbol: () => Promise<string>
@@ -168,6 +178,7 @@ export interface NftInterface<TransactionSigner>
     getTokenURI: (nftId: NftId) => Promise<string>
 
     /**
+     * If another wallet has been authorized to spend, it allows you to get this value.
      * @param {NftId} nftId ID of the NFT that will be transferred
      * @returns {Promise<WalletAddress | null>} Amount of the tokens that is being used by spender
      */
@@ -175,10 +186,10 @@ export interface NftInterface<TransactionSigner>
 
     /**
      * Transfers an NFT
+     * @override transfer() in AssetInterface
      * @param {WalletAddress} sender Sender wallet address
      * @param {WalletAddress} receiver Receiver wallet address
      * @param {NftId} nftId ID of the NFT that will be transferred
-     * @override transfer() in AssetInterface
      * @returns {Promise<TransactionSigner>} Transaction signer interface
      */
     transfer: (

@@ -2,12 +2,12 @@ import type { PrivateKey, TransactionId } from '../defines.ts'
 
 export interface TransactionSignerInterface<RawData, SignedData> {
     /**
-     * Transaction data from the blockchain network
+     * Transaction data type from the blockchain network
      */
     rawData: RawData
 
     /**
-     * Signed transaction data
+     * Signed transaction data type from the blockchain network
      */
     signedData?: SignedData
 
