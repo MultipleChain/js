@@ -29,6 +29,7 @@ export class TransactionSigner implements TransactionSignerInterface<Transaction
 
     /**
      * @param {TransactionData} rawData - Transaction data
+     * @param {Provider} provider - Blockchain network provider
      */
     constructor(rawData: TransactionData, provider?: Provider) {
         this.rawData = rawData

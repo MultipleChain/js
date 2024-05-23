@@ -14,12 +14,6 @@ export default mergeConfig(
                     '**/browser/**',
                     '**/index.ts/**',
                     '**/boilerplate/**',
-                    '**/bitcoin/src/assets/NFT.ts',
-                    '**/bitcoin/src/assets/Token.ts',
-                    '**/bitcoin/src/assets/Contract.ts',
-                    '**/bitcoin/src/models/NftTransaction.ts',
-                    '**/bitcoin/src/models/TokenTransaction.ts',
-                    '**/bitcoin/src/models/ContractTransaction.ts',
                     '**/networks/**/src/services/TransactionListener.ts'
                 ]
             },
