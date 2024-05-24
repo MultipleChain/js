@@ -73,5 +73,9 @@
     "dependencies": {
         "@multiplechain/types": "^0.1.64",
         "@multiplechain/utils": "^0.1.21"
+    },
+    "devDependencies": {
+        "@multiplechain/evm-chains": "^0.4.1",
+        "@multiplechain/tron": "^0.4.2"
     }
 }
