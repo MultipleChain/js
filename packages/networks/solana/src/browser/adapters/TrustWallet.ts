@@ -1,4 +1,4 @@
-import type { WalletAdapter } from '../Wallet.ts'
+import type { WalletProvider } from '../Wallet.ts'
 import { WalletPlatformEnum } from '@multiplechain/types'
 import type { Provider } from '../../services/Provider.ts'
 import { WalletReadyState } from '@solana/wallet-adapter-base'
@@ -10,11 +10,11 @@ const trustIcon =
 
 const trust = new TrustWalletAdapter()
 
-const TrustWallet: WalletAdapterInterface<Provider, WalletAdapter> = {
+const TrustWallet: WalletAdapterInterface<Provider, WalletProvider> = {
     id: 'trustwallet',
     name: 'TrustWallet',
     icon: trustIcon,
-    provider: trust,
+    provider: trust as WalletProvider,
     platforms: [WalletPlatformEnum.BROWSER, WalletPlatformEnum.MOBILE],
     downloadLink: 'https://trustwallet.com/download',
     isDetected: () => trust.readyState === WalletReadyState.Installed,
@@ -22,9 +22,9 @@ const TrustWallet: WalletAdapterInterface<Provider, WalletAdapter> = {
     disconnect: async () => {
         await trust.disconnect()
     },
-    connect: async (): Promise<WalletAdapter> => {
+    connect: async (): Promise<WalletProvider> => {
         await trust.connect()
-        return trust as WalletAdapter
+        return trust as WalletProvider
     }
 }
 

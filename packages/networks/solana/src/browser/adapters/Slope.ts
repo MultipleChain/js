@@ -1,4 +1,4 @@
-import type { WalletAdapter } from '../Wallet.ts'
+import type { WalletProvider } from '../Wallet.ts'
 import { WalletPlatformEnum } from '@multiplechain/types'
 import type { Provider } from '../../services/Provider.ts'
 import { WalletReadyState } from '@solana/wallet-adapter-base'
@@ -7,11 +7,11 @@ import type { WalletAdapterInterface } from '@multiplechain/types'
 
 const slope = new SlopeWalletAdapter()
 
-const Slope: WalletAdapterInterface<Provider, WalletAdapter> = {
+const Slope: WalletAdapterInterface<Provider, WalletProvider> = {
     id: 'slope',
     name: slope.name,
     icon: slope.icon,
-    provider: slope,
+    provider: slope as WalletProvider,
     platforms: [WalletPlatformEnum.BROWSER],
     downloadLink: 'https://www.slope.finance/',
     isDetected: () => slope.readyState === WalletReadyState.Installed,
@@ -19,9 +19,9 @@ const Slope: WalletAdapterInterface<Provider, WalletAdapter> = {
     disconnect: async () => {
         await slope.disconnect()
     },
-    connect: async (): Promise<WalletAdapter> => {
+    connect: async (): Promise<WalletProvider> => {
         await slope.connect()
-        return slope as WalletAdapter
+        return slope as WalletProvider
     }
 }
 

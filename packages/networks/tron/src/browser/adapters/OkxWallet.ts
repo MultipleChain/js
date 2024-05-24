@@ -1,4 +1,4 @@
-import type { CustomAdapter } from '../Wallet.ts'
+import type { WalletProvider } from '../Wallet.ts'
 import { WalletPlatformEnum } from '@multiplechain/types'
 import type { Provider } from '../../services/Provider.ts'
 import type { WalletAdapterInterface } from '@multiplechain/types'
@@ -6,7 +6,7 @@ import { OkxWalletAdapter } from '@tronweb3/tronwallet-adapter-okxwallet'
 
 const walletProvider = new OkxWalletAdapter()
 
-const OkxWallet: WalletAdapterInterface<Provider, CustomAdapter> = {
+const OkxWallet: WalletAdapterInterface<Provider, WalletProvider> = {
     id: 'okxwallet',
     name: 'OkxWallet',
     icon: walletProvider.icon,
@@ -18,13 +18,13 @@ const OkxWallet: WalletAdapterInterface<Provider, CustomAdapter> = {
     },
     isDetected: () => Boolean(window.okxwallet?.tronLink),
     isConnected: () => Boolean(walletProvider.connected),
-    connect: async (): Promise<CustomAdapter> => {
+    connect: async (): Promise<WalletProvider> => {
         return await new Promise((resolve, reject) => {
             try {
                 walletProvider
                     .connect()
                     .then(async () => {
-                        resolve(walletProvider as CustomAdapter)
+                        resolve(walletProvider)
                     })
                     .catch((error) => {
                         reject(error)

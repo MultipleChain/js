@@ -1,4 +1,4 @@
-import type { WalletAdapter } from '../Wallet.ts'
+import type { WalletProvider } from '../Wallet.ts'
 import { WalletPlatformEnum } from '@multiplechain/types'
 import type { Provider } from '../../services/Provider.ts'
 import type { WalletAdapterInterface } from '@multiplechain/types'
@@ -15,7 +15,7 @@ declare global {
     }
 }
 
-const Solflare: WalletAdapterInterface<Provider, WalletAdapter> = {
+const Solflare: WalletAdapterInterface<Provider, WalletProvider> = {
     id: 'solflare',
     name: solflare.name,
     icon: solflare.icon,
@@ -30,7 +30,7 @@ const Solflare: WalletAdapterInterface<Provider, WalletAdapter> = {
     disconnect: async () => {
         await solflare.disconnect()
     },
-    connect: async (provider?: Provider): Promise<WalletAdapter> => {
+    connect: async (provider?: Provider): Promise<WalletProvider> => {
         const solflare = new SolflareWalletAdapter({
             network:
                 provider !== undefined && provider?.isTestnet()

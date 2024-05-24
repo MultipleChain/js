@@ -1,8 +1,8 @@
 import icons from './icons.ts'
+import type { WalletProvider } from '../Wallet.ts'
 import { WalletPlatformEnum } from '@multiplechain/types'
-import type { WalletAdapterInterface } from '@multiplechain/types'
-import type { BitcoinWalletAdapter } from '../Wallet.ts'
 import type { Provider } from '../../services/Provider.ts'
+import type { WalletAdapterInterface } from '@multiplechain/types'
 
 declare global {
     interface Window {
@@ -16,23 +16,24 @@ declare global {
 }
 
 let connected = false
+let walletProvider: WalletProvider | undefined
 
-const Leather: WalletAdapterInterface<Provider, BitcoinWalletAdapter> = {
+const Leather: WalletAdapterInterface<Provider, WalletProvider> = {
     id: 'leather',
     name: 'Leather',
     icon: icons.Leather,
-    provider: window.LeatherProvider,
+    provider: walletProvider,
     platforms: [WalletPlatformEnum.BROWSER],
     downloadLink: 'https://leather.io/install-extension',
     isDetected: () => Boolean(window.LeatherProvider),
     isConnected: async () => connected,
-    connect: async (provider?: Provider): Promise<BitcoinWalletAdapter> => {
+    connect: async (provider?: Provider): Promise<WalletProvider> => {
         return await new Promise((resolve, reject) => {
             const leather = window.LeatherProvider
 
             const network = provider !== undefined && provider?.isTestnet() ? 'testnet' : 'mainnet'
 
-            const walletAdapter: BitcoinWalletAdapter = {
+            const _walletProvider: WalletProvider = {
                 on: (event, callback) => {
                     if (window.btc?.listen !== undefined) {
                         window.btc.listen(event, callback)
@@ -71,7 +72,7 @@ const Leather: WalletAdapterInterface<Provider, BitcoinWalletAdapter> = {
                 getAddress: async () => ''
             }
 
-            const connect = async (): Promise<BitcoinWalletAdapter> => {
+            const connect = async (): Promise<WalletProvider> => {
                 const addresses = (
                     await leather.request('getAddresses', {
                         network
@@ -83,18 +84,18 @@ const Leather: WalletAdapterInterface<Provider, BitcoinWalletAdapter> = {
                 // for ordinals & BRC-20 integrations
                 // const ordinals = addresses.find(address => address.type == 'p2tr');
 
-                walletAdapter.getAddress = async () => {
+                _walletProvider.getAddress = async () => {
                     return bitcoin.address
                 }
 
-                return walletAdapter
+                return _walletProvider
             }
 
             try {
                 connect()
-                    .then((walletAdapter) => {
+                    .then(() => {
                         connected = true
-                        resolve(walletAdapter)
+                        resolve((walletProvider = _walletProvider))
                     })
                     .catch(reject)
             } catch (error) {

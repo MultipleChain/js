@@ -1,4 +1,4 @@
-import type { WalletAdapter } from '../Wallet.ts'
+import type { WalletProvider } from '../Wallet.ts'
 import { WalletPlatformEnum } from '@multiplechain/types'
 import type { Provider } from '../../services/Provider.ts'
 import { WalletReadyState } from '@solana/wallet-adapter-base'
@@ -7,11 +7,11 @@ import { TokenPocketWalletAdapter } from '@solana/wallet-adapter-tokenpocket'
 
 const tokenPocket = new TokenPocketWalletAdapter()
 
-const TokenPocket: WalletAdapterInterface<Provider, WalletAdapter> = {
+const TokenPocket: WalletAdapterInterface<Provider, WalletProvider> = {
     id: 'tokenpocket',
     name: tokenPocket.name,
     icon: tokenPocket.icon,
-    provider: tokenPocket,
+    provider: tokenPocket as WalletProvider,
     platforms: [WalletPlatformEnum.MOBILE],
     downloadLink: 'https://www.tokenpocket.pro/en/download/app',
     createDeepLink(url: string): string {
@@ -29,9 +29,9 @@ const TokenPocket: WalletAdapterInterface<Provider, WalletAdapter> = {
     disconnect: async () => {
         await tokenPocket.disconnect()
     },
-    connect: async (): Promise<WalletAdapter> => {
+    connect: async (): Promise<WalletProvider> => {
         await tokenPocket.connect()
-        return tokenPocket as WalletAdapter
+        return tokenPocket as WalletProvider
     }
 }
 
