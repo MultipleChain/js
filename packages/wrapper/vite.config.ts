@@ -1,10 +1,10 @@
 import { mergeConfig } from 'vite'
-import mainConfig from '../../../vite.config.ts'
+import mainConfig from '../../vite.config.ts'
 
 export default mergeConfig(mainConfig, {
     build: {
         lib: {
-            name: 'MultipleChain.Boilerplate'
+            name: 'MultipleChain.Wrapper'
         }
     }
 })

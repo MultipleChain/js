@@ -1,6 +1,6 @@
 {
-    "name": "@multiplechain/solana",
-    "version": "0.4.3",
+    "name": "@multiplechain/wrapper",
+    "version": "0.1.0",
     "type": "module",
     "main": "dist/index.cjs",
     "module": "dist/index.es.js",
@@ -43,10 +43,9 @@
         "!tsconfig.tsbuildinfo"
     ],
     "scripts": {
-        "dev": "vite",
         "clean": "rm -rf dist",
         "watch": "tsc --watch",
-        "build:vite": "set NODE_OPTIONS=--max-old-space-size=4096 && vite build",
+        "build:vite": "vite build",
         "build:node": "tsx esbuild.ts",
         "typecheck": "tsc --noEmit",
         "lint": "eslint . --ext .ts",
@@ -63,7 +62,7 @@
     ],
     "author": "MultipleChain",
     "license": "MIT",
-    "homepage": "https://github.com/MultipleChain/js/tree/master/packages/networks/network-name",
+    "homepage": "https://github.com/MultipleChain/js/tree/master/packages/wrapper",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/MultipleChain/js.git"
@@ -72,23 +71,11 @@
         "url": "https://github.com/MultipleChain/js/issues"
     },
     "dependencies": {
-        "@metaplex-foundation/js": "^0.20.1",
-        "@multiplechain/solana-walletconnect": "^0.1.1",
         "@multiplechain/types": "^0.1.64",
-        "@multiplechain/utils": "^0.1.21",
-        "@solana/spl-token": "^0.4.6",
-        "@solana/spl-token-metadata": "^0.1.4",
-        "@solana/wallet-adapter-base": "^0.9.23",
-        "@solana/wallet-adapter-bitkeep": "^0.3.20",
-        "@solana/wallet-adapter-coinbase": "^0.1.19",
-        "@solana/wallet-adapter-phantom": "^0.9.24",
-        "@solana/wallet-adapter-slope": "^0.5.21",
-        "@solana/wallet-adapter-solflare": "^0.6.28",
-        "@solana/wallet-adapter-tokenpocket": "^0.4.19",
-        "@solana/wallet-adapter-trust": "^0.1.13",
-        "@solana/web3.js": "^1.91.8",
-        "@web3modal/core": "^4.2.1",
-        "@web3modal/solana": "^4.2.1",
-        "axios": "^1.6.8"
+        "@multiplechain/utils": "^0.1.21"
+    },
+    "devDependencies": {
+        "@multiplechain/evm-chains": "^0.4.1",
+        "@multiplechain/tron": "^0.4.2"
     }
 }

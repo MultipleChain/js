@@ -4,7 +4,7 @@ import mainConfig from '../../../vite.config.ts'
 export default mergeConfig(mainConfig, {
     build: {
         lib: {
-            name: 'Bitcoin'
+            name: 'MultipleChain.Bitcoin'
         }
     }
 })
