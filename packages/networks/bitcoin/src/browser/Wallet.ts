@@ -12,7 +12,7 @@ import {
 import { Provider } from '../services/Provider.ts'
 import type { TransactionSigner } from '../services/TransactionSigner.ts'
 
-export interface BitcoinWalletAdapter {
+export interface WalletProvider {
     getAddress: () => Promise<string>
     signMessage: (message: string) => Promise<string>
     sendBitcoin: (to: string, amount: number) => Promise<string>
@@ -33,12 +33,12 @@ const rejectMap = (error: any, reject: (a: any) => any): any => {
     return reject(error)
 }
 
-type WalletAdapter = WalletAdapterInterface<Provider, BitcoinWalletAdapter>
+type WalletAdapter = WalletAdapterInterface<Provider, WalletProvider>
 
-export class Wallet implements WalletInterface<Provider, BitcoinWalletAdapter, TransactionSigner> {
+export class Wallet implements WalletInterface<Provider, WalletProvider, TransactionSigner> {
     adapter: WalletAdapter
 
-    walletProvider: BitcoinWalletAdapter
+    walletProvider: WalletProvider
 
     networkProvider: Provider
 

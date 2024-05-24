@@ -1,4 +1,4 @@
-import type { WalletAdapter } from '../Wallet.ts'
+import type { WalletProvider } from '../Wallet.ts'
 import { WalletPlatformEnum } from '@multiplechain/types'
 import type { Provider } from '../../services/Provider.ts'
 import { WalletReadyState } from '@solana/wallet-adapter-base'
@@ -7,11 +7,11 @@ import type { WalletAdapterInterface } from '@multiplechain/types'
 
 const bitget = new BitgetWalletAdapter()
 
-const BitgetWallet: WalletAdapterInterface<Provider, WalletAdapter> = {
+const BitgetWallet: WalletAdapterInterface<Provider, WalletProvider> = {
     id: 'bitgetwallet',
     name: bitget.name,
     icon: bitget.icon,
-    provider: bitget,
+    provider: bitget as WalletProvider,
     platforms: [WalletPlatformEnum.BROWSER, WalletPlatformEnum.MOBILE],
     downloadLink: 'https://web3.bitget.com/en/wallet-download?type=3',
     createDeepLink(url: string): string {
@@ -22,9 +22,9 @@ const BitgetWallet: WalletAdapterInterface<Provider, WalletAdapter> = {
     disconnect: async () => {
         await bitget.disconnect()
     },
-    connect: async (): Promise<WalletAdapter> => {
+    connect: async (): Promise<WalletProvider> => {
         await bitget.connect()
-        return bitget as WalletAdapter
+        return bitget as WalletProvider
     }
 }
 

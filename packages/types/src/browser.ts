@@ -25,8 +25,8 @@ export interface WalletAdapterInterface<NetworkProvider, WalletProvider> {
     id: string
     name: string
     icon: string
-    provider?: unknown
     downloadLink?: string
+    provider?: WalletProvider
     platforms: WalletPlatformEnum[]
     disconnect?: () => void | Promise<void>
     isDetected: () => boolean | Promise<boolean>

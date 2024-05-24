@@ -13,7 +13,7 @@ import { Provider } from '../services/Provider.ts'
 import type { TransactionSigner } from '../services/TransactionSigner.ts'
 import type { Adapter, AdapterEvents } from '@tronweb3/tronwallet-abstract-adapter'
 
-export interface CustomAdapter extends Adapter {
+export interface WalletProvider extends Adapter {
     network?: () => Promise<any>
 }
 
@@ -49,16 +49,16 @@ const rejectMap = (error: any, reject: (a: any) => any): any => {
     return reject(error)
 }
 
-type WalletAdapter = WalletAdapterInterface<Provider, CustomAdapter> & {
+type WalletAdapter = WalletAdapterInterface<Provider, WalletProvider> & {
     provider?:
-        | CustomAdapter
+        | WalletProvider
         | { on: (eventName: string, callback: (...args: any[]) => void) => void }
 }
 
-export class Wallet implements WalletInterface<Provider, CustomAdapter, TransactionSigner> {
+export class Wallet implements WalletInterface<Provider, WalletProvider, TransactionSigner> {
     adapter: WalletAdapter
 
-    walletProvider: CustomAdapter
+    walletProvider: WalletProvider
 
     networkProvider: Provider
 

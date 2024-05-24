@@ -1,4 +1,4 @@
-import type { CustomAdapter } from '../Wallet.ts'
+import type { WalletProvider } from '../Wallet.ts'
 import { WalletPlatformEnum } from '@multiplechain/types'
 import type { Provider } from '../../services/Provider.ts'
 import type { WalletAdapterInterface } from '@multiplechain/types'
@@ -14,7 +14,7 @@ declare global {
     }
 }
 
-const TokenPocket: WalletAdapterInterface<Provider, CustomAdapter> = {
+const TokenPocket: WalletAdapterInterface<Provider, WalletProvider> = {
     id: 'tokenpocket',
     name: 'TokenPocket',
     icon: walletProvider.icon,
@@ -33,13 +33,13 @@ const TokenPocket: WalletAdapterInterface<Provider, CustomAdapter> = {
     },
     isDetected: () => Boolean(window.tokenpocket?.tron),
     isConnected: () => Boolean(walletProvider.connected),
-    connect: async (): Promise<CustomAdapter> => {
+    connect: async (): Promise<WalletProvider> => {
         return await new Promise((resolve, reject) => {
             try {
                 walletProvider
                     .connect()
                     .then(async () => {
-                        resolve(walletProvider as CustomAdapter)
+                        resolve(walletProvider)
                     })
                     .catch((error) => {
                         reject(error)

@@ -11,8 +11,8 @@ import {
 } from '@multiplechain/types'
 import { Provider } from '../services/Provider.ts'
 import type {
-    BaseMessageSignerWalletAdapter,
-    WalletAdapterEvents
+    WalletAdapterEvents,
+    BaseMessageSignerWalletAdapter
 } from '@solana/wallet-adapter-base'
 import { base58Encode } from '@multiplechain/utils'
 import type { TransactionSigner } from '../services/TransactionSigner.ts'
@@ -76,14 +76,14 @@ const rejectMap = (error: any, reject: (a: any) => any): any => {
     return reject(error)
 }
 
-export type WalletAdapter = BaseMessageSignerWalletAdapter
+export type WalletProvider = BaseMessageSignerWalletAdapter
 
-type WalletAdapterType = WalletAdapterInterface<Provider, WalletAdapter>
+type WalletAdapterType = WalletAdapterInterface<Provider, WalletProvider>
 
-export class Wallet implements WalletInterface<Provider, WalletAdapter, TransactionSigner> {
+export class Wallet implements WalletInterface<Provider, WalletProvider, TransactionSigner> {
     adapter: WalletAdapterType
 
-    walletProvider: WalletAdapter
+    walletProvider: WalletProvider
 
     networkProvider: Provider
 
@@ -156,7 +156,7 @@ export class Wallet implements WalletInterface<Provider, WalletAdapter, Transact
             this.adapter
                 .connect(this.networkProvider, config)
                 .then(async (provider) => {
-                    this.walletProvider = provider as BaseMessageSignerWalletAdapter
+                    this.walletProvider = provider
                     this.on('error', (error) => rejectMap(error, this.currentReject))
                     resolve(await this.getAddress())
                 })

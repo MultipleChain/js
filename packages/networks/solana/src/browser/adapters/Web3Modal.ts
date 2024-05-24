@@ -1,9 +1,8 @@
 import type { Metadata } from '@web3modal/core'
-import type { WalletAdapter } from '../Wallet.ts'
+import type { WalletProvider } from '../Wallet.ts'
 import type { Provider } from '../../services/Provider.ts'
 import { solana, solanaDevnet } from '@web3modal/solana/chains'
 import { ErrorTypeEnum, WalletPlatformEnum } from '@multiplechain/types'
-import type { BaseMessageSignerWalletAdapter } from '@solana/wallet-adapter-base'
 import type { ProviderInterface, WalletAdapterInterface } from '@multiplechain/types'
 import {
     createWeb3Modal,
@@ -20,11 +19,11 @@ export interface Web3ModalConfig extends Web3ModalOptions {
 }
 
 export interface Web3ModalAdapterInterface
-    extends Omit<WalletAdapterInterface<Provider, WalletAdapter>, 'connect'> {
+    extends Omit<WalletAdapterInterface<Provider, WalletProvider>, 'connect'> {
     connect: (
         provider?: ProviderInterface,
         config?: Web3ModalConfig | object
-    ) => Promise<BaseMessageSignerWalletAdapter>
+    ) => Promise<WalletProvider>
 }
 
 interface Chain {
@@ -38,11 +37,9 @@ interface Chain {
 let modal: Web3ModalType
 let currentNetwork: Chain
 let clickedAnyWallet = false
-let walletProvider: BaseMessageSignerWalletAdapter | undefined
+let walletProvider: WalletProvider | undefined
 let connectRejectMethod: (reason?: any) => void
-let connectResolveMethod: (
-    value: BaseMessageSignerWalletAdapter | PromiseLike<BaseMessageSignerWalletAdapter>
-) => void
+let connectResolveMethod: (value: WalletProvider | PromiseLike<WalletProvider>) => void
 
 const web3Modal = (config: Web3ModalConfig): Web3ModalType => {
     if (modal !== undefined) {
@@ -107,7 +104,7 @@ const web3Modal = (config: Web3ModalConfig): Web3ModalType => {
         }
 
         // @ts-expect-error this provider methods enought for our needs
-        connectResolveMethod((walletProvider = ctx.provider as BaseMessageSignerWalletAdapter))
+        connectResolveMethod((walletProvider = ctx.provider as WalletProvider))
     })
 
     return modal
@@ -150,7 +147,7 @@ const Web3Modal: Web3ModalAdapterInterface = {
     connect: async (
         provider?: ProviderInterface,
         _config?: Web3ModalConfig | object
-    ): Promise<BaseMessageSignerWalletAdapter> => {
+    ): Promise<WalletProvider> => {
         const config = _config as Web3ModalConfig
 
         if (provider === undefined) {

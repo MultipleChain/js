@@ -1,5 +1,5 @@
 import type { Provider } from '../services/Provider.ts'
-import { Wallet, type CustomAdapter } from './Wallet.ts'
+import { Wallet, type WalletProvider } from './Wallet.ts'
 import * as adapterList from './adapters/index.ts'
 import type {
     WalletAdapterListType,
@@ -7,10 +7,10 @@ import type {
     RegisterWalletAdapterType
 } from '@multiplechain/types'
 
-const adapters: WalletAdapterListType<Provider, CustomAdapter> = {}
+const adapters: WalletAdapterListType<Provider, WalletProvider> = {}
 
-const registerAdapter: RegisterWalletAdapterType<Provider, CustomAdapter> = (
-    adapter: WalletAdapterInterface<Provider, CustomAdapter>
+const registerAdapter: RegisterWalletAdapterType<Provider, WalletProvider> = (
+    adapter: WalletAdapterInterface<Provider, WalletProvider>
 ): void => {
     if (Object.values(adapters).find((a) => a.id === adapter.id) !== undefined) {
         throw new Error(`Adapter with id ${adapter.id} already exists`)

@@ -1,5 +1,6 @@
 import icons from './icons.ts'
-import type { BitcoinWalletAdapter } from '../Wallet.ts'
+import type { WalletProvider } from '../Wallet.ts'
+import type { Provider } from '../../services/Provider.ts'
 import {
     ErrorTypeEnum,
     WalletPlatformEnum,
@@ -12,30 +13,30 @@ import {
     signMessage,
     AddressPurpose
 } from 'sats-connect'
-import type { Provider } from '../../services/Provider.ts'
 
 let connected = false
+let walletProvider: WalletProvider | undefined
 
-const Xverse: WalletAdapterInterface<Provider, BitcoinWalletAdapter> = {
+const Xverse: WalletAdapterInterface<Provider, WalletProvider> = {
     id: 'xverse',
     name: 'Xverse',
     icon: icons.Xverse,
-    provider: window.XverseProviders?.BitcoinProvider,
+    provider: walletProvider,
     platforms: [WalletPlatformEnum.BROWSER, WalletPlatformEnum.MOBILE],
     downloadLink: 'https://www.xverse.app/download',
     isDetected: () => Boolean(window.XverseProviders?.BitcoinProvider),
     isConnected: async () => connected,
-    connect: async (provider?: Provider): Promise<BitcoinWalletAdapter> => {
+    connect: async (provider?: Provider): Promise<WalletProvider> => {
         return await new Promise((resolve, reject) => {
             const type =
                 provider !== undefined && provider?.isTestnet()
                     ? BitcoinNetworkType.Testnet
                     : BitcoinNetworkType.Mainnet
 
-            const walletAdapter: BitcoinWalletAdapter = {
+            const _walletProvider: WalletProvider = {
                 on: (_event: string, _callback: (data: any) => void) => {},
                 signMessage: async (message: string) => {
-                    const address = await walletAdapter.getAddress()
+                    const address = await _walletProvider.getAddress()
                     return await new Promise((resolve, reject) => {
                         signMessage({
                             payload: {
@@ -55,7 +56,7 @@ const Xverse: WalletAdapterInterface<Provider, BitcoinWalletAdapter> = {
                     })
                 },
                 sendBitcoin: async (to: string, amount: number) => {
-                    const senderAddress = await walletAdapter.getAddress()
+                    const senderAddress = await _walletProvider.getAddress()
                     return await new Promise((resolve, reject) => {
                         sendBtcTransaction({
                             payload: {
@@ -82,7 +83,7 @@ const Xverse: WalletAdapterInterface<Provider, BitcoinWalletAdapter> = {
                 getAddress: async () => ''
             }
 
-            const connect = async (): Promise<BitcoinWalletAdapter> => {
+            const connect = async (): Promise<WalletProvider> => {
                 return await new Promise((resolve, reject) => {
                     try {
                         getAddress({
@@ -107,11 +108,11 @@ const Xverse: WalletAdapterInterface<Provider, BitcoinWalletAdapter> = {
                                     return
                                 }
 
-                                walletAdapter.getAddress = async () => {
+                                _walletProvider.getAddress = async () => {
                                     return bitcoin.address
                                 }
 
-                                resolve(walletAdapter)
+                                resolve(_walletProvider)
                             },
                             onCancel: () => {
                                 reject(ErrorTypeEnum.WALLET_REQUEST_REJECTED)
@@ -125,9 +126,9 @@ const Xverse: WalletAdapterInterface<Provider, BitcoinWalletAdapter> = {
 
             try {
                 connect()
-                    .then((walletAdapter) => {
+                    .then(() => {
                         connected = true
-                        resolve(walletAdapter)
+                        resolve((walletProvider = _walletProvider))
                     })
                     .catch(reject)
             } catch (error) {

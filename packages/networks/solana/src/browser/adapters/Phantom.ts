@@ -1,4 +1,4 @@
-import type { WalletAdapter } from '../Wallet.ts'
+import type { WalletProvider } from '../Wallet.ts'
 import { WalletPlatformEnum } from '@multiplechain/types'
 import type { Provider } from '../../services/Provider.ts'
 import type { WalletAdapterInterface } from '@multiplechain/types'
@@ -17,7 +17,7 @@ declare global {
     }
 }
 
-const Phantom: WalletAdapterInterface<Provider, WalletAdapter> = {
+const Phantom: WalletAdapterInterface<Provider, WalletProvider> = {
     id: 'phantom',
     name: phantomAdapter.name,
     icon: phantomAdapter.icon,
@@ -35,7 +35,7 @@ const Phantom: WalletAdapterInterface<Provider, WalletAdapter> = {
     disconnect: async () => {
         await phantomAdapter.disconnect()
     },
-    connect: async (): Promise<WalletAdapter> => {
+    connect: async (): Promise<WalletProvider> => {
         await phantomAdapter.connect()
         return phantomAdapter
     }
