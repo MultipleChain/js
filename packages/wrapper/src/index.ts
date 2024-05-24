@@ -1,4 +1,5 @@
-export class Wrapper<T extends Record<string, any>> {
+// eslint-disable-next-line filenames/match-exported
+export default class Wrapper<T extends Record<string, any>> {
     protected currentNetwork?: T[keyof T]
 
     constructor(private readonly networkPackages: T) {}

@@ -1,4 +1,5 @@
-import { Wrapper as BaseWrapper } from '../index.ts'
+// eslint-disable-next-line filenames/match-exported
+import BaseWrapper from '../index.ts'
 import type {
     WalletInterface,
     ProviderInterface,
@@ -18,7 +19,7 @@ export interface BrowserType<AdapterList = unknown, WalletProvider = unknown> {
     adapters: WalletAdapterListType<ProviderInterface, WalletProvider> & AdapterList
 }
 
-export class Wrapper<
+export default class Wrapper<
     T extends Record<string, any>,
     BrowserType = T[keyof T]['browser']
 > extends BaseWrapper<T> {
