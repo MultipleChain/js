@@ -14,7 +14,7 @@ import {
     isWebview,
     sleep,
     math
-} from '../src/index.js'
+} from '../src/index'
 
 describe('Helper methods', () => {
     it('toHex', () => {
