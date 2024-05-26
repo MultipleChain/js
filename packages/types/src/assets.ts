@@ -1,4 +1,4 @@
-import type { ContractAddress, NftId, TransferAmount, WalletAddress } from './defines.ts'
+import type { ContractAddress, NftId, TransferAmount, WalletAddress } from './defines'
 
 /**
  * There are 2 comprehensive interfaces: AssetInterface, ContractInterface

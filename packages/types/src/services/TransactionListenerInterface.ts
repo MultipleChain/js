@@ -4,8 +4,8 @@ import type {
     TransactionId,
     TransferAmount,
     WalletAddress
-} from '../defines.ts'
-import { TransactionTypeEnum } from '../enums.ts'
+} from '../defines'
+import { TransactionTypeEnum } from '../enums'
 
 /**
  * Filter types for each transaction type in TransactionListenerInterface

@@ -1,5 +1,5 @@
-import type { WalletPlatformEnum } from './enums.ts'
-import type { SignedMessage, TransactionId, WalletAddress } from './defines.ts'
+import type { WalletPlatformEnum } from './enums'
+import type { SignedMessage, TransactionId, WalletAddress } from './defines'
 
 // WalletAdapter registration function for WalletInterface
 export type RegisterWalletAdapterType<NetworkProvider, WalletProvider> = (
