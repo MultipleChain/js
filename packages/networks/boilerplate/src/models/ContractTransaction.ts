@@ -1,4 +1,4 @@
-import { Transaction } from './Transaction.ts'
+import { Transaction } from './Transaction'
 import type { ContractAddress, ContractTransactionInterface } from '@multiplechain/types'
 
 export class ContractTransaction extends Transaction implements ContractTransactionInterface {

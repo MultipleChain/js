@@ -1,7 +1,7 @@
-import icons from './icons.ts'
-import type { EIP1193Provider } from './EIP6963.ts'
+import icons from './icons'
+import type { EIP1193Provider } from './EIP6963'
 import { WalletPlatformEnum } from '@multiplechain/types'
-import type { Provider } from '../../services/Provider.ts'
+import type { Provider } from '../../services/Provider'
 import type { WalletAdapterInterface } from '@multiplechain/types'
 
 const Phantom: WalletAdapterInterface<Provider, EIP1193Provider> = {

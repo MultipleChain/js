@@ -1,2 +1,2 @@
-export * from './Transaction.ts'
-export * from './CoinTransaction.ts'
+export * from './Transaction'
+export * from './CoinTransaction'

@@ -1,8 +1,8 @@
-import { Provider } from '../services/Provider.ts'
-import type { Ethers } from '../services/Ethers.ts'
+import { Provider } from '../services/Provider'
+import type { Ethers } from '../services/Ethers'
 import type { ContractAddress, ContractInterface, WalletAddress } from '@multiplechain/types'
 import type { Contract as EthersContract, InterfaceAbi } from 'ethers'
-import type { TransactionData } from '../services/TransactionSigner.ts'
+import type { TransactionData } from '../services/TransactionSigner'
 
 export class Contract implements ContractInterface {
     /**

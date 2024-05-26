@@ -3,7 +3,7 @@ import {
     type NetworkConfigInterface,
     type ProviderInterface
 } from '@multiplechain/types'
-import { TronWeb } from './TronWeb.ts'
+import { TronWeb } from './TronWeb'
 
 export interface TronNodeInfoInterface {
     id: string

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 
-import { provider } from './setup.ts'
-import { Provider } from '../src/services/Provider.ts'
+import { provider } from './setup'
+import { Provider } from '../src/services/Provider'
 
 describe('Provider', () => {
     it('isTestnet', () => {

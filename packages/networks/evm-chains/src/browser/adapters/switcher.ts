@@ -1,8 +1,8 @@
-import type { RequestType } from '../Wallet.ts'
-import networks from '../../services/Networks.ts'
-import type { EIP1193Provider } from './EIP6963.ts'
+import type { RequestType } from '../Wallet'
+import networks from '../../services/Networks'
+import type { EIP1193Provider } from './EIP6963'
 import { ErrorTypeEnum } from '@multiplechain/types'
-import type { EvmNetworkConfigInterface, Provider } from '../../services/Provider.ts'
+import type { EvmNetworkConfigInterface, Provider } from '../../services/Provider'
 
 export const switcher = async (wallet: EIP1193Provider, provider?: Provider): Promise<boolean> => {
     const network = provider?.network

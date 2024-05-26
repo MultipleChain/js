@@ -1,3 +1,3 @@
-void import('../../../esbuild.ts').then((module) => {
+void import('../../../esbuild').then((module) => {
     module.default()
 })

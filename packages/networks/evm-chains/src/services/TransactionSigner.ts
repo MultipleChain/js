@@ -1,5 +1,5 @@
-import type { EthersError } from './Ethers.ts'
-import { Provider } from '../services/Provider.ts'
+import type { EthersError } from './Ethers'
+import { Provider } from '../services/Provider'
 import type { TransactionRequest, Wallet, BigNumberish } from 'ethers'
 import {
     ErrorTypeEnum,

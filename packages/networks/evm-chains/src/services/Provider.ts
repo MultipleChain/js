@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { Ethers } from './Ethers.ts'
+import { Ethers } from './Ethers'
 import {
     ErrorTypeEnum,
     type NetworkConfigInterface,

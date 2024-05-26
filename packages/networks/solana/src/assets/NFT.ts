@@ -1,4 +1,4 @@
-import { Contract } from './Contract.ts'
+import { Contract } from './Contract'
 import { Metaplex } from '@metaplex-foundation/js'
 import {
     ErrorTypeEnum,
@@ -22,7 +22,7 @@ import {
     createTransferInstruction,
     createApproveInstruction
 } from '@solana/spl-token'
-import { TransactionSigner } from '../services/TransactionSigner.ts'
+import { TransactionSigner } from '../services/TransactionSigner'
 
 type Metadata = Sft | SftWithToken | Nft | NftWithToken
 

@@ -1,6 +1,6 @@
 import { hexToNumber } from '@multiplechain/utils'
-import { Token } from '../assets/Token.ts'
-import { ContractTransaction } from './ContractTransaction.ts'
+import { Token } from '../assets/Token'
+import { ContractTransaction } from './ContractTransaction'
 import { TransactionStatusEnum, AssetDirectionEnum } from '@multiplechain/types'
 import type { WalletAddress, TokenTransactionInterface, TransferAmount } from '@multiplechain/types'
 

@@ -6,10 +6,10 @@ import type {
     TransactionId
 } from '@multiplechain/types'
 import WebSocket from 'ws'
-import { Provider } from './Provider.ts'
-import { fromSatoshi } from '../utils.ts'
-import { Transaction } from '../models/Transaction.ts'
-import { CoinTransaction } from '../models/CoinTransaction.ts'
+import { Provider } from './Provider'
+import { fromSatoshi } from '../utils'
+import { Transaction } from '../models/Transaction'
+import { CoinTransaction } from '../models/CoinTransaction'
 import { checkWebSocket, objectsEqual } from '@multiplechain/utils'
 import { TransactionListenerProcessIndex } from '@multiplechain/types'
 

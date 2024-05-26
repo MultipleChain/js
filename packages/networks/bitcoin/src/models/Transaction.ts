@@ -1,6 +1,6 @@
-import { fromSatoshi, sleep } from '../utils.ts'
+import { fromSatoshi, sleep } from '../utils'
 import axios, { type AxiosError } from 'axios'
-import { Provider } from '../services/Provider.ts'
+import { Provider } from '../services/Provider'
 import { ErrorTypeEnum, TransactionStatusEnum } from '@multiplechain/types'
 import {
     TransactionTypeEnum,

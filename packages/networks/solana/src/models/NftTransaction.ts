@@ -1,4 +1,4 @@
-import { ContractTransaction } from './ContractTransaction.ts'
+import { ContractTransaction } from './ContractTransaction'
 import { TransactionStatusEnum, AssetDirectionEnum } from '@multiplechain/types'
 import type { ParsedInstruction, ParsedTransactionWithMeta } from '@solana/web3.js'
 import type {

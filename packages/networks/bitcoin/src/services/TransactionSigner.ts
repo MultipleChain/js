@@ -1,6 +1,6 @@
 import axios from 'axios'
 import type { AxiosError } from 'axios'
-import { Provider } from '../services/Provider.ts'
+import { Provider } from '../services/Provider'
 import type { Transaction as BitcoreLibTransactionData } from 'bitcore-lib'
 import type { PrivateKey, TransactionId, TransactionSignerInterface } from '@multiplechain/types'
 

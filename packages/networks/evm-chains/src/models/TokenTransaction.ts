@@ -1,9 +1,9 @@
-import { Token } from '../assets/Token.ts'
+import { Token } from '../assets/Token'
 import type { InterfaceAbi } from 'ethers'
 import ERC20 from '../../resources/ERC20.json'
 import { hexToNumber } from '@multiplechain/utils'
-import type { Provider } from '../services/Provider.ts'
-import { ContractTransaction } from './ContractTransaction.ts'
+import type { Provider } from '../services/Provider'
+import { ContractTransaction } from './ContractTransaction'
 import { TransactionStatusEnum, AssetDirectionEnum } from '@multiplechain/types'
 import type {
     TransactionId,

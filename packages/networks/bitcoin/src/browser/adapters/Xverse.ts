@@ -1,6 +1,6 @@
-import icons from './icons.ts'
-import type { WalletProvider } from '../Wallet.ts'
-import type { Provider } from '../../services/Provider.ts'
+import icons from './icons'
+import type { WalletProvider } from '../Wallet'
+import type { Provider } from '../../services/Provider'
 import {
     ErrorTypeEnum,
     WalletPlatformEnum,

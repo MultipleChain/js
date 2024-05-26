@@ -1,5 +1,5 @@
-import { Contract } from './Contract.ts'
-import { TransactionSigner } from '../services/TransactionSigner.ts'
+import { Contract } from './Contract'
+import { TransactionSigner } from '../services/TransactionSigner'
 import type { TokenInterface, TransferAmount, WalletAddress } from '@multiplechain/types'
 
 export class Token extends Contract implements TokenInterface<TransactionSigner> {

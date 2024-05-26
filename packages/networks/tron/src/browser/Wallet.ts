@@ -9,8 +9,8 @@ import {
     type SignedMessage,
     type TransactionId
 } from '@multiplechain/types'
-import { Provider } from '../services/Provider.ts'
-import type { TransactionSigner } from '../services/TransactionSigner.ts'
+import { Provider } from '../services/Provider'
+import type { TransactionSigner } from '../services/TransactionSigner'
 import type { Adapter, AdapterEvents } from '@tronweb3/tronwallet-abstract-adapter'
 
 export interface WalletProvider extends Adapter {

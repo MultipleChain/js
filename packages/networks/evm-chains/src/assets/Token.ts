@@ -1,9 +1,9 @@
-import { Contract } from './Contract.ts'
+import { Contract } from './Contract'
 import type { InterfaceAbi } from 'ethers'
 import ERC20 from '../../resources/ERC20.json'
-import type { Provider } from '../services/Provider.ts'
+import type { Provider } from '../services/Provider'
 import { hexToNumber, numberToHex } from '@multiplechain/utils'
-import { TransactionSigner } from '../services/TransactionSigner.ts'
+import { TransactionSigner } from '../services/TransactionSigner'
 import {
     ErrorTypeEnum,
     type ContractAddress,

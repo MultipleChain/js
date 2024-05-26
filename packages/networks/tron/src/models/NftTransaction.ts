@@ -1,4 +1,4 @@
-import { ContractTransaction } from './ContractTransaction.ts'
+import { ContractTransaction } from './ContractTransaction'
 import { TransactionStatusEnum, AssetDirectionEnum } from '@multiplechain/types'
 import type { NftId, NftTransactionInterface, WalletAddress } from '@multiplechain/types'
 

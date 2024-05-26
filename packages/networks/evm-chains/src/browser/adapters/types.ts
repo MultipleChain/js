@@ -1,4 +1,4 @@
-import type { EIP1193Provider } from './EIP6963.ts'
+import type { EIP1193Provider } from './EIP6963'
 
 export interface WindowEthereum extends EIP1193Provider {
     isTrust?: boolean

@@ -1,5 +1,5 @@
-import { fromLamports } from '../utils.ts'
-import { Transaction } from './Transaction.ts'
+import { fromLamports } from '../utils'
+import { Transaction } from './Transaction'
 import type { ParsedInstruction, ParsedTransactionWithMeta } from '@solana/web3.js'
 import {
     AssetDirectionEnum,

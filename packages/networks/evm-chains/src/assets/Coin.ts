@@ -1,7 +1,7 @@
-import { Provider } from '../services/Provider.ts'
+import { Provider } from '../services/Provider'
 import { hexToNumber, numberToHex } from '@multiplechain/utils'
-import { TransactionSigner } from '../services/TransactionSigner.ts'
-import type { TransactionData } from '../services/TransactionSigner.ts'
+import { TransactionSigner } from '../services/TransactionSigner'
+import type { TransactionData } from '../services/TransactionSigner'
 import {
     ErrorTypeEnum,
     type CoinInterface,

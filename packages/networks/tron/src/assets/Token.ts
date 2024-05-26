@@ -1,5 +1,5 @@
-import { Contract, type InterfaceAbi } from './Contract.ts'
-import { TransactionSigner } from '../services/TransactionSigner.ts'
+import { Contract, type InterfaceAbi } from './Contract'
+import { TransactionSigner } from '../services/TransactionSigner'
 import {
     ErrorTypeEnum,
     type ContractAddress,
@@ -8,7 +8,7 @@ import {
     type WalletAddress
 } from '@multiplechain/types'
 import { hexToNumber, numberToHex } from '@multiplechain/utils'
-import type { Provider } from '../services/Provider.ts'
+import type { Provider } from '../services/Provider'
 import TRC20 from '../../resources/TRC20.json'
 
 export class Token extends Contract implements TokenInterface<TransactionSigner> {

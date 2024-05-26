@@ -1,4 +1,4 @@
-import { Provider } from '../services/Provider.ts'
+import { Provider } from '../services/Provider'
 import { base58Decode } from '@multiplechain/utils'
 import type { PrivateKey, TransactionId, TransactionSignerInterface } from '@multiplechain/types'
 import { Keypair, VersionedTransaction, Transaction as RawTransaction } from '@solana/web3.js'

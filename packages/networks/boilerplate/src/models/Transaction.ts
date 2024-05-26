@@ -1,4 +1,4 @@
-import { Provider } from '../services/Provider.ts'
+import { Provider } from '../services/Provider'
 import { TransactionStatusEnum } from '@multiplechain/types'
 import {
     TransactionTypeEnum,

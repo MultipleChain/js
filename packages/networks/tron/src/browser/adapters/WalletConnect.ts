@@ -1,5 +1,5 @@
-import type { WalletProvider } from '../Wallet.ts'
-import type { Provider } from '../../services/Provider.ts'
+import type { WalletProvider } from '../Wallet'
+import type { Provider } from '../../services/Provider'
 import { ErrorTypeEnum, WalletPlatformEnum } from '@multiplechain/types'
 import { WalletConnectAdapter } from '@multiplechain/tron-walletconnect'
 import type { WalletAdapterInterface, WalletConnectConfig } from '@multiplechain/types'

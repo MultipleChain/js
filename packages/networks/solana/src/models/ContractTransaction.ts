@@ -1,4 +1,4 @@
-import { Transaction } from './Transaction.ts'
+import { Transaction } from './Transaction'
 import type { ParsedInstruction, ParsedTransactionWithMeta } from '@solana/web3.js'
 import type { ContractAddress, ContractTransactionInterface } from '@multiplechain/types'
 

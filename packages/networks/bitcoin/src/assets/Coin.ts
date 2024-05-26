@@ -1,8 +1,8 @@
 import axios from 'axios'
-import { Provider } from '../services/Provider.ts'
-import { fromSatoshi, toSatoshi } from '../utils.ts'
+import { Provider } from '../services/Provider'
+import { fromSatoshi, toSatoshi } from '../utils'
 import { Transaction, Script, Address } from 'bitcore-lib'
-import { TransactionSigner } from '../services/TransactionSigner.ts'
+import { TransactionSigner } from '../services/TransactionSigner'
 import {
     ErrorTypeEnum,
     type CoinInterface,

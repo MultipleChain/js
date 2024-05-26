@@ -1,6 +1,6 @@
-import { Provider } from '../services/Provider.ts'
-import { fromLamports, toLamports } from '../utils.ts'
-import { TransactionSigner } from '../services/TransactionSigner.ts'
+import { Provider } from '../services/Provider'
+import { fromLamports, toLamports } from '../utils'
+import { TransactionSigner } from '../services/TransactionSigner'
 import { PublicKey, SystemProgram, Transaction } from '@solana/web3.js'
 import {
     ErrorTypeEnum,

@@ -1,5 +1,5 @@
-import { Provider } from '../services/Provider.ts'
-import type { TransactionSigner } from '../services/TransactionSigner.ts'
+import { Provider } from '../services/Provider'
+import type { TransactionSigner } from '../services/TransactionSigner'
 import type {
     WalletInterface,
     WalletAdapterInterface,

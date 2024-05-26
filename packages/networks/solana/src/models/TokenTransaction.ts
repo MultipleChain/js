@@ -1,6 +1,6 @@
 import { PublicKey } from '@solana/web3.js'
 import { math } from '@multiplechain/utils'
-import { ContractTransaction } from './ContractTransaction.ts'
+import { ContractTransaction } from './ContractTransaction'
 import { TransactionStatusEnum, AssetDirectionEnum } from '@multiplechain/types'
 import type {
     ParsedAccountData,

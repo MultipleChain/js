@@ -1,7 +1,7 @@
 import TRC721 from '../../resources/TRC721.json'
-import type { Provider } from '../services/Provider.ts'
-import { Contract, type InterfaceAbi } from './Contract.ts'
-import { TransactionSigner } from '../services/TransactionSigner.ts'
+import type { Provider } from '../services/Provider'
+import { Contract, type InterfaceAbi } from './Contract'
+import { TransactionSigner } from '../services/TransactionSigner'
 import {
     ErrorTypeEnum,
     type ContractAddress,

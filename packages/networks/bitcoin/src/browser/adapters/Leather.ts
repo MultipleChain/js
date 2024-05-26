@@ -1,7 +1,7 @@
-import icons from './icons.ts'
-import type { WalletProvider } from '../Wallet.ts'
+import icons from './icons'
+import type { WalletProvider } from '../Wallet'
 import { WalletPlatformEnum } from '@multiplechain/types'
-import type { Provider } from '../../services/Provider.ts'
+import type { Provider } from '../../services/Provider'
 import type { WalletAdapterInterface } from '@multiplechain/types'
 
 declare global {

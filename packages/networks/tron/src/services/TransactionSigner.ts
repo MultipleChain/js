@@ -1,4 +1,4 @@
-import { Provider } from '../services/Provider.ts'
+import { Provider } from '../services/Provider'
 import {
     ErrorTypeEnum,
     type PrivateKey,

@@ -16,8 +16,8 @@ import {
     type WalletAddress
 } from '@multiplechain/types'
 import { sleep, checkWebSocket } from '@multiplechain/utils'
-import type { EvmNetworkConfigInterface } from './Provider.ts'
-import type { TransactionData } from '../services/TransactionSigner.ts'
+import type { EvmNetworkConfigInterface } from './Provider'
+import type { TransactionData } from '../services/TransactionSigner'
 import { Wallet, Contract, ContractFactory, JsonRpcProvider, WebSocketProvider } from 'ethers'
 
 export type { EthersError } from 'ethers'

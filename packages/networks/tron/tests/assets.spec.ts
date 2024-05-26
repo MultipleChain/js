@@ -1,12 +1,12 @@
 import { describe, it, expect, assert } from 'vitest'
 
-import { NFT } from '../src/assets/NFT.ts'
-import { Coin } from '../src/assets/Coin.ts'
+import { NFT } from '../src/assets/NFT'
+import { Coin } from '../src/assets/Coin'
 import { math } from '@multiplechain/utils'
-import { Token } from '../src/assets/Token.ts'
-import { Transaction } from '../src/models/Transaction.ts'
+import { Token } from '../src/assets/Token'
+import { Transaction } from '../src/models/Transaction'
 import { TransactionStatusEnum, type TransactionId } from '@multiplechain/types'
-import { TransactionSigner } from '../src/services/TransactionSigner.ts'
+import { TransactionSigner } from '../src/services/TransactionSigner'
 
 const coinBalanceTestAmount = Number(process.env.TRON_COIN_BALANCE_TEST_AMOUNT)
 const tokenBalanceTestAmount = Number(process.env.TRON_TOKEN_BALANCE_TEST_AMOUNT)

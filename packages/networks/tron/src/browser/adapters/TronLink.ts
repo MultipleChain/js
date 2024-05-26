@@ -1,6 +1,6 @@
 import { sleep } from '@multiplechain/utils'
-import type { WalletProvider } from '../Wallet.ts'
-import type { Provider } from '../../services/Provider.ts'
+import type { WalletProvider } from '../Wallet'
+import type { Provider } from '../../services/Provider'
 import type { WalletAdapterInterface } from '@multiplechain/types'
 import { TronLinkAdapter } from '@tronweb3/tronwallet-adapter-tronlink'
 import { ErrorTypeEnum, WalletPlatformEnum } from '@multiplechain/types'

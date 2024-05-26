@@ -1,10 +1,10 @@
 import { describe, it, expect, assert } from 'vitest'
 
-import { Coin } from '../src/assets/Coin.ts'
+import { Coin } from '../src/assets/Coin'
 import { math } from '@multiplechain/utils'
-import { Transaction } from '../src/models/Transaction.ts'
+import { Transaction } from '../src/models/Transaction'
 import { TransactionStatusEnum, type TransactionId } from '@multiplechain/types'
-import { TransactionSigner } from '../src/services/TransactionSigner.ts'
+import { TransactionSigner } from '../src/services/TransactionSigner'
 
 const testAmount = Number(process.env.BTC_TRANSFER_AMOUNT)
 const senderTestAddress = String(process.env.BTC_SENDER_ADDRESS)

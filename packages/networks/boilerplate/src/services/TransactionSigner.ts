@@ -1,4 +1,4 @@
-import { Provider } from '../services/Provider.ts'
+import { Provider } from '../services/Provider'
 import type { PrivateKey, TransactionId, TransactionSignerInterface } from '@multiplechain/types'
 
 export class TransactionSigner implements TransactionSignerInterface<unknown, unknown>{
