@@ -1,5 +1,5 @@
-import { Contract } from './Contract.ts'
-import { TransactionSigner } from '../services/TransactionSigner.ts'
+import { Contract } from './Contract'
+import { TransactionSigner } from '../services/TransactionSigner'
 import type { NftId, NftInterface, WalletAddress } from '@multiplechain/types'
 
 export class NFT extends Contract implements NftInterface<TransactionSigner> {

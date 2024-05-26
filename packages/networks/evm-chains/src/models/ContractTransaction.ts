@@ -1,4 +1,4 @@
-import { Transaction } from './Transaction.ts'
+import { Transaction } from './Transaction'
 import type {
     ContractAddress,
     ContractTransactionInterface,
@@ -10,7 +10,7 @@ import {
     type TransactionResponse,
     type TransactionDescription
 } from 'ethers'
-import type { Provider } from '../services/Provider.ts'
+import type { Provider } from '../services/Provider'
 
 export class ContractTransaction extends Transaction implements ContractTransactionInterface {
     /**

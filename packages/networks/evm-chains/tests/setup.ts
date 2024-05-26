@@ -1,4 +1,4 @@
-import { Provider } from '../src/services/Provider.ts'
+import { Provider } from '../src/services/Provider'
 
 let provider: Provider
 

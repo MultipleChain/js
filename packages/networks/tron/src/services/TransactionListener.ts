@@ -6,14 +6,14 @@ import type {
     TransactionId
 } from '@multiplechain/types'
 
-import { Provider } from './Provider.ts'
+import { Provider } from './Provider'
 import type {
     Transaction,
     TokenTransaction,
     CoinTransaction,
     ContractTransaction,
     NftTransaction
-} from '../models/index.ts'
+} from '../models/index'
 import { TransactionListenerProcessIndex } from '@multiplechain/types'
 
 type TransactionListenerTriggerType<T extends TransactionTypeEnum> = DynamicTransactionType<

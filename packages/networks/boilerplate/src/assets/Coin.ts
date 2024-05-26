@@ -1,5 +1,5 @@
-import { Provider } from '../services/Provider.ts'
-import { TransactionSigner } from '../services/TransactionSigner.ts'
+import { Provider } from '../services/Provider'
+import { TransactionSigner } from '../services/TransactionSigner'
 import type { CoinInterface, TransferAmount, WalletAddress } from '@multiplechain/types'
 
 export class Coin implements CoinInterface<TransactionSigner> {

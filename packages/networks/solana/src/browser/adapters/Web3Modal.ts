@@ -1,6 +1,6 @@
 import type { Metadata } from '@web3modal/core'
-import type { WalletProvider } from '../Wallet.ts'
-import type { Provider } from '../../services/Provider.ts'
+import type { WalletProvider } from '../Wallet'
+import type { Provider } from '../../services/Provider'
 import { solana, solanaDevnet } from '@web3modal/solana/chains'
 import { ErrorTypeEnum, WalletPlatformEnum } from '@multiplechain/types'
 import type { ProviderInterface, WalletAdapterInterface } from '@multiplechain/types'

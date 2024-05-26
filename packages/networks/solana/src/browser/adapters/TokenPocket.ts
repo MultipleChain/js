@@ -1,6 +1,6 @@
-import type { WalletProvider } from '../Wallet.ts'
+import type { WalletProvider } from '../Wallet'
 import { WalletPlatformEnum } from '@multiplechain/types'
-import type { Provider } from '../../services/Provider.ts'
+import type { Provider } from '../../services/Provider'
 import { WalletReadyState } from '@solana/wallet-adapter-base'
 import type { WalletAdapterInterface } from '@multiplechain/types'
 import { TokenPocketWalletAdapter } from '@solana/wallet-adapter-tokenpocket'

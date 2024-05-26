@@ -9,8 +9,8 @@ import {
     type SignedMessage,
     type TransactionId
 } from '@multiplechain/types'
-import { Provider } from '../services/Provider.ts'
-import type { TransactionSigner } from '../services/TransactionSigner.ts'
+import { Provider } from '../services/Provider'
+import type { TransactionSigner } from '../services/TransactionSigner'
 
 export interface WalletProvider {
     getAddress: () => Promise<string>

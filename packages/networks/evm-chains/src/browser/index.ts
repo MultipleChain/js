@@ -1,14 +1,14 @@
-import { Wallet } from './Wallet.ts'
-import { switcher } from './adapters/switcher.ts'
-import * as adapterList from './adapters/index.ts'
+import { Wallet } from './Wallet'
+import { switcher } from './adapters/switcher'
+import * as adapterList from './adapters/index'
 import { WalletPlatformEnum } from '@multiplechain/types'
-import type { EIP6963ProviderDetail, EIP1193Provider } from './adapters/EIP6963.ts'
+import type { EIP6963ProviderDetail, EIP1193Provider } from './adapters/EIP6963'
 import type {
     WalletAdapterInterface,
     WalletAdapterListType,
     RegisterWalletAdapterType
 } from '@multiplechain/types'
-import type { Provider } from '../services/Provider.ts'
+import type { Provider } from '../services/Provider'
 
 const EIP6963AdapterUUIDIndex: Record<string, string> = {
     'app.phantom': 'phantom',
@@ -87,7 +87,7 @@ const toEIP6963ProviderDetail = (
     }
 }
 
-export * from '../index.ts'
+export * from '../index'
 
 export const browser = {
     Wallet,

@@ -1,4 +1,4 @@
-import { Provider } from '../services/Provider.ts'
+import { Provider } from '../services/Provider'
 import { ErrorTypeEnum, TransactionStatusEnum } from '@multiplechain/types'
 import {
     TransactionTypeEnum,
@@ -11,9 +11,9 @@ import {
     type WalletAddress
 } from '@multiplechain/types'
 import type { TransactionReceipt, TransactionResponse } from 'ethers'
-import type { Ethers } from '../services/Ethers.ts'
+import type { Ethers } from '../services/Ethers'
 import { hexToNumber } from '@multiplechain/utils'
-import { NFT } from '../assets/NFT.ts'
+import { NFT } from '../assets/NFT'
 
 const selectors = {
     // ERC20

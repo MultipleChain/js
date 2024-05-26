@@ -1,6 +1,6 @@
 import type { Provider } from 'sats-connect'
-import { Wallet, type WalletProvider } from './Wallet.ts'
-import * as adapterList from './adapters/index.ts'
+import { Wallet, type WalletProvider } from './Wallet'
+import * as adapterList from './adapters/index'
 import type {
     WalletAdapterListType,
     WalletAdapterInterface,
@@ -19,7 +19,7 @@ const registerAdapter: RegisterWalletAdapterType<Provider, WalletProvider> = (
     adapters[adapter.id] = adapter
 }
 
-export * from '../index.ts'
+export * from '../index'
 
 export const browser = {
     Wallet,

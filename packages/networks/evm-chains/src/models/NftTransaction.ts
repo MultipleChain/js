@@ -1,7 +1,7 @@
 import type { InterfaceAbi } from 'ethers'
 import ERC721 from '../../resources/ERC721.json'
-import type { Provider } from '../services/Provider.ts'
-import { ContractTransaction } from './ContractTransaction.ts'
+import type { Provider } from '../services/Provider'
+import { ContractTransaction } from './ContractTransaction'
 import type {
     NftId,
     NftTransactionInterface,

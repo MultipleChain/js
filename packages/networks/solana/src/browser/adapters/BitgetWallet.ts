@@ -1,6 +1,6 @@
-import type { WalletProvider } from '../Wallet.ts'
+import type { WalletProvider } from '../Wallet'
 import { WalletPlatformEnum } from '@multiplechain/types'
-import type { Provider } from '../../services/Provider.ts'
+import type { Provider } from '../../services/Provider'
 import { WalletReadyState } from '@solana/wallet-adapter-base'
 import { BitgetWalletAdapter } from '@solana/wallet-adapter-bitkeep'
 import type { WalletAdapterInterface } from '@multiplechain/types'

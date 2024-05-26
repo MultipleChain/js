@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest'
 
-import { provider } from './setup.ts'
-import { Provider } from '../src/services/Provider.ts'
-import { TransactionListener } from '../src/services/TransactionListener.ts'
+import { provider } from './setup'
+import { Provider } from '../src/services/Provider'
+import { TransactionListener } from '../src/services/TransactionListener'
 import { TransactionTypeEnum } from '@multiplechain/types'
-import { CoinTransaction } from '../src/models/CoinTransaction.ts'
-import { Coin } from '../src/assets/Coin.ts'
+import { CoinTransaction } from '../src/models/CoinTransaction'
+import { Coin } from '../src/assets/Coin'
 import { sleep } from '@multiplechain/utils'
 
 const senderTestAddress = String(process.env.BTC_SENDER_ADDRESS)

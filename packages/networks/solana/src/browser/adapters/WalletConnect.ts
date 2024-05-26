@@ -1,5 +1,5 @@
-import type { WalletProvider } from '../Wallet.ts'
-import type { Provider } from '../../services/Provider.ts'
+import type { WalletProvider } from '../Wallet'
+import type { Provider } from '../../services/Provider'
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base'
 import { ErrorTypeEnum, WalletPlatformEnum } from '@multiplechain/types'
 import WalletConnectWalletAdapter from '@multiplechain/solana-walletconnect'

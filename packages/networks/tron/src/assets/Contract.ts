@@ -1,6 +1,6 @@
-import { Provider } from '../services/Provider.ts'
+import { Provider } from '../services/Provider'
 import type { ContractAddress, ContractInterface, WalletAddress } from '@multiplechain/types'
-import type { TronWeb } from '../services/TronWeb.ts'
+import type { TronWeb } from '../services/TronWeb'
 
 interface InputOutputInterface {
     internalType: string

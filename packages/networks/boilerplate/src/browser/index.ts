@@ -1,6 +1,6 @@
-import { Wallet } from './Wallet.ts'
-import * as adapterList from './adapters/index.ts'
-import type { Provider } from '../services/Provider.ts'
+import { Wallet } from './Wallet'
+import * as adapterList from './adapters/index'
+import type { Provider } from '../services/Provider'
 import type {
     WalletAdapterListType,
     WalletAdapterInterface,
@@ -19,7 +19,7 @@ const registerAdapter: RegisterWalletAdapterType<Provider, unknown> = (
     adapters[adapter.id] = adapter
 }
 
-export * from '../index.ts'
+export * from '../index'
 
 export const browser = {
     Wallet,

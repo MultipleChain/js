@@ -1,5 +1,5 @@
 // eslint-disable-next-line filenames/match-exported
-import BaseWrapper from '../index.ts'
+import BaseWrapper from '../index'
 import type {
     WalletInterface,
     ProviderInterface,

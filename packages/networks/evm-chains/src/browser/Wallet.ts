@@ -9,10 +9,10 @@ import {
     type SignedMessage,
     type WalletAddress
 } from '@multiplechain/types'
-import { Provider } from '../services/Provider.ts'
-import type { EIP1193Provider } from './adapters/EIP6963.ts'
+import { Provider } from '../services/Provider'
+import type { EIP1193Provider } from './adapters/EIP6963'
 import { toHex } from '@multiplechain/utils'
-import type { TransactionSigner } from '../services/TransactionSigner.ts'
+import type { TransactionSigner } from '../services/TransactionSigner'
 
 const rejectMap = (error: any, reject: (a: any) => any): any => {
     console.error('MultipleChain EVM Wallet Error:', error)

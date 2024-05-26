@@ -1,19 +1,19 @@
 import { describe, it, expect } from 'vitest'
 
-import { provider } from './setup.ts'
-import { Provider } from '../src/services/Provider.ts'
+import { provider } from './setup'
+import { Provider } from '../src/services/Provider'
 
-import { NFT } from '../src/assets/NFT.ts'
-import { Coin } from '../src/assets/Coin.ts'
-import { Token } from '../src/assets/Token.ts'
+import { NFT } from '../src/assets/NFT'
+import { Coin } from '../src/assets/Coin'
+import { Token } from '../src/assets/Token'
 import { sleep } from '@multiplechain/utils'
 import { TransactionTypeEnum } from '@multiplechain/types'
-import { Transaction } from '../src/models/Transaction.ts'
-import { NftTransaction } from '../src/models/NftTransaction.ts'
-import { CoinTransaction } from '../src/models/CoinTransaction.ts'
-import { TokenTransaction } from '../src/models/TokenTransaction.ts'
-import { ContractTransaction } from '../src/models/ContractTransaction.ts'
-import { TransactionListener } from '../src/services/TransactionListener.ts'
+import { Transaction } from '../src/models/Transaction'
+import { NftTransaction } from '../src/models/NftTransaction'
+import { CoinTransaction } from '../src/models/CoinTransaction'
+import { TokenTransaction } from '../src/models/TokenTransaction'
+import { ContractTransaction } from '../src/models/ContractTransaction'
+import { TransactionListener } from '../src/services/TransactionListener'
 
 const senderPrivateKey = String(process.env.BLP_SENDER_PRIVATE_KEY)
 const receiverPrivateKey = String(process.env.BLP_RECEIVER_PRIVATE_KEY)

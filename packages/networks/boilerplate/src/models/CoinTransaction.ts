@@ -1,4 +1,4 @@
-import { Transaction } from './Transaction.ts'
+import { Transaction } from './Transaction'
 import { TransactionStatusEnum } from '@multiplechain/types'
 import type { AssetDirectionEnum, CoinTransactionInterface, TransferAmount, WalletAddress } from '@multiplechain/types'
 

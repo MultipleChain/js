@@ -1,10 +1,14 @@
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
+import strip from '@rollup/plugin-strip'
 import envCompatible from 'vite-plugin-env-compatible'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 export default defineConfig({
     plugins: [
+        strip({
+            functions: ['eval']
+        }),
         dts({
             entryRoot: './src'
         }),

@@ -1,1 +1,1 @@
-export * from './Coin.ts'
+export * from './Coin'

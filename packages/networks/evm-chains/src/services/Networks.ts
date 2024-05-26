@@ -1,5 +1,5 @@
 import * as wagmiChains from '@wagmi/chains'
-import type { EvmNetworkConfigInterface } from './Provider.ts'
+import type { EvmNetworkConfigInterface } from './Provider'
 
 const networks: Record<string, EvmNetworkConfigInterface> = {}
 

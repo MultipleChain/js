@@ -1,5 +1,5 @@
-import { fromLamports } from '../utils.ts'
-import { Provider } from '../services/Provider.ts'
+import { fromLamports } from '../utils'
+import { Provider } from '../services/Provider'
 import { ErrorTypeEnum, TransactionStatusEnum } from '@multiplechain/types'
 import {
     SystemProgram,

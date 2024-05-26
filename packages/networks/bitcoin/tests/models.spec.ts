@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { Transaction } from '../src/models/Transaction.ts'
-import { CoinTransaction } from '../src/models/CoinTransaction.ts'
+import { Transaction } from '../src/models/Transaction'
+import { CoinTransaction } from '../src/models/CoinTransaction'
 import { AssetDirectionEnum, TransactionStatusEnum } from '@multiplechain/types'
 
 const testAmount = Number(process.env.BTC_TRANSFER_AMOUNT)

@@ -1,7 +1,7 @@
 // Create dynamic types
 
 import fs from 'fs'
-import { networks } from './src/index.ts'
+import { networks } from './src/index'
 
 console.log('\r\nCreating dynamic types...')
 

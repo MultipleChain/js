@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest'
 
-import { Transaction } from '../src/models/Transaction.ts'
-import { NftTransaction } from '../src/models/NftTransaction.ts'
-import { CoinTransaction } from '../src/models/CoinTransaction.ts'
-import { TokenTransaction } from '../src/models/TokenTransaction.ts'
+import { Transaction } from '../src/models/Transaction'
+import { NftTransaction } from '../src/models/NftTransaction'
+import { CoinTransaction } from '../src/models/CoinTransaction'
+import { TokenTransaction } from '../src/models/TokenTransaction'
 import { AssetDirectionEnum, TransactionStatusEnum } from '@multiplechain/types'
 
 const nftId = Number(process.env.EVM_NFT_ID)

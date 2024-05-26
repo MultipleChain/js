@@ -1,4 +1,4 @@
-import type { AssetDirectionEnum, TransactionStatusEnum, TransactionTypeEnum } from './enums.ts'
+import type { AssetDirectionEnum, TransactionStatusEnum, TransactionTypeEnum } from './enums'
 import type {
     BlockConfirmationCount,
     BlockNumber,
@@ -9,7 +9,7 @@ import type {
     TransactionId,
     TransferAmount,
     WalletAddress
-} from './defines.ts'
+} from './defines'
 
 export interface TransactionInterface<TxData = unknown> {
     /**

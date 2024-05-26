@@ -1,4 +1,4 @@
-import type { PrivateKey, TransactionId } from '../defines.ts'
+import type { PrivateKey, TransactionId } from '../defines'
 
 export interface TransactionSignerInterface<RawData, SignedData> {
     /**

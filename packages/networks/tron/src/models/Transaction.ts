@@ -1,4 +1,4 @@
-import { Provider } from '../services/Provider.ts'
+import { Provider } from '../services/Provider'
 import {
     TransactionTypeEnum,
     type BlockConfirmationCount,
@@ -10,7 +10,7 @@ import {
     type WalletAddress
 } from '@multiplechain/types'
 import { ErrorTypeEnum, TransactionStatusEnum } from '@multiplechain/types'
-import { NFT } from '../assets/NFT.ts'
+import { NFT } from '../assets/NFT'
 
 interface RetObject {
     contractRet: string

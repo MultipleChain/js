@@ -24,7 +24,7 @@ jobs:
         env:
           NPM_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
 
-      - name: Check if version changed
+      - name: Publish if version changed
         run: |
           npm install -g pnpm
           pnpm install

@@ -9,13 +9,13 @@ import {
     type SignedMessage,
     type TransactionId
 } from '@multiplechain/types'
-import { Provider } from '../services/Provider.ts'
+import { Provider } from '../services/Provider'
 import type {
     WalletAdapterEvents,
     BaseMessageSignerWalletAdapter
 } from '@solana/wallet-adapter-base'
 import { base58Encode } from '@multiplechain/utils'
-import type { TransactionSigner } from '../services/TransactionSigner.ts'
+import type { TransactionSigner } from '../services/TransactionSigner'
 
 const rejectMap = (error: any, reject: (a: any) => any): any => {
     console.error('MultipleChain Solana Wallet Error:', error)

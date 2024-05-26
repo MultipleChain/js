@@ -1,4 +1,4 @@
-import { Provider } from '../services/Provider.ts'
+import { Provider } from '../services/Provider'
 import type { ContractAddress, ContractInterface, WalletAddress } from '@multiplechain/types'
 
 export class Contract implements ContractInterface {

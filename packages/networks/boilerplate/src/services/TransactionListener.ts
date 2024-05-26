@@ -1,9 +1,9 @@
-import { Provider } from './Provider.ts'
-import { Transaction } from '../models/Transaction.ts'
-import { NftTransaction } from '../models/NftTransaction.ts'
-import { CoinTransaction } from '../models/CoinTransaction.ts'
-import { TokenTransaction } from '../models/TokenTransaction.ts'
-import { ContractTransaction } from '../models/ContractTransaction.ts'
+import { Provider } from './Provider'
+import { Transaction } from '../models/Transaction'
+import { NftTransaction } from '../models/NftTransaction'
+import { CoinTransaction } from '../models/CoinTransaction'
+import { TokenTransaction } from '../models/TokenTransaction'
+import { ContractTransaction } from '../models/ContractTransaction'
 import { TransactionListenerProcessIndex, TransactionTypeEnum } from '@multiplechain/types'
 import type {
     DynamicTransactionType,

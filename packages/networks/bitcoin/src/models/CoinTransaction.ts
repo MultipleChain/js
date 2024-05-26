@@ -1,5 +1,5 @@
-import { fromSatoshi } from '../utils.ts'
-import { Transaction } from './Transaction.ts'
+import { fromSatoshi } from '../utils'
+import { Transaction } from './Transaction'
 import { TransactionStatusEnum, AssetDirectionEnum } from '@multiplechain/types'
 import type { WalletAddress, CoinTransactionInterface, TransferAmount } from '@multiplechain/types'
 

@@ -1,6 +1,6 @@
 import TronWebBase from 'tronweb'
-import type { TransactionData } from './TransactionSigner.ts'
-import type { TransactionRawData } from '../assets/Contract.ts'
+import type { TransactionData } from './TransactionSigner'
+import type { TransactionRawData } from '../assets/Contract'
 
 export class TronWeb extends TronWebBase {
     /**
