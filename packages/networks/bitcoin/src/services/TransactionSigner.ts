@@ -55,7 +55,7 @@ export class TransactionSigner implements TransactionSignerInterface<Transaction
         try {
             const result = await axios({
                 method: 'POST',
-                url: `https://blockstream.info/testnet/api/tx`,
+                url: this.provider.createEndpoint('tx'),
                 data: this.signedData
             })
             return result.data as TransactionId
