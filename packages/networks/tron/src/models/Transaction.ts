@@ -72,6 +72,27 @@ export interface TransactionData {
     }
 }
 
+const selectors = {
+    // TRC20
+    [TransactionTypeEnum.TOKEN]: [
+        'a9059cbb', // transfer(address,uint256)
+        '095ea7b3', // approve(address,uint256)
+        '23b872dd' // transferFrom(address,address,uint256)
+    ],
+    // TRC721, TRC1155
+    [TransactionTypeEnum.NFT]: [
+        // TRC721
+        '23b872dd', // transferFrom(address,address,uint256)
+        '095ea7b3', // approve(address,uint256)
+        '42842e0e', // safeTransferFrom(address,address,uint256)
+        'b88d4fde', // safeTransferFrom(address,address,uint256,bytes)
+        // TRC1155
+        'f242432a', // safeTransferFrom(address,address,uint256,uint256,bytes)
+        '2eb2c2d6', // safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)
+        '29535c7e' // setApprovalForAll(address,bool)
+    ]
+}
+
 export class Transaction implements TransactionInterface<TransactionData> {
     /**
      * Each transaction has its own unique ID defined by the user
@@ -160,13 +181,20 @@ export class Transaction implements TransactionInterface<TransactionData> {
         }
 
         if (data.raw_data.contract[0].type === 'TriggerSmartContract') {
-            const tryNft = new NFT(data.raw_data.contract[0].parameter.value.contract_address ?? '')
-            try {
-                await tryNft.getApproved(1)
-                return TransactionTypeEnum.NFT
-            } catch {
-                return TransactionTypeEnum.TOKEN
+            const val = data.raw_data.contract[0].parameter.value
+            const type = Object.entries(selectors).find(([_key, values]) => {
+                return values.includes(val.data?.slice(0, 8) ?? '')
+            })
+            if (type !== undefined) {
+                const tryNft = new NFT(val.contract_address ?? '')
+                try {
+                    await tryNft.getApproved(1)
+                    return TransactionTypeEnum.NFT
+                } catch {
+                    return TransactionTypeEnum.TOKEN
+                }
             }
+            return TransactionTypeEnum.CONTRACT
         } else if (data.raw_data.contract[0].type === 'TransferContract') {
             return TransactionTypeEnum.COIN
         }
