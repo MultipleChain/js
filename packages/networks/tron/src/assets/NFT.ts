@@ -24,14 +24,14 @@ export class NFT extends Contract implements NftInterface<TransactionSigner> {
      * @returns {Promise<string>} NFT name
      */
     async getName(): Promise<string> {
-        return (await this.callMethod('name')) as string
+        return (await this.callMethodWithCache('name')) as string
     }
 
     /**
      * @returns {Promise<string>} NFT symbol
      */
     async getSymbol(): Promise<string> {
-        return (await this.callMethod('symbol')) as string
+        return (await this.callMethodWithCache('symbol')) as string
     }
 
     /**
@@ -55,7 +55,7 @@ export class NFT extends Contract implements NftInterface<TransactionSigner> {
      * @returns {Promise<string>} URI of the NFT
      */
     async getTokenURI(nftId: NftId): Promise<string> {
-        return (await this.callMethod('tokenURI', nftId)) as string
+        return (await this.callMethodWithCache('tokenURI', nftId)) as string
     }
 
     /**

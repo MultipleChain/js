@@ -13,6 +13,11 @@ export interface ContractInterface {
     address: ContractAddress
 
     /**
+     * Contract ABI
+     */
+    cachedMethods: Record<string, unknown>
+
+    /**
      * @returns {ContractAddress} Given contract address
      */
     getAddress: () => ContractAddress
@@ -24,6 +29,14 @@ export interface ContractInterface {
      * @returns {Promise<unknown>} Result of the method
      */
     callMethod: (method: string, ...args: unknown[]) => Promise<unknown>
+
+    /**
+     * Runs the contract methods dynamically
+     * @param {string} method Method name
+     * @param {unknown[]} args Method parameters
+     * @returns {Promise<unknown>} Result of the method
+     */
+    callMethodWithCache: (method: string, ...args: unknown[]) => Promise<unknown>
 
     /**
      * To get method data from called method
