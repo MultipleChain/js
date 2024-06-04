@@ -4,7 +4,11 @@ import { Transaction } from '../src/models/Transaction'
 import { NftTransaction } from '../src/models/NftTransaction'
 import { CoinTransaction } from '../src/models/CoinTransaction'
 import { TokenTransaction } from '../src/models/TokenTransaction'
-import { AssetDirectionEnum, TransactionStatusEnum } from '@multiplechain/types'
+import {
+    AssetDirectionEnum,
+    TransactionStatusEnum,
+    TransactionTypeEnum
+} from '@multiplechain/types'
 
 const nftId = Number(process.env.TRON_NFT_ID)
 const tokenAmount = Number(process.env.TRON_TOKEN_AMOUNT)
@@ -35,6 +39,10 @@ describe('Transaction', () => {
         expect(tx.getUrl()).toBe(
             'https://nile.tronscan.org/#/transaction/8697ad2c4e1713227c16a65a5845636458df2d3db3adf526e07e17699bc6b3c4'
         )
+    })
+
+    it('Type', async () => {
+        expect(await tx.getType()).toBe(TransactionTypeEnum.COIN)
     })
 
     it('Sender', async () => {
@@ -73,6 +81,10 @@ describe('Coin Transaction', () => {
         expect(await tx.getAmount()).toBe(coinAmount)
     })
 
+    it('Type', async () => {
+        expect(await tx.getType()).toBe(TransactionTypeEnum.COIN)
+    })
+
     it('Verify Transfer', async () => {
         expect(await tx.verifyTransfer(AssetDirectionEnum.INCOMING, testReceiver, coinAmount)).toBe(
             TransactionStatusEnum.CONFIRMED
@@ -97,6 +109,10 @@ describe('Token Transaction', () => {
 
     it('Amount', async () => {
         expect(await tx.getAmount()).toBe(tokenAmount)
+    })
+
+    it('Type', async () => {
+        expect(await tx.getType()).toBe(TransactionTypeEnum.TOKEN)
     })
 
     it('Verify Transfer', async () => {
@@ -131,6 +147,10 @@ describe('NFT Transaction', () => {
 
     it('NFT ID', async () => {
         expect(await tx.getNftId()).toBe(nftId)
+    })
+
+    it('Type', async () => {
+        expect(await tx.getType()).toBe(TransactionTypeEnum.NFT)
     })
 
     it('Verify Transfer', async () => {
