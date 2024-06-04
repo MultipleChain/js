@@ -26,6 +26,14 @@ export interface ContractInterface {
     callMethod: (method: string, ...args: unknown[]) => Promise<unknown>
 
     /**
+     * Runs the contract methods dynamically
+     * @param {string} method Method name
+     * @param {unknown[]} args Method parameters
+     * @returns {Promise<unknown>} Result of the method
+     */
+    callMethodWithCache: (method: string, ...args: unknown[]) => Promise<unknown>
+
+    /**
      * To get method data from called method
      * @param {string} method Method name
      * @param {unknown[]} args Method parameters
