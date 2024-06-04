@@ -13,6 +13,11 @@ export interface ContractInterface {
     address: ContractAddress
 
     /**
+     * Contract ABI
+     */
+    cachedMethods: Record<string, unknown>
+
+    /**
      * @returns {ContractAddress} Given contract address
      */
     getAddress: () => ContractAddress
