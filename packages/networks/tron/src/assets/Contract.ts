@@ -51,6 +51,11 @@ export class Contract implements ContractInterface {
     address: ContractAddress
 
     /**
+     * Cached static methods
+     */
+    cachedMethods: Record<string, unknown> = {}
+
+    /**
      * Blockchain network provider
      */
     provider: Provider
@@ -106,6 +111,19 @@ export class Contract implements ContractInterface {
     async callMethod(method: string, ...args: unknown[]): Promise<unknown> {
         await this.setTronContract()
         return this.tronContract[method](...args).call() // eslint-disable-line
+    }
+
+    /**
+     * @param {string} method Method name
+     * @param {unknown[]} args Method parameters
+     * @returns {Promise<unknown>} Method result
+     */
+    async callMethodWithCache(method: string, ...args: unknown[]): Promise<unknown> {
+        if (this.cachedMethods[method] !== undefined) {
+            return this.cachedMethods[method]
+        }
+
+        return (this.cachedMethods[method] = await this.callMethod(method, ...args))
     }
 
     /**

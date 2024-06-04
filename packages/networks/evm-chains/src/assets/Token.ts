@@ -26,21 +26,21 @@ export class Token extends Contract implements TokenInterface<TransactionSigner>
      * @returns {Promise<string>} Token name
      */
     async getName(): Promise<string> {
-        return (await this.callMethod('name')) as string
+        return (await this.callMethodWithCache('name')) as string
     }
 
     /**
      * @returns {Promise<string>} Token symbol
      */
     async getSymbol(): Promise<string> {
-        return (await this.callMethod('symbol')) as string
+        return (await this.callMethodWithCache('symbol')) as string
     }
 
     /**
      * @returns {Promise<number>} Decimal value of the token
      */
     async getDecimals(): Promise<number> {
-        return Number(await this.callMethod('decimals'))
+        return Number(await this.callMethodWithCache('decimals'))
     }
 
     /**

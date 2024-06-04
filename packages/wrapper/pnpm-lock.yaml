@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@multiplechain/types':
-    specifier: ^0.1.66
-    version: 0.1.66
+    specifier: ^0.1.67
+    version: 0.1.67
   '@multiplechain/utils':
     specifier: ^0.1.21
     version: 0.1.21
@@ -695,7 +695,7 @@ packages:
   /@multiplechain/evm-chains@0.4.1(react@18.3.1)(typescript@5.4.5):
     resolution: {integrity: sha512-z8bwNcmgLdZAm1OmA38EL9MORKHe3jATQGXdELrboAXb1GcTLhkjpiDQ3SPIIJ+u9I4p4gOFvlIELcNBaGhQbA==}
     dependencies:
-      '@multiplechain/types': 0.1.66
+      '@multiplechain/types': 0.1.67
       '@multiplechain/utils': 0.1.21
       '@wagmi/chains': 1.8.0(typescript@5.4.5)
       '@walletconnect/ethereum-provider': 2.13.0(react@18.3.1)
@@ -772,7 +772,7 @@ packages:
     dependencies:
       '@beycandeveloper/tron-tx-decoder': 2.0.7
       '@multiplechain/tron-walletconnect': 0.1.2(typescript@5.4.5)(vite@5.2.11)
-      '@multiplechain/types': 0.1.66
+      '@multiplechain/types': 0.1.67
       '@multiplechain/utils': 0.1.21
       '@noble/secp256k1': 1.7.1
       '@tronweb3/tronwallet-adapter-bitkeep': 1.1.1
@@ -806,8 +806,8 @@ packages:
       - vite
     dev: true
 
-  /@multiplechain/types@0.1.66:
-    resolution: {integrity: sha512-ekv6EAQWZnya3hWX1WSvIWhAw3XbKvqp3JnlTeNw0BxzRnO6rYyHXD5iRse6R95mk11N3OUyDtbMCAvzYQUsxg==}
+  /@multiplechain/types@0.1.67:
+    resolution: {integrity: sha512-8TN5HhDC7lILh7wDKneJFS1Nyvxa+YGi0L56m6jnj0mBmTmwxNN42W5tP/3KYUlsfTHqb64iijjXMTLYZ0x+Dg==}
 
   /@multiplechain/utils@0.1.21:
     resolution: {integrity: sha512-4mRlnhvXcS+7Hb1By5s2eoCH02kqOSQzV8qj0DHqZK20FtxtduaoGCtcClrFgEjN/HAXnHgdDc1pxTpveIkvRQ==}

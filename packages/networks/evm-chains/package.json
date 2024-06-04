@@ -1,6 +1,6 @@
 {
     "name": "@multiplechain/evm-chains",
-    "version": "0.4.4",
+    "version": "0.4.5",
     "type": "module",
     "main": "dist/index.cjs",
     "module": "dist/index.es.js",
@@ -75,7 +75,7 @@
         "url": "https://github.com/MultipleChain/js/issues"
     },
     "dependencies": {
-        "@multiplechain/types": "^0.1.66",
+        "@multiplechain/types": "^0.1.68",
         "@multiplechain/utils": "^0.1.21",
         "@wagmi/chains": "^1.8.0",
         "@walletconnect/ethereum-provider": "^2.12.2",

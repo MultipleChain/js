@@ -9,6 +9,11 @@ export class Contract implements ContractInterface {
     address: ContractAddress
 
     /**
+     * Cached static methods
+     */
+    cachedMethods: Record<string, unknown> = {}
+
+    /**
      * Contract public key
      */
     pubKey: PublicKey
@@ -42,6 +47,19 @@ export class Contract implements ContractInterface {
      */
     async callMethod(_method: string, ..._args: unknown[]): Promise<unknown> {
         throw new Error('Method not implemented.')
+    }
+
+    /**
+     * @param {string} method Method name
+     * @param {unknown[]} args Method parameters
+     * @returns {Promise<unknown>} Method result
+     */
+    async callMethodWithCache(method: string, ...args: unknown[]): Promise<unknown> {
+        if (this.cachedMethods[method] !== undefined) {
+            return this.cachedMethods[method]
+        }
+
+        return (this.cachedMethods[method] = await this.callMethod(method, ...args))
     }
 
     /**
