@@ -1,7 +1,7 @@
 import { Provider } from '../services/Provider'
 import type { PrivateKey, TransactionId, TransactionSignerInterface } from '@multiplechain/types'
 
-export class TransactionSigner implements TransactionSignerInterface<unknown, unknown>{
+export class TransactionSigner implements TransactionSignerInterface<unknown, unknown> {
     /**
      * Transaction data from the blockchain network
      */
@@ -18,8 +18,8 @@ export class TransactionSigner implements TransactionSignerInterface<unknown, un
     provider: Provider
 
     /**
-     * @param {unknown} rawData - Transaction data
-     * @param {Provider} provider - Blockchain network provider
+     * @param rawData - Transaction data
+     * @param provider - Blockchain network provider
      */
     constructor(rawData: unknown, provider?: Provider) {
         this.rawData = rawData
@@ -28,8 +28,8 @@ export class TransactionSigner implements TransactionSignerInterface<unknown, un
 
     /**
      * Sign the transaction
-     * @param {PrivateKey} privateKey - Transaction data
-     * @returns {Promise<this>} Signed transaction data
+     * @param privateKey - Transaction data
+     * @returns Signed transaction data
      */
     async sign(privateKey: PrivateKey): Promise<this> {
         return await Promise.resolve(this)
@@ -37,23 +37,21 @@ export class TransactionSigner implements TransactionSignerInterface<unknown, un
 
     /**
      * Send the transaction to the blockchain network
-     * @returns {Promise<TransactionId>}
+     * @returns Transaction ID
      */
     async send(): Promise<TransactionId> {
         return await Promise.resolve('id')
     }
 
     /**
-     * Get the raw transaction data
-     * @returns {unknown}
+     * @returns raw transaction data
      */
     getRawData(): unknown {
         return this.rawData
     }
 
     /**
-     * Get the signed transaction data
-     * @returns {unknown}
+     * @returns signed transaction data
      */
     getSignedData(): unknown {
         return this.signedData

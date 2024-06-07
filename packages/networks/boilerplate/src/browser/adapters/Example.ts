@@ -8,7 +8,7 @@ declare global {
     }
 }
 
-const Example: WalletAdapterInterface<Provider, unknown>  = {
+const Example: WalletAdapterInterface<Provider, unknown> = {
     id: 'example',
     name: 'Example',
     icon: 'icon base64 string here',

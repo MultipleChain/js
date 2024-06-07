@@ -4,31 +4,31 @@ import type { AssetDirectionEnum, TokenTransactionInterface, TransferAmount, Wal
 
 export class TokenTransaction extends ContractTransaction implements TokenTransactionInterface {
     /**
-     * @returns {Promise<WalletAddress>} Wallet address of the receiver of transaction
+     * @returns Wallet address of the receiver of transaction
      */
     async getReceiver(): Promise<WalletAddress> {
         return 'example'
     }
 
     /**
-     * @returns {Promise<WalletAddress>} Wallet address of the sender of transaction
+     * @returns Wallet address of the sender of transaction
      */
     async getSender(): Promise<WalletAddress> {
         return 'example'
     }
 
     /**
-     * @returns {Promise<TransferAmount>} Amount of tokens that will be transferred
+     * @returns Amount of tokens that will be transferred
      */
     async getAmount(): Promise<TransferAmount> {
         return 0
     }
 
     /**
-     * @param {AssetDirectionEnum} direction - Direction of the transaction (token)
-     * @param {WalletAddress} address - Wallet address of the owner or spender of the transaction, dependant on direction
-     * @param {TransferAmount} amount Amount of tokens that will be approved
-     * @returns {Promise<TransactionStatusEnum>} Status of the transaction
+     * @param direction - Direction of the transaction (token)
+     * @param address - Wallet address of the owner or spender of the transaction, dependant on direction
+     * @param amount Amount of tokens that will be approved
+     * @returns Status of the transaction
      */
     async verifyTransfer(
         direction: AssetDirectionEnum,

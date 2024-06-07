@@ -50,7 +50,7 @@ export class TransactionListener<
      * Listener status
      */
     status: boolean = false
-    
+
     /**
      * Transaction listener callback
      */
@@ -60,16 +60,16 @@ export class TransactionListener<
      * Triggered transactions
      */
     triggeredTransactions: TransactionId[] = []
-    
+
     /**
      * Transaction listener filter
      */
     filter?: DynamicTransactionListenerFilterType<T> | Record<string, never>
 
     /**
-     * @param {T} type - Transaction type
-     * @param {DynamicTransactionListenerFilterType<T>} filter - Transaction listener filter
-     * @param {Provider} provider - Provider
+     * @param type - Transaction type
+     * @param filter - Transaction listener filter
+     * @param provider - Provider
      */
     constructor(type: T, filter?: DynamicTransactionListenerFilterType<T>, provider?: Provider) {
         this.type = type
@@ -79,7 +79,6 @@ export class TransactionListener<
 
     /**
      * Close the listener
-     * @returns {void}
      */
     stop(): void {
         if (this.status) {
@@ -90,7 +89,6 @@ export class TransactionListener<
 
     /**
      * Start the listener
-     * @returns {void}
      */
     start(): void {
         if (!this.status) {
@@ -102,7 +100,7 @@ export class TransactionListener<
 
     /**
      * Get the listener status
-     * @returns {boolean} Listener status
+     * @returns Listener status
      */
     getStatus(): boolean {
         return this.status
@@ -110,8 +108,8 @@ export class TransactionListener<
 
     /**
      * Listen to the transaction events
-     * @param {CallBackType} callback - Transaction listener callback
-     * @returns {Promise<boolean>}
+     * @param callback - Transaction listener callback
+     * @returns listener status
      */
     async on(callback: CallBackType): Promise<boolean> {
         this.callbacks.push(callback)
@@ -120,8 +118,7 @@ export class TransactionListener<
 
     /**
      * Trigger the event when a transaction is detected
-     * @param {TransactionListenerTriggerType<T>} transaction - Transaction data
-     * @returns {void}
+     * @param transaction - Transaction data
      */
     trigger<T extends TransactionTypeEnum>(transaction: TransactionListenerTriggerType<T>): void {
         if (!this.triggeredTransactions.includes(transaction.id)) {
@@ -134,13 +131,11 @@ export class TransactionListener<
 
     /**
      * General transaction process
-     * @returns {void}
      */
     generalProcess(): void {}
 
     /**
      * Contract transaction process
-     * @returns {void}
      */
     contractProcess(): void {
         const filter = this.filter as ContractTransactionListenerFilterInterface
@@ -148,7 +143,6 @@ export class TransactionListener<
 
     /**
      * Coin transaction process
-     * @returns {void}
      */
     coinProcess(): void {
         const filter = this.filter as CoinTransactionListenerFilterInterface
@@ -156,7 +150,6 @@ export class TransactionListener<
 
     /**
      * Token transaction process
-     * @returns {void}
      */
     tokenProcess(): void {
         const filter = this.filter as TokenTransactionListenerFilterInterface
@@ -164,7 +157,6 @@ export class TransactionListener<
 
     /**
      * NFT transaction process
-     * @returns {void}
      */
     nftProcess(): void {
         const filter = this.filter as NftTransactionListenerFilterInterface
