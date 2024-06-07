@@ -28,8 +28,8 @@ export class TransactionSigner implements TransactionSignerInterface<Transaction
     provider: Provider
 
     /**
-     * @param {TransactionData} rawData - Transaction data
-     * @param {Provider} provider - Blockchain network provider
+     * @param rawData - Transaction data
+     * @param provider - Blockchain network provider
      */
     constructor(rawData: TransactionData, provider?: Provider) {
         this.rawData = rawData
@@ -38,8 +38,8 @@ export class TransactionSigner implements TransactionSignerInterface<Transaction
 
     /**
      * Sign the transaction
-     * @param {PrivateKey} privateKey - Transaction data
-     * @returns {Promise<this>} Signed transaction data
+     * @param privateKey - Transaction data
+     * @returns Signed transaction data
      */
     async sign(privateKey: PrivateKey): Promise<this> {
         this.rawData.bitcoreLib.sign(privateKey)
@@ -49,7 +49,7 @@ export class TransactionSigner implements TransactionSignerInterface<Transaction
 
     /**
      * Send the transaction to the blockchain network
-     * @returns {Promise<TransactionId>}
+     * @returns Transaction ID
      */
     async send(): Promise<TransactionId> {
         try {
@@ -66,7 +66,7 @@ export class TransactionSigner implements TransactionSignerInterface<Transaction
 
     /**
      * Get the raw transaction data
-     * @returns {TransactionData}
+     * @returns Transaction data
      */
     getRawData(): TransactionData {
         return this.rawData
@@ -74,7 +74,7 @@ export class TransactionSigner implements TransactionSignerInterface<Transaction
 
     /**
      * Get the signed transaction data
-     * @returns {string}
+     * @returns Signed transaction data
      */
     getSignedData(): string {
         return this.signedData ?? ''

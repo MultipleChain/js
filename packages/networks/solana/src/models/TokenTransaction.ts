@@ -16,8 +16,8 @@ import type {
 
 export class TokenTransaction extends ContractTransaction implements TokenTransactionInterface {
     /**
-     * @param {ParsedTransactionWithMeta} data Transaction data
-     * @returns {Promise<ParsedInstruction>} Wallet address of the receiver of transaction
+     * @param data Transaction data
+     * @returns Wallet address of the receiver of transaction
      */
     findTransferInstruction(data: ParsedTransactionWithMeta): ParsedInstruction | null {
         return (
@@ -32,7 +32,7 @@ export class TokenTransaction extends ContractTransaction implements TokenTransa
     }
 
     /**
-     * @returns {Promise<ContractAddress>} Contract address of the transaction
+     * @returns Contract address of the transaction
      */
     async getAddress(): Promise<ContractAddress> {
         const data = await this.getData()
@@ -58,7 +58,7 @@ export class TokenTransaction extends ContractTransaction implements TokenTransa
     }
 
     /**
-     * @returns {Promise<WalletAddress>} Wallet address of the receiver of transaction
+     * @returns Wallet address of the receiver of transaction
      */
     async getReceiver(): Promise<WalletAddress> {
         const data = await this.getData()
@@ -75,7 +75,7 @@ export class TokenTransaction extends ContractTransaction implements TokenTransa
     }
 
     /**
-     * @returns {Promise<WalletAddress>} Wallet address of the sender of transaction
+     * @returns Wallet address of the sender of transaction
      */
     async getSender(): Promise<WalletAddress> {
         const data = await this.getData()
@@ -87,7 +87,7 @@ export class TokenTransaction extends ContractTransaction implements TokenTransa
     }
 
     /**
-     * @returns {Promise<TransferAmount>} Amount of tokens that will be transferred
+     * @returns Amount of tokens that will be transferred
      */
     async getAmount(): Promise<TransferAmount> {
         const data = await this.getData()
@@ -113,10 +113,10 @@ export class TokenTransaction extends ContractTransaction implements TokenTransa
     }
 
     /**
-     * @param {AssetDirectionEnum} direction - Direction of the transaction (token)
-     * @param {WalletAddress} address - Wallet address of the owner or spender of the transaction, dependant on direction
-     * @param {TransferAmount} amount Amount of tokens that will be approved
-     * @returns {Promise<TransactionStatusEnum>} Status of the transaction
+     * @param direction - Direction of the transaction (token)
+     * @param address - Wallet address of the owner or spender of the transaction, dependant on direction
+     * @param amount Amount of tokens that will be approved
+     * @returns Status of the transaction
      */
     async verifyTransfer(
         direction: AssetDirectionEnum,

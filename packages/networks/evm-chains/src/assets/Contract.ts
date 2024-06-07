@@ -36,9 +36,9 @@ export class Contract implements ContractInterface {
     ethers: Ethers
 
     /**
-     * @param {ContractAddress} address Contract address
-     * @param {Provider} provider Blockchain network provider
-     * @param {InterfaceAbi} ABI Contract ABI
+     * @param address Contract address
+     * @param provider Blockchain network provider
+     * @param ABI Contract ABI
      */
     constructor(address: ContractAddress, provider?: Provider, ABI?: InterfaceAbi) {
         this.ABI = ABI ?? []
@@ -49,25 +49,25 @@ export class Contract implements ContractInterface {
     }
 
     /**
-     * @returns {ContractAddress} Contract address
+     * @returns Contract address
      */
     getAddress(): ContractAddress {
         return this.address
     }
 
     /**
-     * @param {string} method Method name
-     * @param {unknown[]} args Method parameters
-     * @returns {Promise<unknown>} Method result
+     * @param method Method name
+     * @param args Method parameters
+     * @returns Method result
      */
     async callMethod(method: string, ...args: unknown[]): Promise<unknown> {
         return this.ethersContract[method](...args) // eslint-disable-line
     }
 
     /**
-     * @param {string} method Method name
-     * @param {unknown[]} args Method parameters
-     * @returns {Promise<unknown>} Method result
+     * @param method Method name
+     * @param args Method parameters
+     * @returns Method result
      */
     async callMethodWithCache(method: string, ...args: unknown[]): Promise<unknown> {
         if (this.cachedMethods[method] !== undefined) {
@@ -78,19 +78,19 @@ export class Contract implements ContractInterface {
     }
 
     /**
-     * @param {string} method Method name
-     * @param {unknown[]} args Sender wallet address
-     * @returns {Promise<string>} Encoded method data
+     * @param method Method name
+     * @param args Sender wallet address
+     * @returns Encoded method data
      */
     async getMethodData(method: string, ...args: unknown[]): Promise<string> {
         return this.ethersContract.interface.encodeFunctionData(method, args)
     }
 
     /**
-     * @param {string} method Method name
-     * @param {WalletAddress} from Sender wallet address
-     * @param {unknown[]} args Method parameters
-     * @returns {Promise<number>} Gas limit
+     * @param method Method name
+     * @param from Sender wallet address
+     * @param args Method parameters
+     * @returns Gas limit
      */
     async getMethodEstimateGas(
         method: string,
@@ -101,10 +101,10 @@ export class Contract implements ContractInterface {
     }
 
     /**
-     * @param {string} method Method name
-     * @param {WalletAddress} from Sender wallet address
-     * @param {unknown[]} args Method parameters
-     * @returns {Promise<TransactionData>} Transaction data
+     * @param method Method name
+     * @param from Sender wallet address
+     * @param args Method parameters
+     * @returns Transaction data
      */
     async createTransactionData(
         method: string,

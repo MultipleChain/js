@@ -52,7 +52,7 @@ export class Provider implements ProviderInterface<BitcoinNetworkConfigInterface
 
     /**
      * Get the static instance of the provider
-     * @returns {Provider} Provider
+     * @returns Provider
      */
     static get instance(): Provider {
         if (Provider._instance === undefined) {
@@ -63,8 +63,7 @@ export class Provider implements ProviderInterface<BitcoinNetworkConfigInterface
 
     /**
      * Initialize the static instance of the provider
-     * @param {BitcoinNetworkConfigInterface} network - Network configuration of the provider
-     * @returns {void}
+     * @param network - Network configuration of the provider
      */
     static initialize(network: BitcoinNetworkConfigInterface): void {
         if (Provider._instance !== undefined) {
@@ -75,8 +74,8 @@ export class Provider implements ProviderInterface<BitcoinNetworkConfigInterface
 
     /**
      * Check RPC connection
-     * @param {string} url - RPC URL
-     * @returns {Promise<boolean | Error>}
+     * @param url - RPC URL
+     * @returns Connection status
      */
     async checkRpcConnection(url?: string): Promise<boolean | Error> {
         try {
@@ -94,8 +93,8 @@ export class Provider implements ProviderInterface<BitcoinNetworkConfigInterface
 
     /**
      * Check WS connection
-     * @param {string} url - Websocket URL
-     * @returns {Promise<boolean | Error>}
+     * @param url - Websocket URL
+     * @returns Connection status
      */
     async checkWsConnection(url?: string): Promise<boolean | Error> {
         try {
@@ -113,8 +112,7 @@ export class Provider implements ProviderInterface<BitcoinNetworkConfigInterface
 
     /**
      * Update network configuration of the provider
-     * @param {BitcoinNetworkConfigInterface} network - Network configuration
-     * @returns {void}
+     * @param network - Network configuration
      */
     update(network: BitcoinNetworkConfigInterface): void {
         this.network = network
@@ -140,8 +138,8 @@ export class Provider implements ProviderInterface<BitcoinNetworkConfigInterface
 
     /**
      * Create a new endpoint
-     * @param {string} endpoint - Endpoint
-     * @returns {string} Endpoint
+     * @param endpoint - Endpoint
+     * @returns Endpoint
      */
     createEndpoint(endpoint: string): string {
         return this.api + endpoint
@@ -149,7 +147,7 @@ export class Provider implements ProviderInterface<BitcoinNetworkConfigInterface
 
     /**
      * Get the current network configuration is testnet or not
-     * @returns {boolean} Testnet or not
+     * @returns Testnet or not
      */
     isTestnet(): boolean {
         return this.network?.testnet ?? false

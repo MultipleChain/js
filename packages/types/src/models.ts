@@ -132,7 +132,6 @@ export interface NftTransactionInterface
     getNftId: () => Promise<NftId>
 
     /**
-     * @override verifyTransfer() in AssetTransactionInterface
      * @param {AssetDirectionEnum} direction - Direction of the transaction (nft)
      * @param {WalletAddress} address - Wallet address of the receiver or sender of the transaction, dependant on direction
      * @param {NftId} nftId ID of the NFT that will be transferred

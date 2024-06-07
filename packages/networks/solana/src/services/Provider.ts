@@ -65,7 +65,7 @@ export class Provider implements ProviderInterface {
 
     /**
      * Get the static instance of the provider
-     * @returns {Provider} Provider
+     * @returns Provider
      */
     static get instance(): Provider {
         if (Provider._instance === undefined) {
@@ -76,8 +76,7 @@ export class Provider implements ProviderInterface {
 
     /**
      * Initialize the static instance of the provider
-     * @param {NetworkConfigInterface} network - Network configuration of the provider
-     * @returns {void}
+     * @param network - Network configuration of the provider
      */
     static initialize(network: NetworkConfigInterface): void {
         if (Provider._instance !== undefined) {
@@ -88,8 +87,8 @@ export class Provider implements ProviderInterface {
 
     /**
      * Check RPC connection
-     * @param {string} url - RPC URL
-     * @returns {Promise<boolean | Error>}
+     * @param url - RPC URL
+     * @returns Connection status
      */
     async checkRpcConnection(url?: string): Promise<boolean | Error> {
         try {
@@ -111,8 +110,8 @@ export class Provider implements ProviderInterface {
 
     /**
      * Check WS connection
-     * @param {string} url - Websocket URL
-     * @returns {Promise<boolean | Error>}
+     * @param url - Websocket URL
+     * @returns Connection status
      */
     async checkWsConnection(url?: string): Promise<boolean | Error> {
         try {
@@ -130,8 +129,7 @@ export class Provider implements ProviderInterface {
 
     /**
      * Update network configuration of the provider
-     * @param {NetworkConfigInterface} network - Network configuration of the provider
-     * @returns {void}
+     * @param network - Network configuration of the provider
      */
     update(network: NetworkConfigInterface): void {
         this.network = network
@@ -146,7 +144,7 @@ export class Provider implements ProviderInterface {
 
     /**
      * Get the current network configuration is testnet or not
-     * @returns {boolean} Testnet status
+     * @returns Testnet status
      */
     isTestnet(): boolean {
         return this.network?.testnet ?? false

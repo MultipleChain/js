@@ -90,8 +90,8 @@ export class Wallet implements WalletInterface<Provider, EIP1193Provider, Transa
     networkProvider: Provider
 
     /**
-     * @param {WalletAdapter} adapter
-     * @param {Provider} provider
+     * @param adapter - Wallet adapter
+     * @param provider - Blockchain network provider
      */
     constructor(adapter: WalletAdapter, provider?: Provider) {
         this.adapter = adapter
@@ -99,8 +99,8 @@ export class Wallet implements WalletInterface<Provider, EIP1193Provider, Transa
     }
 
     /**
-     * @param {RequestType} payload
-     * @returns {Promise<any>}
+     * @param payload RequestType
+     * @returns any
      */
     async request(payload: RequestType): Promise<any> {
         const res = await this.walletProvider.request(payload)
@@ -118,44 +118,44 @@ export class Wallet implements WalletInterface<Provider, EIP1193Provider, Transa
     }
 
     /**
-     * @returns {string}
+     * @returns Wallet ID
      */
     getId(): string {
         return this.adapter.id
     }
 
     /**
-     * @returns {string}
+     * @returns Wallet name
      */
     getName(): string {
         return this.adapter.name
     }
 
     /**
-     * @returns {string}
+     * @returns Wallet icon
      */
     getIcon(): string {
         return this.adapter.icon
     }
 
     /**
-     * @returns {WalletPlatformEnum[]}
+     * @returns Wallet platforms
      */
     getPlatforms(): WalletPlatformEnum[] {
         return this.adapter.platforms
     }
 
     /**
-     * @returns {string}
+     * @returns Wallet download link
      */
     getDownloadLink(): string | undefined {
         return this.adapter.downloadLink
     }
 
     /**
-     * @param {string} url
-     * @param {UnknownConfig} config
-     * @returns {string}
+     * @param url - Deep link URL
+     * @param config - Deep link configuration
+     * @returns Deep link
      */
     createDeepLink(url: string, config?: UnknownConfig): string | null {
         if (this.adapter.createDeepLink === undefined) {
@@ -166,8 +166,8 @@ export class Wallet implements WalletInterface<Provider, EIP1193Provider, Transa
     }
 
     /**
-     * @param {ConnectConfig} config
-     * @returns {Promise<WalletAddress>}
+     * @param config - Connection configuration
+     * @returns WalletAddress
      */
     async connect(config?: ConnectConfig): Promise<WalletAddress> {
         return await new Promise((resolve, reject) => {
@@ -199,21 +199,21 @@ export class Wallet implements WalletInterface<Provider, EIP1193Provider, Transa
     }
 
     /**
-     * @returns {boolean}
+     * @returns boolean
      */
     async isDetected(): Promise<boolean> {
         return await this.adapter.isDetected()
     }
 
     /**
-     * @returns {boolean}
+     * @returns boolean
      */
     async isConnected(): Promise<boolean> {
         return await this.adapter.isConnected()
     }
 
     /**
-     * @returns {Promise<number>}
+     * @returns number
      */
     async getChainId(): Promise<number> {
         const chainId = await this.request({ method: 'eth_chainId' })
@@ -221,15 +221,15 @@ export class Wallet implements WalletInterface<Provider, EIP1193Provider, Transa
     }
 
     /**
-     * @returns {Promise<WalletAddress>}
+     * @returns WalletAddress
      */
     async getAddress(): Promise<WalletAddress> {
         return (await this.walletProvider.request({ method: 'eth_accounts' }))[0]
     }
 
     /**
-     * @param {string} message
-     * @returns {Promise<SignedMessage>}
+     * @param message - Message to sign
+     * @returns SignedMessage
      */
     async signMessage(message: string): Promise<SignedMessage> {
         const address = await this.getAddress()
@@ -249,8 +249,8 @@ export class Wallet implements WalletInterface<Provider, EIP1193Provider, Transa
     }
 
     /**
-     * @param {TransactionSigner} transactionSigner
-     * @returns {Promise<TransactionId>}
+     * @param transactionSigner - Transaction signer
+     * @returns TransactionId
      */
     async sendTransaction(transactionSigner: TransactionSigner): Promise<TransactionId> {
         return await new Promise((resolve, reject) => {
@@ -275,9 +275,8 @@ export class Wallet implements WalletInterface<Provider, EIP1193Provider, Transa
     }
 
     /**
-     * @param {string} eventName
-     * @param {Function} callback
-     * @returns {void}
+     * @param eventName - Event name
+     * @param callback - Event callback
      */
     on(eventName: string, callback: (...args: any[]) => void): void {
         if (this.adapter?.provider?.on !== undefined) {

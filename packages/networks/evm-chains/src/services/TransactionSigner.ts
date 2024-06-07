@@ -34,8 +34,8 @@ export class TransactionSigner implements TransactionSignerInterface<Transaction
     provider: Provider
 
     /**
-     * @param {TransactionData} rawData Transaction data
-     * @param {Provider} provider Blockchain network provider
+     * @param rawData Transaction data
+     * @param provider Blockchain network provider
      */
     constructor(rawData: TransactionData, provider?: Provider) {
         this.rawData = rawData
@@ -44,8 +44,8 @@ export class TransactionSigner implements TransactionSignerInterface<Transaction
 
     /**
      * Sign the transaction
-     * @param {PrivateKey} privateKey - Transaction data
-     * @returns {Promise<this>} Signed transaction data
+     * @param privateKey - Transaction data
+     * @returns Signed transaction data
      */
     public async sign(privateKey: PrivateKey): Promise<this> {
         try {
@@ -64,7 +64,7 @@ export class TransactionSigner implements TransactionSignerInterface<Transaction
 
     /**
      * Send the transaction to the blockchain network
-     * @returns {Promise<TransactionId>} Transaction data
+     * @returns Transaction data
      */
     async send(): Promise<TransactionId> {
         return (await this.provider.ethers.jsonRpc.send('eth_sendRawTransaction', [
@@ -74,7 +74,7 @@ export class TransactionSigner implements TransactionSignerInterface<Transaction
 
     /**
      * Get the raw transaction data
-     * @returns {TransactionData} Transaction data
+     * @returns Transaction data
      */
     getRawData(): TransactionData {
         return this.rawData
@@ -82,7 +82,7 @@ export class TransactionSigner implements TransactionSignerInterface<Transaction
 
     /**
      * Get the signed transaction data
-     * @returns {string} Signed transaction data
+     * @returns Signed transaction data
      */
     getSignedData(): string {
         return this.signedData

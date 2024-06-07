@@ -12,16 +12,16 @@ import { TransactionStatusEnum, AssetDirectionEnum } from '@multiplechain/types'
 
 export class NftTransaction extends ContractTransaction implements NftTransactionInterface {
     /**
-     * @param {TransactionId} id Transaction id
-     * @param {Provider} provider Blockchain network provider
-     * @param {InterfaceAbi} ABI Contract ABI
+     * @param id Transaction id
+     * @param provider Blockchain network provider
+     * @param ABI Contract ABI
      */
     constructor(id: TransactionId, provider?: Provider, ABI?: InterfaceAbi) {
         super(id, provider, ABI ?? (ERC721 as InterfaceAbi))
     }
 
     /**
-     * @returns {Promise<WalletAddress>} Receiver wallet address
+     * @returns Receiver wallet address
      */
     async getReceiver(): Promise<WalletAddress> {
         const decoded = await this.decodeData()
@@ -38,7 +38,7 @@ export class NftTransaction extends ContractTransaction implements NftTransactio
     }
 
     /**
-     * @returns {Promise<WalletAddress>} Sender wallet address
+     * @returns Sender wallet address
      */
     async getSender(): Promise<WalletAddress> {
         const decoded = await this.decodeData()
@@ -55,18 +55,17 @@ export class NftTransaction extends ContractTransaction implements NftTransactio
     }
 
     /**
-     * @returns {Promise<NftId>} NFT ID
+     * @returns NFT ID
      */
     async getNftId(): Promise<NftId> {
         return Number((await this.decodeData())?.args[2] ?? 0)
     }
 
     /**
-     * @param {AssetDirectionEnum} direction - Direction of the transaction (nft)
-     * @param {WalletAddress} address - Wallet address of the receiver or sender of the transaction, dependant on direction
-     * @param {NftId} nftId ID of the NFT that will be transferred
-     * @override verifyTransfer() in AssetTransactionInterface
-     * @returns {Promise<TransactionStatusEnum>} Status of the transaction
+     * @param direction - Direction of the transaction (nft)
+     * @param address - Wallet address of the receiver or sender of the transaction, dependant on direction
+     * @param nftId ID of the NFT that will be transferred
+     * @returns Status of the transaction
      */
     async verifyTransfer(
         direction: AssetDirectionEnum,

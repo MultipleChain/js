@@ -4,8 +4,8 @@ import type { ContractAddress, ContractTransactionInterface } from '@multiplecha
 
 export class ContractTransaction extends Transaction implements ContractTransactionInterface {
     /**
-     * @param {ParsedTransactionWithMeta} data Transaction data
-     * @returns {Promise<ParsedInstruction>} Wallet address of the receiver of transaction
+     * @param data Transaction data
+     * @returns Wallet address of the receiver of transaction
      */
     findTransferInstruction(data: ParsedTransactionWithMeta): ParsedInstruction | null {
         const length = data.transaction.message.instructions.length
@@ -13,7 +13,7 @@ export class ContractTransaction extends Transaction implements ContractTransact
     }
 
     /**
-     * @returns {Promise<ContractAddress>} Contract address of the transaction
+     * @returns Contract address of the transaction
      */
     async getAddress(): Promise<ContractAddress> {
         const data = await this.getData()

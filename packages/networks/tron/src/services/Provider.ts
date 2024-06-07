@@ -68,7 +68,7 @@ export class Provider implements ProviderInterface {
 
     /**
      * Get the static instance of the provider
-     * @returns {Provider} Provider
+     * @returns Provider
      */
     static get instance(): Provider {
         if (Provider._instance === undefined) {
@@ -79,8 +79,7 @@ export class Provider implements ProviderInterface {
 
     /**
      * Initialize the static instance of the provider
-     * @param {NetworkConfigInterface} network - Network configuration of the provider
-     * @returns {void}
+     * @param network - Network configuration of the provider
      */
     static initialize(network: NetworkConfigInterface): void {
         if (Provider._instance !== undefined) {
@@ -91,8 +90,8 @@ export class Provider implements ProviderInterface {
 
     /**
      * Check RPC connection
-     * @param {string} _url - RPC URL
-     * @returns {Promise<boolean | Error>}
+     * @param _url - RPC URL
+     * @returns RPC connection status
      */
     async checkRpcConnection(_url?: string): Promise<boolean | Error> {
         return (await this.tronWeb.isConnected()).fullNode
@@ -100,8 +99,8 @@ export class Provider implements ProviderInterface {
 
     /**
      * Check WS connection
-     * @param {string} _url - Websocket URL
-     * @returns {Promise<boolean | Error>}
+     * @param _url - Websocket URL
+     * @returns WS connection status
      */
     async checkWsConnection(_url?: string): Promise<boolean | Error> {
         return (await this.tronWeb.isConnected()).eventServer
@@ -109,8 +108,7 @@ export class Provider implements ProviderInterface {
 
     /**
      * Update network configuration of the provider
-     * @param {NetworkConfigInterface} network - Network configuration of the provider
-     * @returns {void}
+     * @param network - Network configuration of the provider
      */
     update(network: NetworkConfigInterface): void {
         this.network = network
@@ -127,7 +125,7 @@ export class Provider implements ProviderInterface {
 
     /**
      * Get the current network configuration is testnet or not
-     * @returns {boolean} Testnet or not
+     * @returns Testnet or not
      */
     isTestnet(): boolean {
         return this.network?.testnet ?? false

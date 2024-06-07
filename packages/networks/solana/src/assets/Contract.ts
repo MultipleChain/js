@@ -24,8 +24,8 @@ export class Contract implements ContractInterface {
     provider: Provider
 
     /**
-     * @param {ContractAddress} address Contract address
-     * @param {Provider} provider Blockchain network provider
+     * @param address Contract address
+     * @param provider Blockchain network provider
      */
     constructor(address: ContractAddress, provider?: Provider) {
         this.address = address
@@ -34,25 +34,25 @@ export class Contract implements ContractInterface {
     }
 
     /**
-     * @returns {ContractAddress} Contract address
+     * @returns Contract address
      */
     getAddress(): ContractAddress {
         return this.address
     }
 
     /**
-     * @param {string} _method Method name
-     * @param {unknown[]} _args Method parameters
-     * @returns {Promise<unknown>} Method result
+     * @param _method Method name
+     * @param _args Method parameters
+     * @returns Method result
      */
     async callMethod(_method: string, ..._args: unknown[]): Promise<unknown> {
         throw new Error('Method not implemented.')
     }
 
     /**
-     * @param {string} method Method name
-     * @param {unknown[]} args Method parameters
-     * @returns {Promise<unknown>} Method result
+     * @param method Method name
+     * @param args Method parameters
+     * @returns Method result
      */
     async callMethodWithCache(method: string, ...args: unknown[]): Promise<unknown> {
         if (this.cachedMethods[method] !== undefined) {
@@ -63,19 +63,19 @@ export class Contract implements ContractInterface {
     }
 
     /**
-     * @param {string} _method Method name
-     * @param {unknown[]} _args Sender wallet address
-     * @returns {Promise<unknown>} Encoded method data
+     * @param _method Method name
+     * @param _args Sender wallet address
+     * @returns Encoded method data
      */
     async getMethodData(_method: string, ..._args: unknown[]): Promise<unknown> {
         throw new Error('Method not implemented.')
     }
 
     /**
-     * @param {string} _method Method name
-     * @param {WalletAddress} _from Sender wallet address
-     * @param {unknown[]} _args Method parameters
-     * @returns {Promise<unknown>} Encoded method data
+     * @param _method Method name
+     * @param _from Sender wallet address
+     * @param _args Method parameters
+     * @returns Encoded method data
      */
     async createTransactionData(
         _method: string,

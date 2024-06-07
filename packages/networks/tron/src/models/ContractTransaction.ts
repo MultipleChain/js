@@ -15,7 +15,7 @@ export interface DecodedInputData {
 
 export class ContractTransaction extends Transaction implements ContractTransactionInterface {
     /**
-     * @returns {Promise<ContractAddress>} Contract address of the transaction
+     * @returns Contract address of the transaction
      */
     async getAddress(): Promise<ContractAddress> {
         const data = await this.getData()
@@ -25,8 +25,8 @@ export class ContractTransaction extends Transaction implements ContractTransact
     }
 
     /**
-     * @param {TransactionData} txData Transaction data
-     * @returns {Promise<DecodedInputData | null>} Decoded transaction data
+     * @param txData Transaction data
+     * @returns Decoded transaction data
      */
     async decodeData(txData?: TransactionData): Promise<DecodedInputData | null> {
         if (txData === undefined) {

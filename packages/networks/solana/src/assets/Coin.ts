@@ -16,46 +16,46 @@ export class Coin implements CoinInterface<TransactionSigner> {
     provider: Provider
 
     /**
-     * @param {Provider} provider network provider
+     * @param provider network provider
      */
     constructor(provider?: Provider) {
         this.provider = provider ?? Provider.instance
     }
 
     /**
-     * @returns {string} Coin name
+     * @returns Coin name
      */
     getName(): string {
         return 'Solana'
     }
 
     /**
-     * @returns {string} Coin symbol
+     * @returns Coin symbol
      */
     getSymbol(): string {
         return 'SOL'
     }
 
     /**
-     * @returns {number} Decimal value of the coin
+     * @returns Decimal value of the coin
      */
     getDecimals(): number {
         return 9
     }
 
     /**
-     * @param {WalletAddress} owner Wallet address
-     * @returns {Promise<number>} Wallet balance as currency of COIN
+     * @param owner Wallet address
+     * @returns Wallet balance as currency of COIN
      */
     async getBalance(owner: WalletAddress): Promise<number> {
         return fromLamports(await this.provider.web3.getBalance(new PublicKey(owner)))
     }
 
     /**
-     * @param {WalletAddress} sender Sender wallet address
-     * @param {WalletAddress} receiver Receiver wallet address
-     * @param {TransferAmount} amount Amount of assets that will be transferred
-     * @returns {Promise<TransactionSigner>} Transaction signer
+     * @param sender Sender wallet address
+     * @param receiver Receiver wallet address
+     * @param amount Amount of assets that will be transferred
+     * @returns Transaction signer
      */
     async transfer(
         sender: WalletAddress,

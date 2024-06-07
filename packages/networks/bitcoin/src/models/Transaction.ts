@@ -74,8 +74,8 @@ export class Transaction implements TransactionInterface<TransactionData> {
     data: TransactionData | null = null
 
     /**
-     * @param {TransactionId} id Transaction id
-     * @param {Provider} provider Blockchain network provider
+     * @param id Transaction id
+     * @param provider Blockchain network provider
      */
     constructor(id: TransactionId, provider?: Provider) {
         this.id = id
@@ -83,7 +83,7 @@ export class Transaction implements TransactionInterface<TransactionData> {
     }
 
     /**
-     * @returns {Promise<TransactionData | null>} Transaction data
+     * @returns Transaction data
      */
     async getData(): Promise<TransactionData | null> {
         if (this.data !== null) {
@@ -113,8 +113,8 @@ export class Transaction implements TransactionInterface<TransactionData> {
     }
 
     /**
-     * @param {number} ms - Milliseconds to wait for the transaction to be confirmed. Default is 4000ms
-     * @returns {Promise<TransactionStatusEnum>} Status of the transaction
+     * @param ms - Milliseconds to wait for the transaction to be confirmed. Default is 4000ms
+     * @returns Status of the transaction
      */
     async wait(ms: number = 4000): Promise<TransactionStatusEnum> {
         return await new Promise((resolve, reject) => {
@@ -138,28 +138,28 @@ export class Transaction implements TransactionInterface<TransactionData> {
     }
 
     /**
-     * @returns {TransactionId} Transaction ID
+     * @returns Transaction ID
      */
     getId(): TransactionId {
         return this.id
     }
 
     /**
-     * @returns {Promise<TransactionTypeEnum>} Transaction type
+     * @returns Transaction type
      */
     async getType(): Promise<TransactionTypeEnum> {
         return TransactionTypeEnum.COIN
     }
 
     /**
-     * @returns {string} Transaction URL
+     * @returns Transaction URL
      */
     getUrl(): string {
         return this.provider.explorer + 'tx/' + this.id
     }
 
     /**
-     * @returns {Promise<WalletAddress>} Wallet address of the sender of transaction
+     * @returns Wallet address of the sender of transaction
      */
     async getSigner(): Promise<WalletAddress> {
         const data = await this.getData()
@@ -167,7 +167,7 @@ export class Transaction implements TransactionInterface<TransactionData> {
     }
 
     /**
-     * @returns {Promise<TransactionFee>} Transaction fee
+     * @returns Transaction fee
      */
     async getFee(): Promise<TransactionFee> {
         const data = await this.getData()
@@ -175,7 +175,7 @@ export class Transaction implements TransactionInterface<TransactionData> {
     }
 
     /**
-     * @returns {Promise<BlockNumber>} Block number that transaction
+     * @returns Block number that transaction
      */
     async getBlockNumber(): Promise<BlockNumber> {
         const data = await this.getData()
@@ -183,7 +183,7 @@ export class Transaction implements TransactionInterface<TransactionData> {
     }
 
     /**
-     * @returns {Promise<BlockTimestamp>} Block timestamp that transaction
+     * @returns Block timestamp that transaction
      */
     async getBlockTimestamp(): Promise<BlockTimestamp> {
         const data = await this.getData()
@@ -191,7 +191,7 @@ export class Transaction implements TransactionInterface<TransactionData> {
     }
 
     /**
-     * @returns {Promise<BlockConfirmationCount>} Confirmation count of the block
+     * @returns Confirmation count of the block
      */
     async getBlockConfirmationCount(): Promise<BlockConfirmationCount> {
         const data = await this.getData()
@@ -203,7 +203,7 @@ export class Transaction implements TransactionInterface<TransactionData> {
     }
 
     /**
-     * @returns {Promise<TransactionStatusEnum>} Status of the transaction
+     * @returns Status of the transaction
      */
     async getStatus(): Promise<TransactionStatusEnum> {
         const data = await this.getData()

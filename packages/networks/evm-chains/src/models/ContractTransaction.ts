@@ -14,14 +14,13 @@ import type { Provider } from '../services/Provider'
 
 export class ContractTransaction extends Transaction implements ContractTransactionInterface {
     /**
-     * @type {InterfaceAbi}
      */
     ABI: InterfaceAbi
 
     /**
-     * @param {TransactionId} id Transaction id
-     * @param {Provider} provider Blockchain network provider
-     * @param {InterfaceAbi} ABI Contract ABI
+     * @param id Transaction id
+     * @param provider Blockchain network provider
+     * @param ABI Contract ABI
      */
     constructor(id: TransactionId, provider?: Provider, ABI?: InterfaceAbi) {
         super(id, provider)
@@ -29,7 +28,7 @@ export class ContractTransaction extends Transaction implements ContractTransact
     }
 
     /**
-     * @returns {Promise<ContractAddress>} Contract address of the transaction
+     * @returns Contract address of the transaction
      */
     async getAddress(): Promise<ContractAddress> {
         const data = await this.getData()
@@ -37,8 +36,8 @@ export class ContractTransaction extends Transaction implements ContractTransact
     }
 
     /**
-     * @param {TransactionResponse} response Transaction response
-     * @returns {Promise<TransactionDescription | null>} Decoded transaction data
+     * @param response Transaction response
+     * @returns Decoded transaction data
      */
     async decodeData(response?: TransactionResponse): Promise<TransactionDescription | null> {
         if (response === undefined) {

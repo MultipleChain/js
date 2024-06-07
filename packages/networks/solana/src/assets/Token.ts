@@ -38,7 +38,7 @@ export class Token extends Contract implements TokenInterface<TransactionSigner>
 
     /**
      * Token metadata
-     * @returns {Promise<Metadata | null>} Metadata of the token
+     * @returns Metadata of the token
      */
     async getMetadata(): Promise<Metadata | null> {
         if (this.metadata !== undefined) return this.metadata
@@ -78,7 +78,7 @@ export class Token extends Contract implements TokenInterface<TransactionSigner>
     }
 
     /**
-     * @returns {Promise<PublicKey>} Program ID
+     * @returns Program ID
      */
     async getProgramId(): Promise<PublicKey> {
         const accountInfo = await this.provider.web3.getAccountInfo(this.pubKey)
@@ -86,7 +86,7 @@ export class Token extends Contract implements TokenInterface<TransactionSigner>
     }
 
     /**
-     * @returns {Promise<string>} Token name
+     * @returns Token name
      */
     async getName(): Promise<string> {
         await this.getMetadata()
@@ -94,7 +94,7 @@ export class Token extends Contract implements TokenInterface<TransactionSigner>
     }
 
     /**
-     * @returns {Promise<string>} Token symbol
+     * @returns Token symbol
      */
     async getSymbol(): Promise<string> {
         await this.getMetadata()
@@ -102,7 +102,7 @@ export class Token extends Contract implements TokenInterface<TransactionSigner>
     }
 
     /**
-     * @returns {Promise<number>} Decimal value of the token
+     * @returns Decimal value of the token
      */
     async getDecimals(): Promise<number> {
         await this.getMetadata()
@@ -110,8 +110,8 @@ export class Token extends Contract implements TokenInterface<TransactionSigner>
     }
 
     /**
-     * @param {WalletAddress} owner Wallet address
-     * @returns {Promise<number>} Wallet balance as currency of TOKEN
+     * @param owner Wallet address
+     * @returns Wallet balance as currency of TOKEN
      */
     async getBalance(owner: WalletAddress): Promise<number> {
         try {
@@ -131,16 +131,16 @@ export class Token extends Contract implements TokenInterface<TransactionSigner>
     }
 
     /**
-     * @returns {Promise<number>} Total supply of the token
+     * @returns Total supply of the token
      */
     async getTotalSupply(): Promise<number> {
         return (await this.provider.web3.getTokenSupply(this.pubKey)).value.uiAmount ?? 0
     }
 
     /**
-     * @param {WalletAddress} owner Address of owner of the tokens that is being used
-     * @param {WalletAddress} spender Address of the spender that is using the tokens of owner
-     * @returns {Promise<number>} Amount of tokens that the spender is allowed to spend
+     * @param owner Address of owner of the tokens that is being used
+     * @param spender Address of the spender that is using the tokens of owner
+     * @returns Amount of tokens that the spender is allowed to spend
      */
     async getAllowance(owner: WalletAddress, spender?: WalletAddress): Promise<number> {
         try {
@@ -171,8 +171,8 @@ export class Token extends Contract implements TokenInterface<TransactionSigner>
     }
 
     /**
-     * @param {number} amount Amount of tokens that will be transferred
-     * @returns {Promise<number>} Formatted amount
+     * @param amount Amount of tokens that will be transferred
+     * @returns Formatted amount
      */
     private async formatAmount(amount: number): Promise<number> {
         const decimals = await this.getDecimals()
@@ -181,10 +181,10 @@ export class Token extends Contract implements TokenInterface<TransactionSigner>
 
     /**
      * transfer() method is the main method for processing transfers for fungible assets (TOKEN, COIN)
-     * @param {WalletAddress} sender Sender wallet address
-     * @param {WalletAddress} receiver Receiver wallet address
-     * @param {TransferAmount} amount Amount of assets that will be transferred
-     * @returns {Promise<TransactionSigner>} Transaction signer
+     * @param sender Sender wallet address
+     * @param receiver Receiver wallet address
+     * @param amount Amount of assets that will be transferred
+     * @returns Transaction signer
      */
     async transfer(
         sender: WalletAddress,
@@ -195,11 +195,11 @@ export class Token extends Contract implements TokenInterface<TransactionSigner>
     }
 
     /**
-     * @param {WalletAddress} spender Address of the spender of transaction
-     * @param {WalletAddress} owner Sender wallet address
-     * @param {WalletAddress} receiver Receiver wallet address
-     * @param {TransferAmount} amount Amount of tokens that will be transferred
-     * @returns {Promise<TransactionSigner>} Transaction signer
+     * @param spender Address of the spender of transaction
+     * @param owner Sender wallet address
+     * @param receiver Receiver wallet address
+     * @param amount Amount of tokens that will be transferred
+     * @returns Transaction signer
      */
     async transferFrom(
         spender: WalletAddress,
@@ -283,10 +283,10 @@ export class Token extends Contract implements TokenInterface<TransactionSigner>
 
     /**
      * Gives permission to the spender to spend owner's tokens
-     * @param {WalletAddress} owner Address of owner of the tokens that will be used
-     * @param {WalletAddress} spender Address of the spender that will use the tokens of owner
-     * @param {TransferAmount} amount Amount of the tokens that will be used
-     * @returns {Promise<TransactionSigner>} Transaction signer
+     * @param owner Address of owner of the tokens that will be used
+     * @param spender Address of the spender that will use the tokens of owner
+     * @param amount Amount of the tokens that will be used
+     * @returns Transaction signer
      */
     async approve(
         owner: WalletAddress,

@@ -53,17 +53,17 @@ export interface WalletInterface<NetworkProvider, WalletProvider, TransactionSig
     networkProvider: NetworkProvider
 
     /**
-     * @returns {String}
+     * @returns {string}
      */
     getId: () => string
 
     /**
-     * @returns {String}
+     * @returns {string}
      */
     getName: () => string
 
     /**
-     * @returns {String}
+     * @returns {string}
      */
     getIcon: () => string
 
@@ -73,14 +73,14 @@ export interface WalletInterface<NetworkProvider, WalletProvider, TransactionSig
     getPlatforms: () => WalletPlatformEnum[]
 
     /**
-     * @returns {String | undefined}
+     * @returns {string | undefined}
      */
     getDownloadLink: () => string | undefined
 
     /**
-     * @param {String} url
+     * @param {string} url
      * @param {UnknownConfig} config
-     * @returns {String | null}
+     * @returns {string | null}
      */
     createDeepLink: (url: string, config?: UnknownConfig) => string | null
 

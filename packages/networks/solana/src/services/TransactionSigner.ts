@@ -24,8 +24,8 @@ export class TransactionSigner
     provider: Provider
 
     /**
-     * @param {RawTransaction} rawData - Transaction data
-     * @param {Provider} provider - Blockchain network provider
+     * @param rawData - Transaction data
+     * @param provider - Blockchain network provider
      */
     constructor(rawData: RawTransaction, provider?: Provider) {
         this.rawData = rawData
@@ -34,8 +34,8 @@ export class TransactionSigner
 
     /**
      * Sign the transaction
-     * @param {PrivateKey} privateKey - Transaction data
-     * @returns {Promise<this>} Signed transaction data
+     * @param privateKey - Transaction data
+     * @returns Signed transaction data
      */
     async sign(privateKey: PrivateKey): Promise<this> {
         this.rawData.recentBlockhash = (
@@ -62,8 +62,8 @@ export class TransactionSigner
     }
 
     /**
-     * @param {string} encodedTransaction - Encoded transaction
-     * @returns {RawTransaction | VersionedTransaction} Transaction data
+     * @param encodedTransaction - Encoded transaction
+     * @returns Transaction data
      */
     private getRawTransaction(encodedTransaction: string): RawTransaction | VersionedTransaction {
         let recoveredTransaction: RawTransaction | VersionedTransaction
@@ -79,7 +79,7 @@ export class TransactionSigner
 
     /**
      * Send the transaction to the blockchain network
-     * @returns {Promise<TransactionId>}
+     * @returns Transaction ID
      */
     async send(): Promise<TransactionId> {
         return await this.provider.web3.sendRawTransaction(this.signedData)

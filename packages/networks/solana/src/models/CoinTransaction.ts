@@ -11,8 +11,8 @@ import {
 
 export class CoinTransaction extends Transaction implements CoinTransactionInterface {
     /**
-     * @param {ParsedTransactionWithMeta} data Transaction data
-     * @returns {Promise<ParsedInstruction>} Wallet address of the receiver of transaction
+     * @param data Transaction data
+     * @returns Wallet address of the receiver of transaction
      */
     findTransferInstruction(data: ParsedTransactionWithMeta): ParsedInstruction | null {
         return (
@@ -27,7 +27,7 @@ export class CoinTransaction extends Transaction implements CoinTransactionInter
     }
 
     /**
-     * @returns {Promise<WalletAddress>} Wallet address of the receiver of transaction
+     * @returns Wallet address of the receiver of transaction
      */
     async getReceiver(): Promise<WalletAddress> {
         const data = await this.getData()
@@ -41,7 +41,7 @@ export class CoinTransaction extends Transaction implements CoinTransactionInter
     }
 
     /**
-     * @returns {Promise<WalletAddress>} Wallet address of the sender of transaction
+     * @returns Wallet address of the sender of transaction
      */
     async getSender(): Promise<WalletAddress> {
         const data = await this.getData()
@@ -53,7 +53,7 @@ export class CoinTransaction extends Transaction implements CoinTransactionInter
     }
 
     /**
-     * @returns {Promise<TransferAmount>} Amount of coin that will be transferred
+     * @returns Amount of coin that will be transferred
      */
     async getAmount(): Promise<TransferAmount> {
         const data = await this.getData()
@@ -67,10 +67,10 @@ export class CoinTransaction extends Transaction implements CoinTransactionInter
     }
 
     /**
-     * @param {AssetDirectionEnum} direction - Direction of the transaction (asset)
-     * @param {WalletAddress} address - Wallet address of the receiver or sender of the transaction, dependant on direction
-     * @param {TransferAmount} amount Amount of assets that will be transferred
-     * @returns {Promise<TransactionStatusEnum>} Status of the transaction
+     * @param direction - Direction of the transaction (asset)
+     * @param address - Wallet address of the receiver or sender of the transaction, dependant on direction
+     * @param amount Amount of assets that will be transferred
+     * @returns Status of the transaction
      */
     async verifyTransfer(
         direction: AssetDirectionEnum,

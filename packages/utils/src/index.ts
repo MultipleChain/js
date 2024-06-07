@@ -6,6 +6,9 @@ const BASE58_ALPHABET: string = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmno
 
 /**
  * Converts the decimal to hexadecimal
+ * @param value - number or string
+ * @param decimals - number
+ * @returns string
  */
 export const numberToHex = (value: number | string | BigNumber, decimals: number): string => {
     const length = '1' + '0'.repeat(decimals)
@@ -15,6 +18,9 @@ export const numberToHex = (value: number | string | BigNumber, decimals: number
 
 /**
  * Converts the hexadecimal to decimal
+ * @param value - string
+ * @param decimals - number
+ * @returns number
  */
 export const hexToNumber = (value: string, decimals: number): number => {
     const length = '1' + '0'.repeat(decimals)
@@ -25,6 +31,8 @@ export const hexToNumber = (value: string, decimals: number): number => {
 /**
  * Converts the given data to Base58 string. Given data may be string or an Uint8Array
  * If the given data is a string, it'll be converted to Uint8Array inside of the method
+ * @param input - Uint8Array | string
+ * @returns string
  */
 export const base58Encode = (input: Uint8Array | string): string => {
     // Convert input to bytes if it's a string
@@ -53,6 +61,8 @@ export const base58Encode = (input: Uint8Array | string): string => {
 
 /**
  * Converts the given string to Base58 as an Uint8Array
+ * @param input - string
+ * @returns Uint8Array
  */
 export const base58Decode = (input: string): Uint8Array => {
     let value = BigInt(0)
@@ -70,6 +80,8 @@ export const base58Decode = (input: string): Uint8Array => {
 
 /**
  * Converts the given buffer to a string
+ * @param input - Buffer
+ * @returns string
  */
 export const bufferToString = (input: Buffer): string => {
     return Buffer.from(input).toString('utf8')
@@ -77,6 +89,8 @@ export const bufferToString = (input: Buffer): string => {
 
 /**
  * Converts the given string to a buffer
+ * @param input - string
+ * @returns Buffer
  */
 export const stringToBuffer = (input: string): Buffer => {
     return Buffer.from(input, 'utf8')
@@ -84,6 +98,8 @@ export const stringToBuffer = (input: string): Buffer => {
 
 /**
  * Checks if given value is numeric
+ * @param value - string | number
+ * @returns boolean
  */
 export const isNumeric = (value: string | number): boolean => {
     return !isNaN(Number(value))
@@ -91,7 +107,7 @@ export const isNumeric = (value: string | number): boolean => {
 
 /**
  * Sleeps the given milliseconds
- * @param {number} ms
+ * @param ms - number
  * @returns Promise<void>
  */
 export const sleep = async (ms: number): Promise<void> => {
@@ -100,8 +116,8 @@ export const sleep = async (ms: number): Promise<void> => {
 
 /**
  * Checks if the given objects are equal
- * @param {object} o1
- * @param {object} o2
+ * @param o1 - object
+ * @param o2 - object
  * @returns boolean
  */
 export const objectsEqual = (o1: object, o2: object): boolean => {
@@ -110,7 +126,7 @@ export const objectsEqual = (o1: object, o2: object): boolean => {
 
 /**
  * Converts the given number to a readable string
- * @param {number} num
+ * @param num - number
  * @returns string
  */
 export const toReadableString = (num: number): string => {
@@ -128,8 +144,8 @@ export const toReadableString = (num: number): string => {
 
 /**
  * checks if the given url is a valid websocket url
- * @param {string} url
- * @returns {Promise<boolean>}
+ * @param url - string
+ * @returns Promise<boolean>
  */
 export const checkWebSocket = async (url: string): Promise<boolean> => {
     return await new Promise((resolve, reject) => {
