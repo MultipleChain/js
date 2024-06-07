@@ -31,8 +31,8 @@ export class Transaction implements TransactionInterface<TxData> {
     provider: Provider
 
     /**
-     * @param {TransactionId} id Transaction id
-     * @param {Provider} provider Blockchain network provider
+     * @param id Transaction id
+     * @param provider Blockchain network provider
      */
     constructor(id: TransactionId, provider?: Provider) {
         this.id = id
@@ -40,78 +40,78 @@ export class Transaction implements TransactionInterface<TxData> {
     }
 
     /**
-     * @returns {Promise<TxData | null>} Transaction data
+     * @returns Transaction data
      */
     async getData(): Promise<TxData | null> {
         return {}
     }
 
     /**
-     * @param {number} ms - Milliseconds to wait for the transaction to be confirmed. Default is 4000ms
-     * @returns {Promise<TransactionStatusEnum>} Status of the transaction
+     * @param ms - Milliseconds to wait for the transaction to be confirmed. Default is 4000ms
+     * @returns Status of the transaction
      */
     async wait(ms: number = 4000): Promise<TransactionStatusEnum> {
         return await Promise.resolve(TransactionStatusEnum.CONFIRMED)
     }
 
     /**
-     * @returns {TransactionId} Transaction ID
+     * @returns Transaction ID
      */
     getId(): TransactionId {
         return this.id
     }
 
     /**
-     * @returns {Promise<TransactionTypeEnum>} Type of the transaction
+     * @returns Type of the transaction
      */
-    getType(): Promise<TransactionTypeEnum> {
-        return Promise.resolve(TransactionTypeEnum.GENERAL)
+    async getType(): Promise<TransactionTypeEnum> {
+        return await Promise.resolve(TransactionTypeEnum.GENERAL)
     }
-    
+
     /**
-     * @returns {string} Transaction URL
+     * @returns Transaction URL
      */
     getUrl(): string {
         return 'example'
     }
 
     /**
-     * @returns {Promise<WalletAddress>} Wallet address of the sender of transaction
+     * @returns Wallet address of the sender of transaction
      */
     async getSigner(): Promise<WalletAddress> {
         return 'example'
     }
 
     /**
-     * @returns {Promise<TransactionFee>} Transaction fee
+     * @returns Transaction fee
      */
     async getFee(): Promise<TransactionFee> {
         return 0
     }
 
     /**
-     * @returns {Promise<BlockNumber>} Block number that transaction
+     * @returns Block number that transaction
      */
     async getBlockNumber(): Promise<BlockNumber> {
         return 0
     }
 
     /**
-     * @returns {Promise<BlockTimestamp>} Block timestamp that transaction
+     * @returns Block timestamp that transaction
      */
     async getBlockTimestamp(): Promise<BlockTimestamp> {
         return 0
     }
 
     /**
-     * @returns {Promise<BlockConfirmationCount>} Confirmation count of the block
+     * @returns Confirmation count of the block
      */
     async getBlockConfirmationCount(): Promise<BlockConfirmationCount> {
         return 0
     }
 
     /**
-     * @returns {Promise<TransactionStatusEnum>} Status of the transaction
+     * @returns Status of the transaction
      */
     async getStatus(): Promise<TransactionStatusEnum> {
         return TransactionStatusEnum.CONFIRMED

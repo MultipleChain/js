@@ -76,9 +76,9 @@ export class Contract implements ContractInterface {
     tronContract: TronContract
 
     /**
-     * @param {ContractAddress} address Contract address
-     * @param {Provider} provider Blockchain network provider
-     * @param {InterfaceAbi} ABI Contract ABI
+     * @param address Contract address
+     * @param provider Blockchain network provider
+     * @param ABI Contract ABI
      */
     constructor(address: ContractAddress, provider?: Provider, ABI?: InterfaceAbi) {
         this.ABI = ABI ?? []
@@ -88,7 +88,7 @@ export class Contract implements ContractInterface {
     }
 
     /**
-     * @returns {Promise<void>} Set Tron contract
+     * @returns Set Tron contract
      */
     async setTronContract(): Promise<void> {
         if (this.tronContract !== undefined) return
@@ -97,16 +97,16 @@ export class Contract implements ContractInterface {
     }
 
     /**
-     * @returns {ContractAddress} Contract address
+     * @returns Contract address
      */
     getAddress(): ContractAddress {
         return this.address
     }
 
     /**
-     * @param {string} method Method name
-     * @param {unknown[]} args Method parameters
-     * @returns {Promise<unknown>} Method result
+     * @param method Method name
+     * @param args Method parameters
+     * @returns Method result
      */
     async callMethod(method: string, ...args: unknown[]): Promise<unknown> {
         await this.setTronContract()
@@ -114,9 +114,9 @@ export class Contract implements ContractInterface {
     }
 
     /**
-     * @param {string} method Method name
-     * @param {unknown[]} args Method parameters
-     * @returns {Promise<unknown>} Method result
+     * @param method Method name
+     * @param args Method parameters
+     * @returns Method result
      */
     async callMethodWithCache(method: string, ...args: unknown[]): Promise<unknown> {
         if (this.cachedMethods[method] !== undefined) {
@@ -127,18 +127,19 @@ export class Contract implements ContractInterface {
     }
 
     /**
-     * @param {string} _method Method name
-     * @param {unknown[]} _args Sender wallet address
-     * @returns {Promise<unknown>} Encoded method data
+     * @param _method Method name
+     * @param _args Sender wallet address
+     * @returns Encoded method data
      */
     async getMethodData(_method: string, ..._args: unknown[]): Promise<unknown> {
         throw new Error('Method not implemented.')
     }
 
     /**
-     * @param {string} _function Method name
-     * @param {any} parameters Method parameters
-     * @param {WalletAddress} from Sender wallet address
+     * @param _function Method name
+     * @param parameters Method parameters
+     * @param from Sender wallet address
+     * @returns Energy estimate
      */
     async getEstimateEnergy(
         _function: string,
@@ -157,8 +158,8 @@ export class Contract implements ContractInterface {
     }
 
     /**
-     * @param {string} method Method name
-     * @returns {string} Method output
+     * @param method Method name
+     * @returns Method output
      */
     generateFunction(method: string): string {
         const matchedItem = this.ABI.find((func: FunctionInterface) => func.name === method)
@@ -179,9 +180,9 @@ export class Contract implements ContractInterface {
     }
 
     /**
-     * @param {string} method Method name
-     * @param {unknown[]} args Method parameters
-     * @returns {any[]} Method parameters
+     * @param method Method name
+     * @param args Method parameters
+     * @returns Method parameters
      */
     generateParameters(method: string, ...args: unknown[]): any {
         const matchedItem = this.ABI.find((func: FunctionInterface) => func.name === method)
@@ -201,10 +202,10 @@ export class Contract implements ContractInterface {
     }
 
     /**
-     * @param {string} method Method name
-     * @param {WalletAddress} from Sender wallet address
-     * @param {unknown[]} args Method parameters
-     * @returns {Promise<TransactionRawData>} Encoded method data
+     * @param method Method name
+     * @param from Sender wallet address
+     * @param args Method parameters
+     * @returns Encoded method data
      */
     async createTransactionData(
         method: string,

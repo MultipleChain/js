@@ -4,8 +4,8 @@ import type { TransactionRawData } from '../assets/Contract'
 
 export class TronWeb extends TronWebBase {
     /**
-     * @param {TransactionRawData} data - Transaction data
-     * @returns {Promise<TransactionData | false>} Transaction data
+     * @param data - Transaction data
+     * @returns Transaction data
      */
     async triggerContract(data: TransactionRawData): Promise<TransactionData | false> {
         const response = await this.transactionBuilder.triggerSmartContract(

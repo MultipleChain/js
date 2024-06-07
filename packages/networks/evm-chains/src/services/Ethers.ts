@@ -39,7 +39,7 @@ export class Ethers {
     webSocketProvider?: WebSocketProvider
 
     /**
-     * @param {EvmNetworkConfigInterface} network
+     * @param network - Network configuration of the provider
      */
     constructor(network: EvmNetworkConfigInterface) {
         this.network = network
@@ -47,21 +47,21 @@ export class Ethers {
     }
 
     /**
-     * @returns {JsonRpcProvider}
+     * @returns Ethers jsonRpc provider
      */
     public get jsonRpc(): JsonRpcProvider {
         return this.jsonRpcProvider
     }
 
     /**
-     * @returns {WebSocketProvider | undefined}
+     * @returns Ethers webSocket provider
      */
     public get webSocket(): WebSocketProvider | undefined {
         return this.webSocketProvider
     }
 
     /**
-     * @returns {Promise<WebSocketProvider>}
+     * @returns Ethers webSocket provider
      */
     public async connectWebSocket(): Promise<WebSocketProvider> {
         return await new Promise((resolve, reject) => {
@@ -83,10 +83,10 @@ export class Ethers {
     }
 
     /**
-     * @param {String} address
-     * @param {InterfaceAbi} abi
-     * @param {JsonRpcSigner | JsonRpcProvider} signer
-     * @returns {Contract}
+     * @param address contract address
+     * @param abi contract abi
+     * @param signer signer of the contract
+     * @returns contract instance
      */
     public contract(
         address: string,
@@ -97,19 +97,19 @@ export class Ethers {
     }
 
     /**
-     * @param {PrivateKey} privateKey private key of the wallet
-     * @param {JsonRpcProvider} provider provider of the blockchain network
-     * @returns {Wallet}
+     * @param privateKey private key of the wallet
+     * @param provider provider of the blockchain network
+     * @returns wallet instance
      */
     public wallet(privateKey: PrivateKey, provider?: JsonRpcProvider): Wallet {
         return new Wallet(privateKey, provider ?? this.jsonRpc)
     }
 
     /**
-     * @param {InterfaceAbi} abi
-     * @param {string} bytecode
-     * @param {JsonRpcSigner | JsonRpcProvider} signer
-     * @returns {ContractFactory}
+     * @param abi contract abi
+     * @param bytecode contract bytecode
+     * @param signer signer of the contract
+     * @returns contract factory instance
      */
     public contractFactory(
         abi: InterfaceAbi,
@@ -120,8 +120,8 @@ export class Ethers {
     }
 
     /**
-     * @param {ContractAddress} address
-     * @returns {Promise<string>}
+     * @param address contract address
+     * @returns contract bytecode
      */
     async getByteCode(address: ContractAddress): Promise<string> {
         try {
@@ -138,64 +138,64 @@ export class Ethers {
     }
 
     /**
-     * @param {TransactionData} data
-     * @returns {Promise<number>}
+     * @param data transaction data
+     * @returns transaction estimate gas
      */
     public async getEstimateGas(data: TransactionData): Promise<number> {
         return Number(await this.jsonRpcProvider.estimateGas(data))
     }
 
     /**
-     * @returns {Promise<string>}
+     * @returns gas price
      */
     public async getGasPrice(): Promise<string> {
         return (await this.jsonRpc.send('eth_gasPrice', [])).toString() as string
     }
 
     /**
-     * @param {WalletAddress} address
-     * @returns {Promise<number>}
+     * @param address wallet address
+     * @returns nonce of the wallet
      */
     public async getNonce(address: WalletAddress): Promise<number> {
         return await this.jsonRpcProvider.getTransactionCount(address)
     }
 
     /**
-     * @param {BlockTag | string} block
-     * @param {boolean} prefetchTxs
-     * @returns {Promise<Block | null>}
+     * @param block block number or block hash
+     * @param prefetchTxs whether to prefetch transactions
+     * @returns block information
      */
     public async getBlock(block: BlockTag | string, prefetchTxs?: boolean): Promise<Block | null> {
         return await this.jsonRpcProvider.getBlock(block, prefetchTxs)
     }
 
     /**
-     * @returns {Promise<BlockNumber>}
+     * @returns block number
      */
     async getBlockNumber(): Promise<BlockNumber> {
         return await this.jsonRpcProvider.getBlockNumber()
     }
 
     /**
-     * @param {TransactionId} id
-     * @returns {Promise<TransactionResponse | null>}
+     * @param id transaction id
+     * @returns transaction information
      */
     async getTransaction(id: TransactionId): Promise<TransactionResponse | null> {
         return await this.jsonRpcProvider.getTransaction(id)
     }
 
     /**
-     * @param {TransactionId} id
-     * @returns {Promise<TransactionReceipt | null>}
+     * @param id transaction id
+     * @returns transaction receipt
      */
     async getTransactionReceipt(id: TransactionId): Promise<TransactionReceipt | null> {
         return await this.jsonRpcProvider.getTransactionReceipt(id)
     }
 
     /**
-     * @param {WalletAddress} address
-     * @param {number} limit how many block to go back
-     * @returns {Promise<TransactionResponse[]>}
+     * @param address wallet address
+     * @param limit how many block to go back
+     * @returns transactions
      */
     async getLastTransactions(
         address: WalletAddress,
@@ -237,9 +237,9 @@ export class Ethers {
     }
 
     /**
-     * @param {WalletAddress} address
-     * @param {number} limit
-     * @returns {Promise<TransactionResponse | null>}
+     * @param address wallet address
+     * @param limit how many block to go back
+     * @returns last transaction
      */
     async getLastTransaction(
         address: WalletAddress,
@@ -267,8 +267,8 @@ export class Ethers {
     }
 
     /**
-     * @param {WalletAddress} address
-     * @returns {Promise<bigint>}
+     * @param address wallet address
+     * @returns balance of the wallet
      */
     async getBalance(address: WalletAddress): Promise<bigint> {
         return await this.jsonRpcProvider.getBalance(address)

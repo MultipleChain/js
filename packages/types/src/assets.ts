@@ -105,13 +105,11 @@ export interface TokenInterface<TransactionSigner>
     extends Omit<AssetInterface<TransactionSigner>, 'getName' | 'getSymbol'>,
         ContractInterface {
     /**
-     * @override getName() in AssetInterface
      * @returns {Promise<string>} Name of the asset (long name)
      */
     getName: () => Promise<string>
 
     /**
-     * @override getName() in AssetInterface
      * @returns {Promise<string>} Symbol of the asset (short name)
      */
     getSymbol: () => Promise<string>
@@ -167,20 +165,18 @@ export interface NftInterface<TransactionSigner>
     extends Omit<AssetInterface<TransactionSigner>, 'transfer' | 'getName' | 'getSymbol'>,
         ContractInterface {
     /**
-     * @override getName() in AssetInterface
      * @returns {Promise<string>} Name of the asset (long name)
      */
     getName: () => Promise<string>
 
     /**
-     * @override getName() in AssetInterface
      * @returns {Promise<string>} Symbol of the asset (short name)
      */
     getSymbol: () => Promise<string>
 
     /**
      * @param {NftId} nftId ID of the NFT
-     * @returns  {Promise<WalletAddress>} Wallet address of owner of the NFT
+     * @returns {Promise<WalletAddress>} Wallet address of owner of the NFT
      */
     getOwner: (nftId: NftId) => Promise<WalletAddress>
 
@@ -199,7 +195,6 @@ export interface NftInterface<TransactionSigner>
 
     /**
      * Transfers an NFT
-     * @override transfer() in AssetInterface
      * @param {WalletAddress} sender Sender wallet address
      * @param {WalletAddress} receiver Receiver wallet address
      * @param {NftId} nftId ID of the NFT that will be transferred

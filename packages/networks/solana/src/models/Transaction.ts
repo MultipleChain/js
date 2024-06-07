@@ -35,8 +35,8 @@ export class Transaction implements TransactionInterface<ParsedTransactionWithMe
     data: ParsedTransactionWithMeta | null = null
 
     /**
-     * @param {TransactionId} id Transaction id
-     * @param {Provider} provider Blockchain network provider
+     * @param id Transaction id
+     * @param provider Blockchain network provider
      */
     constructor(id: TransactionId, provider?: Provider) {
         this.id = id
@@ -44,7 +44,7 @@ export class Transaction implements TransactionInterface<ParsedTransactionWithMe
     }
 
     /**
-     * @returns {Promise<ParsedTransactionWithMeta | null>} Transaction data
+     * @returns Transaction data
      */
     async getData(): Promise<ParsedTransactionWithMeta | null> {
         if (this.data !== null) {
@@ -66,8 +66,8 @@ export class Transaction implements TransactionInterface<ParsedTransactionWithMe
     }
 
     /**
-     * @param {number} ms - Milliseconds to wait for the transaction to be confirmed. Default is 4000ms
-     * @returns {Promise<TransactionStatusEnum>} Status of the transaction
+     * @param ms - Milliseconds to wait for the transaction to be confirmed. Default is 4000ms
+     * @returns Status of the transaction
      */
     async wait(ms: number = 4000): Promise<TransactionStatusEnum> {
         return await new Promise((resolve, reject) => {
@@ -103,14 +103,14 @@ export class Transaction implements TransactionInterface<ParsedTransactionWithMe
     }
 
     /**
-     * @returns {TransactionId} Transaction ID
+     * @returns Transaction ID
      */
     getId(): TransactionId {
         return this.id
     }
 
     /**
-     * @returns {Promise<TransactionTypeEnum>} Type of the transaction
+     * @returns Type of the transaction
      */
     async getType(): Promise<TransactionTypeEnum> {
         const data = await this.getData()
@@ -151,7 +151,7 @@ export class Transaction implements TransactionInterface<ParsedTransactionWithMe
     }
 
     /**
-     * @returns {string} Transaction URL
+     * @returns Transaction URL
      */
     getUrl(): string {
         const node = this.provider.node
@@ -161,7 +161,7 @@ export class Transaction implements TransactionInterface<ParsedTransactionWithMe
     }
 
     /**
-     * @returns {Promise<WalletAddress>} Wallet address of the sender of transaction
+     * @returns Wallet address of the sender of transaction
      */
     async getSigner(): Promise<WalletAddress> {
         const data = await this.getData()
@@ -175,7 +175,7 @@ export class Transaction implements TransactionInterface<ParsedTransactionWithMe
     }
 
     /**
-     * @returns {Promise<TransactionFee>} Transaction fee
+     * @returns Transaction fee
      */
     async getFee(): Promise<TransactionFee> {
         const data = await this.getData()
@@ -183,7 +183,7 @@ export class Transaction implements TransactionInterface<ParsedTransactionWithMe
     }
 
     /**
-     * @returns {Promise<BlockNumber>} Block number that transaction
+     * @returns Block number that transaction
      */
     async getBlockNumber(): Promise<BlockNumber> {
         const data = await this.getData()
@@ -191,7 +191,7 @@ export class Transaction implements TransactionInterface<ParsedTransactionWithMe
     }
 
     /**
-     * @returns {Promise<BlockTimestamp>} Block timestamp that transaction
+     * @returns Block timestamp that transaction
      */
     async getBlockTimestamp(): Promise<BlockTimestamp> {
         const data = await this.getData()
@@ -199,7 +199,7 @@ export class Transaction implements TransactionInterface<ParsedTransactionWithMe
     }
 
     /**
-     * @returns {Promise<BlockConfirmationCount>} Confirmation count of the block
+     * @returns Confirmation count of the block
      */
     async getBlockConfirmationCount(): Promise<BlockConfirmationCount> {
         const data = await this.getData()
@@ -208,7 +208,7 @@ export class Transaction implements TransactionInterface<ParsedTransactionWithMe
     }
 
     /**
-     * @returns {Promise<TransactionStatusEnum>} Status of the transaction
+     * @returns Status of the transaction
      */
     async getStatus(): Promise<TransactionStatusEnum> {
         const data = await this.getData()

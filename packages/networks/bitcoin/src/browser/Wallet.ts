@@ -43,8 +43,8 @@ export class Wallet implements WalletInterface<Provider, WalletProvider, Transac
     networkProvider: Provider
 
     /**
-     * @param {WalletAdapter} adapter
-     * @param {Provider} provider
+     * @param adapter - Wallet adapter
+     * @param provider - Network provider
      */
     constructor(adapter: WalletAdapter, provider?: Provider) {
         this.adapter = adapter
@@ -52,44 +52,44 @@ export class Wallet implements WalletInterface<Provider, WalletProvider, Transac
     }
 
     /**
-     * @returns {string}
+     * @returns Wallet ID
      */
     getId(): string {
         return this.adapter.id
     }
 
     /**
-     * @returns {string}
+     * @returns Wallet name
      */
     getName(): string {
         return this.adapter.name
     }
 
     /**
-     * @returns {string}
+     * @returns Wallet icon
      */
     getIcon(): string {
         return this.adapter.icon
     }
 
     /**
-     * @returns {WalletPlatformEnum[]}
+     * @returns Wallet platforms
      */
     getPlatforms(): WalletPlatformEnum[] {
         return this.adapter.platforms
     }
 
     /**
-     * @returns {string}
+     * @returns Wallet download link
      */
     getDownloadLink(): string | undefined {
         return this.adapter.downloadLink
     }
 
     /**
-     * @param {string} url
-     * @param {UnknownConfig} config
-     * @returns {string}
+     * @param url url for deep linking
+     * @param config configuration for deep linking
+     * @returns deep link
      */
     createDeepLink(url: string, config?: UnknownConfig): string | null {
         if (this.adapter.createDeepLink === undefined) {
@@ -100,8 +100,8 @@ export class Wallet implements WalletInterface<Provider, WalletProvider, Transac
     }
 
     /**
-     * @param {ConnectConfig} config
-     * @returns {Promise<WalletAddress>}
+     * @param config connection configuration
+     * @returns WalletAddress
      */
     async connect(config?: ConnectConfig): Promise<WalletAddress> {
         return await new Promise((resolve, reject) => {
@@ -125,29 +125,29 @@ export class Wallet implements WalletInterface<Provider, WalletProvider, Transac
     }
 
     /**
-     * @returns {boolean}
+     * @returns wallet detection status
      */
     async isDetected(): Promise<boolean> {
         return await this.adapter.isDetected()
     }
 
     /**
-     * @returns {boolean}
+     * @returns connection status
      */
     async isConnected(): Promise<boolean> {
         return await this.adapter.isConnected()
     }
 
     /**
-     * @returns {Promise<WalletAddress>}
+     * @returns wallet address
      */
     async getAddress(): Promise<WalletAddress> {
         return await this.walletProvider.getAddress()
     }
 
     /**
-     * @param {string} message
-     * @returns {Promise<SignedMessage>}
+     * @param message message to sign
+     * @returns signed message
      */
     async signMessage(message: string): Promise<SignedMessage> {
         return await new Promise((resolve, reject) => {
@@ -163,8 +163,8 @@ export class Wallet implements WalletInterface<Provider, WalletProvider, Transac
     }
 
     /**
-     * @param {TransactionSigner} transactionSigner
-     * @returns {Promise<TransactionId>}
+     * @param transactionSigner transaction signer
+     * @returns transaction id
      */
     async sendTransaction(transactionSigner: TransactionSigner): Promise<TransactionId> {
         const data = transactionSigner.getRawData()
@@ -181,9 +181,8 @@ export class Wallet implements WalletInterface<Provider, WalletProvider, Transac
     }
 
     /**
-     * @param {string} eventName
-     * @param {Function} callback
-     * @returns {void}
+     * @param eventName event name
+     * @param callback event callback
      */
     on(eventName: string, callback: (...args: any[]) => void): void {
         this.walletProvider.on(eventName, callback)

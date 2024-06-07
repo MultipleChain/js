@@ -61,8 +61,8 @@ export class TransactionSigner
     provider: Provider
 
     /**
-     * @param {TransactionData} rawData - Transaction data
-     * @param {Provider} provider - Blockchain network provider
+     * @param rawData - Transaction data
+     * @param provider - Blockchain network provider
      */
     constructor(rawData: TransactionData, provider?: Provider) {
         this.rawData = rawData
@@ -71,8 +71,8 @@ export class TransactionSigner
 
     /**
      * Sign the transaction
-     * @param {PrivateKey} privateKey - Transaction data
-     * @returns {Promise<this>} Signed transaction data
+     * @param privateKey - Transaction data
+     * @returns Signed transaction data
      */
     async sign(privateKey: PrivateKey): Promise<this> {
         this.signedData = await this.provider.tronWeb.trx.sign(this.rawData, privateKey)
@@ -81,7 +81,7 @@ export class TransactionSigner
 
     /**
      * Send the transaction to the blockchain network
-     * @returns {Promise<TransactionId>}
+     * @returns Transaction ID
      */
     async send(): Promise<TransactionId> {
         const { transaction } = await this.provider.tronWeb.trx.sendRawTransaction(this.signedData)
@@ -91,7 +91,7 @@ export class TransactionSigner
 
     /**
      * Get the raw transaction data
-     * @returns {TransactionData}
+     * @returns Transaction data
      */
     getRawData(): TransactionData {
         return this.rawData
@@ -99,7 +99,7 @@ export class TransactionSigner
 
     /**
      * Get the signed transaction data
-     * @returns {SignedTransactionData}
+     * @returns Signed transaction data
      */
     getSignedData(): SignedTransactionData {
         return this.signedData

@@ -10,8 +10,8 @@ import type {
 
 export class NftTransaction extends ContractTransaction implements NftTransactionInterface {
     /**
-     * @param {ParsedTransactionWithMeta} data Transaction data
-     * @returns {Promise<ParsedInstruction>} Wallet address of the receiver of transaction
+     * @param data Transaction data
+     * @returns Wallet address of the receiver of transaction
      */
     findTransferInstruction(data: ParsedTransactionWithMeta): ParsedInstruction | null {
         return (
@@ -26,7 +26,7 @@ export class NftTransaction extends ContractTransaction implements NftTransactio
     }
 
     /**
-     * @returns {Promise<ContractAddress>} Contract address of the transaction
+     * @returns Contract address of the transaction
      */
     async getAddress(): Promise<ContractAddress> {
         const data = await this.getData()
@@ -52,7 +52,7 @@ export class NftTransaction extends ContractTransaction implements NftTransactio
     }
 
     /**
-     * @returns {Promise<WalletAddress>} Receiver wallet address
+     * @returns Receiver wallet address
      */
     async getReceiver(): Promise<WalletAddress> {
         const data = await this.getData()
@@ -68,7 +68,7 @@ export class NftTransaction extends ContractTransaction implements NftTransactio
     }
 
     /**
-     * @returns {Promise<WalletAddress>} Wallet address of the sender of transaction
+     * @returns Wallet address of the sender of transaction
      */
     async getSender(): Promise<WalletAddress> {
         const data = await this.getData()
@@ -81,7 +81,7 @@ export class NftTransaction extends ContractTransaction implements NftTransactio
     }
 
     /**
-     * @returns {Promise<NftId>} NFT ID
+     * @returns NFT ID
      */
     async getNftId(): Promise<NftId> {
         const data = await this.getData()
@@ -94,11 +94,10 @@ export class NftTransaction extends ContractTransaction implements NftTransactio
     }
 
     /**
-     * @param {AssetDirectionEnum} direction - Direction of the transaction (nft)
-     * @param {WalletAddress} address - Wallet address of the receiver or sender of the transaction, dependant on direction
-     * @param {NftId} nftId ID of the NFT that will be transferred
-     * @override verifyTransfer() in AssetTransactionInterface
-     * @returns {Promise<TransactionStatusEnum>} Status of the transaction
+     * @param direction - Direction of the transaction (nft)
+     * @param address - Wallet address of the receiver or sender of the transaction, dependant on direction
+     * @param nftId ID of the NFT that will be transferred
+     * @returns Status of the transaction
      */
     async verifyTransfer(
         direction: AssetDirectionEnum,

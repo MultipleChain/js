@@ -152,14 +152,14 @@ export interface TransactionListenerInterface<
     /**
      * The 'on' method adds a callback function to the 'callbacks' array and starts the listener.
      * @param {CallBackType} callback - a function that is triggered when a transaction is detected.
-     * @return {Promise<boolean>}
+     * @returns {Promise<boolean>}
      */
     on: (callback: CallBackType) => Promise<boolean>
 
     /**
      * The 'trigger' method is triggered when a transaction is detected.
      * @param {Transaction} transaction - a transaction that is detected.
-     * @return {void}
+     * @returns {void}
      */
     trigger: (transaction: Transaction) => void
 

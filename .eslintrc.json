@@ -4,7 +4,11 @@
         "es2021": true,
         "node": true
     },
-    "extends": ["standard-with-typescript", "plugin:prettier/recommended"],
+    "extends": [
+        "plugin:jsdoc/recommended-typescript-error",
+        "standard-with-typescript",
+        "plugin:prettier/recommended"
+    ],
     "overrides": [
         {
             "env": {
@@ -21,7 +25,7 @@
         "ecmaVersion": "latest",
         "sourceType": "module"
     },
-    "plugins": ["prettier", "filenames"],
+    "plugins": ["jsdoc", "prettier", "filenames"],
     "rules": {
         "@typescript-eslint/no-misused-promises": [
             "error",

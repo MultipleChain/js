@@ -12,55 +12,55 @@ import {
 
 export class NFT extends Contract implements NftInterface<TransactionSigner> {
     /**
-     * @param {ContractAddress} address Contract address
-     * @param {Provider} provider Blockchain network provider
-     * @param {InterfaceAbi} ABI Contract ABI
+     * @param address Contract address
+     * @param provider Blockchain network provider
+     * @param ABI Contract ABI
      */
     constructor(address: ContractAddress, provider?: Provider, ABI?: InterfaceAbi) {
         super(address, provider, ABI ?? TRC721)
     }
 
     /**
-     * @returns {Promise<string>} NFT name
+     * @returns NFT name
      */
     async getName(): Promise<string> {
         return (await this.callMethodWithCache('name')) as string
     }
 
     /**
-     * @returns {Promise<string>} NFT symbol
+     * @returns NFT symbol
      */
     async getSymbol(): Promise<string> {
         return (await this.callMethodWithCache('symbol')) as string
     }
 
     /**
-     * @param {WalletAddress} owner Wallet address
-     * @returns {Promise<number>} Wallet balance as currency of NFT
+     * @param owner Wallet address
+     * @returns Wallet balance as currency of NFT
      */
     async getBalance(owner: WalletAddress): Promise<number> {
         return Number(await this.callMethod('balanceOf', owner))
     }
 
     /**
-     * @param {NftId} nftId NFT ID
-     * @returns {Promise<WalletAddress>} Wallet address of the owner of the NFT
+     * @param nftId NFT ID
+     * @returns Wallet address of the owner of the NFT
      */
     async getOwner(nftId: NftId): Promise<WalletAddress> {
         return this.provider.tronWeb.address.fromHex(await this.callMethod('ownerOf', nftId))
     }
 
     /**
-     * @param {NftId} nftId NFT ID
-     * @returns {Promise<string>} URI of the NFT
+     * @param nftId NFT ID
+     * @returns URI of the NFT
      */
     async getTokenURI(nftId: NftId): Promise<string> {
         return (await this.callMethodWithCache('tokenURI', nftId)) as string
     }
 
     /**
-     * @param {NftId} nftId ID of the NFT that will be transferred
-     * @returns {Promise<WalletAddress | null>} Wallet address of the approved spender
+     * @param nftId ID of the NFT that will be transferred
+     * @returns Wallet address of the approved spender
      */
     async getApproved(nftId: NftId): Promise<WalletAddress | null> {
         const address = await this.callMethod('getApproved', nftId)
@@ -71,10 +71,10 @@ export class NFT extends Contract implements NftInterface<TransactionSigner> {
     }
 
     /**
-     * @param {WalletAddress} sender Sender address
-     * @param {WalletAddress} receiver Receiver address
-     * @param {NftId} nftId NFT ID
-     * @returns {Promise<TransactionSigner>} Transaction signer
+     * @param sender Sender address
+     * @param receiver Receiver address
+     * @param nftId NFT ID
+     * @returns Transaction signer
      */
     async transfer(
         sender: WalletAddress,
@@ -85,11 +85,11 @@ export class NFT extends Contract implements NftInterface<TransactionSigner> {
     }
 
     /**
-     * @param {WalletAddress} spender Spender address
-     * @param {WalletAddress} owner Owner address
-     * @param {WalletAddress} receiver Receiver address
-     * @param {NftId} nftId NFT ID
-     * @returns {Promise<TransactionSigner>} Transaction signer
+     * @param spender Spender address
+     * @param owner Owner address
+     * @param receiver Receiver address
+     * @param nftId NFT ID
+     * @returns Transaction signer
      */
     async transferFrom(
         spender: WalletAddress,
@@ -138,10 +138,10 @@ export class NFT extends Contract implements NftInterface<TransactionSigner> {
 
     /**
      * Gives permission to the spender to spend owner's tokens
-     * @param {WalletAddress} owner Address of owner of the tokens that will be used
-     * @param {WalletAddress} spender Address of the spender that will use the tokens of owner
-     * @param {NftId} nftId ID of the NFT that will be transferred
-     * @returns {Promise<TransactionSigner>} Transaction signer
+     * @param owner Address of owner of the tokens that will be used
+     * @param spender Address of the spender that will use the tokens of owner
+     * @param nftId ID of the NFT that will be transferred
+     * @returns Transaction signer
      */
     async approve(
         owner: WalletAddress,

@@ -3,7 +3,7 @@ import type { ContractAddress, ContractTransactionInterface } from '@multiplecha
 
 export class ContractTransaction extends Transaction implements ContractTransactionInterface {
     /**
-     * @returns {Promise<ContractAddress>} Contract address of the transaction
+     * @returns Contract address of the transaction
      */
     async getAddress(): Promise<ContractAddress> {
         return 'example'
