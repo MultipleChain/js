@@ -122,14 +122,8 @@ export class Transaction implements TransactionInterface<ParsedTransactionWithMe
         const instructions = data.transaction.message.instructions as ParsedInstruction[]
 
         return await new Promise((resolve) => {
-            instructions.forEach((instruction) => {
-                if (
-                    instruction.programId.equals(SystemProgram.programId) &&
-                    (instruction.parsed.type === 'createAccount' ||
-                        instruction.parsed.type === 'transfer')
-                ) {
-                    resolve(TransactionTypeEnum.COIN)
-                } else if (instruction.programId.equals(TOKEN_2022_PROGRAM_ID)) {
+            instructions.forEach((instruction, index) => {
+                if (instruction.programId.equals(TOKEN_2022_PROGRAM_ID)) {
                     resolve(TransactionTypeEnum.TOKEN)
                 } else if (instruction.programId.equals(TOKEN_PROGRAM_ID)) {
                     const postBalance = data.meta?.postTokenBalances?.find(
@@ -143,7 +137,15 @@ export class Transaction implements TransactionInterface<ParsedTransactionWithMe
                     } else {
                         resolve(TransactionTypeEnum.TOKEN)
                     }
-                } else {
+                } else if (
+                    instruction.programId.equals(SystemProgram.programId) &&
+                    (instruction.parsed.type === 'createAccount' ||
+                        instruction.parsed.type === 'transfer')
+                ) {
+                    resolve(TransactionTypeEnum.COIN)
+                }
+
+                if (index === instructions.length - 1) {
                     resolve(TransactionTypeEnum.CONTRACT)
                 }
             })
