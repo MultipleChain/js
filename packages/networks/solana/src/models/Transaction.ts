@@ -122,7 +122,7 @@ export class Transaction implements TransactionInterface<ParsedTransactionWithMe
         const instructions = data.transaction.message.instructions as ParsedInstruction[]
 
         return await new Promise((resolve) => {
-            instructions.forEach((instruction) => {
+            instructions.forEach((instruction, index) => {
                 if (instruction.programId.equals(TOKEN_2022_PROGRAM_ID)) {
                     resolve(TransactionTypeEnum.TOKEN)
                 } else if (instruction.programId.equals(TOKEN_PROGRAM_ID)) {
@@ -143,7 +143,9 @@ export class Transaction implements TransactionInterface<ParsedTransactionWithMe
                         instruction.parsed.type === 'transfer')
                 ) {
                     resolve(TransactionTypeEnum.COIN)
-                } else {
+                }
+
+                if (index === instructions.length - 1) {
                     resolve(TransactionTypeEnum.CONTRACT)
                 }
             })
