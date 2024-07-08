@@ -20,6 +20,7 @@ export interface Web3ModalConfig extends Web3ModalOptions {
 
 export interface Web3ModalAdapterInterface
     extends Omit<WalletAdapterInterface<Provider, WalletProvider>, 'connect'> {
+    modal?: Web3ModalType
     connect: (
         provider?: ProviderInterface,
         config?: Web3ModalConfig | object
@@ -34,9 +35,9 @@ interface Chain {
     chainId: string
 }
 
-let modal: Web3ModalType
 let currentNetwork: Chain
 let clickedAnyWallet = false
+let modal: Web3ModalType | undefined
 let walletProvider: WalletProvider | undefined
 let connectRejectMethod: (reason?: any) => void
 let connectResolveMethod: (value: WalletProvider | PromiseLike<WalletProvider>) => void
@@ -88,7 +89,7 @@ const web3Modal = (config: Web3ModalConfig): Web3ModalType => {
 
         if (`solana:${currentNetwork.chainId}` !== ctx.caipChainId) {
             await modal
-                .switchNetwork({
+                ?.switchNetwork({
                     id: `solana:${currentNetwork.chainId}`,
                     name: currentNetwork.name
                 })
@@ -112,6 +113,7 @@ const web3Modal = (config: Web3ModalConfig): Web3ModalType => {
 
 const Web3Modal: Web3ModalAdapterInterface = {
     icon,
+    modal,
     id: 'web3modal',
     name: 'Web3Modal',
     provider: walletProvider,
