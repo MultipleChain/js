@@ -13,7 +13,7 @@ const MetaMask: WalletAdapterInterface<Provider, EIP1193Provider> = {
     downloadLink: 'https://metamask.io/download/',
     provider: window.ethereum as unknown as WindowEthereum,
     platforms: [WalletPlatformEnum.BROWSER, WalletPlatformEnum.MOBILE],
-    isDetected: () => Boolean((window?.ethereum as unknown as WindowEthereum).isMetaMask),
+    isDetected: () => Boolean((window?.ethereum as unknown as WindowEthereum)?.isMetaMask),
     createDeepLink: (url: string): string => `https://metamask.app.link/dapp/${url}`,
     isConnected: async () => {
         return Boolean(
