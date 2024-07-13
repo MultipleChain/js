@@ -1,6 +1,6 @@
 export * from './services/Provider'
 
-export * as Bitcore from 'bitcore-lib'
+export * as bitcore from 'bitcore-lib'
 
 export * as assets from './assets/index'
 export * as models from './models/index'
