@@ -1,9 +1,12 @@
 import axios from 'axios'
 import { checkWebSocket } from '@multiplechain/utils'
-import { ErrorTypeEnum, type ProviderInterface } from '@multiplechain/types'
+import {
+    ErrorTypeEnum,
+    type NetworkConfigInterface,
+    type ProviderInterface
+} from '@multiplechain/types'
 
-export interface BitcoinNetworkConfigInterface {
-    testnet: boolean
+export interface BitcoinNetworkConfigInterface extends NetworkConfigInterface {
     blockCypherToken?: string
 }
 
@@ -117,8 +120,9 @@ export class Provider implements ProviderInterface<BitcoinNetworkConfigInterface
     update(network: BitcoinNetworkConfigInterface): void {
         this.network = network
         Provider._instance = this
+        const testnet = this.network.testnet ?? false
         this.blockCypherToken = this.network.blockCypherToken
-        if (this.network.testnet) {
+        if (testnet) {
             this.api = 'https://blockstream.info/testnet/api/'
             this.explorer = 'https://blockstream.info/testnet/'
             const token = this.network.blockCypherToken ?? this.defaultBlockCypherToken
@@ -134,6 +138,8 @@ export class Provider implements ProviderInterface<BitcoinNetworkConfigInterface
                 this.wsUrl = 'wss://ws.blockchain.info/inv'
             }
         }
+        this.network.rpcUrl = this.api
+        this.network.wsUrl = this.wsUrl
     }
 
     /**

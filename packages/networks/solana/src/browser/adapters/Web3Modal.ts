@@ -1,7 +1,7 @@
-import type { Metadata } from '@web3modal/core'
 import type { WalletProvider } from '../Wallet'
 import type { Provider } from '../../services/Provider'
 import { solana, solanaDevnet } from '@web3modal/solana/chains'
+import type { EventsControllerState, Metadata } from '@web3modal/core'
 import { ErrorTypeEnum, WalletPlatformEnum } from '@multiplechain/types'
 import type { ProviderInterface, WalletAdapterInterface } from '@multiplechain/types'
 import {
@@ -14,12 +14,16 @@ import {
 const icon =
     'data:image/svg+xml;base64,PHN2ZyB2ZXJzaW9uPSIxLjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIKIHdpZHRoPSI0MDAuMDAwMDAwcHQiIGhlaWdodD0iNDAwLjAwMDAwMHB0IiB2aWV3Qm94PSIwIDAgNDAwLjAwMDAwMCA0MDAuMDAwMDAwIgogcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCI+Cgo8ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwLjAwMDAwMCw0MDAuMDAwMDAwKSBzY2FsZSgwLjEwMDAwMCwtMC4xMDAwMDApIgpmaWxsPSIjMDAwMDAwIiBzdHJva2U9Im5vbmUiPgo8cGF0aCBkPSJNMCAyMDAwIGwwIC0yMDAwIDIwMDAgMCAyMDAwIDAgMCAyMDAwIDAgMjAwMCAtMjAwMCAwIC0yMDAwIDAgMAotMjAwMHogbTIyNjQgNzM2IGMxMjQgLTMyIDI2MSAtOTggMzYzIC0xNzUgOTEgLTY5IDE3MyAtMTUzIDE3MyAtMTc4IDAgLTE3Ci0xODcgLTIwMiAtMjA1IC0yMDMgLTYgMCAtMzEgMjEgLTU1IDQ2IC0yMjcgMjM0IC01NjkgMjk5IC04NTcgMTY0IC03OSAtMzYKLTEzMSAtNzMgLTIxMyAtMTQ5IC0zNiAtMzMgLTcyIC02MCAtODAgLTYxIC0yMCAwIC0yMDAgMTgxIC0yMDAgMjAyIDAgMjQgNDkKNzggMTM2IDE0OCAxMzYgMTA5IDI4MSAxNzkgNDQxIDIxNSAxMDYgMjMgMTE5IDI0IDI2MyAyMCAxMDQgLTMgMTU4IC0xMCAyMzQKLTI5eiBtLTEyODQgLTYwMyBjMTQgLTkgMTMwIC0xMjAgMjU4IC0yNDYgbDIzMyAtMjMxIDU3IDU1IGMzMSAyOSAxNDUgMTQxCjI1MyAyNDYgMTEwIDEwOSAyMDMgMTkzIDIxMyAxOTMgMjAgMCAzOSAtMTggNTIyIC00OTAgMyAtMiA3OCA2OCAxNjcgMTU2IDI3MAoyNjYgMzQ0IDMzNCAzNjIgMzM0IDEwIDAgNTcgLTM5IDEwNiAtODcgNjcgLTY1IDg5IC05MyA4OSAtMTEzIDAgLTIxIC02NiAtOTAKLTM0MSAtMzYwIC0xODggLTE4NCAtMzUwIC0zMzkgLTM2MCAtMzQ0IC0xMSAtNSAtMjcgLTUgLTM4IDAgLTExIDUgLTEyOCAxMTYKLTI2MSAyNDcgLTEzMyAxMzEgLTI0NSAyMzYgLTI0OCAyMzIgLTEzNiAtMTM4IC00OTAgLTQ3MyAtNTA4IC00NzkgLTI4IC0xMQotMTYgLTIyIC00NTEgNDA2IC0yMDMgMTk5IC0yODMgMjg0IC0yODMgMzAwIDAgMjggMTcxIDE5OCAyMDAgMTk4IDMgMCAxNyAtNwozMCAtMTd6Ii8+CjwvZz4KPC9zdmc+Cg=='
 
+type EventFunction = (newEvent: EventsControllerState, modal?: Web3ModalType) => void
+
 export interface Web3ModalConfig extends Web3ModalOptions {
     metadata: Metadata
+    events?: EventFunction[]
 }
 
 export interface Web3ModalAdapterInterface
     extends Omit<WalletAdapterInterface<Provider, WalletProvider>, 'connect'> {
+    modal?: Web3ModalType
     connect: (
         provider?: ProviderInterface,
         config?: Web3ModalConfig | object
@@ -34,9 +38,9 @@ interface Chain {
     chainId: string
 }
 
-let modal: Web3ModalType
 let currentNetwork: Chain
 let clickedAnyWallet = false
+let modal: Web3ModalType | undefined
 let walletProvider: WalletProvider | undefined
 let connectRejectMethod: (reason?: any) => void
 let connectResolveMethod: (value: WalletProvider | PromiseLike<WalletProvider>) => void
@@ -68,6 +72,14 @@ const web3Modal = (config: Web3ModalConfig): Web3ModalType => {
         }
     })
 
+    if (config.events !== undefined) {
+        config.events.forEach((event) => {
+            modal?.subscribeEvents((newEvent: EventsControllerState) => {
+                event(newEvent, modal)
+            })
+        })
+    }
+
     modal.subscribeEvents(async (event) => {
         if (event.data.event === 'SELECT_WALLET') {
             clickedAnyWallet = true
@@ -88,7 +100,7 @@ const web3Modal = (config: Web3ModalConfig): Web3ModalType => {
 
         if (`solana:${currentNetwork.chainId}` !== ctx.caipChainId) {
             await modal
-                .switchNetwork({
+                ?.switchNetwork({
                     id: `solana:${currentNetwork.chainId}`,
                     name: currentNetwork.name
                 })
@@ -112,6 +124,7 @@ const web3Modal = (config: Web3ModalConfig): Web3ModalType => {
 
 const Web3Modal: Web3ModalAdapterInterface = {
     icon,
+    modal,
     id: 'web3modal',
     name: 'Web3Modal',
     provider: walletProvider,

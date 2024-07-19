@@ -103,11 +103,8 @@ export class Transaction implements TransactionInterface<TransactionData> {
             const check = async (): Promise<void> => {
                 try {
                     const status = await this.getStatus()
-                    if (status === TransactionStatusEnum.CONFIRMED) {
-                        resolve(TransactionStatusEnum.CONFIRMED)
-                        return
-                    } else if (status === TransactionStatusEnum.FAILED) {
-                        reject(TransactionStatusEnum.FAILED)
+                    if (status !== TransactionStatusEnum.PENDING) {
+                        resolve(status)
                         return
                     }
                     setTimeout(check, ms)
@@ -223,10 +220,8 @@ export class Transaction implements TransactionInterface<TransactionData> {
      */
     async getStatus(): Promise<TransactionStatusEnum> {
         const data = await this.getData()
-        if (data === null) {
-            return TransactionStatusEnum.PENDING
-        } else if (data.response.blockNumber !== null && data.receipt !== null) {
-            if (data.receipt.status === 1) {
+        if (data?.response.blockNumber !== null && data?.receipt !== null) {
+            if (data?.receipt.status === 1) {
                 return TransactionStatusEnum.CONFIRMED
             } else {
                 return TransactionStatusEnum.FAILED

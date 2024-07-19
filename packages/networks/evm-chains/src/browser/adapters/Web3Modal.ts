@@ -3,11 +3,13 @@ import { networks } from '../../index'
 import type { EIP1193Provider } from './EIP6963'
 import type { Provider } from '../../services/Provider'
 import type { Chain } from '@web3modal/scaffold-utils/ethers'
-import type { CustomWallet, Metadata } from '@web3modal/core'
 import { createWeb3Modal, defaultConfig } from '@web3modal/ethers'
 import type { Web3Modal as Web3ModalType } from '@web3modal/ethers'
 import type { WalletAdapterInterface } from '@multiplechain/types'
 import { ErrorTypeEnum, WalletPlatformEnum } from '@multiplechain/types'
+import type { CustomWallet, EventsControllerState, Metadata } from '@web3modal/core'
+
+type EventFunction = (newEvent: EventsControllerState, modal?: Web3ModalType) => void
 
 export interface Web3ModalConfig {
     projectId: string
@@ -19,9 +21,15 @@ export interface Web3ModalConfig {
     defaultChainId?: number
     metadata: Metadata
     customWallets?: CustomWallet[]
+    events?: EventFunction[]
 }
 
-let modal: Web3ModalType
+export interface Web3ModalAdapterInterface
+    extends WalletAdapterInterface<Provider, EIP1193Provider> {
+    modal?: Web3ModalType
+}
+
+let modal: Web3ModalType | undefined
 let walletProvider: EIP1193Provider | undefined
 
 const chains: Chain[] = networks
@@ -66,6 +74,14 @@ const web3Modal = (config: Web3ModalConfig): Web3ModalType => {
         }
     })
 
+    if (config.events !== undefined) {
+        config.events.forEach((event) => {
+            modal?.subscribeEvents((newEvent: EventsControllerState) => {
+                event(newEvent, modal)
+            })
+        })
+    }
+
     modal.subscribeEvents(async (event) => {
         if (event.data.event === 'SELECT_WALLET') {
             clickedAnyWallet = true
@@ -86,7 +102,7 @@ const web3Modal = (config: Web3ModalConfig): Web3ModalType => {
         }
 
         if (currentNetwork.chainId !== chainId) {
-            await modal.switchNetwork(currentNetwork.chainId).catch(() => {
+            await modal?.switchNetwork(currentNetwork.chainId).catch(() => {
                 connectRejectMethod(new Error(ErrorTypeEnum.WALLET_CONNECT_REJECTED))
             })
         }
@@ -97,7 +113,8 @@ const web3Modal = (config: Web3ModalConfig): Web3ModalType => {
     return modal
 }
 
-const Web3Modal: WalletAdapterInterface<Provider, EIP1193Provider> = {
+const Web3Modal: Web3ModalAdapterInterface = {
+    modal,
     id: 'web3modal',
     name: 'Web3Modal',
     icon: icons.web3modal,

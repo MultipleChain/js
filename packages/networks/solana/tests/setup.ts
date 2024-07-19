@@ -7,7 +7,7 @@ try {
 } catch (e) {
     provider = new Provider({
         testnet: true,
-        wsUrl: 'wss://alien-wild-fire.solana-devnet.quiknode.pro/ad7c4490b11cd2134e022052f0b2779acb8998ad/'
+        wsUrl: 'wss://methodical-greatest-orb.solana-devnet.quiknode.pro/c7b6d81c0b58136705b99397e0f396dcee01f748/'
     })
 }
 
