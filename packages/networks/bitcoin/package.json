@@ -81,6 +81,7 @@
     },
     "devDependencies": {
         "@types/bitcore-lib": "^0.15.6",
+        "@types/lodash": "^4.17.7",
         "@types/ws": "^8.5.10"
     }
 }
