@@ -79,6 +79,14 @@ export class Coin implements CoinInterface<TransactionSigner> {
             throw new Error(ErrorTypeEnum.INVALID_ADDRESS)
         }
 
+        // @ts-expect-error library creating error in umd
+        Address.prototype._classifyArguments = function (data: any, network: any, type: any) {
+            if (typeof data === 'string') {
+                // @ts-expect-error library creating error in umd
+                return Address._transformString(data, network, type)
+            }
+        }
+
         const inputs = []
         const transaction = new Transaction()
         const senderAddress = new Address(sender)
