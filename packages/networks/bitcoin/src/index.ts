@@ -39,7 +39,7 @@ Address.prototype._classifyArguments = function (data: any, network: any, type: 
     } else if (typeof data === 'string') {
         // @ts-expect-error exists
         return Address._transformString(data, network, type)
-    } else if (lodash.isObject(data) === true) {
+    } else if (lodash.isObject(data)) {
         // @ts-expect-error exists
         return Address._transformObject(data)
     } else {
