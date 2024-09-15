@@ -236,27 +236,18 @@ export const isWebview = (): boolean => {
         return false
     }
 
-    const navigator = window.navigator
-
     /* eslint-disable */
-    if (window.WebViewJavascriptBridge) {
-        return true
-    }
-
-    if (window.webkit && window.webkit.messageHandlers) {
-        return true
-    }
-
-    if (navigator.userAgent.match(/WebView/i)) {
-        return true
-    }
-
+	const navigator = window.navigator
+    const userAgent = navigator.userAgent
+    const normalizedUserAgent = userAgent.toLowerCase()
     const standalone = navigator.standalone
-    const userAgent = navigator.userAgent.toLowerCase()
-    const safari = /safari/.test(userAgent)
-    const ios = /iphone|ipod|ipad/.test(userAgent)
-
-    return ios ? !standalone && !safari : userAgent.includes('wv')
+    const isIos = /ip(ad|hone|od)/.test(normalizedUserAgent)
+    || navigator.platform === 'MacIntel'
+    && navigator.maxTouchPoints > 1
+    const isAndroid = /android/.test(normalizedUserAgent)
+    const isSafari = /safari/.test(normalizedUserAgent)
+    return (isAndroid && /; wv\)/.test(normalizedUserAgent))
+    || (isIos && !standalone && !isSafari)
     /* eslint-enable */
 }
 
