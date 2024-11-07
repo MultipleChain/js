@@ -19,7 +19,6 @@ const Solflare: WalletAdapterInterface<Provider, WalletProvider> = {
     id: 'solflare',
     name: solflare.name,
     icon: solflare.icon,
-    provider: solflare,
     platforms: [WalletPlatformEnum.BROWSER, WalletPlatformEnum.MOBILE],
     downloadLink: 'https://solflare.com/download#extension',
     createDeepLink(url: string): string {

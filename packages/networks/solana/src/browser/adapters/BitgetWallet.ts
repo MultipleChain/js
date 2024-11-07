@@ -11,7 +11,6 @@ const BitgetWallet: WalletAdapterInterface<Provider, WalletProvider> = {
     id: 'bitgetwallet',
     name: bitget.name,
     icon: bitget.icon,
-    provider: bitget as WalletProvider,
     platforms: [WalletPlatformEnum.BROWSER, WalletPlatformEnum.MOBILE],
     downloadLink: 'https://web3.bitget.com/en/wallet-download?type=3',
     createDeepLink(url: string): string {

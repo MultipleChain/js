@@ -11,7 +11,6 @@ const CoinbaseWallet: WalletAdapterInterface<Provider, WalletProvider> = {
     id: 'coinbasewallet',
     name: coinbase.name,
     icon: coinbase.icon,
-    provider: coinbase,
     platforms: [WalletPlatformEnum.BROWSER, WalletPlatformEnum.MOBILE],
     downloadLink: 'https://www.coinbase.com/wallet/downloads',
     createDeepLink(url: string): string {
