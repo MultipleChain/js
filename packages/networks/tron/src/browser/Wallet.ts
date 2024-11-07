@@ -22,6 +22,10 @@ const rejectMap = (error: any, reject: (a: any) => any): any => {
 
     const errorMessage = String(error.message ?? '')
 
+    if (errorMessage.includes('Modal is closed.')) {
+        return
+    }
+
     if (error === 'Cannot transfer TRX to the same account') {
         return reject(new Error(ErrorTypeEnum.WALLET_CONNECTION_FAILED))
     }
@@ -43,17 +47,15 @@ const rejectMap = (error: any, reject: (a: any) => any): any => {
             return reject(new Error(ErrorTypeEnum.UNACCEPTED_CHAIN))
         } else if (errorMessage.includes('The QR window is closed.')) {
             return reject(new Error(ErrorTypeEnum.CLOSED_WALLETCONNECT_MODAL))
+        } else if (errorMessage.includes('Another authorization requests are being processed')) {
+            return reject(new Error(ErrorTypeEnum.WALLET_ALREADY_PROCESSING))
         }
     }
 
     return reject(error)
 }
 
-type WalletAdapter = WalletAdapterInterface<Provider, WalletProvider> & {
-    provider?:
-        | WalletProvider
-        | { on: (eventName: string, callback: (...args: any[]) => void) => void }
-}
+type WalletAdapter = WalletAdapterInterface<Provider, WalletProvider>
 
 export class Wallet implements WalletInterface<Provider, WalletProvider, TransactionSigner> {
     adapter: WalletAdapter
@@ -233,9 +235,7 @@ export class Wallet implements WalletInterface<Provider, WalletProvider, Transac
      * @param callback - Event callback
      */
     on(eventName: string, callback: (...args: any[]) => void): void {
-        if (this.adapter?.provider?.on !== undefined) {
-            this.adapter.provider.on(eventName as keyof AdapterEvents, callback)
-        } else {
+        if (typeof this.walletProvider.on === 'function') {
             this.walletProvider.on(eventName as keyof AdapterEvents, callback)
         }
     }

@@ -11,7 +11,6 @@ const TronLink: WalletAdapterInterface<Provider, WalletProvider> = {
     id: 'tronlink',
     name: 'TronLink',
     icon: walletProvider.icon,
-    provider: walletProvider,
     platforms: [WalletPlatformEnum.BROWSER, WalletPlatformEnum.MOBILE],
     downloadLink: 'https://www.tronlink.org/dlDetails/',
     createDeepLink(url: string): string {
