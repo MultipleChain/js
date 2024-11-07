@@ -18,13 +18,10 @@ declare global {
     }
 }
 
-let walletProvider: WalletProvider | undefined
-
 const UniSat: WalletAdapterInterface<Provider, WalletProvider> = {
     id: 'unisat',
     name: 'UniSat',
     icon: icons.UniSat,
-    provider: walletProvider,
     platforms: [WalletPlatformEnum.BROWSER],
     downloadLink: 'https://unisat.io/download',
     isDetected: () => Boolean(window.unisat?.requestAccounts),
@@ -33,7 +30,7 @@ const UniSat: WalletAdapterInterface<Provider, WalletProvider> = {
         return await new Promise((resolve, reject) => {
             const network = provider !== undefined && provider?.isTestnet() ? 'testnet' : 'livenet'
 
-            const _walletProvider: WalletProvider = {
+            const walletProvider: WalletProvider = {
                 on: window.unisat.on,
                 signMessage: window.unisat.signMessage,
                 sendBitcoin: window.unisat.sendBitcoin,
@@ -49,7 +46,7 @@ const UniSat: WalletAdapterInterface<Provider, WalletProvider> = {
                         window.unisat
                             .switchNetwork(network)
                             .then(() => {
-                                resolve((walletProvider = _walletProvider))
+                                resolve(walletProvider)
                             })
                             .catch(reject)
                     })

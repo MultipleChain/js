@@ -16,13 +16,11 @@ declare global {
 }
 
 let connected = false
-let walletProvider: WalletProvider | undefined
 
 const Leather: WalletAdapterInterface<Provider, WalletProvider> = {
     id: 'leather',
     name: 'Leather',
     icon: icons.Leather,
-    provider: walletProvider,
     platforms: [WalletPlatformEnum.BROWSER],
     downloadLink: 'https://leather.io/install-extension',
     isDetected: () => Boolean(window.LeatherProvider),
@@ -33,7 +31,7 @@ const Leather: WalletAdapterInterface<Provider, WalletProvider> = {
 
             const network = provider !== undefined && provider?.isTestnet() ? 'testnet' : 'mainnet'
 
-            const _walletProvider: WalletProvider = {
+            const walletProvider: WalletProvider = {
                 on: (event, callback) => {
                     if (window.btc?.listen !== undefined) {
                         window.btc.listen(event, callback)
@@ -84,18 +82,18 @@ const Leather: WalletAdapterInterface<Provider, WalletProvider> = {
                 // for ordinals & BRC-20 integrations
                 // const ordinals = addresses.find(address => address.type == 'p2tr');
 
-                _walletProvider.getAddress = async () => {
+                walletProvider.getAddress = async () => {
                     return bitcoin.address
                 }
 
-                return _walletProvider
+                return walletProvider
             }
 
             try {
                 connect()
                     .then(() => {
                         connected = true
-                        resolve((walletProvider = _walletProvider))
+                        resolve(walletProvider)
                     })
                     .catch(reject)
             } catch (error) {

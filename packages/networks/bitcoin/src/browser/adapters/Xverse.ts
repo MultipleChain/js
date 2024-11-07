@@ -15,13 +15,11 @@ import {
 } from 'sats-connect'
 
 let connected = false
-let walletProvider: WalletProvider | undefined
 
 const Xverse: WalletAdapterInterface<Provider, WalletProvider> = {
     id: 'xverse',
     name: 'Xverse',
     icon: icons.Xverse,
-    provider: walletProvider,
     platforms: [WalletPlatformEnum.BROWSER, WalletPlatformEnum.MOBILE],
     downloadLink: 'https://www.xverse.app/download',
     isDetected: () => Boolean(window.XverseProviders?.BitcoinProvider),
@@ -33,10 +31,10 @@ const Xverse: WalletAdapterInterface<Provider, WalletProvider> = {
                     ? BitcoinNetworkType.Testnet
                     : BitcoinNetworkType.Mainnet
 
-            const _walletProvider: WalletProvider = {
+            const walletProvider: WalletProvider = {
                 on: (_event: string, _callback: (data: any) => void) => {},
                 signMessage: async (message: string) => {
-                    const address = await _walletProvider.getAddress()
+                    const address = await walletProvider.getAddress()
                     return await new Promise((resolve, reject) => {
                         signMessage({
                             payload: {
@@ -56,7 +54,7 @@ const Xverse: WalletAdapterInterface<Provider, WalletProvider> = {
                     })
                 },
                 sendBitcoin: async (to: string, amount: number) => {
-                    const senderAddress = await _walletProvider.getAddress()
+                    const senderAddress = await walletProvider.getAddress()
                     return await new Promise((resolve, reject) => {
                         sendBtcTransaction({
                             payload: {
@@ -108,11 +106,11 @@ const Xverse: WalletAdapterInterface<Provider, WalletProvider> = {
                                     return
                                 }
 
-                                _walletProvider.getAddress = async () => {
+                                walletProvider.getAddress = async () => {
                                     return bitcoin.address
                                 }
 
-                                resolve(_walletProvider)
+                                resolve(walletProvider)
                             },
                             onCancel: () => {
                                 reject(ErrorTypeEnum.WALLET_REQUEST_REJECTED)
@@ -128,7 +126,7 @@ const Xverse: WalletAdapterInterface<Provider, WalletProvider> = {
                 connect()
                     .then(() => {
                         connected = true
-                        resolve((walletProvider = _walletProvider))
+                        resolve(walletProvider)
                     })
                     .catch(reject)
             } catch (error) {
