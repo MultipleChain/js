@@ -75,7 +75,7 @@ const createWeb3Wallets = (config: Web3WalletsConfig): AppKit => {
         customWallets: config.customWallets,
         networks: [currentNetwork, ...formattedNetworks],
         themeVariables: {
-            '--w3m-z-index': 999999999999
+            '--w3m-z-index': 99999
         },
         features: {
             email: false,

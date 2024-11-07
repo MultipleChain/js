@@ -32,7 +32,7 @@ const initConnector = async (
         qrModalOptions: {
             themeMode: config.themeMode,
             themeVariables: {
-                '--wcm-z-index': '999999999999'
+                '--wcm-z-index': '99999'
             }
         }
     })

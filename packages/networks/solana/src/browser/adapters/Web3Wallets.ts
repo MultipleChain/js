@@ -45,7 +45,7 @@ const createWeb3Wallets = (config: Web3WalletsConfig): AppKit => {
         metadata: config.metadata,
         customWallets: config.customWallets,
         themeVariables: {
-            '--w3m-z-index': 999999999999
+            '--w3m-z-index': 99999
         },
         features: {
             email: false,
