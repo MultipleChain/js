@@ -44,7 +44,6 @@ const fromEIP6963ProviderDetail = (
     return {
         name: detail.info.name,
         icon: detail.info.icon,
-        provider: detail.provider,
         id: detail.info.rdns ?? detail.info.uuid,
         platforms: [WalletPlatformEnum.BROWSER, WalletPlatformEnum.MOBILE],
         isDetected: () => true,
@@ -70,30 +69,12 @@ const fromEIP6963ProviderDetail = (
     }
 }
 
-const toEIP6963ProviderDetail = (
-    adapter: WalletAdapterInterface<Provider, EIP1193Provider>
-): EIP6963ProviderDetail => {
-    if (adapter.provider === undefined) {
-        throw new Error('Cannot convert adapter without provider to EIP6963ProviderDetail')
-    }
-
-    return {
-        info: {
-            uuid: adapter.id,
-            name: adapter.name,
-            icon: adapter.icon
-        },
-        provider: adapter.provider as any
-    }
-}
-
 export * from '../index'
 
 export const browser = {
     Wallet,
     switcher,
     registerAdapter,
-    toEIP6963ProviderDetail,
     fromEIP6963ProviderDetail,
     adapters: Object.assign(adapters, adapterList)
 }

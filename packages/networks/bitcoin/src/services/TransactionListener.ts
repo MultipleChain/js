@@ -5,7 +5,7 @@ import type {
     DynamicTransactionListenerFilterType,
     TransactionId
 } from '@multiplechain/types'
-import WebSocket from 'ws'
+import WebSocket from 'isomorphic-ws'
 import { Provider } from './Provider'
 import { fromSatoshi } from '../utils'
 import { Transaction } from '../models/Transaction'
