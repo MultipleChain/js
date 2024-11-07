@@ -279,9 +279,7 @@ export class Wallet implements WalletInterface<Provider, EIP1193Provider, Transa
      * @param callback - Event callback
      */
     on(eventName: string, callback: (...args: any[]) => void): void {
-        if (this.adapter?.provider?.on !== undefined) {
-            this.adapter.provider.on(eventName, callback)
-        } else {
+        if (typeof this.walletProvider.on === 'function') {
             this.walletProvider.on(eventName, callback)
         }
     }

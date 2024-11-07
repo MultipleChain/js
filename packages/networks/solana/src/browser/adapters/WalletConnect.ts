@@ -2,7 +2,7 @@ import type { WalletProvider } from '../Wallet'
 import type { Provider } from '../../services/Provider'
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base'
 import { ErrorTypeEnum, WalletPlatformEnum } from '@multiplechain/types'
-import WalletConnectWalletAdapter from '@multiplechain/solana-walletconnect'
+import { WalletConnectWalletAdapter } from '@solana/wallet-adapter-walletconnect'
 import type { ConnectConfig, WalletAdapterInterface } from '@multiplechain/types'
 
 const icon =
@@ -15,20 +15,29 @@ const WalletConnect: WalletAdapterInterface<Provider, WalletProvider> = {
     icon,
     id: 'walletconnect',
     name: 'WalletConnect',
-    provider: walletProvider,
     platforms: [WalletPlatformEnum.UNIVERSAL],
     isDetected: () => true,
     isConnected: () => isConnected,
     disconnect: async () => {
         isConnected = false
         Object.keys(localStorage)
-            .filter((x) => x.startsWith('wc@2'))
+            .filter((x) => {
+                return (
+                    x.startsWith('wc@2') ||
+                    x.startsWith('@w3m') ||
+                    x.startsWith('W3M') ||
+                    x.startsWith('-walletlink')
+                )
+            })
             .forEach((x) => {
                 localStorage.removeItem(x)
             })
         localStorage.removeItem('walletconnect')
         localStorage.removeItem('WALLETCONNECT_DEEPLINK_CHOICE')
         indexedDB.deleteDatabase('WALLET_CONNECT_V2_INDEXED_DB')
+        if (typeof walletProvider?.disconnect === 'function') {
+            await walletProvider.disconnect()
+        }
     },
     connect: async (provider?: Provider, config?: ConnectConfig): Promise<WalletProvider> => {
         if (provider === undefined) {
@@ -43,30 +52,24 @@ const WalletConnect: WalletAdapterInterface<Provider, WalletProvider> = {
             throw new Error(ErrorTypeEnum.PROJECT_ID_IS_REQUIRED)
         }
 
-        const walletConnect = new WalletConnectWalletAdapter({
+        if (typeof walletProvider?.disconnect === 'function') {
+            await walletProvider.disconnect()
+        }
+
+        walletProvider = new WalletConnectWalletAdapter({
             network: provider.isTestnet()
                 ? WalletAdapterNetwork.Devnet
                 : WalletAdapterNetwork.Mainnet,
             options: {
-                projectId: config.projectId,
-                relayUrl: 'wss://relay.walletconnect.com',
-                qrcodeModalOptions: {
-                    mobileLinks: ['trust'],
-                    desktopLinks: [
-                        // 'zerion',
-                        // 'ledger'
-                    ]
-                }
+                projectId: config.projectId
             }
         })
 
-        walletProvider = walletConnect
-
-        await walletConnect.connect()
+        await walletProvider.connect()
 
         isConnected = true
 
-        return walletConnect
+        return walletProvider
     }
 }
 

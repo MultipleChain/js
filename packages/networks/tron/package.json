@@ -1,6 +1,6 @@
 {
     "name": "@multiplechain/tron",
-    "version": "0.4.6",
+    "version": "0.4.8",
     "type": "module",
     "main": "dist/index.cjs",
     "module": "dist/index.es.js",
@@ -74,13 +74,14 @@
     "dependencies": {
         "@beycandeveloper/tron-tx-decoder": "^2.0.5",
         "@multiplechain/tron-walletconnect": "^0.1.0",
-        "@multiplechain/types": "^0.1.68",
+        "@multiplechain/types": "^0.1.70",
         "@multiplechain/utils": "^0.1.21",
         "@noble/secp256k1": "^1.7.1",
         "@tronweb3/tronwallet-adapter-bitkeep": "^1.1.1",
         "@tronweb3/tronwallet-adapter-okxwallet": "^1.0.3",
         "@tronweb3/tronwallet-adapter-tokenpocket": "^1.0.3",
         "@tronweb3/tronwallet-adapter-tronlink": "^1.1.9",
+        "@tronweb3/tronwallet-adapter-walletconnect": "^2.0.2",
         "tronweb": "^5.3.2"
     },
     "devDependencies": {

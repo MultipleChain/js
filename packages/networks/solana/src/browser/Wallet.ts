@@ -217,6 +217,9 @@ export class Wallet implements WalletInterface<Provider, WalletProvider, Transac
      * @returns Transaction ID
      */
     async sendTransaction(transactionSigner: TransactionSigner): Promise<TransactionId> {
+        transactionSigner.rawData.recentBlockhash = (
+            await this.networkProvider.web3.getLatestBlockhash('finalized')
+        ).blockhash
         return await new Promise((resolve, reject) => {
             this.currentReject = reject
             try {
@@ -239,6 +242,11 @@ export class Wallet implements WalletInterface<Provider, WalletProvider, Transac
      * @param callback - Event callback
      */
     on(eventName: string, callback: (...args: any[]) => void): void {
-        this.walletProvider.on(eventName as keyof WalletAdapterEvents, callback)
+        if (this.getId() === 'walletconnect' || this.getId() === 'web3wallets') {
+            return // WalletConnect and Web3Wallets adapters have their own event listeners
+        }
+        if (typeof this.walletProvider.on === 'function') {
+            this.walletProvider.on(eventName as keyof WalletAdapterEvents, callback)
+        }
     }
 }

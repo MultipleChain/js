@@ -14,7 +14,6 @@ const TrustWallet: WalletAdapterInterface<Provider, WalletProvider> = {
     id: 'trustwallet',
     name: 'TrustWallet',
     icon: trustIcon,
-    provider: trust as WalletProvider,
     platforms: [WalletPlatformEnum.BROWSER, WalletPlatformEnum.MOBILE],
     downloadLink: 'https://trustwallet.com/download',
     isDetected: () => trust.readyState === WalletReadyState.Installed,

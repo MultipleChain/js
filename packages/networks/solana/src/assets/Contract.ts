@@ -1,5 +1,6 @@
 import { PublicKey } from '@solana/web3.js'
 import { Provider } from '../services/Provider'
+import { getAssociatedTokenAddressSync } from '@solana/spl-token'
 import type { ContractAddress, ContractInterface, WalletAddress } from '@multiplechain/types'
 
 export class Contract implements ContractInterface {
@@ -83,5 +84,28 @@ export class Contract implements ContractInterface {
         ..._args: unknown[]
     ): Promise<unknown> {
         throw new Error('Method not implemented.')
+    }
+
+    async getTokenAccount(ownerPubKey: PublicKey, programId: PublicKey): Promise<PublicKey> {
+        let account: PublicKey | null = null
+        try {
+            const result = await this.provider.web3.getParsedTokenAccountsByOwner(ownerPubKey, {
+                mint: this.pubKey,
+                programId
+            })
+            if (result.value.length === 0) {
+                account = null
+            } else {
+                account = result.value[0]?.pubkey ?? null
+            }
+        } catch (error) {
+            account = null
+        }
+
+        if (account === null) {
+            account = getAssociatedTokenAddressSync(this.pubKey, ownerPubKey, false, programId)
+        }
+
+        return account
     }
 }

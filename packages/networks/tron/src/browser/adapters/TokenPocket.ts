@@ -18,7 +18,6 @@ const TokenPocket: WalletAdapterInterface<Provider, WalletProvider> = {
     id: 'tokenpocket',
     name: 'TokenPocket',
     icon: walletProvider.icon,
-    provider: walletProvider,
     platforms: [WalletPlatformEnum.MOBILE],
     downloadLink: 'https://www.tokenpocket.pro/en/download/app',
     createDeepLink(url: string): string {

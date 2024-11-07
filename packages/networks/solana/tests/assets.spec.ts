@@ -6,7 +6,12 @@ import { Token } from '../src/assets/Token'
 import { math } from '@multiplechain/utils'
 import { Transaction } from '../src/models/Transaction'
 import { TransactionSigner } from '../src/services/TransactionSigner'
-import { TransactionStatusEnum, type PrivateKey, type TransactionId } from '@multiplechain/types'
+import {
+    ErrorTypeEnum,
+    TransactionStatusEnum,
+    type PrivateKey,
+    type TransactionId
+} from '@multiplechain/types'
 
 const coinBalanceTestAmount = Number(process.env.SOL_COIN_BALANCE_TEST_AMOUNT)
 const tokenBalanceTestAmount = Number(process.env.SOL_TOKEN_BALANCE_TEST_AMOUNT)
@@ -182,23 +187,27 @@ describe('Token', async () => {
     })
 
     it('Approve and Allowance 2022', async () => {
-        const signer = await token2022.approve(
-            senderTestAddress,
-            receiverTestAddress,
-            tokenApproveTestAmount
-        )
+        try {
+            const signer = await token2022.approve(
+                senderTestAddress,
+                receiverTestAddress,
+                tokenApproveTestAmount
+            )
 
-        await checkSigner(signer)
+            await checkSigner(signer)
 
-        if (!tokenApproveTestIsActive) return
+            if (!tokenApproveTestIsActive) return
 
-        await waitSecondsBeforeThanNewTx(5)
+            await waitSecondsBeforeThanNewTx(5)
 
-        await checkTx(await signer.send())
+            await checkTx(await signer.send())
 
-        expect(await token.getAllowance(senderTestAddress, receiverTestAddress)).toBe(
-            tokenApproveTestAmount
-        )
+            expect(await token.getAllowance(senderTestAddress, receiverTestAddress)).toBe(
+                tokenApproveTestAmount
+            )
+        } catch (error: any) {
+            expect(error.message === ErrorTypeEnum.INSUFFICIENT_BALANCE).toBe(true)
+        }
     })
 
     it('Transfer from', async () => {

@@ -11,7 +11,6 @@ const Slope: WalletAdapterInterface<Provider, WalletProvider> = {
     id: 'slope',
     name: slope.name,
     icon: slope.icon,
-    provider: slope as WalletProvider,
     platforms: [WalletPlatformEnum.BROWSER],
     downloadLink: 'https://www.slope.finance/',
     isDetected: () => slope.readyState === WalletReadyState.Installed,

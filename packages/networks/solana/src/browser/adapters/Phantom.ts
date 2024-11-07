@@ -21,12 +21,9 @@ const Phantom: WalletAdapterInterface<Provider, WalletProvider> = {
     id: 'phantom',
     name: phantomAdapter.name,
     icon: phantomAdapter.icon,
-    provider: phantomAdapter,
     platforms: [WalletPlatformEnum.BROWSER, WalletPlatformEnum.MOBILE],
     downloadLink: 'https://phantom.app/download',
-    createDeepLink(url: string): string {
-        return `https://phantom.app/ul/browse/${url}?ref=${url}`
-    },
+    createDeepLink: (url: string): string => `https://phantom.app/ul/browse/${url}?ref=${url}`,
     isDetected: () =>
         Boolean(
             window.phantom?.solana?.isPhantom !== undefined && window.phantom?.connect === undefined

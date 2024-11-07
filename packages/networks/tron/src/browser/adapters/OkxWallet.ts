@@ -10,7 +10,6 @@ const OkxWallet: WalletAdapterInterface<Provider, WalletProvider> = {
     id: 'okxwallet',
     name: 'OkxWallet',
     icon: walletProvider.icon,
-    provider: walletProvider,
     platforms: [WalletPlatformEnum.BROWSER, WalletPlatformEnum.MOBILE],
     downloadLink: 'https://www.okx.com/download',
     createDeepLink(url: string): string {

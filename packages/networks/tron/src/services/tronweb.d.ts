@@ -34,6 +34,7 @@ declare module 'tronweb' {
         toHex(val: any): any
         toSun(trx: any): any
         toUtf8(hex: any): any
+        triggerContract(rawTx: any): any
         trx: {
             parseToken(token: any): any
             getCurrentBlock(callback?: any): Promise<any>
@@ -86,7 +87,7 @@ declare module 'tronweb' {
             ): Promise<any>
             sign(
                 transaction: any,
-                privateKey: any,
+                privateKey?: any,
                 useTronHeader?: boolean,
                 callback?: any
             ): Promise<any>
@@ -123,6 +124,7 @@ declare module 'tronweb' {
             listExchangesPaginated(limit: number, offset: number, callback?: any): Promise<any>
         }
         transactionBuilder: {
+            createSmartContract(options: any, address: string): any
             estimateEnergy(
                 contractAddress: any,
                 functionSelector: any,

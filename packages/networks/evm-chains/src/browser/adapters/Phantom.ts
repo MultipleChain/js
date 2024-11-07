@@ -8,7 +8,6 @@ const Phantom: WalletAdapterInterface<Provider, EIP1193Provider> = {
     id: 'phantom',
     name: 'Phantom',
     icon: icons.phantom,
-    provider: window?.phantom?.ethereum,
     downloadLink: 'https://phantom.app/',
     platforms: [WalletPlatformEnum.BROWSER, WalletPlatformEnum.MOBILE],
     isDetected: () => Boolean(window?.phantom?.ethereum),

@@ -19,7 +19,6 @@ import {
     TOKEN_2022_PROGRAM_ID,
     getTokenMetadata,
     ASSOCIATED_TOKEN_PROGRAM_ID,
-    getAssociatedTokenAddressSync,
     createAssociatedTokenAccountInstruction,
     createTransferInstruction,
     createApproveInstruction
@@ -237,19 +236,8 @@ export class Token extends Contract implements TokenInterface<TransactionSigner>
         const programId = await this.getProgramId()
         const transferAmount = await this.formatAmount(amount)
 
-        const ownerAccount = getAssociatedTokenAddressSync(
-            this.pubKey,
-            ownerPubKey,
-            false,
-            programId
-        )
-
-        const receiverAccount = getAssociatedTokenAddressSync(
-            this.pubKey,
-            receiverPubKey,
-            false,
-            programId
-        )
+        const ownerAccount = await this.getTokenAccount(ownerPubKey, programId)
+        const receiverAccount = await this.getTokenAccount(receiverPubKey, programId)
 
         // If the receiver does not have an associated token account, create one
         if ((await this.provider.web3.getAccountInfo(receiverAccount)) === null) {
@@ -309,12 +297,7 @@ export class Token extends Contract implements TokenInterface<TransactionSigner>
         const programId = await this.getProgramId()
         const approveAmount = await this.formatAmount(amount)
 
-        const ownerAccount = getAssociatedTokenAddressSync(
-            this.pubKey,
-            ownerPubKey,
-            false,
-            programId
-        )
+        const ownerAccount = await this.getTokenAccount(ownerPubKey, programId)
 
         transaction.add(
             createApproveInstruction(

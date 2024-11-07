@@ -9,7 +9,6 @@ const BitgetWallet: WalletAdapterInterface<Provider, EIP1193Provider> = {
     id: 'bitgetwallet',
     name: 'BitgetWallet',
     icon: icons.bitgetWallet,
-    provider: window?.bitkeep?.ethereum,
     downloadLink: 'https://web3.bitget.com/en/wallet-download?type=3',
     platforms: [WalletPlatformEnum.BROWSER, WalletPlatformEnum.MOBILE],
     createDeepLink: (url: string): string => `https://bkcode.vip?action=dapp&url=${url}`,
