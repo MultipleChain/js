@@ -115,7 +115,13 @@ export class Provider implements ProviderInterface {
      */
     async checkWsConnection(url?: string): Promise<boolean | Error> {
         try {
-            const result: any = await checkWebSocket(url ?? this.node.wsUrl ?? '')
+            const wsUrl = url ?? this.node.wsUrl ?? ''
+
+            if (wsUrl === '' || wsUrl === undefined) {
+                return new Error(ErrorTypeEnum.WS_URL_NOT_DEFINED)
+            }
+
+            const result: any = await checkWebSocket(wsUrl)
 
             if (result instanceof Error) {
                 return result
