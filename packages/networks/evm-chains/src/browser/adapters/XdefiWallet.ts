@@ -9,7 +9,6 @@ const XdefiWallet: WalletAdapterInterface<Provider, EIP1193Provider> = {
     id: 'xdefiwallet',
     name: 'XdefiWallet',
     icon: icons.xdefiWallet,
-    provider: window?.xfi?.ethereum,
     downloadLink: 'https://www.xdefi.io/',
     platforms: [WalletPlatformEnum.BROWSER],
     isDetected: () => Boolean(window?.xfi?.ethereum),

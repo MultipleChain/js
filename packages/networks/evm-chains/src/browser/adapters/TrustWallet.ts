@@ -10,10 +10,6 @@ const TrustWallet: WalletAdapterInterface<Provider, EIP1193Provider> = {
     id: 'trustwallet',
     name: 'TrustWallet',
     icon: icons.trustWallet,
-    // eslint-disable-next-line
-    provider: (window?.ethereum?.isTrust
-        ? window.ethereum
-        : window.trustwallet) as unknown as WindowEthereum,
     downloadLink: 'https://trustwallet.com/download',
     platforms: [WalletPlatformEnum.BROWSER, WalletPlatformEnum.MOBILE],
     isDetected: () => Boolean(window?.ethereum?.isTrust ?? window?.trustwallet),

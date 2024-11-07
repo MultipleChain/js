@@ -11,7 +11,6 @@ const MetaMask: WalletAdapterInterface<Provider, EIP1193Provider> = {
     name: 'MetaMask',
     icon: icons.metaMask,
     downloadLink: 'https://metamask.io/download/',
-    provider: window.ethereum as unknown as WindowEthereum,
     platforms: [WalletPlatformEnum.BROWSER, WalletPlatformEnum.MOBILE],
     isDetected: () => {
         const ethereum = window?.ethereum as unknown as WindowEthereum
