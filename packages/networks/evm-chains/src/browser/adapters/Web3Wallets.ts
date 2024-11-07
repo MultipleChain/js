@@ -1,4 +1,5 @@
 import icons from './icons'
+import { switcher } from './switcher'
 import { networks } from '../../index'
 import { createAppKit } from '@reown/appkit'
 import type { EIP1193Provider } from './EIP6963'
@@ -8,7 +9,6 @@ import type { WalletAdapterInterface } from '@multiplechain/types'
 import { ErrorTypeEnum, WalletPlatformEnum } from '@multiplechain/types'
 import type { EvmNetworkConfigInterface, Provider } from '../../services/Provider'
 import type { AppKit, EventsControllerState, CustomWallet, Metadata } from '@reown/appkit'
-import { switcher } from './switcher'
 
 type EventFunction = (newEvent: EventsControllerState, appKit?: AppKit) => void
 
@@ -106,8 +106,8 @@ const createWeb3Wallets = (config: Web3WalletsConfig): AppKit => {
     })
 
     web3wallets.subscribeAccount(async (account) => {
-        if (account.isConnected) {
-            const walletProvider = web3wallets?.getWalletProvider() as EIP1193Provider
+        const walletProvider = web3wallets?.getWalletProvider() as EIP1193Provider | undefined
+        if (account.isConnected && walletProvider !== undefined) {
             switcher(walletProvider, currentProvider)
                 .then(() => {
                     void web3wallets?.close()
@@ -148,6 +148,8 @@ const Web3Wallets: WalletAdapterInterface<Provider, EIP1193Provider> = {
             .forEach((x) => {
                 localStorage.removeItem(x)
             })
+
+        indexedDB.deleteDatabase('WALLET_CONNECT_V2_INDEXED_DB')
     },
     connect: async (
         provider?: Provider,

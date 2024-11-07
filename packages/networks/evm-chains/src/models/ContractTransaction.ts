@@ -13,8 +13,6 @@ import {
 import type { Provider } from '../services/Provider'
 
 export class ContractTransaction extends Transaction implements ContractTransactionInterface {
-    /**
-     */
     ABI: InterfaceAbi
 
     /**
