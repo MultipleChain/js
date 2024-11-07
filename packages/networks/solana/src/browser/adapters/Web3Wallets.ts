@@ -21,7 +21,6 @@ export interface Web3WalletsConfig {
     customWallets?: CustomWallet[]
 }
 
-let clickedAnyWallet = false
 let web3wallets: AppKit | undefined
 let connectRejectMethod: (reason?: any) => void
 let connectResolveMethod: (value: WalletProvider | PromiseLike<WalletProvider>) => void
@@ -62,15 +61,8 @@ const createWeb3Wallets = (config: Web3WalletsConfig): AppKit => {
     }
 
     web3wallets.subscribeEvents(async (event) => {
-        if (event.data.event === 'SELECT_WALLET') {
-            clickedAnyWallet = true
-        }
         if (event.data.event === 'MODAL_CLOSE') {
-            if (clickedAnyWallet) {
-                clickedAnyWallet = false
-            } else {
-                connectRejectMethod(new Error(ErrorTypeEnum.CLOSED_WALLETCONNECT_MODAL))
-            }
+            connectRejectMethod(new Error(ErrorTypeEnum.CLOSED_WALLETCONNECT_MODAL))
         }
     })
 
