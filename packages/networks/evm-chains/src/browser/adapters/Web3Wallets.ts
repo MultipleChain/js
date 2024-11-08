@@ -7,7 +7,13 @@ import type { WalletAdapterInterface } from '@multiplechain/types'
 import type { AppKitNetwork, CaipNetwork } from '@reown/appkit-common'
 import { ErrorTypeEnum, WalletPlatformEnum } from '@multiplechain/types'
 import type { EvmNetworkConfigInterface, Provider } from '../../services/Provider'
-import type { AppKit, EventsControllerState, CustomWallet, Metadata } from '@reown/appkit'
+import type {
+    AppKit,
+    EventsControllerState,
+    CustomWallet,
+    Metadata,
+    ThemeVariables
+} from '@reown/appkit'
 
 type EventFunction = (newEvent: EventsControllerState, appKit?: AppKit) => void
 
@@ -17,6 +23,7 @@ export interface Web3WalletsConfig {
     events?: EventFunction[]
     themeMode?: 'dark' | 'light'
     customWallets?: CustomWallet[]
+    themeVariables?: ThemeVariables
 }
 
 let web3wallets: AppKit | undefined
@@ -69,9 +76,7 @@ const createWeb3Wallets = async (config: Web3WalletsConfig): Promise<AppKit> => 
         metadata: config.metadata,
         customWallets: config.customWallets,
         networks: [mainnet, ...formattedNetworks, currentNetwork],
-        themeVariables: {
-            '--w3m-z-index': 99999
-        },
+        themeVariables: config.themeVariables,
         features: {
             email: false,
             socials: false

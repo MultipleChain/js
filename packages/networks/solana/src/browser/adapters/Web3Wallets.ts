@@ -8,7 +8,8 @@ import type {
     EventsControllerState,
     Metadata,
     CustomWallet,
-    CaipNetwork
+    CaipNetwork,
+    ThemeVariables
 } from '@reown/appkit'
 
 const icon =
@@ -22,6 +23,7 @@ export interface Web3WalletsConfig {
     events?: EventFunction[]
     themeMode?: 'dark' | 'light'
     customWallets?: CustomWallet[]
+    themeVariables?: ThemeVariables
 }
 
 let connectRequest: boolean = false
@@ -47,9 +49,7 @@ const createWeb3Wallets = async (config: Web3WalletsConfig): Promise<AppKit> => 
         themeMode: config.themeMode,
         metadata: config.metadata,
         customWallets: config.customWallets,
-        themeVariables: {
-            '--w3m-z-index': 99999
-        },
+        themeVariables: config.themeVariables,
         features: {
             email: false,
             socials: false

@@ -27,7 +27,12 @@ const WalletConnect: WalletAdapterInterface<Provider, WalletProvider> = {
         localStorage.removeItem('WALLETCONNECT_DEEPLINK_CHOICE')
         indexedDB.deleteDatabase('WALLET_CONNECT_V2_INDEXED_DB')
     },
-    connect: async (provider?: Provider, config?: WalletConnectConfig): Promise<WalletProvider> => {
+    connect: async (
+        provider?: Provider,
+        config?: WalletConnectConfig & {
+            themeVariables?: Record<string, string>
+        }
+    ): Promise<WalletProvider> => {
         return await new Promise((resolve, reject) => {
             if (provider === undefined) {
                 throw new Error(ErrorTypeEnum.PROVIDER_IS_REQUIRED)
@@ -48,9 +53,7 @@ const WalletConnect: WalletAdapterInterface<Provider, WalletProvider> = {
                 },
                 web3ModalConfig: {
                     themeMode: config.themeMode,
-                    themeVariables: {
-                        '--wcm-z-index': '99999'
-                    }
+                    themeVariables: config.themeVariables
                 }
             })
 
