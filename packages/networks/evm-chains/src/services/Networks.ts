@@ -1,38 +1,41 @@
-import * as wagmiChains from '@wagmi/chains'
+import * as allEvmChains from 'viem/chains'
 import type { EvmNetworkConfigInterface } from './Provider'
-
 const networks: Record<string, EvmNetworkConfigInterface> = {}
 
-for (const key of Object.keys(wagmiChains)) {
-    const wagmiChain: wagmiChains.Chain = wagmiChains[key as keyof typeof wagmiChains]
+for (const key of Object.keys(allEvmChains)) {
+    const chain: allEvmChains.Chain = allEvmChains[key as keyof typeof allEvmChains]
+
+    if (chain.id === undefined) {
+        continue
+    }
 
     let backupRpcUrl = ''
-    if (wagmiChain.rpcUrls?.infura !== undefined) {
-        backupRpcUrl = wagmiChain.rpcUrls.infura.http[0]
-    } else if (wagmiChain.rpcUrls?.alchemy !== undefined) {
-        backupRpcUrl = wagmiChain.rpcUrls.alchemy.http[0]
+    if (chain.rpcUrls?.infura !== undefined) {
+        backupRpcUrl = chain.rpcUrls.infura.http[0]
+    } else if (chain.rpcUrls?.alchemy !== undefined) {
+        backupRpcUrl = chain.rpcUrls.alchemy.http[0]
     }
 
     const network: EvmNetworkConfigInterface = {
-        id: wagmiChain.id,
-        name: wagmiChain.name,
-        testnet: wagmiChain.testnet ?? false,
-        nativeCurrency: wagmiChain.nativeCurrency,
-        hexId: '0x' + Number(wagmiChain.id).toString(16),
-        explorerUrl: wagmiChain.blockExplorers?.default.url ?? '',
-        rpcUrl: wagmiChain.rpcUrls?.default.http[0] ?? backupRpcUrl
+        id: chain.id,
+        name: chain.name,
+        testnet: chain.testnet ?? false,
+        nativeCurrency: chain.nativeCurrency,
+        hexId: '0x' + Number(chain.id).toString(16),
+        explorerUrl: chain.blockExplorers?.default.url ?? '',
+        rpcUrl: chain.rpcUrls?.default.http[0] ?? backupRpcUrl
     }
 
-    if (wagmiChain.rpcUrls?.default.webSocket !== undefined) {
-        network.wsUrl = wagmiChain.rpcUrls.default.webSocket[0]
+    if (chain.rpcUrls?.default.webSocket !== undefined) {
+        network.wsUrl = chain.rpcUrls.default.webSocket[0]
     }
 
-    if (wagmiChain.rpcUrls?.infura?.webSocket !== undefined && network.wsUrl === undefined) {
-        network.wsUrl = wagmiChain.rpcUrls.infura.webSocket[0]
+    if (chain.rpcUrls?.infura?.webSocket !== undefined && network.wsUrl === undefined) {
+        network.wsUrl = chain.rpcUrls.infura.webSocket[0]
     }
 
-    if (wagmiChain.rpcUrls?.alchemy?.webSocket !== undefined && network.wsUrl === undefined) {
-        network.wsUrl = wagmiChain.rpcUrls.alchemy.webSocket[0]
+    if (chain.rpcUrls?.alchemy?.webSocket !== undefined && network.wsUrl === undefined) {
+        network.wsUrl = chain.rpcUrls.alchemy.webSocket[0]
     }
 
     if (network.wsUrl === undefined) {

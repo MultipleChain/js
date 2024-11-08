@@ -209,11 +209,7 @@ describe('Transaction Listener', () => {
         await transaction.wait()
         await waitSecondsBeforeThanNewTx(10)
 
-        const newSigner = await nft.transfer(
-            receiverTestAddress,
-            senderTestAddress,
-            nftTransferId
-        )
+        const newSigner = await nft.transfer(receiverTestAddress, senderTestAddress, nftTransferId)
 
         await (await newSigner.sign(receiverPrivateKey)).send()
     })

@@ -1,12 +1,15 @@
 import type { WalletProvider } from '../Wallet'
 import type { Provider } from '../../services/Provider'
+import { solana, solanaDevnet } from '@reown/appkit/networks'
 import { ErrorTypeEnum, WalletPlatformEnum } from '@multiplechain/types'
 import type { ProviderInterface, WalletAdapterInterface } from '@multiplechain/types'
-
-import { createAppKit } from '@reown/appkit/react'
-import { solana, solanaDevnet } from '@reown/appkit/networks'
-import { SolanaAdapter } from '@reown/appkit-adapter-solana/react'
-import type { AppKit, EventsControllerState, Metadata, CustomWallet } from '@reown/appkit'
+import type {
+    AppKit,
+    EventsControllerState,
+    Metadata,
+    CustomWallet,
+    CaipNetwork
+} from '@reown/appkit'
 
 const icon =
     'data:image/svg+xml;base64,PHN2ZyB2ZXJzaW9uPSIxLjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIKIHdpZHRoPSI0MDAuMDAwMDAwcHQiIGhlaWdodD0iNDAwLjAwMDAwMHB0IiB2aWV3Qm94PSIwIDAgNDAwLjAwMDAwMCA0MDAuMDAwMDAwIgogcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCI+Cgo8ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwLjAwMDAwMCw0MDAuMDAwMDAwKSBzY2FsZSgwLjEwMDAwMCwtMC4xMDAwMDApIgpmaWxsPSIjMDAwMDAwIiBzdHJva2U9Im5vbmUiPgo8cGF0aCBkPSJNMCAyMDAwIGwwIC0yMDAwIDIwMDAgMCAyMDAwIDAgMCAyMDAwIDAgMjAwMCAtMjAwMCAwIC0yMDAwIDAgMAotMjAwMHogbTIyNjQgNzM2IGMxMjQgLTMyIDI2MSAtOTggMzYzIC0xNzUgOTEgLTY5IDE3MyAtMTUzIDE3MyAtMTc4IDAgLTE3Ci0xODcgLTIwMiAtMjA1IC0yMDMgLTYgMCAtMzEgMjEgLTU1IDQ2IC0yMjcgMjM0IC01NjkgMjk5IC04NTcgMTY0IC03OSAtMzYKLTEzMSAtNzMgLTIxMyAtMTQ5IC0zNiAtMzMgLTcyIC02MCAtODAgLTYxIC0yMCAwIC0yMDAgMTgxIC0yMDAgMjAyIDAgMjQgNDkKNzggMTM2IDE0OCAxMzYgMTA5IDI4MSAxNzkgNDQxIDIxNSAxMDYgMjMgMTE5IDI0IDI2MyAyMCAxMDQgLTMgMTU4IC0xMCAyMzQKLTI5eiBtLTEyODQgLTYwMyBjMTQgLTkgMTMwIC0xMjAgMjU4IC0yNDYgbDIzMyAtMjMxIDU3IDU1IGMzMSAyOSAxNDUgMTQxCjI1MyAyNDYgMTEwIDEwOSAyMDMgMTkzIDIxMyAxOTMgMjAgMCAzOSAtMTggNTIyIC00OTAgMyAtMiA3OCA2OCAxNjcgMTU2IDI3MAoyNjYgMzQ0IDMzNCAzNjIgMzM0IDEwIDAgNTcgLTM5IDEwNiAtODcgNjcgLTY1IDg5IC05MyA4OSAtMTEzIDAgLTIxIC02NiAtOTAKLTM0MSAtMzYwIC0xODggLTE4NCAtMzUwIC0zMzkgLTM2MCAtMzQ0IC0xMSAtNSAtMjcgLTUgLTM4IDAgLTExIDUgLTEyOCAxMTYKLTI2MSAyNDcgLTEzMyAxMzEgLTI0NSAyMzYgLTI0OCAyMzIgLTEzNiAtMTM4IC00OTAgLTQ3MyAtNTA4IC00NzkgLTI4IC0xMQotMTYgLTIyIC00NTEgNDA2IC0yMDMgMTk5IC0yODMgMjg0IC0yODMgMzAwIDAgMjggMTcxIDE5OCAyMDAgMTk4IDMgMCAxNyAtNwozMCAtMTd6Ii8+CjwvZz4KPC9zdmc+Cg=='
@@ -22,21 +25,21 @@ export interface Web3WalletsConfig {
 }
 
 let web3wallets: AppKit | undefined
-let connectRejectMethod: (reason?: any) => void
 let connectResolveMethod: (value: WalletProvider | PromiseLike<WalletProvider>) => void
 
-const solanaWeb3JsAdapter = new SolanaAdapter({
-    wallets: []
-})
-
-const createWeb3Wallets = (config: Web3WalletsConfig): AppKit => {
+const createWeb3Wallets = async (config: Web3WalletsConfig): Promise<AppKit> => {
     if (web3wallets !== undefined) {
         return web3wallets
     }
 
+    const { createAppKit } = await import('@reown/appkit')
+    const { SolanaAdapter } = await import('@reown/appkit-adapter-solana')
+
+    const solanaWeb3JsAdapter = new SolanaAdapter({
+        wallets: []
+    })
+
     web3wallets = createAppKit({
-        enableEIP6963: true,
-        enableInjected: true,
         adapters: [solanaWeb3JsAdapter],
         networks: [solana, solanaDevnet],
         projectId: config.projectId,
@@ -60,16 +63,9 @@ const createWeb3Wallets = (config: Web3WalletsConfig): AppKit => {
         })
     }
 
-    web3wallets.subscribeEvents(async (event) => {
-        if (event.data.event === 'MODAL_CLOSE') {
-            connectRejectMethod(new Error(ErrorTypeEnum.CLOSED_WALLETCONNECT_MODAL))
-        }
-    })
-
     web3wallets.subscribeAccount(async (account) => {
         const provider = web3wallets?.getWalletProvider() as WalletProvider | undefined
         if (account.isConnected && provider !== undefined) {
-            void web3wallets?.close()
             connectResolveMethod(provider)
         }
     })
@@ -105,6 +101,10 @@ const Web3Wallets: WalletAdapterInterface<Provider, WalletProvider> = {
             })
 
         indexedDB.deleteDatabase('WALLET_CONNECT_V2_INDEXED_DB')
+
+        if (web3wallets?.resetWcConnection !== undefined) {
+            web3wallets.resetWcConnection()
+        }
     },
     connect: async (
         provider?: ProviderInterface,
@@ -126,12 +126,15 @@ const Web3Wallets: WalletAdapterInterface<Provider, WalletProvider> = {
 
         return await new Promise((resolve, reject) => {
             try {
-                const web3wallets = createWeb3Wallets(config)
-                connectRejectMethod = async (reason) => {
-                    reject(reason)
+                const run = async (): Promise<void> => {
+                    const web3wallets = await createWeb3Wallets(config)
+                    web3wallets.setCaipNetwork(
+                        (provider.isTestnet() ? solanaDevnet : solana) as CaipNetwork
+                    )
+                    connectResolveMethod = resolve
+                    void web3wallets.open({ view: 'Connect' })
                 }
-                connectResolveMethod = resolve
-                void web3wallets.open({ view: 'Connect' })
+                void run()
             } catch (error) {
                 reject(error)
             }

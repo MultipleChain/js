@@ -1,6 +1,11 @@
 import { ContractTransaction } from './ContractTransaction'
 import { TransactionStatusEnum } from '@multiplechain/types'
-import type { NftTransactionInterface, AssetDirectionEnum, WalletAddress, NftId } from '@multiplechain/types'
+import type {
+    NftTransactionInterface,
+    AssetDirectionEnum,
+    WalletAddress,
+    NftId
+} from '@multiplechain/types'
 
 export class NftTransaction extends ContractTransaction implements NftTransactionInterface {
     /**
