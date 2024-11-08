@@ -102,6 +102,7 @@ export class Transaction implements TransactionInterface<TransactionData> {
         return await new Promise((resolve, reject) => {
             const check = async (): Promise<void> => {
                 try {
+                    await this.provider.ethers.jsonRpc.waitForTransaction(this.id, 1)
                     const status = await this.getStatus()
                     if (status !== TransactionStatusEnum.PENDING) {
                         resolve(status)

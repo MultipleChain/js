@@ -78,8 +78,8 @@ describe('Networks', () => {
     })
 
     it('findBySymbol', () => {
-        // @ts-expect-error arbitrum is defined
-        expect(networks.findBySymbol('ETH')).toBe(networks.arbitrum)
+        // @ts-expect-error abstractTestnet is defined
+        expect(networks.findBySymbol('ETH')).toBe(networks.abstractTestnet)
     })
 
     it('findByHexId', () => {

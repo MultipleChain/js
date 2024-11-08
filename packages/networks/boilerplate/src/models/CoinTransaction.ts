@@ -1,6 +1,11 @@
 import { Transaction } from './Transaction'
 import { TransactionStatusEnum } from '@multiplechain/types'
-import type { AssetDirectionEnum, CoinTransactionInterface, TransferAmount, WalletAddress } from '@multiplechain/types'
+import type {
+    AssetDirectionEnum,
+    CoinTransactionInterface,
+    TransferAmount,
+    WalletAddress
+} from '@multiplechain/types'
 
 export class CoinTransaction extends Transaction implements CoinTransactionInterface {
     /**

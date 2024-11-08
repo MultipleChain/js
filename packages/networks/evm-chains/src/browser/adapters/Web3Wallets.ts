@@ -1,11 +1,10 @@
 import icons from './icons'
 import { switcher } from './switcher'
 import { networks } from '../../index'
-import { createAppKit } from '@reown/appkit'
 import type { EIP1193Provider } from './EIP6963'
-import type { AppKitNetwork } from '@reown/appkit-common'
-import { EthersAdapter } from '@reown/appkit-adapter-ethers'
+import { mainnet } from '@reown/appkit/networks'
 import type { WalletAdapterInterface } from '@multiplechain/types'
+import type { AppKitNetwork, CaipNetwork } from '@reown/appkit-common'
 import { ErrorTypeEnum, WalletPlatformEnum } from '@multiplechain/types'
 import type { EvmNetworkConfigInterface, Provider } from '../../services/Provider'
 import type { AppKit, EventsControllerState, CustomWallet, Metadata } from '@reown/appkit'
@@ -54,26 +53,27 @@ const formattedNetworks: AppKitNetwork[] = networks
     })
     .filter((network: any) => network)
 
-let clickedAnyWallet = false
-let currentProvider: Provider
-let currentNetwork: AppKitNetwork
 let connectRejectMethod: (reason?: any) => void
 let connectResolveMethod: (value: EIP1193Provider | PromiseLike<EIP1193Provider>) => void
 
-const createWeb3Wallets = (config: Web3WalletsConfig): AppKit => {
+const createWeb3Wallets = async (
+    config: Web3WalletsConfig,
+    networkProvider: Provider
+): Promise<AppKit> => {
     if (web3wallets !== undefined) {
         return web3wallets
     }
 
+    const { createAppKit } = await import('@reown/appkit')
+    const { EthersAdapter } = await import('@reown/appkit-adapter-ethers')
+
     web3wallets = createAppKit({
-        enableEIP6963: true,
-        enableInjected: true,
         adapters: [new EthersAdapter()],
         projectId: config.projectId,
         themeMode: config.themeMode,
         metadata: config.metadata,
         customWallets: config.customWallets,
-        networks: [currentNetwork, ...formattedNetworks],
+        networks: [mainnet, ...formattedNetworks],
         themeVariables: {
             '--w3m-z-index': 99999
         },
@@ -91,26 +91,11 @@ const createWeb3Wallets = (config: Web3WalletsConfig): AppKit => {
         })
     }
 
-    web3wallets.subscribeEvents(async (event) => {
-        if (event.data.event === 'SELECT_WALLET') {
-            clickedAnyWallet = true
-        }
-
-        if (event.data.event === 'MODAL_CLOSE') {
-            if (clickedAnyWallet) {
-                clickedAnyWallet = false
-            } else {
-                connectRejectMethod(new Error(ErrorTypeEnum.CLOSED_WALLETCONNECT_MODAL))
-            }
-        }
-    })
-
     web3wallets.subscribeAccount(async (account) => {
         const walletProvider = web3wallets?.getWalletProvider() as EIP1193Provider | undefined
         if (account.isConnected && walletProvider !== undefined) {
-            switcher(walletProvider, currentProvider)
+            switcher(walletProvider, networkProvider)
                 .then(() => {
-                    void web3wallets?.close()
                     connectResolveMethod(walletProvider)
                 })
                 .catch((error: any) => {
@@ -150,6 +135,10 @@ const Web3Wallets: WalletAdapterInterface<Provider, EIP1193Provider> = {
             })
 
         indexedDB.deleteDatabase('WALLET_CONNECT_V2_INDEXED_DB')
+
+        if (web3wallets?.resetWcConnection !== undefined) {
+            web3wallets.resetWcConnection()
+        }
     },
     connect: async (
         provider?: Provider,
@@ -169,19 +158,22 @@ const Web3Wallets: WalletAdapterInterface<Provider, EIP1193Provider> = {
             throw new Error(ErrorTypeEnum.PROJECT_ID_IS_REQUIRED)
         }
 
-        currentProvider = provider
-        const network = provider.network
-
-        currentNetwork = ourFormatToAppKitFormat(network)
+        const network = ourFormatToAppKitFormat(provider.network)
+        formattedNetworks.push(network)
 
         return await new Promise((resolve, reject) => {
             try {
-                const web3wallets = createWeb3Wallets(config)
-                connectRejectMethod = async (reason) => {
-                    reject(reason)
+                const run = async (): Promise<void> => {
+                    const web3wallets = await createWeb3Wallets(config, provider)
+                    web3wallets.setCaipNetwork(network as CaipNetwork)
+                    connectRejectMethod = async (reason) => {
+                        reject(reason)
+                    }
+                    connectResolveMethod = resolve
+                    void web3wallets.open({ view: 'Connect' })
                 }
-                connectResolveMethod = resolve
-                void web3wallets.open({ view: 'Connect' })
+
+                void run()
             } catch (error) {
                 reject(error)
             }
