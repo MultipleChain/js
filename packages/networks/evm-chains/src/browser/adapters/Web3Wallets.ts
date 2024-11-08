@@ -1,6 +1,6 @@
 import icons from './icons'
 import { switcher } from './switcher'
-import { networks } from '../../index'
+import * as evmChains from 'viem/chains'
 import type { EIP1193Provider } from './EIP6963'
 import { mainnet } from '@reown/appkit/networks'
 import type { WalletAdapterInterface } from '@multiplechain/types'
@@ -20,6 +20,9 @@ export interface Web3WalletsConfig {
 }
 
 let web3wallets: AppKit | undefined
+let connectRequest: boolean = false
+let currentProvider: Provider
+let currentNetwork: AppKitNetwork
 
 const ourFormatToAppKitFormat = (network: EvmNetworkConfigInterface): AppKitNetwork => {
     return {
@@ -46,20 +49,12 @@ const ourFormatToAppKitFormat = (network: EvmNetworkConfigInterface): AppKitNetw
     }
 }
 
-const formattedNetworks: AppKitNetwork[] = networks
-    .getAll()
-    .map((network: EvmNetworkConfigInterface): AppKitNetwork => {
-        return ourFormatToAppKitFormat(network)
-    })
-    .filter((network: any) => network)
+const formattedNetworks: AppKitNetwork[] = Object.values(evmChains).filter((chain) => chain.id)
 
 let connectRejectMethod: (reason?: any) => void
 let connectResolveMethod: (value: EIP1193Provider | PromiseLike<EIP1193Provider>) => void
 
-const createWeb3Wallets = async (
-    config: Web3WalletsConfig,
-    networkProvider: Provider
-): Promise<AppKit> => {
+const createWeb3Wallets = async (config: Web3WalletsConfig): Promise<AppKit> => {
     if (web3wallets !== undefined) {
         return web3wallets
     }
@@ -73,7 +68,7 @@ const createWeb3Wallets = async (
         themeMode: config.themeMode,
         metadata: config.metadata,
         customWallets: config.customWallets,
-        networks: [mainnet, ...formattedNetworks],
+        networks: [mainnet, ...formattedNetworks, currentNetwork],
         themeVariables: {
             '--w3m-z-index': 99999
         },
@@ -91,10 +86,22 @@ const createWeb3Wallets = async (
         })
     }
 
+    web3wallets.subscribeEvents((event: EventsControllerState) => {
+        const eventName = event.data?.event
+        // @ts-expect-error there is no type for properties
+        const name = event.data?.properties?.name
+        if (eventName === 'SELECT_WALLET') {
+            if (name !== 'Pay by transfer to address (QR Code)') {
+                web3wallets?.setCaipNetwork(currentNetwork as CaipNetwork)
+            }
+        }
+    })
+
     web3wallets.subscribeAccount(async (account) => {
         const walletProvider = web3wallets?.getWalletProvider() as EIP1193Provider | undefined
-        if (account.isConnected && walletProvider !== undefined) {
-            switcher(walletProvider, networkProvider)
+        if (account.isConnected && walletProvider !== undefined && connectRequest) {
+            connectRequest = false
+            switcher(walletProvider, currentProvider)
                 .then(() => {
                     connectResolveMethod(walletProvider)
                 })
@@ -158,14 +165,14 @@ const Web3Wallets: WalletAdapterInterface<Provider, EIP1193Provider> = {
             throw new Error(ErrorTypeEnum.PROJECT_ID_IS_REQUIRED)
         }
 
-        const network = ourFormatToAppKitFormat(provider.network)
-        formattedNetworks.push(network)
+        currentProvider = provider
+        currentNetwork = ourFormatToAppKitFormat(provider.network)
 
         return await new Promise((resolve, reject) => {
             try {
                 const run = async (): Promise<void> => {
-                    const web3wallets = await createWeb3Wallets(config, provider)
-                    web3wallets.setCaipNetwork(network as CaipNetwork)
+                    connectRequest = true
+                    const web3wallets = await createWeb3Wallets(config)
                     connectRejectMethod = async (reason) => {
                         reject(reason)
                     }

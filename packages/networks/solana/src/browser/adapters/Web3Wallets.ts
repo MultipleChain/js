@@ -24,6 +24,7 @@ export interface Web3WalletsConfig {
     customWallets?: CustomWallet[]
 }
 
+let connectRequest: boolean = false
 let web3wallets: AppKit | undefined
 let connectResolveMethod: (value: WalletProvider | PromiseLike<WalletProvider>) => void
 
@@ -65,7 +66,8 @@ const createWeb3Wallets = async (config: Web3WalletsConfig): Promise<AppKit> => 
 
     web3wallets.subscribeAccount(async (account) => {
         const provider = web3wallets?.getWalletProvider() as WalletProvider | undefined
-        if (account.isConnected && provider !== undefined) {
+        if (account.isConnected && provider !== undefined && connectRequest) {
+            connectRequest = false
             connectResolveMethod(provider)
         }
     })
@@ -127,6 +129,7 @@ const Web3Wallets: WalletAdapterInterface<Provider, WalletProvider> = {
         return await new Promise((resolve, reject) => {
             try {
                 const run = async (): Promise<void> => {
+                    connectRequest = true
                     const web3wallets = await createWeb3Wallets(config)
                     web3wallets.setCaipNetwork(
                         (provider.isTestnet() ? solanaDevnet : solana) as CaipNetwork
