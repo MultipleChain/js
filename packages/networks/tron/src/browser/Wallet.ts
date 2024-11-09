@@ -23,7 +23,7 @@ const rejectMap = (error: any, reject: (a: any) => any): any => {
     const errorMessage = String(error.message ?? '')
 
     if (errorMessage.includes('Modal is closed.')) {
-        return
+        return reject(new Error(ErrorTypeEnum.CLOSED_WALLETCONNECT_MODAL))
     }
 
     if (error === 'Cannot transfer TRX to the same account') {
