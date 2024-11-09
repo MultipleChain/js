@@ -26,6 +26,8 @@ export interface Web3WalletsConfig {
     themeVariables?: ThemeVariables
 }
 
+let oldWallet: string | undefined
+let oldAccount: string | undefined
 let connectRequest: boolean = false
 let web3wallets: AppKit | undefined
 let connectResolveMethod: (value: WalletProvider | PromiseLike<WalletProvider>) => void
@@ -66,8 +68,16 @@ const createWeb3Wallets = async (config: Web3WalletsConfig): Promise<AppKit> => 
 
     web3wallets.subscribeAccount(async (account) => {
         const provider = web3wallets?.getWalletProvider() as WalletProvider | undefined
-        if (account.isConnected && provider !== undefined && connectRequest) {
+        if (
+            account.isConnected &&
+            provider !== undefined &&
+            connectRequest &&
+            oldAccount !== account.address &&
+            oldWallet !== provider.name
+        ) {
             connectRequest = false
+            oldWallet = provider.name
+            oldAccount = account.address
             connectResolveMethod(provider)
         }
     })
