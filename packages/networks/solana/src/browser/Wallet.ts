@@ -242,11 +242,12 @@ export class Wallet implements WalletInterface<Provider, WalletProvider, Transac
      * @param callback - Event callback
      */
     on(eventName: string, callback: (...args: any[]) => void): void {
-        if (this.getId() === 'walletconnect' || this.getId() === 'web3wallets') {
-            return // WalletConnect and Web3Wallets adapters have their own event listeners
-        }
-        if (typeof this.walletProvider.on === 'function') {
-            this.walletProvider.on(eventName as keyof WalletAdapterEvents, callback)
+        try {
+            if (typeof this.walletProvider.on === 'function') {
+                this.walletProvider.on(eventName as keyof WalletAdapterEvents, callback)
+            }
+        } catch (error) {
+            console.error('MultipleChain Solana Wallet Error:', error)
         }
     }
 }
