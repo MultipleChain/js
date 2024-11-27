@@ -1,6 +1,6 @@
 {
     "name": "@multiplechain/tron",
-    "version": "0.4.12",
+    "version": "0.4.15",
     "type": "module",
     "main": "dist/index.cjs",
     "module": "dist/index.es.js",
@@ -81,7 +81,6 @@
         "@tronweb3/tronwallet-adapter-okxwallet": "^1.0.3",
         "@tronweb3/tronwallet-adapter-tokenpocket": "^1.0.3",
         "@tronweb3/tronwallet-adapter-tronlink": "^1.1.9",
-        "@tronweb3/tronwallet-adapter-walletconnect": "^2.0.2",
         "tronweb": "^5.3.2"
     },
     "devDependencies": {

@@ -10,7 +10,9 @@ let isConnected = false
 let connector: InstanceType<typeof EthereumProvider> | undefined
 
 const initConnector = async (
-    config: WalletConnectConfig,
+    config: WalletConnectConfig & {
+        themeVariables?: Record<string, string>
+    },
     network: EvmNetworkConfigInterface
 ): Promise<InstanceType<typeof EthereumProvider>> => {
     if (connector !== undefined) {
@@ -31,9 +33,7 @@ const initConnector = async (
         showQrModal: true,
         qrModalOptions: {
             themeMode: config.themeMode,
-            themeVariables: {
-                '--wcm-z-index': '99999'
-            }
+            themeVariables: config.themeVariables
         }
     })
 
