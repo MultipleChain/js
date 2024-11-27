@@ -1,7 +1,6 @@
 export { default as Slope } from './Slope'
 export { default as Phantom } from './Phantom'
 export { default as Solflare } from './Solflare'
-export { default as Web3Wallets } from './Web3Wallets'
 export { default as TrustWallet } from './TrustWallet'
 export { default as TokenPocket } from './TokenPocket'
 export { default as BitgetWallet } from './BitgetWallet'
