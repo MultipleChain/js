@@ -1,5 +1,4 @@
-// @ts-expect-error no need type
-import TxDecoder from '@beycandeveloper/tron-tx-decoder'
+import TxDecoder from '@beycan/tron-tx-decoder'
 import { Transaction, type TransactionData } from './Transaction'
 import type { ContractAddress, ContractTransactionInterface } from '@multiplechain/types'
 
