@@ -1,14 +1,14 @@
 import axios from 'axios'
+import type bitcore from 'bitcore-lib'
 import type { AxiosError } from 'axios'
 import { Provider } from '../services/Provider'
-import type { Transaction as BitcoreLibTransactionData } from 'bitcore-lib'
 import type { PrivateKey, TransactionId, TransactionSignerInterface } from '@multiplechain/types'
 
 export interface TransactionData {
     sender: string
     receiver: string
     amount: number
-    bitcoreLib: BitcoreLibTransactionData
+    bitcoreLib: bitcore.Transaction
 }
 
 export class TransactionSigner implements TransactionSignerInterface<TransactionData, string> {
