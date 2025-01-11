@@ -73,6 +73,12 @@
     },
     "dependencies": {
         "@multiplechain/types": "^0.1.67",
-        "@multiplechain/utils": "^0.1.21"
+        "@multiplechain/utils": "^0.1.21",
+        "@ton/core": "^0.59.1",
+        "@ton/crypto": "^3.3.0",
+        "@ton/sandbox": "0.21.0-beta.1",
+        "@ton/ton": "^15.1.0",
+        "axios": "^1.7.9",
+        "ton-center-v3": "^0.1.3"
     }
 }
