@@ -58,9 +58,7 @@ describe('Helper methods', () => {
     })
 
     it('Check websocket', async () => {
-        expect(
-            await checkWebSocket('wss://sepolia.infura.io/ws/v3/9aa3d95b3bc440fa88ea12eaa4456161')
-        ).toBe(true)
+        expect(await checkWebSocket('wss://ethereum-sepolia-rpc.publicnode.com')).toBe(true)
     })
 
     it('Is numeric', () => {
