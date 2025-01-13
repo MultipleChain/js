@@ -33,7 +33,8 @@
                 "checksVoidReturn": false
             }
         ],
-        "filenames/match-exported": ["error", "pascal"]
+        "filenames/match-exported": ["error", "pascal"],
+        "@typescript-eslint/strict-boolean-expressions": "off"
     },
     "ignorePatterns": [
         "**/*.d.ts",
