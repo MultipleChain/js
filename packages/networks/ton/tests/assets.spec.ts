@@ -36,7 +36,7 @@ const receiverTestAddress = String(process.env.TON_RECEIVER_ADDRESS)
 const tokenTestAddress = String(process.env.TON_TOKEN_TEST_ADDRESS)
 const nftCollection = String(process.env.TON_NFT_COLLECTION)
 
-const waitSecondsBeforeThanNewTx = async (seconds: number): Promise<any> => {
+const waitForSec = async (seconds: number): Promise<any> => {
     return await new Promise((resolve) => setTimeout(resolve, seconds * 1000))
 }
 
@@ -71,11 +71,13 @@ describe('Coin', () => {
     })
 
     it('Balance', async () => {
+        await waitForSec(1)
         const balance = await coin.getBalance(balanceTestAddress)
         expect(balance).toBe(coinBalanceTestAmount)
     })
 
     it('Transfer', async () => {
+        await waitForSec(1)
         const signer = await coin.transfer(
             senderTestAddress,
             receiverTestAddress,
@@ -94,6 +96,7 @@ describe('Token', () => {
     const token = new Token(tokenTestAddress)
 
     it('Name and symbol', async () => {
+        await waitForSec(1)
         expect(await token.getName()).toBe('TON Test Token')
         expect(await token.getSymbol()).toBe('TTT')
     })
@@ -103,16 +106,19 @@ describe('Token', () => {
     })
 
     it('Balance', async () => {
+        await waitForSec(1)
         const balance = await token.getBalance(balanceTestAddress)
         expect(balance).toBe(tokenBalanceTestAmount)
     })
 
     it('Total supply', async () => {
+        await waitForSec(1)
         const totalSupply = await token.getTotalSupply()
         expect(totalSupply).toBe(100000000)
     })
 
     it('Transfer', async () => {
+        await waitForSec(1)
         const signer = await token.transfer(
             senderTestAddress,
             receiverTestAddress,
@@ -123,7 +129,7 @@ describe('Token', () => {
 
         if (!tokenTransferTestIsActive) return
 
-        await waitSecondsBeforeThanNewTx(5)
+        await waitForSec(5)
 
         const beforeBalance = await token.getBalance(receiverTestAddress)
 
@@ -144,7 +150,7 @@ describe('Token', () => {
 
     //     if (!tokenApproveTestIsActive) return
 
-    //     await waitSecondsBeforeThanNewTx(5)
+    //     await waitForSec(5)
 
     //     await checkTx(await signer.send())
 
@@ -165,7 +171,7 @@ describe('Token', () => {
 
     //     if (!tokenTransferFromTestIsActive) return
 
-    //     await waitSecondsBeforeThanNewTx(5)
+    //     await waitForSec(5)
 
     //     const beforeBalance = await token.getBalance(receiverTestAddress)
 
@@ -180,20 +186,24 @@ describe('Nft', () => {
     const nft = new NFT(nftCollection)
 
     it('Name and symbol', async () => {
+        await waitForSec(1)
         expect(await nft.getName()).toBe('NFT Test on TON')
         expect(await nft.getSymbol()).toBe('NFT Test on TON')
     })
 
     it('Balance', async () => {
+        await waitForSec(1)
         const balance = await nft.getBalance(balanceTestAddress)
         expect(balance).toBe(nftBalanceTestAmount)
     })
 
     it('Owner', async () => {
+        await waitForSec(1)
         expect(await nft.getOwner(nftBalanceId)).toBe(balanceTestAddress)
     })
 
     it('Token URI', async () => {
+        await waitForSec(1)
         expect(await nft.getTokenURI(nftBalanceId)).toBe(
             'https://s.getgems.io/nft/c/677e3821c9af9379ef55f729/0/meta.json'
         )
@@ -204,13 +214,14 @@ describe('Nft', () => {
     // })
 
     it('Transfer', async () => {
+        await waitForSec(1)
         const signer = await nft.transfer(senderTestAddress, receiverTestAddress, nftTransferId)
 
         await checkSigner(signer)
 
         if (!nftTransactionTestIsActive) return
 
-        await waitSecondsBeforeThanNewTx(5)
+        await waitForSec(5)
 
         await checkTx(await signer.send())
 
@@ -228,7 +239,7 @@ describe('Nft', () => {
 
     //     if (!nftTransactionTestIsActive) return
 
-    //     await waitSecondsBeforeThanNewTx(5)
+    //     await waitForSec(5)
 
     //     await checkTx(await signer.send())
 
@@ -238,7 +249,7 @@ describe('Nft', () => {
     // it('Transfer from', async () => {
     //     if (!nftTransactionTestIsActive) return
 
-    //     await waitSecondsBeforeThanNewTx(5)
+    //     await waitForSec(5)
 
     //     const signer = await nft.transferFrom(
     //         senderTestAddress,

@@ -18,6 +18,10 @@ const nftTransferTx = String(process.env.TON_NFT_TRANSFER_TX)
 const sender = String(process.env.TON_SENDER_ADDRESS)
 const receiver = String(process.env.TON_RECEIVER_ADDRESS)
 
+const waitForSec = async (seconds: number): Promise<any> => {
+    return await new Promise((resolve) => setTimeout(resolve, seconds * 1000))
+}
+
 describe('Transaction', () => {
     const tx = new Transaction(tonTransferTx)
     it('Id', async () => {
@@ -25,6 +29,7 @@ describe('Transaction', () => {
     })
 
     it('Data', async () => {
+        await waitForSec(1)
         expect(await tx.getData()).toBeTypeOf('object')
     })
 
@@ -71,6 +76,7 @@ describe('Coin Transaction', () => {
     const tx = new CoinTransaction(tonTransferTx)
 
     it('Receiver', async () => {
+        await waitForSec(1)
         expect((await tx.getReceiver()).toLowerCase()).toBe(receiver.toLowerCase())
     })
 
@@ -97,6 +103,7 @@ describe('Token Transaction', () => {
     const tx = new TokenTransaction(tokenTransferTx)
 
     it('Receiver', async () => {
+        await waitForSec(1)
         expect((await tx.getReceiver()).toLowerCase()).toBe(receiver.toLowerCase())
     })
 
@@ -123,6 +130,7 @@ describe('NFT Transaction', () => {
     const tx = new NftTransaction(nftTransferTx)
 
     it('Receiver', async () => {
+        await waitForSec(1)
         expect((await tx.getReceiver()).toLowerCase()).toBe(receiver.toLowerCase())
     })
 
