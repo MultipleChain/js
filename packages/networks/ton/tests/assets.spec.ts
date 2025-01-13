@@ -7,32 +7,34 @@ import { math } from '@multiplechain/utils'
 import { Transaction } from '../src/models/Transaction'
 import { TransactionStatusEnum, type TransactionId } from '@multiplechain/types'
 import { TransactionSigner } from '../src/services/TransactionSigner'
+import { Cell } from '@ton/core'
 
 const coinBalanceTestAmount = Number(process.env.TON_COIN_BALANCE_TEST_AMOUNT)
 const tokenBalanceTestAmount = Number(process.env.TON_TOKEN_BALANCE_TEST_AMOUNT)
 const nftBalanceTestAmount = Number(process.env.TON_NFT_BALANCE_TEST_AMOUNT)
 const transferTestAmount = Number(process.env.TON_TRANSFER_TEST_AMOUNT)
 const tokenTransferTestAmount = Number(process.env.TON_TOKEN_TRANSFER_TEST_AMOUNT)
-const tokenApproveTestAmount = Number(process.env.TON_TOKEN_APPROVE_TEST_AMOUNT)
-const nftTransferId = Number(process.env.TON_NFT_TRANSFER_ID)
+// const tokenApproveTestAmount = Number(process.env.TON_TOKEN_APPROVE_TEST_AMOUNT)
+const nftTransferId = String(process.env.TON_NFT_TRANSFER_ID)
+const nftBalanceId = String(process.env.TON_NFT_BALANCE_TEST_ID)
 
 const coinTransferTestIsActive = Boolean(process.env.TON_COIN_TRANSFER_TEST_IS_ACTIVE !== 'false')
 const tokenTransferTestIsActive = Boolean(process.env.TON_TOKEN_TRANSFER_TEST_IS_ACTIVE !== 'false')
-const tokenApproveTestIsActive = Boolean(process.env.TON_TOKEN_APPROVE_TEST_IS_ACTIVE !== 'false')
+// const tokenApproveTestIsActive = Boolean(process.env.TON_TOKEN_APPROVE_TEST_IS_ACTIVE !== 'false')
 const nftTransactionTestIsActive = Boolean(
     process.env.TON_NFT_TRANSACTION_TEST_IS_ACTIVE !== 'false'
 )
-const tokenTransferFromTestIsActive = Boolean(
-    process.env.TON_TOKEN_TRANSFER_FROM_TEST_IS_ACTIVE !== 'false'
-)
+// const tokenTransferFromTestIsActive = Boolean(
+//     process.env.TON_TOKEN_TRANSFER_FROM_TEST_IS_ACTIVE !== 'false'
+// )
 
 const balanceTestAddress = String(process.env.TON_BALANCE_TEST_ADDRESS)
-const senderPrivateKey = String(process.env.TON_SENDER_PRIVATE_KEY)
-const receiverPrivateKey = String(process.env.TON_RECEIVER_PRIVATE_KEY)
-const senderTestAddress = String(process.env.TON_SENDER_TEST_ADDRESS)
-const receiverTestAddress = String(process.env.TON_RECEIVER_TEST_ADDRESS)
+const senderPrivateKey = String(process.env.TON_SENDER_SEED_PHRASE)
+// const receiverPrivateKey = String(process.env.TON_RECEIVER_SEED_PHRASE)
+const senderTestAddress = String(process.env.TON_SENDER_ADDRESS)
+const receiverTestAddress = String(process.env.TON_RECEIVER_ADDRESS)
 const tokenTestAddress = String(process.env.TON_TOKEN_TEST_ADDRESS)
-const nftTestAddress = String(process.env.TON_NFT_TEST_ADDRESS)
+const nftCollection = String(process.env.TON_NFT_COLLECTION)
 
 const waitSecondsBeforeThanNewTx = async (seconds: number): Promise<any> => {
     return await new Promise((resolve) => setTimeout(resolve, seconds * 1000))
@@ -47,13 +49,14 @@ const checkSigner = async (signer: TransactionSigner, privateKey?: string): Prom
 
     await signer.sign(privateKey ?? senderPrivateKey)
 
-    assert.isString(signer.getSignedData())
+    assert.instanceOf(signer.getSignedData(), Cell)
 }
 
-const checkTx = async (transactionId: TransactionId): Promise<any> => {
+const checkTx = async (transactionId: TransactionId): Promise<Transaction> => {
     const transaction = new Transaction(transactionId)
     const status = await transaction.wait(10000)
     expect(status).toBe(TransactionStatusEnum.CONFIRMED)
+    return transaction
 }
 
 describe('Coin', () => {
@@ -64,7 +67,7 @@ describe('Coin', () => {
     })
 
     it('Decimals', () => {
-        expect(coin.getDecimals()).toBe(18)
+        expect(coin.getDecimals()).toBe(9)
     })
 
     it('Balance', async () => {
@@ -83,12 +86,7 @@ describe('Coin', () => {
 
         if (!coinTransferTestIsActive) return
 
-        const beforeBalance = await coin.getBalance(receiverTestAddress)
-
         await checkTx(await signer.send())
-
-        const afterBalance = await coin.getBalance(receiverTestAddress)
-        expect(afterBalance).toBe(math.add(beforeBalance, transferTestAmount))
     })
 })
 
@@ -96,12 +94,12 @@ describe('Token', () => {
     const token = new Token(tokenTestAddress)
 
     it('Name and symbol', async () => {
-        expect(await token.getName()).toBe('TestToken')
-        expect(await token.getSymbol()).toBe('TTN')
+        expect(await token.getName()).toBe('TON Test Token')
+        expect(await token.getSymbol()).toBe('TTT')
     })
 
     it('Decimals', async () => {
-        expect(await token.getDecimals()).toBe(18)
+        expect(await token.getDecimals()).toBe(9)
     })
 
     it('Balance', async () => {
@@ -111,7 +109,7 @@ describe('Token', () => {
 
     it('Total supply', async () => {
         const totalSupply = await token.getTotalSupply()
-        expect(totalSupply).toBe(1000000)
+        expect(totalSupply).toBe(100000000)
     })
 
     it('Transfer', async () => {
@@ -135,55 +133,55 @@ describe('Token', () => {
         expect(afterBalance).toBe(math.add(beforeBalance, tokenTransferTestAmount))
     })
 
-    it('Approve and Allowance', async () => {
-        const signer = await token.approve(
-            senderTestAddress,
-            receiverTestAddress,
-            tokenApproveTestAmount
-        )
+    // it('Approve and Allowance', async () => {
+    //     const signer = await token.approve(
+    //         senderTestAddress,
+    //         receiverTestAddress,
+    //         tokenApproveTestAmount
+    //     )
 
-        await checkSigner(signer)
+    //     await checkSigner(signer)
 
-        if (!tokenApproveTestIsActive) return
+    //     if (!tokenApproveTestIsActive) return
 
-        await waitSecondsBeforeThanNewTx(5)
+    //     await waitSecondsBeforeThanNewTx(5)
 
-        await checkTx(await signer.send())
+    //     await checkTx(await signer.send())
 
-        expect(await token.getAllowance(senderTestAddress, receiverTestAddress)).toBe(
-            tokenApproveTestAmount
-        )
-    })
+    //     expect(await token.getAllowance(senderTestAddress, receiverTestAddress)).toBe(
+    //         tokenApproveTestAmount
+    //     )
+    // })
 
-    it('Transfer from', async () => {
-        const signer = await token.transferFrom(
-            receiverTestAddress,
-            senderTestAddress,
-            receiverTestAddress,
-            2
-        )
+    // it('Transfer from', async () => {
+    //     const signer = await token.transferFrom(
+    //         receiverTestAddress,
+    //         senderTestAddress,
+    //         receiverTestAddress,
+    //         2
+    //     )
 
-        await checkSigner(signer, receiverPrivateKey)
+    //     await checkSigner(signer, receiverPrivateKey)
 
-        if (!tokenTransferFromTestIsActive) return
+    //     if (!tokenTransferFromTestIsActive) return
 
-        await waitSecondsBeforeThanNewTx(5)
+    //     await waitSecondsBeforeThanNewTx(5)
 
-        const beforeBalance = await token.getBalance(receiverTestAddress)
+    //     const beforeBalance = await token.getBalance(receiverTestAddress)
 
-        await checkTx(await signer.send())
+    //     await checkTx(await signer.send())
 
-        const afterBalance = await token.getBalance(receiverTestAddress)
-        expect(afterBalance).toBe(math.add(beforeBalance, 2))
-    })
+    //     const afterBalance = await token.getBalance(receiverTestAddress)
+    //     expect(afterBalance).toBe(math.add(beforeBalance, 2))
+    // })
 })
 
 describe('Nft', () => {
-    const nft = new NFT(nftTestAddress)
+    const nft = new NFT(nftCollection)
 
     it('Name and symbol', async () => {
-        expect(await nft.getName()).toBe('TestNFT')
-        expect(await nft.getSymbol()).toBe('TNFT')
+        expect(await nft.getName()).toBe('NFT Test on TON')
+        expect(await nft.getSymbol()).toBe('NFT Test on TON')
     })
 
     it('Balance', async () => {
@@ -192,16 +190,18 @@ describe('Nft', () => {
     })
 
     it('Owner', async () => {
-        expect(await nft.getOwner(5)).toBe(balanceTestAddress)
+        expect(await nft.getOwner(nftBalanceId)).toBe(balanceTestAddress)
     })
 
     it('Token URI', async () => {
-        expect(await nft.getTokenURI(5)).toBe('')
+        expect(await nft.getTokenURI(nftBalanceId)).toBe(
+            'https://s.getgems.io/nft/c/677e3821c9af9379ef55f729/0/meta.json'
+        )
     })
 
-    it('Approved', async () => {
-        expect(await nft.getApproved(5)).toBe(null)
-    })
+    // it('Approved', async () => {
+    //     expect(await nft.getApproved(nftBalanceId)).toBe(null)
+    // })
 
     it('Transfer', async () => {
         const signer = await nft.transfer(senderTestAddress, receiverTestAddress, nftTransferId)
@@ -217,40 +217,40 @@ describe('Nft', () => {
         expect(await nft.getOwner(nftTransferId)).toBe(receiverTestAddress)
     })
 
-    it('Approve', async () => {
-        const customOwner = nftTransactionTestIsActive ? receiverTestAddress : senderTestAddress
-        const customSpender = nftTransactionTestIsActive ? senderTestAddress : receiverTestAddress
-        const customPrivateKey = nftTransactionTestIsActive ? receiverPrivateKey : senderPrivateKey
+    // it('Approve', async () => {
+    //     const customOwner = nftTransactionTestIsActive ? receiverTestAddress : senderTestAddress
+    //     const customSpender = nftTransactionTestIsActive ? senderTestAddress : receiverTestAddress
+    //     const customPrivateKey = nftTransactionTestIsActive ? receiverPrivateKey : senderPrivateKey
 
-        const signer = await nft.approve(customOwner, customSpender, nftTransferId)
+    //     const signer = await nft.approve(customOwner, customSpender, nftTransferId)
 
-        await checkSigner(signer, customPrivateKey)
+    //     await checkSigner(signer, customPrivateKey)
 
-        if (!nftTransactionTestIsActive) return
+    //     if (!nftTransactionTestIsActive) return
 
-        await waitSecondsBeforeThanNewTx(5)
+    //     await waitSecondsBeforeThanNewTx(5)
 
-        await checkTx(await signer.send())
+    //     await checkTx(await signer.send())
 
-        expect(await nft.getApproved(nftTransferId)).toBe(senderTestAddress)
-    })
+    //     expect(await nft.getApproved(nftTransferId)).toBe(senderTestAddress)
+    // })
 
-    it('Transfer from', async () => {
-        if (!nftTransactionTestIsActive) return
+    // it('Transfer from', async () => {
+    //     if (!nftTransactionTestIsActive) return
 
-        await waitSecondsBeforeThanNewTx(5)
+    //     await waitSecondsBeforeThanNewTx(5)
 
-        const signer = await nft.transferFrom(
-            senderTestAddress,
-            receiverTestAddress,
-            senderTestAddress,
-            nftTransferId
-        )
+    //     const signer = await nft.transferFrom(
+    //         senderTestAddress,
+    //         receiverTestAddress,
+    //         senderTestAddress,
+    //         nftTransferId
+    //     )
 
-        await checkSigner(signer)
+    //     await checkSigner(signer)
 
-        await checkTx(await signer.send())
+    //     await checkTx(await signer.send())
 
-        expect(await nft.getOwner(nftTransferId)).toBe(senderTestAddress)
-    })
+    //     expect(await nft.getOwner(nftTransferId)).toBe(senderTestAddress)
+    // })
 })

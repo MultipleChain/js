@@ -1,6 +1,12 @@
 import { Provider } from '../services/Provider'
+import { comment, fromNano, internal, toNano } from '@ton/core'
 import { TransactionSigner } from '../services/TransactionSigner'
-import type { CoinInterface, TransferAmount, WalletAddress } from '@multiplechain/types'
+import {
+    ErrorTypeEnum,
+    type CoinInterface,
+    type TransferAmount,
+    type WalletAddress
+} from '@multiplechain/types'
 
 export class Coin implements CoinInterface<TransactionSigner> {
     /**
@@ -19,21 +25,21 @@ export class Coin implements CoinInterface<TransactionSigner> {
      * @returns Coin name
      */
     getName(): string {
-        return 'example'
+        return 'Toncoin'
     }
 
     /**
      * @returns Coin symbol
      */
     getSymbol(): string {
-        return 'example'
+        return 'TON'
     }
 
     /**
      * @returns Decimal value of the coin
      */
     getDecimals(): number {
-        return 18
+        return 9
     }
 
     /**
@@ -41,20 +47,38 @@ export class Coin implements CoinInterface<TransactionSigner> {
      * @returns Wallet balance as currency of COIN
      */
     async getBalance(owner: WalletAddress): Promise<number> {
-        return 0
+        const response = await this.provider.client3.getAddressInformation(owner)
+        return Number(fromNano(response.balance))
     }
 
     /**
      * @param sender Sender wallet address
      * @param receiver Receiver wallet address
      * @param amount Amount of assets that will be transferred
+     * @param body Comment for the transaction
      * @returns Transaction signer
      */
     async transfer(
         sender: WalletAddress,
         receiver: WalletAddress,
-        amount: TransferAmount
+        amount: TransferAmount,
+        body?: string
     ): Promise<TransactionSigner> {
-        return new TransactionSigner('example')
+        if (amount < 0) {
+            throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
+        }
+
+        if (amount > (await this.getBalance(sender))) {
+            throw new Error(ErrorTypeEnum.INSUFFICIENT_BALANCE)
+        }
+
+        return new TransactionSigner(
+            internal({
+                bounce: false,
+                to: receiver,
+                value: toNano(amount),
+                body: body ? comment(body) : undefined
+            })
+        )
     }
 }

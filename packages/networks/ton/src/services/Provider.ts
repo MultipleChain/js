@@ -5,7 +5,15 @@ import {
     type ProviderInterface
 } from '@multiplechain/types'
 import TonCenterV3 from 'ton-center-v3'
-import { TonClient, TonClient4 } from '@ton/ton'
+import {
+    type Address,
+    TonClient,
+    WalletContractV3R1,
+    WalletContractV3R2,
+    WalletContractV4,
+    WalletContractV5Beta,
+    WalletContractV5R1
+} from '@ton/ton'
 
 export interface TonNetworkConfigInterface extends NetworkConfigInterface {
     apiKey: string
@@ -13,10 +21,32 @@ export interface TonNetworkConfigInterface extends NetworkConfigInterface {
     explorer?: 'tonviewer' | 'tonscan'
 }
 
-export enum TonNetwork {
+export enum Network {
     MAINNET = -239,
     TESTNET = -3
 }
+
+export enum OpCodes {
+    JETTON_TRANSFER = 0xf8a7ea5,
+    NFT_TRANSFER = 0x5fcc3d14,
+    STONFI_SWAP = 0x25938561
+}
+
+export enum WalletVersion {
+    V3R1 = 0,
+    V3R2 = 1,
+    V4R1 = 2,
+    V4R2 = 3,
+    V5_BETA = 4,
+    V5R1 = 5
+}
+
+export type WalletContract =
+    | WalletContractV3R1
+    | WalletContractV3R2
+    | WalletContractV4
+    | WalletContractV5Beta
+    | WalletContractV5R1
 
 export class Provider implements ProviderInterface<TonNetworkConfigInterface> {
     /**
@@ -27,8 +57,6 @@ export class Provider implements ProviderInterface<TonNetworkConfigInterface> {
     client1: TonClient
 
     client3: TonCenterV3
-
-    client4: TonClient4
 
     mainnetEndpoint = 'https://toncenter.com/api/v2/jsonRPC'
 
@@ -45,6 +73,8 @@ export class Provider implements ProviderInterface<TonNetworkConfigInterface> {
     explorerUrl: string
 
     workchain: number
+
+    net: Network
 
     public walletStandard: {
         testOnly: boolean
@@ -99,7 +129,6 @@ export class Provider implements ProviderInterface<TonNetworkConfigInterface> {
         try {
             await this.client1.getMasterchainInfo()
             await this.client3.getMasterchainInfo()
-            await this.client4.getLastBlock()
 
             if (url) {
                 const response = await axios.get(url)
@@ -111,6 +140,7 @@ export class Provider implements ProviderInterface<TonNetworkConfigInterface> {
 
             return true
         } catch (error) {
+            console.log(error)
             return error as Error
         }
     }
@@ -155,14 +185,6 @@ export class Provider implements ProviderInterface<TonNetworkConfigInterface> {
             apiKey
         })
 
-        this.client4 = new TonClient4({
-            endpoint,
-            requestInterceptor: (config) => {
-                config.headers['X-API-KEY'] = apiKey
-                return config
-            }
-        })
-
         this.client3 = new TonCenterV3({
             apiKey,
             testnet
@@ -188,6 +210,8 @@ export class Provider implements ProviderInterface<TonNetworkConfigInterface> {
 
         this.workchain = network.workchain ?? 0
 
+        this.net = testnet ? Network.TESTNET : Network.MAINNET
+
         Provider._instance = this
     }
 
@@ -197,5 +221,128 @@ export class Provider implements ProviderInterface<TonNetworkConfigInterface> {
      */
     isTestnet(): boolean {
         return this.network?.testnet ?? false
+    }
+
+    /**
+     * Get the current network configuration is mainnet or not
+     * @param address - Wallet address
+     * @returns wallet version
+     */
+    async findWalletVersion(address: string): Promise<WalletVersion> {
+        const result = await this.client3.getWalletInformation(address)
+        if (result.status === 'uninitialized') {
+            throw new Error('Wallet is not initialized')
+        }
+
+        const type = result.wallet_type
+
+        switch (type) {
+            case 'wallet v5 r1':
+                return WalletVersion.V5R1
+            case 'wallet v5 beta':
+                return WalletVersion.V5_BETA
+            case 'wallet v4 r2':
+                return WalletVersion.V4R2
+            case 'wallet v4 r1':
+                return WalletVersion.V4R1
+            case 'wallet v3 r2':
+                return WalletVersion.V3R2
+            case 'wallet v3 r1':
+                return WalletVersion.V3R1
+            default:
+                throw new Error('Unknown wallet version')
+        }
+    }
+
+    /**
+     * Get the current network configuration is mainnet or not
+     * @param publicKey - Public key of the wallet
+     * @param version - Wallet contract version
+     * @returns mainnet status
+     */
+    createWalletByVersion(publicKey: Buffer, version: WalletVersion): WalletContract {
+        const workchain = this.workchain
+
+        switch (version) {
+            case WalletVersion.V3R1:
+                return WalletContractV3R1.create({ workchain, publicKey })
+            case WalletVersion.V3R2:
+                return WalletContractV3R2.create({ workchain, publicKey })
+            case WalletVersion.V4R1:
+                throw new Error('Unsupported wallet contract version - v4R1')
+            case WalletVersion.V4R2:
+                return WalletContractV4.create({ workchain, publicKey })
+            case WalletVersion.V5_BETA:
+                return WalletContractV5Beta.create({
+                    walletId: {
+                        networkGlobalId: this.net
+                    },
+                    publicKey
+                })
+            case WalletVersion.V5R1:
+                return this.createWalletV5R1(publicKey)
+        }
+    }
+
+    /**
+     * Create wallet contract for version 5R1
+     * @param publicKey - Public key of the wallet
+     * @returns Wallet contract
+     */
+    createWalletV5R1(publicKey: Buffer): WalletContractV5R1 {
+        return WalletContractV5R1.create({
+            workchain: this.workchain,
+            walletId: {
+                networkGlobalId: this.net
+            },
+            publicKey
+        })
+    }
+
+    /**
+     * Retry the function
+     * @param fn - Function that will be retried
+     * @param options - Retry options
+     * @param options.retries - Number of retries
+     * @param options.delay - Delay between retries
+     * @returns Function result
+     */
+    async retry<T>(fn: () => Promise<T>, options: { retries: number; delay: number }): Promise<T> {
+        let lastError: Error | undefined
+        for (let i = 0; i < options.retries; i++) {
+            try {
+                return await fn()
+            } catch (e) {
+                if (e instanceof Error) {
+                    lastError = e
+                }
+                await new Promise((resolve) => setTimeout(resolve, options.delay))
+            }
+        }
+        throw lastError ?? new Error('Unknown error')
+    }
+
+    /**
+     * Find transaction hash by message hash
+     * @param address - Wallet address
+     * @param _hash - Message hash
+     * @returns Transaction hash
+     */
+    async findTxHashByMessageHash(address: Address, _hash: string): Promise<string> {
+        return await this.retry(
+            async () => {
+                const transactions = await this.client1.getTransactions(address, {
+                    limit: 5
+                })
+                for (const tx of transactions) {
+                    const hash = tx.inMessage?.body.hash().toString('base64')
+                    if (hash === _hash) {
+                        return tx.hash().toString('hex')
+                    }
+                }
+                throw new Error('Transaction not found')
+            },
+            { retries: 30, delay: 1000 }
+        )
     }
 }

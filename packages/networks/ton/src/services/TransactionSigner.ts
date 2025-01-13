@@ -1,16 +1,19 @@
 import { Provider } from '../services/Provider'
+import { mnemonicToPrivateKey } from '@ton/crypto'
+import type { OpenedContract, WalletContractV5R1 } from '@ton/ton'
+import { type Cell, SendMode, type MessageRelaxed } from '@ton/core'
 import type { PrivateKey, TransactionId, TransactionSignerInterface } from '@multiplechain/types'
 
-export class TransactionSigner implements TransactionSignerInterface<unknown, unknown> {
+export class TransactionSigner implements TransactionSignerInterface<MessageRelaxed, Cell> {
     /**
      * Transaction data from the blockchain network
      */
-    rawData: unknown
+    rawData: MessageRelaxed
 
     /**
      * Signed transaction data
      */
-    signedData: unknown
+    signedData: Cell
 
     /**
      * Blockchain network provider
@@ -18,10 +21,15 @@ export class TransactionSigner implements TransactionSignerInterface<unknown, un
     provider: Provider
 
     /**
+     * Wallet contract
+     */
+    wallet: OpenedContract<WalletContractV5R1>
+
+    /**
      * @param rawData - Transaction data
      * @param provider - Blockchain network provider
      */
-    constructor(rawData: unknown, provider?: Provider) {
+    constructor(rawData: MessageRelaxed, provider?: Provider) {
         this.rawData = rawData
         this.provider = provider ?? Provider.instance
     }
@@ -32,7 +40,17 @@ export class TransactionSigner implements TransactionSignerInterface<unknown, un
      * @returns Signed transaction data
      */
     async sign(privateKey: PrivateKey): Promise<this> {
-        return await Promise.resolve(this)
+        const { publicKey, secretKey } = await mnemonicToPrivateKey(privateKey.split(' '))
+        const contract = this.provider.createWalletV5R1(publicKey)
+        this.wallet = this.provider.client1.open(contract)
+        const seqno = await this.wallet.getSeqno()
+        this.signedData = this.wallet.createTransfer({
+            seqno,
+            secretKey,
+            messages: [this.rawData],
+            sendMode: SendMode.PAY_GAS_SEPARATELY
+        })
+        return this
     }
 
     /**
@@ -40,20 +58,29 @@ export class TransactionSigner implements TransactionSignerInterface<unknown, un
      * @returns Transaction ID
      */
     async send(): Promise<TransactionId> {
-        return await Promise.resolve('id')
+        try {
+            await this.wallet.send(this.signedData)
+            return await this.provider.findTxHashByMessageHash(
+                this.wallet.address,
+                this.signedData.hash().toString('base64')
+            )
+        } catch (error) {
+            console.error(error)
+            return ''
+        }
     }
 
     /**
      * @returns raw transaction data
      */
-    getRawData(): unknown {
+    getRawData(): MessageRelaxed {
         return this.rawData
     }
 
     /**
      * @returns signed transaction data
      */
-    getSignedData(): unknown {
+    getSignedData(): Cell {
         return this.signedData
     }
 }

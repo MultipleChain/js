@@ -73,6 +73,10 @@ export class Transaction implements TransactionInterface<TransactionData> {
                 await this.provider.client3.getActions({ trace_id: [transaction.trace_id] })
             ).actions[0]
 
+            if (action === undefined) {
+                return null
+            }
+
             return (this.data = { transaction, action })
         } catch (error) {
             throw new Error(ErrorTypeEnum.RPC_REQUEST_ERROR)
@@ -94,6 +98,7 @@ export class Transaction implements TransactionInterface<TransactionData> {
                     }
                     setTimeout(check, ms)
                 } catch (error) {
+                    console.error(error)
                     reject(TransactionStatusEnum.FAILED)
                 }
             }
