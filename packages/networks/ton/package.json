@@ -78,6 +78,7 @@
         "@ton/crypto": "^3.3.0",
         "@ton/sandbox": "0.21.0-beta.1",
         "@ton/ton": "^15.1.0",
+        "@tonconnect/ui": "^2.0.11",
         "axios": "^1.7.9",
         "ton-center-v3": "^0.1.3"
     }

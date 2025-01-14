@@ -175,10 +175,8 @@
                 <span class="adapter-icon"><img src="" alt="icon" /></span>
             </div>
             <div class="info"><span>Platforms: </span> <span class="platforms"></span></div>
-            <div class="info"><span>Download link: </span> <span class="download-link"></span></div>
-            <div class="info"><span>Deep link: </span> <span class="deep-link"></span></div>
             <div class="info">
-                <span>Connected address: </span> <span class="connected-address"></span>
+                <span>Connected address: </span> <span class="connected-address" style="font-size: 14px;"></span>
             </div>
             <button class="action-btn sign-message">Sign Message (Personal Sign)</button>
             <div class="action-result"><span>Result:</span> <span class="sign-message"></span></div>
@@ -194,7 +192,8 @@
             window.TON = TON
 
             const provider = new TON.Provider({
-                // options
+                testnet: true,
+                apiKey: '0a804e1153b5dec04715342789d68c219845e3f1336da822399d7b180a5b5533'
             })
 
             window.adapters = {}
@@ -203,13 +202,9 @@
                     return alert('Adapter is not detected')
                 }
 
-                if (adapter.disconnect) {
-                    await adapter.disconnect()
-                }
-
                 const wallet = new TON.browser.Wallet(adapter)
                 const adapterProvider = await wallet.connect({
-                    projectId: '113d9f5689edd84ff230c2a6d679c80c'
+                    manifestUrl: 'https://gist.githubusercontent.com/0xBeycan/4ecdb38ae4157278c72398fe4a89508a/raw/cc5ef2f7f308b5ef2a4def51300b033ffe04904b/ton-manifest.json'
                 })
 
                 document.querySelector('.methods').style.display = 'block'
@@ -219,24 +214,21 @@
                 document.querySelector('.adapter-name').innerText = wallet.getName()
                 document.querySelector('.adapter-icon img').src = wallet.getIcon()
                 document.querySelector('.platforms').innerText = wallet.getPlatforms().join(', ')
-                document.querySelector('.download-link').innerText = wallet.getDownloadLink()
-                document.querySelector('.deep-link').innerText =
-                    wallet.createDeepLink('https://google.com')
+                document.querySelector('.action-result .sign-message').innerText = ''
                 document.querySelector('.connected-address').innerText = sender
 
-                document.querySelector('.action-result .sign-message').innerText = ''
                 document.querySelector('.action-btn.sign-message').onclick = async () => {
                     const result = await wallet.signMessage('Hello World')
                     document.querySelector('.action-result .sign-message').innerText = result
                 }
 
-                const receiver = '0xbBa4d06D1cEf94b35aDeCfDa893523907fdD36DE'
-                const tokenAddress = '0x4294cb0dD25dC9140B5127f247cBd47Eeb673431'
+                const receiver = '0QBE7-YFiBHs3mdSsp3kdUFfTESFvYxb23n5mAfFUOd7T2S3'
+                const tokenAddress = 'kQAIyxof6tfnDvBw5KC-bfUGF3JtkzkHR4cfFB49Ik-FV3RW'
 
                 document.querySelector('.action-result .send-coin').innerText = ''
                 document.querySelector('.action-btn.send-coin').onclick = async () => {
                     const coin = new TON.assets.Coin()
-                    const signer = await coin.transfer(sender, receiver, 0.00001)
+                    const signer = await coin.transfer(sender, receiver, 0.001)
                     const result = await wallet.sendTransaction(signer)
                     document.querySelector('.action-result .send-coin').innerText = result
                 }
@@ -247,6 +239,15 @@
                     const signer = await token.transfer(sender, receiver, 0.1)
                     const result = await wallet.sendTransaction(signer)
                     document.querySelector('.action-result .send-token').innerText = result
+                }
+
+                document.querySelector('.action-btn.disconnect').onclick = async () => {
+                    await adapter.disconnect()
+                    document.querySelector('.methods').style.display = 'none'
+                    document.querySelector('.action-result .sign-message').innerText = ''
+                    document.querySelector('.action-result .send-coin').innerText = ''
+                    document.querySelector('.action-result .send-token').innerText = ''
+                    document.querySelector('.connected-address').innerText = ''
                 }
             }
 

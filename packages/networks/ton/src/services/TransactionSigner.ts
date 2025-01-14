@@ -60,10 +60,7 @@ export class TransactionSigner implements TransactionSignerInterface<MessageRela
     async send(): Promise<TransactionId> {
         try {
             await this.wallet.send(this.signedData)
-            return await this.provider.findTxHashByMessageHash(
-                this.wallet.address,
-                this.signedData.hash().toString('base64')
-            )
+            return await this.provider.findTxHashByBodyHash(this.signedData.hash().toString('hex'))
         } catch (error) {
             console.error(error)
             return ''

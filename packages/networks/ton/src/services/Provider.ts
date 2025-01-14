@@ -6,7 +6,6 @@ import {
 } from '@multiplechain/types'
 import TonCenterV3 from 'ton-center-v3'
 import {
-    type Address,
     TonClient,
     WalletContractV3R1,
     WalletContractV3R2,
@@ -323,24 +322,42 @@ export class Provider implements ProviderInterface<TonNetworkConfigInterface> {
     }
 
     /**
-     * Find transaction hash by message hash
-     * @param address - Wallet address
+     * Find transaction hash by message hash=
      * @param _hash - Message hash
      * @returns Transaction hash
      */
-    async findTxHashByMessageHash(address: Address, _hash: string): Promise<string> {
+    async findTxHashByBodyHash(_hash: string): Promise<string> {
         return await this.retry(
             async () => {
-                const transactions = await this.client1.getTransactions(address, {
-                    limit: 5
+                const { messages } = await this.client3.getMessages({
+                    body_hash: _hash
                 })
-                for (const tx of transactions) {
-                    const hash = tx.inMessage?.body.hash().toString('base64')
-                    if (hash === _hash) {
-                        return tx.hash().toString('hex')
-                    }
+                if (messages[0]) {
+                    return Buffer.from(messages[0].in_msg_tx_hash, 'base64').toString('hex')
+                } else {
+                    throw new Error('Transaction not found')
                 }
-                throw new Error('Transaction not found')
+            },
+            { retries: 30, delay: 1000 }
+        )
+    }
+
+    /**
+     * Find transaction hash by message hash
+     * @param _hash - Message hash
+     * @returns Transaction hash
+     */
+    async findTxHashByMessageHash(_hash: string): Promise<string> {
+        return await this.retry(
+            async () => {
+                const { messages } = await this.client3.getMessages({
+                    msg_hash: [_hash]
+                })
+                if (messages[0]) {
+                    return Buffer.from(messages[0].in_msg_tx_hash, 'base64').toString('hex')
+                } else {
+                    throw new Error('Transaction not found')
+                }
             },
             { retries: 30, delay: 1000 }
         )
