@@ -98,6 +98,7 @@ export class Transaction implements TransactionInterface<TransactionData> {
 
             return (this.data = data as TransactionData)
         } catch (error) {
+            console.error('MC Bitcoin TX getData', error)
             const axiosError = error as AxiosError
             // Returns empty data when the transaction is first created. For this reason, it would be better to check it intermittently and give an error if it still does not exist. Average 10 seconds.
             if (String(axiosError?.response?.data).includes('Transaction not found')) {
@@ -130,6 +131,7 @@ export class Transaction implements TransactionInterface<TransactionData> {
                     }
                     setTimeout(check, ms)
                 } catch (error) {
+                    console.error('MC Bitcoin TX wait', error)
                     reject(TransactionStatusEnum.FAILED)
                 }
             }

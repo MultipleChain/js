@@ -134,6 +134,7 @@ export class Transaction implements TransactionInterface<TransactionData> {
             this.data.info = result?.id !== undefined ? result : undefined
             return this.data
         } catch (error) {
+            console.error('MC Tron TX getData', error)
             throw new Error(ErrorTypeEnum.RPC_REQUEST_ERROR)
         }
     }
@@ -156,6 +157,7 @@ export class Transaction implements TransactionInterface<TransactionData> {
                     }
                     setTimeout(check, ms)
                 } catch (error) {
+                    console.error('MC Tron TX wait', error)
                     reject(TransactionStatusEnum.FAILED)
                 }
             }

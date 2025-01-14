@@ -79,6 +79,7 @@ export class Transaction implements TransactionInterface<TransactionData> {
 
             return (this.data = { transaction, action })
         } catch (error) {
+            console.error('MC TON TX getData', error)
             throw new Error(ErrorTypeEnum.RPC_REQUEST_ERROR)
         }
     }
@@ -98,7 +99,7 @@ export class Transaction implements TransactionInterface<TransactionData> {
                     }
                     setTimeout(check, ms)
                 } catch (error) {
-                    console.error(error)
+                    console.error('MC TON TX wait', error)
                     reject(TransactionStatusEnum.FAILED)
                 }
             }
