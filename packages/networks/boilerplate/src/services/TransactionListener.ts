@@ -1,11 +1,6 @@
 import { Provider } from './Provider'
-import { Transaction } from '../models/Transaction'
-import { NftTransaction } from '../models/NftTransaction'
-import { CoinTransaction } from '../models/CoinTransaction'
-import { TokenTransaction } from '../models/TokenTransaction'
-import { ContractTransaction } from '../models/ContractTransaction'
-import { TransactionListenerProcessIndex, TransactionTypeEnum } from '@multiplechain/types'
 import type {
+    TransactionTypeEnum,
     DynamicTransactionType,
     TransactionListenerInterface,
     DynamicTransactionListenerFilterType,
@@ -15,6 +10,14 @@ import type {
     ContractTransactionListenerFilterInterface,
     TransactionId
 } from '@multiplechain/types'
+import type {
+    Transaction,
+    TokenTransaction,
+    CoinTransaction,
+    ContractTransaction,
+    NftTransaction
+} from '../models/index'
+import { TransactionListenerProcessIndex } from '@multiplechain/types'
 
 type TransactionListenerTriggerType<T extends TransactionTypeEnum> = DynamicTransactionType<
     T,
