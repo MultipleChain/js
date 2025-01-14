@@ -1,20 +1,19 @@
 import { Provider } from './Provider'
-import { Transaction } from '../models/Transaction'
-import { NftTransaction } from '../models/NftTransaction'
-import { CoinTransaction } from '../models/CoinTransaction'
-import { TokenTransaction } from '../models/TokenTransaction'
-import { ContractTransaction } from '../models/ContractTransaction'
-import { TransactionListenerProcessIndex, TransactionTypeEnum } from '@multiplechain/types'
 import type {
+    Transaction,
+    TokenTransaction,
+    CoinTransaction,
+    ContractTransaction,
+    NftTransaction
+} from '../models/index'
+import type {
+    TransactionTypeEnum,
     DynamicTransactionType,
     TransactionListenerInterface,
     DynamicTransactionListenerFilterType,
-    NftTransactionListenerFilterInterface,
-    TokenTransactionListenerFilterInterface,
-    CoinTransactionListenerFilterInterface,
-    ContractTransactionListenerFilterInterface,
     TransactionId
 } from '@multiplechain/types'
+import { TransactionListenerProcessIndex } from '@multiplechain/types'
 
 type TransactionListenerTriggerType<T extends TransactionTypeEnum> = DynamicTransactionType<
     T,
@@ -75,6 +74,7 @@ export class TransactionListener<
         this.type = type
         this.filter = filter ?? {}
         this.provider = provider ?? Provider.instance
+        throw new Error('This class is not implemented for TON')
     }
 
     /**
@@ -138,27 +138,27 @@ export class TransactionListener<
      * Contract transaction process
      */
     contractProcess(): void {
-        const filter = this.filter as ContractTransactionListenerFilterInterface
+        // General transaction process
     }
 
     /**
      * Coin transaction process
      */
     coinProcess(): void {
-        const filter = this.filter as CoinTransactionListenerFilterInterface
+        // Coin transaction process
     }
 
     /**
      * Token transaction process
      */
     tokenProcess(): void {
-        const filter = this.filter as TokenTransactionListenerFilterInterface
+        // Token transaction process
     }
 
     /**
      * NFT transaction process
      */
     nftProcess(): void {
-        const filter = this.filter as NftTransactionListenerFilterInterface
+        // NFT transaction process
     }
 }
