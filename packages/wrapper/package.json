@@ -71,11 +71,7 @@
         "url": "https://github.com/MultipleChain/js/issues"
     },
     "dependencies": {
-        "@multiplechain/types": "^0.1.67",
-        "@multiplechain/utils": "^0.1.21"
-    },
-    "devDependencies": {
-        "@multiplechain/evm-chains": "^0.4.1",
-        "@multiplechain/tron": "^0.4.2"
+        "@multiplechain/types": "^0.1.70",
+        "@multiplechain/utils": "^0.1.23"
     }
 }
