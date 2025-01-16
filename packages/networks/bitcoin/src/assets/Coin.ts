@@ -1,7 +1,7 @@
 import axios from 'axios'
+import bitcore from 'bitcore-lib'
 import { Provider } from '../services/Provider'
 import { fromSatoshi, toSatoshi } from '../utils'
-import { Transaction, Script, Address } from 'bitcore-lib'
 import { TransactionSigner } from '../services/TransactionSigner'
 import {
     ErrorTypeEnum,
@@ -80,8 +80,8 @@ export class Coin implements CoinInterface<TransactionSigner> {
         }
 
         const inputs = []
-        const transaction = new Transaction()
-        const senderAddress = new Address(sender)
+        const transaction = new bitcore.Transaction()
+        const senderAddress = new bitcore.Address(sender)
         const satoshiToSend = toSatoshi(amount)
 
         const utxos = await axios
@@ -90,12 +90,12 @@ export class Coin implements CoinInterface<TransactionSigner> {
 
         for (const utxo of utxos) {
             inputs.push(
-                new Transaction.UnspentOutput({
+                new bitcore.Transaction.UnspentOutput({
                     txId: utxo.txid,
                     satoshis: utxo.value,
                     address: senderAddress,
                     outputIndex: utxo.vout,
-                    script: Script.fromAddress(senderAddress)
+                    script: bitcore.Script.fromAddress(senderAddress)
                 })
             )
         }

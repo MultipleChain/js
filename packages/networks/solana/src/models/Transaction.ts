@@ -61,6 +61,7 @@ export class Transaction implements TransactionInterface<ParsedTransactionWithMe
 
             return (this.data = data)
         } catch (error) {
+            console.error('MC Solana TX getData', error)
             throw new Error(ErrorTypeEnum.RPC_REQUEST_ERROR)
         }
     }
@@ -95,6 +96,7 @@ export class Transaction implements TransactionInterface<ParsedTransactionWithMe
                     }
                     setTimeout(check, ms)
                 } catch (error) {
+                    console.error('MC Solana TX wait', error)
                     reject(TransactionStatusEnum.FAILED)
                 }
             }

@@ -1,5 +1,5 @@
 import lodash from 'lodash'
-import { Address, PublicKey, Script } from 'bitcore-lib'
+import bitcore from 'bitcore-lib'
 
 export * from './services/Provider'
 
@@ -18,7 +18,7 @@ declare module 'bitcore-lib' {
     }
 }
 
-Address.prototype._classifyArguments = function (data: any, network: any, type: any) {
+bitcore.Address.prototype._classifyArguments = function (data: any, network: any, type: any) {
     /* jshint maxcomplexity: 10 */
     // transform and validate input data
     if (
@@ -30,10 +30,10 @@ Address.prototype._classifyArguments = function (data: any, network: any, type: 
     } else if ((data instanceof Buffer || data instanceof Uint8Array) && data.length >= 21) {
         // @ts-expect-error exists
         return Address._transformBuffer(data, network, type)
-    } else if (data instanceof PublicKey) {
+    } else if (data instanceof bitcore.PublicKey) {
         // @ts-expect-error exists
         return Address._transformPublicKey(data, network, type)
-    } else if (data instanceof Script) {
+    } else if (data instanceof bitcore.Script) {
         // @ts-expect-error exists
         return Address._transformScript(data, network)
     } else if (typeof data === 'string') {

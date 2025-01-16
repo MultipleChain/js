@@ -171,8 +171,10 @@ export class NFT extends Contract implements NftInterface<TransactionSigner> {
         const receiverPubKey = new PublicKey(receiver)
         const programId = await this.getProgramId(nftPubKey)
 
-        const ownerAccount = await this.getTokenAccount(ownerPubKey, programId)
-        const receiverAccount = await this.getTokenAccount(receiverPubKey, programId)
+        const [ownerAccount, receiverAccount] = await Promise.all([
+            this.getTokenAccount(ownerPubKey, programId),
+            this.getTokenAccount(receiverPubKey, programId)
+        ])
 
         // If the receiver does not have an associated token account, create one
         if ((await this.provider.web3.getAccountInfo(receiverAccount)) === null) {
@@ -234,7 +236,6 @@ export class NFT extends Contract implements NftInterface<TransactionSigner> {
         const ownerPubKey = new PublicKey(owner)
         const spenderPubKey = new PublicKey(spender)
         const programId = await this.getProgramId(nftPubKey)
-
         const ownerAccount = await this.getTokenAccount(ownerPubKey, programId)
 
         transaction.add(

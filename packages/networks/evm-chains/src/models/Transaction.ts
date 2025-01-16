@@ -87,6 +87,7 @@ export class Transaction implements TransactionInterface<TransactionData> {
             const receipt = await this.ethers.getTransactionReceipt(this.id)
             return (this.data = { response, receipt })
         } catch (error) {
+            console.error('MC EVM TX getData', error)
             if (error instanceof Error && String(error.message).includes('timeout')) {
                 throw new Error(ErrorTypeEnum.RPC_TIMEOUT)
             }
@@ -110,6 +111,7 @@ export class Transaction implements TransactionInterface<TransactionData> {
                     }
                     setTimeout(check, ms)
                 } catch (error) {
+                    console.error('MC EVM TX wait', error)
                     reject(TransactionStatusEnum.FAILED)
                 }
             }

@@ -1,6 +1,6 @@
 {
     "name": "@multiplechain/tron",
-    "version": "0.4.15",
+    "version": "0.4.16",
     "type": "module",
     "main": "dist/index.cjs",
     "module": "dist/index.es.js",
@@ -72,7 +72,7 @@
         "url": "https://github.com/MultipleChain/js/issues"
     },
     "dependencies": {
-        "@beycandeveloper/tron-tx-decoder": "^2.0.5",
+        "@beycan/tron-tx-decoder": "^2.0.7",
         "@multiplechain/tron-walletconnect": "^0.1.0",
         "@multiplechain/types": "^0.1.70",
         "@multiplechain/utils": "^0.1.21",

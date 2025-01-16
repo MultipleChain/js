@@ -175,11 +175,8 @@
                 <span class="adapter-icon"><img src="" alt="icon" /></span>
             </div>
             <div class="info"><span>Platforms: </span> <span class="platforms"></span></div>
-            <div class="info"><span>Download link: </span> <span class="download-link"></span></div>
-            <div class="info"><span>Deep link: </span> <span class="deep-link"></span></div>
-            <div class="info"><span>Chain id: </span> <span class="chain-id"></span></div>
             <div class="info">
-                <span>Connected address: </span> <span class="connected-address"></span>
+                <span>Connected address: </span> <span class="connected-address" style="font-size: 14px;"></span>
             </div>
             <button class="action-btn sign-message">Sign Message (Personal Sign)</button>
             <div class="action-result"><span>Result:</span> <span class="sign-message"></span></div>
@@ -190,23 +187,13 @@
         </div>
 
         <script type="module">
-            import * as EvmChains from './src/browser/index.ts'
+            import * as TON from './src/browser/index.ts'
             import { isMobile } from '@multiplechain/utils'
-            window.EvmChains = EvmChains
+            window.TON = TON
 
-            const provider = new EvmChains.Provider({
-                id: 11155111,
-                hexId: '0xaa36a7',
-                mainnetId: 1,
-                rpcUrl: 'https://ethereum-sepolia-rpc.publicnode.com',
-                wsUrl: 'wss://ethereum-sepolia-rpc.publicnode.com',
-                name: 'Ethereum Sepolia Testnet (QR)',
-                explorerUrl: 'https://sepolia.etherscan.io/',
-                nativeCurrency: {
-                    symbol: 'ETH',
-                    name: 'Ethereum',
-                    decimals: 18
-                }
+            const provider = new TON.Provider({
+                testnet: true,
+                apiKey: '0a804e1153b5dec04715342789d68c219845e3f1336da822399d7b180a5b5533'
             })
 
             window.adapters = {}
@@ -215,19 +202,9 @@
                     return alert('Adapter is not detected')
                 }
 
-                if (adapter.disconnect) {
-                    await adapter.disconnect()
-                }
-
-                const wallet = new EvmChains.browser.Wallet(adapter)
+                const wallet = new TON.browser.Wallet(adapter)
                 const adapterProvider = await wallet.connect({
-                    projectId: '113d9f5689edd84ff230c2a6d679c80c',
-                    metadata: {
-                        name: 'MultipleChain',
-                        description: 'MultipleChain is a best standard',
-                        url: 'http://localhost:3000/',
-                        icons: []
-                    }
+                    manifestUrl: 'https://gist.githubusercontent.com/0xBeycan/4ecdb38ae4157278c72398fe4a89508a/raw/cc5ef2f7f308b5ef2a4def51300b033ffe04904b/ton-manifest.json'
                 })
 
                 document.querySelector('.methods').style.display = 'block'
@@ -237,35 +214,40 @@
                 document.querySelector('.adapter-name').innerText = wallet.getName()
                 document.querySelector('.adapter-icon img').src = wallet.getIcon()
                 document.querySelector('.platforms').innerText = wallet.getPlatforms().join(', ')
-                document.querySelector('.download-link').innerText = wallet.getDownloadLink()
-                document.querySelector('.deep-link').innerText =
-                    wallet.createDeepLink('https://google.com')
-                document.querySelector('.chain-id').innerText = await wallet.getChainId()
+                document.querySelector('.action-result .sign-message').innerText = ''
                 document.querySelector('.connected-address').innerText = sender
 
-                document.querySelector('.action-result .sign-message').innerText = ''
                 document.querySelector('.action-btn.sign-message').onclick = async () => {
                     const result = await wallet.signMessage('Hello World')
                     document.querySelector('.action-result .sign-message').innerText = result
                 }
 
-                const receiver = '0xbBa4d06D1cEf94b35aDeCfDa893523907fdD36DE'
-                const tokenAddress = '0x4294cb0dD25dC9140B5127f247cBd47Eeb673431'
+                const receiver = '0QBE7-YFiBHs3mdSsp3kdUFfTESFvYxb23n5mAfFUOd7T2S3'
+                const tokenAddress = 'kQAIyxof6tfnDvBw5KC-bfUGF3JtkzkHR4cfFB49Ik-FV3RW'
 
                 document.querySelector('.action-result .send-coin').innerText = ''
                 document.querySelector('.action-btn.send-coin').onclick = async () => {
-                    const coin = new EvmChains.assets.Coin()
-                    const signer = await coin.transfer(sender, receiver, 0.00001)
+                    const coin = new TON.assets.Coin()
+                    const signer = await coin.transfer(sender, receiver, 0.001)
                     const result = await wallet.sendTransaction(signer)
                     document.querySelector('.action-result .send-coin').innerText = result
                 }
 
                 document.querySelector('.action-result .send-token').innerText = ''
                 document.querySelector('.action-btn.send-token').onclick = async () => {
-                    const token = new EvmChains.assets.Token(tokenAddress)
+                    const token = new TON.assets.Token(tokenAddress)
                     const signer = await token.transfer(sender, receiver, 0.1)
                     const result = await wallet.sendTransaction(signer)
                     document.querySelector('.action-result .send-token').innerText = result
+                }
+
+                document.querySelector('.action-btn.disconnect').onclick = async () => {
+                    await adapter.disconnect()
+                    document.querySelector('.methods').style.display = 'none'
+                    document.querySelector('.action-result .sign-message').innerText = ''
+                    document.querySelector('.action-result .send-coin').innerText = ''
+                    document.querySelector('.action-result .send-token').innerText = ''
+                    document.querySelector('.connected-address').innerText = ''
                 }
             }
 
@@ -309,43 +291,33 @@
             `
             }
 
-            const updateWalletList = () => {
-                const container = document.querySelector('.wallet-list-container')
-                container.innerHTML = ''
+            const container = document.querySelector('.wallet-list-container')
+            container.innerHTML = ''
 
-                let adapters = EvmChains.browser.adapters
+            let adapters = TON.browser.adapters
 
-                const sortedKeys = Object.keys(adapters).sort(function (a, b) {
-                    const order = { true: 1, universal: 2, false: 3 }
+            const sortedKeys = Object.keys(adapters).sort(function (a, b) {
+                const order = { true: 1, universal: 2, false: 3 }
 
-                    const valueA = adapters[a].platforms.includes('UNIVERSAL')
-                        ? 'universal'
-                        : adapters[a].isDetected()
-                    const valueB = adapters[b].platforms.includes('UNIVERSAL')
-                        ? 'universal'
-                        : adapters[b].isDetected()
+                const valueA = adapters[a].platforms.includes('UNIVERSAL')
+                    ? 'universal'
+                    : adapters[a].isDetected()
+                const valueB = adapters[b].platforms.includes('UNIVERSAL')
+                    ? 'universal'
+                    : adapters[b].isDetected()
 
-                    return order[valueA] - order[valueB]
-                })
-
-                // set sorted adapters
-                adapters = sortedKeys.reduce((sortedObj, key) => {
-                    sortedObj[key] = adapters[key]
-                    return sortedObj
-                }, {})
-
-                Object.values(adapters).forEach((adapter) => {
-                    container.innerHTML += adapterTemplate(adapter)
-                })
-            }
-
-            window.addEventListener('eip6963:announceProvider', (event) => {
-                EvmChains.browser.registerAdapter(
-                    EvmChains.browser.fromEIP6963ProviderDetail(event.detail)
-                )
-                updateWalletList()
+                return order[valueA] - order[valueB]
             })
-            window.dispatchEvent(new Event('eip6963:requestProvider'))
+
+            // set sorted adapters
+            adapters = sortedKeys.reduce((sortedObj, key) => {
+                sortedObj[key] = adapters[key]
+                return sortedObj
+            }, {})
+
+            Object.values(adapters).forEach((adapter) => {
+                container.innerHTML += adapterTemplate(adapter)
+            })
         </script>
     </body>
 </html>

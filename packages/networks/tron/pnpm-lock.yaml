@@ -8,9 +8,9 @@ importers:
 
   .:
     dependencies:
-      '@beycandeveloper/tron-tx-decoder':
-        specifier: ^2.0.5
-        version: 2.0.5
+      '@beycan/tron-tx-decoder':
+        specifier: ^2.0.7
+        version: 2.0.7
       '@multiplechain/tron-walletconnect':
         specifier: ^0.1.0
         version: 0.1.0(@types/node@20.12.7)(bufferutil@4.0.8)(typescript@5.4.5)(utf-8-validate@5.0.10)
@@ -69,8 +69,8 @@ packages:
     resolution: {integrity: sha512-6mQNsaLeXTw0nxYUYu+NSa4Hx4BlF1x1x8/PMFbiR+GBSr+2DkECc69b8hgy2frEodNcvPffeH8YfWd3LI6jhQ==}
     engines: {node: '>=6.9.0'}
 
-  '@beycandeveloper/tron-tx-decoder@2.0.5':
-    resolution: {integrity: sha512-/ohZkz/WMTkCFMSmBm3cTABW2CfcgEnEP6gi9+CexuxGApDvhDigSP0dCRk0bz8FH0rLyalWPhDnA325KBEsww==}
+  '@beycan/tron-tx-decoder@2.0.7':
+    resolution: {integrity: sha512-m2XMsZQyPMghpgV4h1fVXPIpbN+W2Dquo74FsYmup0U2PF9f8wRhLnaPnS8W4x7MRU57N3emVFImMiVcXOhBKg==}
 
   '@bitget-wallet/web3-sdk@0.0.8':
     resolution: {integrity: sha512-WFk6URUxTCukKrU3YpTdWTCScrj6/wwd/0O7eSANeQl1KDbDs+yj/fAkN1Wy6ebI3NMcW6sqN9mrmfwz53dPMQ==}
@@ -1731,7 +1731,7 @@ snapshots:
       '@babel/helper-validator-identifier': 7.24.5
       to-fast-properties: 2.0.0
 
-  '@beycandeveloper/tron-tx-decoder@2.0.5':
+  '@beycan/tron-tx-decoder@2.0.7':
     dependencies:
       axios: 0.21.4
       ethers: 4.0.49

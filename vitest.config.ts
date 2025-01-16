@@ -31,7 +31,8 @@ export default mergeConfig(
                 './packages/networks/evm-chains/tests/setup.ts',
                 './packages/networks/bitcoin/tests/setup.ts',
                 './packages/networks/solana/tests/setup.ts',
-                './packages/networks/tron/tests/setup.ts'
+                './packages/networks/tron/tests/setup.ts',
+                './packages/networks/ton/tests/setup.ts'
             ]
         }
     })

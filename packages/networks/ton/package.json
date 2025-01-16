@@ -1,6 +1,6 @@
 {
-    "name": "@multiplechain/bitcoin",
-    "version": "0.4.15",
+    "name": "@multiplechain/ton",
+    "version": "0.1.0",
     "type": "module",
     "main": "dist/index.cjs",
     "module": "dist/index.es.js",
@@ -72,18 +72,14 @@
         "url": "https://github.com/MultipleChain/js/issues"
     },
     "dependencies": {
-        "@multiplechain/types": "^0.1.70",
+        "@multiplechain/types": "^0.1.67",
         "@multiplechain/utils": "^0.1.21",
-        "axios": "^1.6.8",
-        "bitcore-lib": "^10.0.28",
-        "isomorphic-ws": "^5.0.0",
-        "lodash": "^4.17.21",
-        "sats-connect": "^2.3.1",
-        "ws": "^8.17.0"
-    },
-    "devDependencies": {
-        "@types/bitcore-lib": "^0.15.6",
-        "@types/lodash": "^4.17.7",
-        "@types/ws": "^8.5.10"
+        "@ton/core": "^0.59.1",
+        "@ton/crypto": "^3.3.0",
+        "@ton/sandbox": "0.21.0-beta.1",
+        "@ton/ton": "^15.1.0",
+        "@tonconnect/ui": "^2.0.11",
+        "axios": "^1.7.9",
+        "ton-center-v3": "^0.1.3"
     }
 }
