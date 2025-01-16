@@ -1,7 +1,7 @@
 import { Provider } from '../services/Provider'
 import { mnemonicToPrivateKey } from '@ton/crypto'
-import type { OpenedContract, WalletContractV5R1 } from '@ton/ton'
 import { type Cell, SendMode, type MessageRelaxed } from '@ton/core'
+import type { OpenedContract, WalletContractV4, WalletContractV5R1 } from '@ton/ton'
 import type { PrivateKey, TransactionId, TransactionSignerInterface } from '@multiplechain/types'
 
 export class TransactionSigner implements TransactionSignerInterface<MessageRelaxed, Cell> {
@@ -23,7 +23,7 @@ export class TransactionSigner implements TransactionSignerInterface<MessageRela
     /**
      * Wallet contract
      */
-    wallet: OpenedContract<WalletContractV5R1>
+    wallet: OpenedContract<WalletContractV5R1 | WalletContractV4>
 
     /**
      * @param rawData - Transaction data
@@ -42,6 +42,25 @@ export class TransactionSigner implements TransactionSignerInterface<MessageRela
     async sign(privateKey: PrivateKey): Promise<this> {
         const { publicKey, secretKey } = await mnemonicToPrivateKey(privateKey.split(' '))
         const contract = this.provider.createWalletV5R1(publicKey)
+        this.wallet = this.provider.client1.open(contract)
+        const seqno = await this.wallet.getSeqno()
+        this.signedData = this.wallet.createTransfer({
+            seqno,
+            secretKey,
+            messages: [this.rawData],
+            sendMode: SendMode.PAY_GAS_SEPARATELY
+        })
+        return this
+    }
+
+    /**
+     * Sign the transaction
+     * @param privateKey - Transaction data
+     * @returns Signed transaction data
+     */
+    async signV4(privateKey: PrivateKey): Promise<this> {
+        const { publicKey, secretKey } = await mnemonicToPrivateKey(privateKey.split(' '))
+        const contract = this.provider.createWalletV4(publicKey)
         this.wallet = this.provider.client1.open(contract)
         const seqno = await this.wallet.getSeqno()
         this.signedData = this.wallet.createTransfer({
