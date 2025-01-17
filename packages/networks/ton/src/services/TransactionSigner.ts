@@ -4,13 +4,11 @@ import { type Cell, SendMode, type MessageRelaxed } from '@ton/core'
 import type { OpenedContract, WalletContractV4, WalletContractV5R1 } from '@ton/ton'
 import type { PrivateKey, TransactionId, TransactionSignerInterface } from '@multiplechain/types'
 
-type RawData = MessageRelaxed | MessageRelaxed[]
-
-export class TransactionSigner implements TransactionSignerInterface<RawData, Cell> {
+export class TransactionSigner implements TransactionSignerInterface<MessageRelaxed[], Cell> {
     /**
      * Transaction data from the blockchain network
      */
-    rawData: RawData
+    rawData: MessageRelaxed[]
 
     /**
      * Signed transaction data
@@ -31,8 +29,8 @@ export class TransactionSigner implements TransactionSignerInterface<RawData, Ce
      * @param rawData - Transaction data
      * @param provider - Blockchain network provider
      */
-    constructor(rawData: RawData, provider?: Provider) {
-        this.rawData = rawData
+    constructor(rawData: MessageRelaxed, provider?: Provider) {
+        this.rawData = [rawData]
         this.provider = provider ?? Provider.instance
     }
 
@@ -49,8 +47,8 @@ export class TransactionSigner implements TransactionSignerInterface<RawData, Ce
         this.signedData = this.wallet.createTransfer({
             seqno,
             secretKey,
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
-            messages: Array.isArray(this.rawData) ? this.rawData : [this.rawData]
+            messages: this.rawData,
+            sendMode: SendMode.PAY_GAS_SEPARATELY
         })
         return this
     }
@@ -68,8 +66,8 @@ export class TransactionSigner implements TransactionSignerInterface<RawData, Ce
         this.signedData = this.wallet.createTransfer({
             seqno,
             secretKey,
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
-            messages: Array.isArray(this.rawData) ? this.rawData : [this.rawData]
+            messages: this.rawData,
+            sendMode: SendMode.PAY_GAS_SEPARATELY
         })
         return this
     }
@@ -91,8 +89,18 @@ export class TransactionSigner implements TransactionSignerInterface<RawData, Ce
     /**
      * @returns raw transaction data
      */
-    getRawData(): RawData {
+    getRawData(): MessageRelaxed[] {
         return this.rawData
+    }
+
+    /**
+     * Add a message to the transaction
+     * @param message - Message data
+     * @returns Transaction signer
+     */
+    addMessage(message: MessageRelaxed): this {
+        this.rawData.push(message)
+        return this
     }
 
     /**

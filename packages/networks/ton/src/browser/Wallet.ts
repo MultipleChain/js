@@ -164,20 +164,24 @@ export class Wallet implements WalletInterface<Provider, TonConnectUI, Transacti
         }
     ): Promise<TransactionId> {
         const account = this.walletProvider.account
-        const data = transactionSigner.getRawData()
-        const info = data.info as CommonMessageInfoRelaxedInternal
+        const messages = transactionSigner.getRawData()
+
+        const tonConnectMessageFormat = []
+        for (const message of messages) {
+            const info = message.info as CommonMessageInfoRelaxedInternal
+            tonConnectMessageFormat.push({
+                address: info.dest.toString(),
+                amount: info.value.coins.toString(),
+                payload: message.body.toBoc().toString('base64')
+            })
+        }
+
         const result = await this.walletProvider.sendTransaction(
             {
                 validUntil: Math.floor(Date.now() / 1000) + 60,
                 from: this.getRawAddress(),
                 network: account?.chain,
-                messages: [
-                    {
-                        address: info.dest.toString(),
-                        amount: info.value.coins.toString(),
-                        payload: data.body.toBoc().toString('base64')
-                    }
-                ]
+                messages: tonConnectMessageFormat
             },
             modalAction
         )
