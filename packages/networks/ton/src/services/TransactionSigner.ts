@@ -4,11 +4,13 @@ import { type Cell, SendMode, type MessageRelaxed } from '@ton/core'
 import type { OpenedContract, WalletContractV4, WalletContractV5R1 } from '@ton/ton'
 import type { PrivateKey, TransactionId, TransactionSignerInterface } from '@multiplechain/types'
 
-export class TransactionSigner implements TransactionSignerInterface<MessageRelaxed, Cell> {
+type RawData = MessageRelaxed | MessageRelaxed[]
+
+export class TransactionSigner implements TransactionSignerInterface<RawData, Cell> {
     /**
      * Transaction data from the blockchain network
      */
-    rawData: MessageRelaxed
+    rawData: RawData
 
     /**
      * Signed transaction data
@@ -29,7 +31,7 @@ export class TransactionSigner implements TransactionSignerInterface<MessageRela
      * @param rawData - Transaction data
      * @param provider - Blockchain network provider
      */
-    constructor(rawData: MessageRelaxed, provider?: Provider) {
+    constructor(rawData: RawData, provider?: Provider) {
         this.rawData = rawData
         this.provider = provider ?? Provider.instance
     }
@@ -47,8 +49,8 @@ export class TransactionSigner implements TransactionSignerInterface<MessageRela
         this.signedData = this.wallet.createTransfer({
             seqno,
             secretKey,
-            messages: [this.rawData],
-            sendMode: SendMode.PAY_GAS_SEPARATELY
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            messages: Array.isArray(this.rawData) ? this.rawData : [this.rawData]
         })
         return this
     }
@@ -66,8 +68,8 @@ export class TransactionSigner implements TransactionSignerInterface<MessageRela
         this.signedData = this.wallet.createTransfer({
             seqno,
             secretKey,
-            messages: [this.rawData],
-            sendMode: SendMode.PAY_GAS_SEPARATELY
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            messages: Array.isArray(this.rawData) ? this.rawData : [this.rawData]
         })
         return this
     }
@@ -89,7 +91,7 @@ export class TransactionSigner implements TransactionSignerInterface<MessageRela
     /**
      * @returns raw transaction data
      */
-    getRawData(): MessageRelaxed {
+    getRawData(): RawData {
         return this.rawData
     }
 
