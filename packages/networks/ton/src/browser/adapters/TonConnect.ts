@@ -7,7 +7,7 @@ import type { ConnectConfig, WalletAdapterInterface } from '@multiplechain/types
 export type TonConnectConfig = ConnectConfig & {
     manifestUrl?: string
     buttonRootId?: string
-    themeMode?: THEME
+    themeMode?: string
 }
 
 let ui: TonConnectUI
@@ -20,7 +20,7 @@ const createUI = (config?: TonConnectConfig): TonConnectUI => {
 
     ui = new TonConnectUI({
         uiPreferences: {
-            theme: config?.themeMode ?? THEME.LIGHT
+            theme: config?.themeMode === 'light' ? THEME.LIGHT : THEME.DARK
         },
         manifestUrl: config?.manifestUrl,
         buttonRootId: config?.buttonRootId
