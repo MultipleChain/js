@@ -2,22 +2,26 @@ import { Provider } from '../services/Provider'
 import { CHAIN, type TonConnectUI } from '@tonconnect/ui'
 import type { TransactionSigner } from '../services/TransactionSigner'
 import { Address, Cell, type CommonMessageInfoRelaxedInternal } from '@ton/core'
-import type {
-    WalletInterface,
-    WalletAdapterInterface,
-    WalletPlatformEnum,
-    TransactionId,
-    SignedMessage,
-    WalletAddress,
-    ConnectConfig,
-    UnknownConfig
+import {
+    type WalletInterface,
+    type WalletAdapterInterface,
+    type WalletPlatformEnum,
+    type TransactionId,
+    type SignedMessage,
+    type WalletAddress,
+    type ConnectConfig,
+    type UnknownConfig,
+    ErrorTypeEnum
 } from '@multiplechain/types'
 
 type WalletAdapter = WalletAdapterInterface<Provider, TonConnectUI>
 
 const rejectMap = (error: any, reject: (a: any) => any): any => {
     console.error('MultipleChain TON Connect Error:', error)
-    // const errorMessage = String(error.message ?? '')
+    const errorMessage = String(error.message ?? '')
+    if (errorMessage.includes('Reject request')) {
+        return reject(ErrorTypeEnum.WALLET_REQUEST_REJECTED)
+    }
     return reject(error)
 }
 
@@ -107,7 +111,14 @@ export class Wallet implements WalletInterface<Provider, TonConnectUI, Transacti
                     resolve(await this.getAddress())
                 })
                 .catch((error) => {
-                    rejectMap(error, reject)
+                    const customReject = (error: any): void => {
+                        if (error.message === ErrorTypeEnum.WALLET_REQUEST_REJECTED) {
+                            reject(new Error(ErrorTypeEnum.WALLET_CONNECT_REJECTED))
+                        } else {
+                            reject(error)
+                        }
+                    }
+                    rejectMap(error, customReject)
                 })
         })
     }
@@ -163,32 +174,42 @@ export class Wallet implements WalletInterface<Provider, TonConnectUI, Transacti
             notifications: []
         }
     ): Promise<TransactionId> {
-        const account = this.walletProvider.account
-        const messages = transactionSigner.getRawData()
+        return await new Promise((resolve, reject) => {
+            try {
+                const account = this.walletProvider.account
+                const messages = transactionSigner.getRawData()
 
-        const tonConnectMessageFormat = []
-        for (const message of messages) {
-            const info = message.info as CommonMessageInfoRelaxedInternal
-            tonConnectMessageFormat.push({
-                address: info.dest.toString(),
-                amount: info.value.coins.toString(),
-                payload: message.body.toBoc().toString('base64')
-            })
-        }
+                const tonConnectMessageFormat = []
+                for (const message of messages) {
+                    const info = message.info as CommonMessageInfoRelaxedInternal
+                    tonConnectMessageFormat.push({
+                        address: info.dest.toString(),
+                        amount: info.value.coins.toString(),
+                        payload: message.body.toBoc().toString('base64')
+                    })
+                }
 
-        const result = await this.walletProvider.sendTransaction(
-            {
-                validUntil: Math.floor(Date.now() / 1000) + 60,
-                from: this.getRawAddress(),
-                network: account?.chain,
-                messages: tonConnectMessageFormat
-            },
-            modalAction
-        )
-
-        const messageHash = Cell.fromBase64(result.boc).hash().toString('hex')
-
-        return await this.networkProvider.findTxHashByMessageHash(messageHash)
+                this.walletProvider
+                    .sendTransaction(
+                        {
+                            validUntil: Math.floor(Date.now() / 1000) + 60,
+                            from: this.getRawAddress(),
+                            network: account?.chain,
+                            messages: tonConnectMessageFormat
+                        },
+                        modalAction
+                    )
+                    .then(async (result) => {
+                        const messageHash = Cell.fromBase64(result.boc).hash().toString('hex')
+                        resolve(await this.networkProvider.findTxHashByMessageHash(messageHash))
+                    })
+                    .catch((error) => {
+                        rejectMap(error, reject)
+                    })
+            } catch (error) {
+                rejectMap(error, reject)
+            }
+        })
     }
 
     /**
