@@ -53,8 +53,12 @@ const TonConnect: WalletAdapterInterface<Provider, TonConnectUI> = {
         return ui?.connected ?? false
     },
     disconnect: async () => {
-        if (ui) {
-            await ui.disconnect()
+        try {
+            if (ui) {
+                await ui.disconnect()
+            }
+        } catch (error) {
+            console.error(error)
         }
     },
     connect: async (provider?: Provider, _config?: ConnectConfig) => {
