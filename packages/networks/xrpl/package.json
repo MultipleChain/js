@@ -1,0 +1,84 @@
+{
+    "name": "@multiplechain/xrpl",
+    "version": "0.1.0",
+    "type": "module",
+    "main": "dist/index.cjs",
+    "module": "dist/index.es.js",
+    "unpkg": "dist/index.umd.js",
+    "browser": "dist/index.umd.js",
+    "jsdelivr": "dist/index.umd.js",
+    "exports": {
+        ".": {
+            "import": {
+                "default": "./dist/index.es.js",
+                "types": "./dist/browser/index.d.ts"
+            },
+            "require": {
+                "default": "./dist/index.cjs",
+                "types": "./dist/index.d.ts"
+            }
+        },
+        "./node": {
+            "default": "./dist/index.cjs",
+            "types": "./dist/index.d.ts"
+        },
+        "./browser": {
+            "default": "./dist/index.es.js",
+            "types": "./dist/browser/index.d.ts"
+        }
+    },
+    "typesVersions": {
+        "*": {
+            "node": [
+                "./dist/index.d.ts"
+            ],
+            "browser": [
+                "./dist/browser/index.d.ts"
+            ]
+        }
+    },
+    "files": [
+        "dist",
+        "README.md",
+        "!tsconfig.tsbuildinfo"
+    ],
+    "scripts": {
+        "dev": "vite",
+        "clean": "rm -rf dist",
+        "watch": "tsc --watch",
+        "build:vite": "vite build",
+        "build:node": "tsx esbuild.ts",
+        "typecheck": "tsc --noEmit",
+        "lint": "eslint . --ext .ts",
+        "test": "vitest run --dir tests",
+        "test-ui": "vitest watch --ui",
+        "prepublishOnly": "pnpm run build",
+        "build": "pnpm run build:vite && pnpm run build:node"
+    },
+    "keywords": [
+        "web3",
+        "crypto",
+        "blockchain",
+        "multiple-chain"
+    ],
+    "author": "MultipleChain",
+    "license": "MIT",
+    "homepage": "https://github.com/MultipleChain/js/tree/master/packages/networks/xrpl",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/MultipleChain/js.git"
+    },
+    "bugs": {
+        "url": "https://github.com/MultipleChain/js/issues"
+    },
+    "dependencies": {
+        "@multiplechain/types": "^0.1.70",
+        "@multiplechain/utils": "^0.1.21",
+        "axios": "^1.6.8",
+        "isomorphic-ws": "^5.0.0",
+        "ws": "^8.17.0"
+    },
+    "devDependencies": {
+        "@types/ws": "^8.5.10"
+    }
+}
