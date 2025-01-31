@@ -245,7 +245,7 @@ export class TransactionListener<
 
             if (
                 this.filter?.signer !== undefined &&
-                values.sender !== this.filter.signer.toLowerCase()
+                values.sender?.toLowerCase() !== this.filter.signer.toLowerCase()
             ) {
                 return
             }
