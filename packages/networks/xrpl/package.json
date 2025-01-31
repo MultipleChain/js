@@ -72,8 +72,10 @@
         "url": "https://github.com/MultipleChain/js/issues"
     },
     "dependencies": {
+        "@gemwallet/api": "^3.8.0",
         "@multiplechain/types": "^0.1.70",
         "@multiplechain/utils": "^0.1.21",
+        "add": "^2.0.6",
         "axios": "^1.7.9",
         "xrpl": "^4.1.0"
     }

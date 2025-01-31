@@ -8,12 +8,18 @@ importers:
 
   .:
     dependencies:
+      '@gemwallet/api':
+        specifier: ^3.8.0
+        version: 3.8.0
       '@multiplechain/types':
         specifier: ^0.1.70
         version: 0.1.70
       '@multiplechain/utils':
         specifier: ^0.1.21
         version: 0.1.23
+      add:
+        specifier: ^2.0.6
+        version: 2.0.6
       axios:
         specifier: ^1.7.9
         version: 1.7.9
@@ -22,6 +28,9 @@ importers:
         version: 4.1.0
 
 packages:
+
+  '@gemwallet/api@3.8.0':
+    resolution: {integrity: sha512-hZ6XC0mVm3Q54cgonrzk6tHS/wUMjtPHyqsqbtlnNGPouCR7OIfEDo5Y802qLZ5ah6PskhsK0DouVnwUykEM8Q==}
 
   '@multiplechain/types@0.1.70':
     resolution: {integrity: sha512-o9ovdaefDHE5gorb83avugCjeixfBXrfJkIgSEEcT549yGF8CkmG/jgZIlqXKJf8Lh0tbg4zMAAanUSxUqV1FQ==}
@@ -57,6 +66,9 @@ packages:
 
   '@xrplf/secret-numbers@1.0.0':
     resolution: {integrity: sha512-qsCLGyqe1zaq9j7PZJopK+iGTGRbk6akkg6iZXJJgxKwck0C5x5Gnwlb1HKYGOwPKyrXWpV6a2YmcpNpUFctGg==}
+
+  add@2.0.6:
+    resolution: {integrity: sha512-j5QzrmsokwWWp6kUcJQySpbG+xfOBqqKnup3OIk1pz+kB/80SLorZ9V8zHFLO92Lcd+hbvq8bT+zOGoPkmBV0Q==}
 
   asynckit@0.4.0:
     resolution: {integrity: sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==}
@@ -273,6 +285,8 @@ packages:
 
 snapshots:
 
+  '@gemwallet/api@3.8.0': {}
+
   '@multiplechain/types@0.1.70': {}
 
   '@multiplechain/utils@0.1.23':
@@ -328,6 +342,8 @@ snapshots:
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
+
+  add@2.0.6: {}
 
   asynckit@0.4.0: {}
 
