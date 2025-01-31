@@ -1,6 +1,6 @@
 {
-    "name": "@multiplechain/ton",
-    "version": "0.1.10",
+    "name": "@multiplechain/xrpl",
+    "version": "0.1.0",
     "type": "module",
     "main": "dist/index.cjs",
     "module": "dist/index.es.js",
@@ -63,7 +63,7 @@
     ],
     "author": "MultipleChain",
     "license": "MIT",
-    "homepage": "https://github.com/MultipleChain/js/tree/master/packages/networks/ton",
+    "homepage": "https://github.com/MultipleChain/js/tree/master/packages/networks/xrpl",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/MultipleChain/js.git"
@@ -72,14 +72,11 @@
         "url": "https://github.com/MultipleChain/js/issues"
     },
     "dependencies": {
-        "@multiplechain/types": "^0.1.67",
+        "@gemwallet/api": "^3.8.0",
+        "@multiplechain/types": "^0.1.70",
         "@multiplechain/utils": "^0.1.21",
-        "@ton/core": "^0.59.1",
-        "@ton/crypto": "^3.3.0",
-        "@ton/sandbox": "0.21.0-beta.1",
-        "@ton/ton": "^15.1.0",
-        "@tonconnect/ui": "^2.0.11",
+        "add": "^2.0.6",
         "axios": "^1.7.9",
-        "ton-center-v3": "^0.1.3"
+        "xrpl": "^4.1.0"
     }
 }

@@ -299,6 +299,15 @@ export class Provider implements ProviderInterface<TonNetworkConfigInterface> {
     }
 
     /**
+     * Create wallet contract for version 4
+     * @param publicKey - Public key of the wallet
+     * @returns Wallet contract
+     */
+    createWalletV4(publicKey: Buffer): WalletContractV4 {
+        return WalletContractV4.create({ workchain: this.workchain, publicKey })
+    }
+
+    /**
      * Retry the function
      * @param fn - Function that will be retried
      * @param options - Retry options

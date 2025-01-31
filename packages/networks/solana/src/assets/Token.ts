@@ -57,23 +57,27 @@ export class Token extends Contract implements TokenInterface<TransactionSigner>
                 'confirmed',
                 programId
             )
-            if (result === null) return null
-            return (this.metadata = {
-                name: result.name,
-                symbol: result.symbol,
-                programId: programId.toBase58(),
-                decimals: accountInfo.value.data.parsed.info.decimals
-            })
-        } else {
-            const metaplex = Metaplex.make(this.provider.web3)
-            const data = await metaplex.nfts().findByMint({ mintAddress: this.pubKey })
-            return (this.metadata = {
-                name: data.name,
-                symbol: data.symbol,
-                programId: programId.toBase58(),
-                decimals: accountInfo.value.data.parsed.info.decimals
-            })
+            if (result !== null) {
+                return (this.metadata = {
+                    name: result.name,
+                    symbol: result.symbol,
+                    programId: programId.toBase58(),
+                    decimals: accountInfo.value.data.parsed.info.decimals
+                })
+            }
         }
+
+        const metaplex = Metaplex.make(this.provider.web3)
+        const data = await metaplex.nfts().findByMint({ mintAddress: this.pubKey })
+
+        if (data === null) return null
+
+        return (this.metadata = {
+            name: data.name,
+            symbol: data.symbol,
+            programId: programId.toBase58(),
+            decimals: accountInfo.value.data.parsed.info.decimals
+        })
     }
 
     /**

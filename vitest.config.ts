@@ -32,6 +32,7 @@ export default mergeConfig(
                 './packages/networks/bitcoin/tests/setup.ts',
                 './packages/networks/solana/tests/setup.ts',
                 './packages/networks/tron/tests/setup.ts',
+                './packages/networks/xrpl/tests/setup.ts',
                 './packages/networks/ton/tests/setup.ts'
             ]
         }

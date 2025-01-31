@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="icon" type="image/svg+xml" href="./vite.svg" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Browser Tests</title>
+
+        <style>
+            .wallet-list-wrapper {
+                position: absolute;
+                top: 50%;
+                left: 20%;
+                transform: translate(0, -50%);
+                background: #fff;
+                border-radius: 10px;
+                padding: 20px;
+                box-shadow: 0 8px 30px rgba(74, 58, 150, 0.2);
+                max-width: 400px;
+                width: 100%;
+                box-sizing: border-box;
+                font-family: Arial, Helvetica, sans-serif;
+            }
+            .wallet-list-container {
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                max-width: 100%;
+                list-style: none;
+                max-height: 400px;
+                overflow-y: auto;
+            }
+
+            .wallet-list-container li {
+                height: 90px;
+                position: relative;
+                width: 100%;
+                display: flex;
+                align-items: center;
+                position: relative;
+                cursor: pointer;
+                box-sizing: border-box;
+                padding: 20px;
+            }
+
+            .wallet-list-container li:hover {
+                background: #f5f7f9;
+            }
+
+            .wallet-list-container li .icon {
+                width: 50px;
+                height: 50px;
+                margin-right: 10px;
+                margin-left: 0px;
+                max-height: 100%;
+                max-width: 50px;
+            }
+
+            .wallet-list-container li .name {
+                font-size: 18px;
+                font-weight: 500;
+                color: #000;
+                margin-right: 35px;
+            }
+
+            .wallet-list-container li .status {
+                font-size: 14px;
+                font-weight: 500;
+                color: #000;
+                margin-left: auto;
+            }
+
+            .wallet-list-container li .status .detected,
+            .wallet-list-container li .status .openInApp,
+            .wallet-list-container li .status .openInAppManual {
+                color: #1e8454;
+            }
+
+            .wallet-list-container li .status .download,
+            .wallet-list-container li .status .onlyDesktop {
+                color: #1292bc;
+            }
+
+            .wallet-list-container::-webkit-scrollbar {
+                width: 5px;
+            }
+
+            .wallet-list-container::-webkit-scrollbar-thumb {
+                background: #4099ff;
+                border-radius: 10px;
+            }
+
+            .wallet-list-container::-webkit-scrollbar-track {
+                background: #f1f1f1;
+            }
+
+            .wallet-list-container.disabled {
+                opacity: 0.5;
+                cursor: no-drop;
+            }
+
+            .wallet-list-container.disabled > li {
+                pointer-events: none;
+            }
+
+            .methods {
+                display: none;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(0, -50%);
+                background: #fff;
+                border-radius: 10px;
+                padding: 20px;
+                box-shadow: 0 8px 30px rgba(74, 58, 150, 0.2);
+                max-width: 450px;
+                width: 100%;
+                box-sizing: border-box;
+                font-family: Arial, Helvetica, sans-serif;
+                max-height: 400px;
+                overflow-y: auto;
+            }
+
+            .info {
+                margin-bottom: 20px;
+            }
+
+            .info span {
+                font-size: 16px;
+                font-weight: 500;
+                color: #000;
+            }
+
+            .info span img {
+                width: 20px;
+                height: 20px;
+                margin-left: 10px;
+            }
+
+            .action-btn {
+                width: 100%;
+                padding: 10px;
+                background: #4099ff;
+                color: #fff;
+                font-size: 16px;
+                font-weight: 500;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                margin-bottom: 20px;
+            }
+
+            .action-result {
+                font-size: 16px;
+                font-weight: 500;
+                color: #000;
+                margin-bottom: 20px;
+            }
+
+            .action-result span {
+                word-wrap: break-word;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="wallet-list-wrapper">
+            <ul class="wallet-list-container"></ul>
+        </div>
+
+        <div class="methods">
+            <div class="info"><span>Adapter id: </span> <span class="adapter-id"></span></div>
+            <div class="info"><span>Adapter name: </span> <span class="adapter-name"></span></div>
+            <div class="info">
+                <span>Adapter icon: </span>
+                <span class="adapter-icon"><img src="" alt="icon" /></span>
+            </div>
+            <div class="info"><span>Platforms: </span> <span class="platforms"></span></div>
+            <div class="info"><span>Download link: </span> <span class="download-link"></span></div>
+            <div class="info"><span>Deep link: </span> <span class="deep-link"></span></div>
+            <div class="info">
+                <span>Connected address: </span> <span class="connected-address"></span>
+            </div>
+            <button class="action-btn sign-message">Sign Message (Personal Sign)</button>
+            <div class="action-result"><span>Result:</span> <span class="sign-message"></span></div>
+            <button class="action-btn send-coin">Send Coin</button>
+            <div class="action-result"><span>Result:</span> <span class="send-coin"></span></div>
+        </div>
+
+        <script type="module">
+            import * as XRPl from './src/browser/index.ts'
+            import { isMobile } from '@multiplechain/utils'
+            window.XRPl = XRPl
+
+            const provider = new XRPl.Provider({
+                testnet: true
+            })
+
+            window.adapters = {}
+            window.connectAdapter = async (adapter) => {
+                if ((await adapter.isDetected()) === false) {
+                    return alert('Adapter is not detected')
+                }
+
+                if (adapter.disconnect) {
+                    await adapter.disconnect()
+                }
+
+                const wallet = new XRPl.browser.Wallet(adapter)
+                const adapterProvider = await wallet.connect()
+
+                document.querySelector('.methods').style.display = 'block'
+
+                const sender = await wallet.getAddress()
+                document.querySelector('.adapter-id').innerText = wallet.getId()
+                document.querySelector('.adapter-name').innerText = wallet.getName()
+                document.querySelector('.adapter-icon img').src = wallet.getIcon()
+                document.querySelector('.platforms').innerText = wallet.getPlatforms().join(', ')
+                document.querySelector('.download-link').innerText = wallet.getDownloadLink()
+                document.querySelector('.deep-link').innerText =
+                    wallet.createDeepLink('https://google.com')
+                document.querySelector('.connected-address').innerText = sender
+
+                document.querySelector('.action-result .sign-message').innerText = ''
+                document.querySelector('.action-btn.sign-message').onclick = async () => {
+                    const result = await wallet.signMessage('Hello World')
+                    document.querySelector('.action-result .sign-message').innerText = result
+                }
+
+                const receiver = 'r92HmWXA7dWQ6XNMMJJsbdWJfqYwLVNmGr'
+
+                document.querySelector('.action-result .send-coin').innerText = ''
+                document.querySelector('.action-btn.send-coin').onclick = async () => {
+                    const coin = new XRPl.assets.Coin()
+                    const signer = await coin.transfer(sender, receiver, 0.01)
+                    const result = await wallet.sendTransaction(signer)
+                    document.querySelector('.action-result .send-coin').innerText = result
+                }
+            }
+
+            const adapterTemplate = (adapter) => {
+                window.adapters[adapter.id] = adapter
+
+                const statuses = {
+                    universal: `<span></span>`,
+                    detected: `<span class="detected">Detected</span>`,
+                    download: `<span class="download">Download</span>`,
+                    onlyDesktop: `<span class="onlyDesktop">Only Desktop</span>`,
+                    openInApp: `<span class="openInApp">Open In App</span>`,
+                    openInAppManual: `<span class="openInAppManual">Open In App Manual</span>`
+                }
+
+                const getStatus = () => {
+                    if (adapter.platforms.includes('UNIVERSAL')) {
+                        return statuses.universal
+                    }
+                    if (adapter.isDetected() === true) {
+                        return statuses.detected
+                    } else if (!isMobile() && adapter.isDetected() === false) {
+                        return statuses.download
+                    } else if (isMobile() && !adapter.platforms.includes('MOBILE')) {
+                        return statuses.onlyDesktop
+                    } else if (isMobile() && adapter.createDeepLink) {
+                        return statuses.openInApp
+                    } else if (isMobile() && !adapter.createDeepLink) {
+                        return statuses.openInAppManual
+                    }
+                }
+
+                return `
+                <li data-key="${adapter.id}" onclick="connectAdapter(adapters['${adapter.id}'])">
+                    <img class="icon" src="${adapter.icon}" alt="${adapter.id}">
+                    <span class="name">${adapter.name}</span>
+                    <span class="status">
+                        ${getStatus()}
+                    </span>
+                </li>
+            `
+            }
+
+            const container = document.querySelector('.wallet-list-container')
+            container.innerHTML = ''
+
+            let adapters = XRPl.browser.adapters
+
+            const sortedKeys = Object.keys(adapters).sort(function (a, b) {
+                const order = { true: 1, universal: 2, false: 3 }
+
+                const valueA = adapters[a].platforms.includes('UNIVERSAL')
+                    ? 'universal'
+                    : adapters[a].isDetected()
+                const valueB = adapters[b].platforms.includes('UNIVERSAL')
+                    ? 'universal'
+                    : adapters[b].isDetected()
+
+                return order[valueA] - order[valueB]
+            })
+
+            // set sorted adapters
+            adapters = sortedKeys.reduce((sortedObj, key) => {
+                sortedObj[key] = adapters[key]
+                return sortedObj
+            }, {})
+
+            Object.values(adapters).forEach((adapter) => {
+                container.innerHTML += adapterTemplate(adapter)
+            })
+        </script>
+    </body>
+</html>

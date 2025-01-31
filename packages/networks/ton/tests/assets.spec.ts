@@ -45,7 +45,7 @@ const checkSigner = async (signer: TransactionSigner, privateKey?: string): Prom
 
     const rawData = signer.getRawData()
 
-    assert.isObject(rawData)
+    assert.isArray(rawData)
 
     await signer.sign(privateKey ?? senderPrivateKey)
 

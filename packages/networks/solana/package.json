@@ -1,6 +1,6 @@
 {
     "name": "@multiplechain/solana",
-    "version": "0.4.15",
+    "version": "0.4.16",
     "type": "module",
     "main": "dist/index.cjs",
     "module": "dist/index.es.js",
@@ -63,7 +63,7 @@
     ],
     "author": "MultipleChain",
     "license": "MIT",
-    "homepage": "https://github.com/MultipleChain/js/tree/master/packages/networks/network-name",
+    "homepage": "https://github.com/MultipleChain/js/tree/master/packages/networks/solana",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/MultipleChain/js.git"

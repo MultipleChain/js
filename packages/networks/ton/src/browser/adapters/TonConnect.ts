@@ -7,10 +7,11 @@ import type { ConnectConfig, WalletAdapterInterface } from '@multiplechain/types
 export type TonConnectConfig = ConnectConfig & {
     manifestUrl?: string
     buttonRootId?: string
-    themeMode?: THEME
+    themeMode?: string
 }
 
 let ui: TonConnectUI
+let rejectedAction: (reason?: any) => void
 let connectedAction: (value: TonConnectUI | PromiseLike<TonConnectUI>) => void
 
 const createUI = (config?: TonConnectConfig): TonConnectUI => {
@@ -20,7 +21,7 @@ const createUI = (config?: TonConnectConfig): TonConnectUI => {
 
     ui = new TonConnectUI({
         uiPreferences: {
-            theme: config?.themeMode ?? THEME.LIGHT
+            theme: config?.themeMode === 'light' ? THEME.LIGHT : THEME.DARK
         },
         manifestUrl: config?.manifestUrl,
         buttonRootId: config?.buttonRootId
@@ -30,6 +31,12 @@ const createUI = (config?: TonConnectConfig): TonConnectUI => {
         if (status && ui.connected) {
             ui.closeModal()
             connectedAction(ui)
+        }
+    })
+
+    ui.onModalStateChange((state) => {
+        if (state.status === 'closed' && state.closeReason === 'action-cancelled') {
+            rejectedAction(ErrorTypeEnum.CLOSED_WALLETCONNECT_MODAL)
         }
     })
 
@@ -46,8 +53,12 @@ const TonConnect: WalletAdapterInterface<Provider, TonConnectUI> = {
         return ui?.connected ?? false
     },
     disconnect: async () => {
-        if (ui) {
-            await ui.disconnect()
+        try {
+            if (ui) {
+                await ui.disconnect()
+            }
+        } catch (error) {
+            console.error(error)
         }
     },
     connect: async (provider?: Provider, _config?: ConnectConfig) => {
@@ -67,6 +78,7 @@ const TonConnect: WalletAdapterInterface<Provider, TonConnectUI> = {
         return await new Promise((resolve, reject) => {
             try {
                 connectedAction = resolve
+                rejectedAction = reject
                 void createUI(config).openModal()
             } catch (error) {
                 reject(error)
