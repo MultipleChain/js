@@ -1,5 +1,7 @@
+import { sleep } from '@multiplechain/utils'
 import { Provider } from '../services/Provider'
 import { ErrorTypeEnum, TransactionStatusEnum } from '@multiplechain/types'
+import { dropsToXrp, type Transaction as BaseTransactionData, type TransactionMetadata } from 'xrpl'
 import {
     TransactionTypeEnum,
     type BlockConfirmationCount,
@@ -10,7 +12,6 @@ import {
     type TransactionInterface,
     type WalletAddress
 } from '@multiplechain/types'
-import { dropsToXrp, type Transaction as BaseTransactionData, type TransactionMetadata } from 'xrpl'
 
 export type TransactionData = BaseTransactionData & {
     meta?: TransactionMetadata
@@ -19,6 +20,8 @@ export type TransactionData = BaseTransactionData & {
     Amount?: number
     date?: number
 }
+
+let counter = 0
 
 export class Transaction implements TransactionInterface<TransactionData> {
     /**
@@ -56,6 +59,15 @@ export class Transaction implements TransactionInterface<TransactionData> {
             return (this.data = await this.provider.rpc.getTransaction(this.id))
         } catch (error) {
             console.error('MC XRPl TX getData', error)
+            // Returns empty data when the transaction is first created. For this reason, it would be better to check it intermittently and give an error if it still does not exist. Average 10 seconds.
+            if (String((error as any).message).includes('Transaction not found')) {
+                if (counter > 5) {
+                    throw new Error(ErrorTypeEnum.TRANSACTION_NOT_FOUND)
+                }
+                counter++
+                await sleep(2000)
+                return await this.getData()
+            }
             throw new Error(ErrorTypeEnum.RPC_REQUEST_ERROR)
         }
     }
