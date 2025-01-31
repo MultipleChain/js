@@ -99,6 +99,7 @@ const MetaMask: WalletAdapterInterface<Provider, WalletProvider> = {
                         })
                         await provider.ws.connect()
                         await provider.ws.submit(result.tx_blob) // eslint-disable-line
+                        await provider.ws.disconnect()
                         return result.hash
                     },
                     on: (event: string, callback: (data: any) => void) => {
