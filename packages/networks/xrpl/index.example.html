@@ -206,9 +206,7 @@
                 }
 
                 const wallet = new XRPl.browser.Wallet(adapter)
-                const adapterProvider = await wallet.connect({
-                    projectId: '113d9f5689edd84ff230c2a6d679c80c'
-                })
+                const adapterProvider = await wallet.connect()
 
                 document.querySelector('.methods').style.display = 'block'
 
@@ -228,12 +226,12 @@
                     document.querySelector('.action-result .sign-message').innerText = result
                 }
 
-                const receiver = 'tb1q9uxj8p043sjkm0qzlsys7677mv98j76k8cvgtg'
+                const receiver = 'r92HmWXA7dWQ6XNMMJJsbdWJfqYwLVNmGr'
 
                 document.querySelector('.action-result .send-coin').innerText = ''
                 document.querySelector('.action-btn.send-coin').onclick = async () => {
                     const coin = new XRPl.assets.Coin()
-                    const signer = await coin.transfer(sender, receiver, 0.0001)
+                    const signer = await coin.transfer(sender, receiver, 0.01)
                     const result = await wallet.sendTransaction(signer)
                     document.querySelector('.action-result .send-coin').innerText = result
                 }

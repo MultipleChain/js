@@ -7,13 +7,18 @@ export interface SignedTransaction {
     hash: string
 }
 
+export type RawTransaction = SubmittableTransaction & {
+    Destination?: string
+    Amount?: string
+}
+
 export class TransactionSigner
-    implements TransactionSignerInterface<SubmittableTransaction, SignedTransaction>
+    implements TransactionSignerInterface<RawTransaction, SignedTransaction>
 {
     /**
      * Transaction data from the blockchain network
      */
-    rawData: SubmittableTransaction
+    rawData: RawTransaction
 
     /**
      * Signed transaction data
@@ -29,7 +34,7 @@ export class TransactionSigner
      * @param rawData - Transaction data
      * @param provider - Blockchain network provider
      */
-    constructor(rawData: SubmittableTransaction, provider?: Provider) {
+    constructor(rawData: RawTransaction, provider?: Provider) {
         this.rawData = rawData
         this.provider = provider ?? Provider.instance
     }
@@ -78,7 +83,7 @@ export class TransactionSigner
      * Get the raw transaction data
      * @returns Transaction data
      */
-    getRawData(): SubmittableTransaction {
+    getRawData(): RawTransaction {
         return this.rawData
     }
 

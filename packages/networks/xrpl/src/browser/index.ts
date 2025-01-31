@@ -1,5 +1,5 @@
-import type { Provider } from 'sats-connect'
 import { Wallet, type WalletProvider } from './Wallet'
+import type { Provider } from '../services/Provider'
 import * as adapterList from './adapters/index'
 import type {
     WalletAdapterListType,
