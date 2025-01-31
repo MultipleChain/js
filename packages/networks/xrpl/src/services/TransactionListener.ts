@@ -5,20 +5,21 @@ import type {
     DynamicTransactionListenerFilterType,
     TransactionId
 } from '@multiplechain/types'
-import WebSocket from 'isomorphic-ws'
 import { Provider } from './Provider'
-import { fromSatoshi } from '../utils'
+import { objectsEqual } from '@multiplechain/utils'
 import { Transaction } from '../models/Transaction'
 import { CoinTransaction } from '../models/CoinTransaction'
-import { checkWebSocket, objectsEqual } from '@multiplechain/utils'
 import { TransactionListenerProcessIndex } from '@multiplechain/types'
+import {
+    type SubscribeRequest,
+    type TransactionStream,
+    type UnsubscribeRequest,
+    type Client as WsClient
+} from 'xrpl'
 
-interface Values {
-    txId: string
-    amount?: number
-    sender?: string
-    receiver?: string
-}
+type Command = Omit<SubscribeRequest, 'id' | 'command'>
+
+type TransactionStreamWithHash = TransactionStream & { hash: string }
 
 type TransactionListenerTriggerType<T extends TransactionTypeEnum> = DynamicTransactionType<
     T,
@@ -73,7 +74,7 @@ export class TransactionListener<
     /**
      * WebSocket
      */
-    webSocket: WebSocket
+    webSocket: WsClient
 
     /**
      * Dynamic stop method
@@ -128,8 +129,8 @@ export class TransactionListener<
     async on(callback: CallBackType): Promise<boolean> {
         if (this.webSocket === undefined) {
             try {
-                await checkWebSocket(this.provider.wsUrl)
-                this.webSocket = new WebSocket(this.provider.wsUrl)
+                await this.provider.ws.connect()
+                this.webSocket = this.provider.ws
             } catch (error) {
                 throw new Error(
                     'WebSocket connection is not available' +
@@ -157,100 +158,58 @@ export class TransactionListener<
         }
     }
 
-    isBlockCypherProcess(): boolean {
-        return this.provider.isTestnet() || this.provider.blockCypherToken !== undefined
+    idByFilter(): string {
+        return btoa(JSON.stringify(this.filter) + this.type)
     }
 
-    /**
-     * Create message for the listener
-     * @param receiver - Receiver address
-     * @returns Message
-     */
-    createMessage(receiver?: string): string {
-        let message
-        if (this.isBlockCypherProcess()) {
-            interface Config {
-                event: string
-                token: string
-                address?: string
+    createCommands(args: Command): {
+        sub: SubscribeRequest
+        unSub: UnsubscribeRequest
+    } {
+        return {
+            sub: {
+                id: this.idByFilter(),
+                command: 'subscribe',
+                ...args
+            },
+            unSub: {
+                id: this.idByFilter(),
+                command: 'unsubscribe',
+                ...args
             }
-
-            const config: Config = {
-                event: 'unconfirmed-tx',
-                token: this.provider.blockCypherToken ?? this.provider.defaultBlockCypherToken
-            }
-
-            if (receiver !== undefined) {
-                config.address = receiver
-            }
-
-            message = JSON.stringify(config)
-        } else {
-            message = JSON.stringify({
-                op: 'unconfirmed_sub'
-            })
         }
-
-        this.dynamicStop = () => {
-            if (!this.isBlockCypherProcess()) {
-                this.webSocket.send(
-                    JSON.stringify({
-                        op: 'unconfirmed_unsub'
-                    })
-                )
-            }
-            this.webSocket.close()
-        }
-
-        return message
-    }
-
-    /**
-     * Parse the data
-     * @param data - Data
-     * @returns Parsed data
-     */
-    getValues(data: any): Values {
-        const values: Values = {
-            txId: ''
-        }
-
-        if (this.isBlockCypherProcess()) {
-            values.txId = data.hash
-            values.sender = data.inputs[0].addresses[0]
-            values.receiver = data.outputs[0].addresses[0]
-            values.amount = fromSatoshi(data.outputs[0].value as number)
-        } else {
-            values.txId = data.x.hash
-            values.receiver = data.x.out[0].addr
-            values.sender = data.x.inputs[0].prev_out.addr
-            values.amount = fromSatoshi(data.x.out[0].value as number)
-        }
-
-        return values
     }
 
     /**
      * General transaction process
      */
     generalProcess(): void {
-        const message = this.createMessage()
+        const args: Command = { streams: ['transactions'] }
 
-        this.webSocket.addEventListener('open', () => {
-            this.webSocket.send(message)
-        })
+        if (this.filter?.signer) {
+            args.accounts = [this.filter.signer]
+        }
 
-        this.webSocket.addEventListener('message', async (res: WebSocket.MessageEvent) => {
-            const values = this.getValues(JSON.parse(res.data as string))
+        const { sub, unSub } = this.createCommands(args)
 
-            if (
-                this.filter?.signer !== undefined &&
-                values.sender !== this.filter.signer.toLowerCase()
-            ) {
-                return
+        void this.webSocket.request(sub).then(() => {
+            const callback = (tx: TransactionStreamWithHash): void => {
+                if (
+                    this.filter?.signer !== undefined &&
+                    tx.tx_json?.Account.toLowerCase() !== this.filter.signer.toLowerCase()
+                ) {
+                    return
+                }
+
+                this.trigger(new Transaction(tx.hash))
             }
 
-            this.trigger(new Transaction(values.txId))
+            this.webSocket.on('transaction', callback)
+
+            this.dynamicStop = () => {
+                void this.webSocket.request(unSub)
+                void this.webSocket.off('transaction', callback)
+            }
         })
     }
 
@@ -279,50 +238,70 @@ export class TransactionListener<
 
         const sender = filter.sender ?? filter.signer
 
-        const message = this.createMessage(filter.receiver)
+        const args: Command & {
+            accounts: string[]
+        } = { streams: ['transactions'], accounts: [] }
 
-        this.webSocket.addEventListener('open', () => {
-            this.webSocket.send(message)
-        })
+        if (sender) {
+            args.accounts.push(sender)
+        }
 
-        this.webSocket.addEventListener('message', async (res: WebSocket.MessageEvent) => {
-            const data = JSON.parse(res.data as string)
+        if (filter.receiver) {
+            args.accounts.push(filter.receiver)
+        }
 
-            interface ParamsType {
-                sender?: string
-                receiver?: string
+        const { sub, unSub } = this.createCommands(args)
+
+        void this.webSocket.request(sub).then(() => {
+            const callback = async (
+                tx: TransactionStreamWithHash & {
+                    tx_json: {
+                        Account: string
+                        Destination?: string
+                    }
+                }
+            ): Promise<void> => {
+                interface ParamsType {
+                    sender?: string
+                    receiver?: string
+                }
+
+                const expectedParams: ParamsType = {}
+                const receivedParams: ParamsType = {}
+
+                if (sender !== undefined) {
+                    expectedParams.sender = sender.toLowerCase()
+                    receivedParams.sender = tx.tx_json?.Account.toLowerCase()
+                }
+
+                if (filter.receiver !== undefined) {
+                    expectedParams.receiver = filter.receiver.toLowerCase()
+                    receivedParams.receiver = tx.tx_json?.Destination?.toLowerCase()
+                }
+
+                if (!objectsEqual(expectedParams, receivedParams)) {
+                    return
+                }
+
+                const transaction = new CoinTransaction(tx.hash)
+
+                if (filter.amount !== undefined) {
+                    await transaction.wait()
+                    const amount = await transaction.getAmount()
+                    if (amount !== filter.amount) {
+                        return
+                    }
+                }
+
+                this.trigger(transaction)
             }
 
-            const expectedParams: ParamsType = {}
-            const receivedParams: ParamsType = {}
+            this.webSocket.on('transaction', callback)
 
-            if (String(data.event).includes('events limit reached')) {
-                throw new Error('BlockCypher events limit reached.')
+            this.dynamicStop = () => {
+                void this.webSocket.request(unSub)
+                void this.webSocket.off('transaction', callback)
             }
-
-            const values = this.getValues(data)
-
-            if (sender !== undefined) {
-                expectedParams.sender = sender.toLowerCase()
-                receivedParams.sender = values.sender?.toLowerCase()
-            }
-
-            if (filter.receiver !== undefined) {
-                expectedParams.receiver = filter.receiver.toLowerCase()
-                receivedParams.receiver = values.receiver?.toLowerCase()
-            }
-
-            if (!objectsEqual(expectedParams, receivedParams)) {
-                return
-            }
-
-            const transaction = new CoinTransaction(values.txId)
-
-            if (filter.amount !== undefined && values.amount !== filter.amount) {
-                return
-            }
-
-            this.trigger(transaction)
         })
     }
 

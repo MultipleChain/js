@@ -1,4 +1,4 @@
-import { fromSatoshi } from '../utils'
+import { dropsToXrp } from 'xrpl'
 import { Transaction } from './Transaction'
 import { TransactionStatusEnum, AssetDirectionEnum } from '@multiplechain/types'
 import type { WalletAddress, CoinTransactionInterface, TransferAmount } from '@multiplechain/types'
@@ -9,7 +9,7 @@ export class CoinTransaction extends Transaction implements CoinTransactionInter
      */
     async getReceiver(): Promise<WalletAddress> {
         const data = await this.getData()
-        return data?.vout[0].scriptpubkey_address ?? ''
+        return data?.Destination ?? ''
     }
 
     /**
@@ -24,7 +24,7 @@ export class CoinTransaction extends Transaction implements CoinTransactionInter
      */
     async getAmount(): Promise<TransferAmount> {
         const data = await this.getData()
-        return fromSatoshi(data?.vout[0].value ?? 0)
+        return dropsToXrp(data?.Amount ?? 0)
     }
 
     /**

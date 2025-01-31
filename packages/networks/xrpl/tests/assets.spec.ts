@@ -5,6 +5,7 @@ import { math } from '@multiplechain/utils'
 import { Transaction } from '../src/models/Transaction'
 import { TransactionStatusEnum, type TransactionId } from '@multiplechain/types'
 import { TransactionSigner } from '../src/services/TransactionSigner'
+import { ECDSA } from 'xrpl'
 
 const testAmount = Number(process.env.XRP_TRANSFER_AMOUNT)
 const senderTestAddress = String(process.env.XRP_SENDER_ADDRESS)
@@ -19,9 +20,9 @@ const checkSigner = async (signer: TransactionSigner, privateKey?: string): Prom
 
     assert.isObject(rawData)
 
-    await signer.sign(privateKey ?? senderPrivateKey)
+    await signer.sign(privateKey ?? senderPrivateKey, ECDSA.secp256k1)
 
-    assert.isString(signer.getSignedData())
+    assert.isObject(signer.getSignedData())
 }
 
 const checkTx = async (transactionId: TransactionId): Promise<any> => {
@@ -42,8 +43,8 @@ describe('Coin', () => {
     })
 
     it('Balance', async () => {
-        const balance = await coin.getBalance('tb1qc240vx54n08hnhx8l4rqxjzcxf4f0ssq5asawm')
-        expect(balance).toBe(0.00003)
+        const balance = await coin.getBalance('rsDiH2LtPbcmkbTT3iLfKcPVtCJPGXxjry')
+        expect(balance).toBe(100)
     })
 
     it('Transfer', async () => {

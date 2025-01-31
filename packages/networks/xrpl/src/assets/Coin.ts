@@ -1,3 +1,4 @@
+import { dropsToXrp, xrpToDrops } from 'xrpl'
 import { Provider } from '../services/Provider'
 import { TransactionSigner } from '../services/TransactionSigner'
 import {
@@ -46,19 +47,21 @@ export class Coin implements CoinInterface<TransactionSigner> {
      * @returns Wallet balance as currency of COIN
      */
     async getBalance(owner: WalletAddress): Promise<number> {
-        return await Promise.resolve(100)
+        return dropsToXrp(await this.provider.rpc.getBalance(owner))
     }
 
     /**
      * @param sender Sender wallet address
      * @param receiver Receiver wallet address
      * @param amount Amount of assets that will be transferred
+     * @param memo Memo for the transaction
      * @returns Transaction signer
      */
     async transfer(
         sender: WalletAddress,
         receiver: WalletAddress,
-        amount: TransferAmount
+        amount: TransferAmount,
+        memo?: string
     ): Promise<TransactionSigner> {
         if (amount < 0) {
             throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
@@ -72,6 +75,23 @@ export class Coin implements CoinInterface<TransactionSigner> {
             throw new Error(ErrorTypeEnum.INVALID_ADDRESS)
         }
 
-        return new TransactionSigner()
+        const info = await this.provider.rpc.getAccountInfo(receiver)
+
+        if (this.provider.rpc.isError(info) && info.error === 'actNotFound') {
+            const minReserve = await this.provider.rpc.getMinimumReserve()
+            if (amount < minReserve) {
+                throw new Error(
+                    `This account is not activated, so you have to send at least ${minReserve} XRP to activate it`
+                )
+            }
+        }
+
+        return new TransactionSigner({
+            Account: sender,
+            Destination: receiver,
+            Amount: xrpToDrops(amount),
+            TransactionType: 'Payment',
+            Memos: memo ? [this.provider.createMemo(memo)] : []
+        })
     }
 }

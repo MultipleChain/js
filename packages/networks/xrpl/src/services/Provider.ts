@@ -1,4 +1,5 @@
-import axios from 'axios'
+import Client from './Client'
+import { Client as WsClient, type Memo } from 'xrpl'
 import { checkWebSocket } from '@multiplechain/utils'
 import {
     ErrorTypeEnum,
@@ -12,30 +13,19 @@ export class Provider implements ProviderInterface<NetworkConfigInterface> {
      */
     network: NetworkConfigInterface
 
-    /**
-     * API URL
-     */
-    api: string
+    ws: WsClient
 
-    /**
-     * Explorer URL
-     */
+    rpc: Client
+
     explorer: string
 
-    /**
-     * Websocket URL
-     */
-    wsUrl: string
+    testnetRpc = 'https://s.altnet.rippletest.net:51234'
 
-    /**
-     * BlockCypher token
-     */
-    blockCypherToken?: string
+    testnetWs = 'wss://s.altnet.rippletest.net:51233'
 
-    /**
-     * Default BlockCypher token
-     */
-    defaultBlockCypherToken = '49d43a59a4f24d31a9731eb067ab971c'
+    mainnetRpc = 'https://xrplcluster.com'
+
+    mainnetWs = 'wss://xrplcluster.com'
 
     /**
      * Static instance of the provider
@@ -78,10 +68,19 @@ export class Provider implements ProviderInterface<NetworkConfigInterface> {
      */
     async checkRpcConnection(url?: string): Promise<boolean | Error> {
         try {
-            const response = await axios.get(url ?? this.createEndpoint('blocks/tip/height'))
+            const response = await fetch(url ?? this.network.rpcUrl ?? '', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    method: 'server_info',
+                    params: []
+                })
+            })
 
             if (response.status !== 200) {
-                return new Error(response.statusText + ': ' + JSON.stringify(response.data))
+                return new Error(response.statusText + ': ' + response.status)
             }
 
             return true
@@ -97,7 +96,7 @@ export class Provider implements ProviderInterface<NetworkConfigInterface> {
      */
     async checkWsConnection(url?: string): Promise<boolean | Error> {
         try {
-            const result: any = await checkWebSocket(url ?? this.wsUrl)
+            const result: any = await checkWebSocket(url ?? this.network.wsUrl ?? '')
 
             if (result instanceof Error) {
                 return result
@@ -116,8 +115,21 @@ export class Provider implements ProviderInterface<NetworkConfigInterface> {
     update(network: NetworkConfigInterface): void {
         this.network = network
         Provider._instance = this
-        this.network.rpcUrl = this.api
-        this.network.wsUrl = this.wsUrl
+        if (!network.wsUrl) {
+            throw new Error(ErrorTypeEnum.WS_URL_NOT_DEFINED)
+        }
+        if (!network.rpcUrl) {
+            throw new Error('RPC URL is not defined')
+        }
+        this.ws = new WsClient(network.wsUrl)
+        this.rpc = new Client(network.rpcUrl)
+        this.explorer = network.testnet ? 'https://testnet.xrpl.org/' : 'https://livenet.xrpl.org/'
+        if (!network.rpcUrl) {
+            this.network.rpcUrl = network.testnet ? this.testnetRpc : this.mainnetRpc
+        }
+        if (!network.wsUrl) {
+            this.network.wsUrl = network.testnet ? this.testnetWs : this.mainnetWs
+        }
     }
 
     /**
@@ -126,5 +138,19 @@ export class Provider implements ProviderInterface<NetworkConfigInterface> {
      */
     isTestnet(): boolean {
         return this.network?.testnet ?? false
+    }
+
+    /**
+     * Create memo object
+     * @param memo - Memo data
+     * @returns Memo object
+     */
+    createMemo(memo: string): Memo {
+        return {
+            Memo: {
+                MemoData: Buffer.from(memo).toString('hex'),
+                MemoType: Buffer.from('text').toString('hex')
+            }
+        }
     }
 }

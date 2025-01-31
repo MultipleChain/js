@@ -1,4 +1,3 @@
-import axios from 'axios'
 import { Provider } from '../services/Provider'
 import { ErrorTypeEnum, TransactionStatusEnum } from '@multiplechain/types'
 import {
@@ -11,8 +10,17 @@ import {
     type TransactionInterface,
     type WalletAddress
 } from '@multiplechain/types'
+import { dropsToXrp, type Transaction as BaseTransactionData, type TransactionMetadata } from 'xrpl'
 
-export class Transaction implements TransactionInterface<any> {
+export type TransactionData = BaseTransactionData & {
+    meta?: TransactionMetadata
+    Destination?: string
+    ledger_index?: number
+    Amount?: number
+    date?: number
+}
+
+export class Transaction implements TransactionInterface<TransactionData> {
     /**
      * Each transaction has its own unique ID defined by the user
      */
@@ -26,7 +34,7 @@ export class Transaction implements TransactionInterface<any> {
     /**
      * Transaction data
      */
-    data: any | null = null
+    data: TransactionData | null = null
 
     /**
      * @param id Transaction id
@@ -40,11 +48,12 @@ export class Transaction implements TransactionInterface<any> {
     /**
      * @returns Transaction data
      */
-    async getData(): Promise<any | null> {
-        if (this.data !== null) {
+    async getData(): Promise<TransactionData | null> {
+        if (this.data?.meta) {
             return this.data
         }
         try {
+            return (this.data = await this.provider.rpc.getTransaction(this.id))
         } catch (error) {
             console.error('MC XRPl TX getData', error)
             throw new Error(ErrorTypeEnum.RPC_REQUEST_ERROR)
@@ -60,12 +69,8 @@ export class Transaction implements TransactionInterface<any> {
             const check = async (): Promise<void> => {
                 try {
                     const status = await this.getStatus()
-                    if (status === TransactionStatusEnum.CONFIRMED) {
-                        resolve(TransactionStatusEnum.CONFIRMED)
-                        return
-                    } else if (status === TransactionStatusEnum.FAILED) {
-                        reject(TransactionStatusEnum.FAILED)
-                        return
+                    if (status !== TransactionStatusEnum.PENDING) {
+                        resolve(status)
                     }
                     setTimeout(check, ms)
                 } catch (error) {
@@ -95,48 +100,79 @@ export class Transaction implements TransactionInterface<any> {
      * @returns Transaction URL
      */
     getUrl(): string {
-        return ''
+        return this.provider.explorer + 'transactions/' + this.id
+    }
+
+    async getMemos(): Promise<object[]> {
+        const data = await this.getData()
+        return (data?.Memos ?? []).map(({ Memo }) => {
+            if (Memo.MemoData) {
+                Memo.MemoData = Buffer.from(Memo.MemoData, 'hex').toString('utf-8')
+            }
+
+            if (Memo.MemoType) {
+                Memo.MemoType = Buffer.from(Memo.MemoType, 'hex').toString('utf-8')
+            }
+
+            if (Memo.MemoFormat) {
+                Memo.MemoFormat = Buffer.from(Memo.MemoFormat, 'hex').toString('utf-8')
+            }
+
+            return Memo
+        })
     }
 
     /**
      * @returns Wallet address of the sender of transaction
      */
     async getSigner(): Promise<WalletAddress> {
-        return ''
+        const data = await this.getData()
+        return data?.Account ?? ''
     }
 
     /**
      * @returns Transaction fee
      */
     async getFee(): Promise<TransactionFee> {
-        return 0
+        const data = await this.getData()
+        return dropsToXrp(data?.Fee ?? 0)
     }
 
     /**
      * @returns Block number that transaction
      */
     async getBlockNumber(): Promise<BlockNumber> {
-        return 0
+        const data = await this.getData()
+        return data?.ledger_index ?? 0
     }
 
     /**
      * @returns Block timestamp that transaction
      */
     async getBlockTimestamp(): Promise<BlockTimestamp> {
-        return 0
+        const data = await this.getData()
+        return data?.date ?? 0
     }
 
     /**
      * @returns Confirmation count of the block
      */
     async getBlockConfirmationCount(): Promise<BlockConfirmationCount> {
-        return 0
+        const blockNumber = await this.getBlockNumber()
+        const ledger = await this.provider.rpc.getLedger()
+        return ledger.result.ledger_index - blockNumber
     }
 
     /**
      * @returns Status of the transaction
      */
     async getStatus(): Promise<TransactionStatusEnum> {
+        const data = await this.getData()
+        if (data?.meta) {
+            return data?.meta?.TransactionResult === 'tesSUCCESS'
+                ? TransactionStatusEnum.CONFIRMED
+                : TransactionStatusEnum.FAILED
+        }
         return TransactionStatusEnum.PENDING
     }
 }

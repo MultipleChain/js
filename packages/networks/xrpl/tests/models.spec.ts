@@ -3,10 +3,10 @@ import { Transaction } from '../src/models/Transaction'
 import { CoinTransaction } from '../src/models/CoinTransaction'
 import { AssetDirectionEnum, TransactionStatusEnum } from '@multiplechain/types'
 
-const testAmount = Number(process.env.XRP_TRANSFER_AMOUNT)
+const testAmount = 0.001
 const senderTestAddress = String(process.env.XRP_SENDER_ADDRESS)
 const receiverTestAddress = String(process.env.XRP_RECEIVER_ADDRESS)
-const txId = '335c8a251e5f18121977c3159f46983d5943325abccc19e4718c49089553d60c'
+const txId = '8F0EFC4482865B47B156F1D001B4EAB3DC0B0C7231AE99377B634B1E3FA1563B'
 
 describe('Transaction', () => {
     const tx = new Transaction(txId)
@@ -23,7 +23,7 @@ describe('Transaction', () => {
     })
 
     it('URL', async () => {
-        expect(tx.getUrl()).toBe('https://blockstream.info/testnet/tx/' + txId)
+        expect(tx.getUrl()).toBe('https://testnet.xrpl.org/transactions/' + txId)
     })
 
     it('Sender', async () => {
@@ -31,15 +31,15 @@ describe('Transaction', () => {
     })
 
     it('Fee', async () => {
-        expect(await tx.getFee()).toBe(0.00014)
+        expect(await tx.getFee()).toBe(0.000012)
     })
 
     it('Block Number', async () => {
-        expect(await tx.getBlockNumber()).toBe(2814543)
+        expect(await tx.getBlockNumber()).toBe(4436513)
     })
 
     it('Block Timestamp', async () => {
-        expect(await tx.getBlockTimestamp()).toBe(1715328679)
+        expect(await tx.getBlockTimestamp()).toBe(791630821)
     })
 
     it('Block Confirmation Count', async () => {
