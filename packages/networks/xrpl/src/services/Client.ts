@@ -36,7 +36,7 @@ export default class Client {
         return result.info.validated_ledger.reserve_base_xrp
     }
 
-    async getAccountInfo(address: string): Promise<AccountInfoResponse | ErrorResponse> {
+    async getAccountInfo(address: string): Promise<AccountInfoResponse> {
         return await this.request('account_info', {
             account: address,
             ledger_index: 'validated'
@@ -48,13 +48,13 @@ export default class Client {
     }
 
     async getBalance(address: string): Promise<string> {
-        const response = await this.getAccountInfo(address)
+        const { result } = await this.getAccountInfo(address)
 
-        if (this.isError(response)) {
+        if (this.isError(result)) {
             return '0'
         }
 
-        return response.result.account_data.Balance
+        return result.account_data.Balance
     }
 
     async getLedger(): Promise<LedgerResponse> {
