@@ -30,7 +30,7 @@ const nftTransactionTestIsActive = Boolean(
 
 const balanceTestAddress = String(process.env.TON_BALANCE_TEST_ADDRESS)
 const senderPrivateKey = String(process.env.TON_SENDER_SEED_PHRASE)
-// const receiverPrivateKey = String(process.env.TON_RECEIVER_SEED_PHRASE)
+const receiverPrivateKey = String(process.env.TON_RECEIVER_SEED_PHRASE)
 const senderTestAddress = String(process.env.TON_SENDER_ADDRESS)
 const receiverTestAddress = String(process.env.TON_RECEIVER_ADDRESS)
 const tokenTestAddress = String(process.env.TON_TOKEN_TEST_ADDRESS)
@@ -226,6 +226,14 @@ describe('Nft', () => {
         await checkTx(await signer.send())
 
         expect(await nft.getOwner(nftTransferId)).toBe(receiverTestAddress)
+
+        const signer2 = await nft.transfer(receiverTestAddress, senderTestAddress, nftTransferId)
+
+        await checkSigner(signer2, receiverPrivateKey)
+
+        await waitForSec(5)
+
+        await checkTx(await signer2.send())
     })
 
     // it('Approve', async () => {
