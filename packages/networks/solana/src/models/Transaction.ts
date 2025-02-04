@@ -221,8 +221,11 @@ export class Transaction implements TransactionInterface<ParsedTransactionWithMe
             return TransactionStatusEnum.PENDING
         }
 
-        return data.meta?.err !== null
-            ? TransactionStatusEnum.FAILED
-            : TransactionStatusEnum.CONFIRMED
+        if (data.meta?.err !== null) {
+            console.error('MC Solana TX getStatus', data.meta?.err)
+            return TransactionStatusEnum.FAILED
+        } else {
+            return TransactionStatusEnum.CONFIRMED
+        }
     }
 }
