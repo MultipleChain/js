@@ -19,8 +19,8 @@ const rejectMap = (error: any, reject: (a: any) => any): any => {
 
     const errorMessage = String(error.message ?? '')
     if (
-        errorMessage === 'Not supported chainId' ||
         errorMessage.includes('chain ID') ||
+        errorMessage.includes('Not supported chainId') ||
         errorMessage.includes('networkConfigurationId') ||
         errorMessage.includes('The Provider is not connected to the requested chain.')
     ) {
