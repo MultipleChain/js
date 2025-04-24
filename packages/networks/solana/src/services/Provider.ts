@@ -1,4 +1,3 @@
-import axios from 'axios'
 import {
     ErrorTypeEnum,
     type NetworkConfigInterface,
@@ -92,16 +91,8 @@ export class Provider implements ProviderInterface {
      */
     async checkRpcConnection(url?: string): Promise<boolean | Error> {
         try {
-            const response = await axios.post(url ?? this.node.rpcUrl, {
-                jsonrpc: '2.0',
-                id: 1,
-                method: 'getEpochInfo'
-            })
-
-            if (response.status !== 200) {
-                return new Error(response.statusText + ': ' + JSON.stringify(response.data))
-            }
-
+            const conn = new Connection(url ?? this.node.rpcUrl ?? '')
+            await conn.getEpochInfo()
             return true
         } catch (error) {
             return error as any
