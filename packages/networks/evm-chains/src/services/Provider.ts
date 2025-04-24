@@ -1,4 +1,3 @@
-import axios from 'axios'
 import { Ethers } from './Ethers'
 import {
     ErrorTypeEnum,
@@ -7,6 +6,7 @@ import {
 } from '@multiplechain/types'
 
 import { checkWebSocket } from '@multiplechain/utils'
+import { JsonRpcProvider } from 'ethers'
 
 export interface EvmNetworkConfigInterface extends NetworkConfigInterface {
     id: number
@@ -74,17 +74,8 @@ export class Provider implements ProviderInterface<EvmNetworkConfigInterface> {
      */
     async checkRpcConnection(url?: string): Promise<boolean | Error> {
         try {
-            const response = await axios.post(url ?? this.network.rpcUrl, {
-                jsonrpc: '2.0',
-                method: 'eth_blockNumber',
-                params: [],
-                id: 1
-            })
-
-            if (response.status !== 200) {
-                return new Error(response.statusText + ': ' + JSON.stringify(response.data))
-            }
-
+            const rpc = new JsonRpcProvider(url ?? this.network.rpcUrl ?? '')
+            await rpc.getBlockNumber()
             return true
         } catch (error) {
             return error as any
