@@ -1,4 +1,4 @@
-import { suiet } from './icons'
+import { suiWallet } from './icons'
 import type { WalletProvider } from '../Wallet'
 import { WalletAdapter } from '@suiet/wallet-sdk'
 import type { Provider } from '../../services/Provider'
@@ -12,14 +12,14 @@ declare global {
     }
 }
 
-const wallet = getWalletByName('Suiet')
+const wallet = getWalletByName('Sui Wallet')
 
-const Suiet: WalletAdapterInterface<Provider, WalletProvider> = {
-    icon: suiet,
-    id: 'suiet',
-    name: 'Suiet',
-    platforms: [WalletPlatformEnum.BROWSER],
-    downloadLink: 'https://suiet.app/install',
+const SuiWallet: WalletAdapterInterface<Provider, WalletProvider> = {
+    id: 'suiwallet',
+    name: 'Sui Wallet',
+    icon: suiWallet,
+    downloadLink: 'https://suiwallet.com/',
+    platforms: [WalletPlatformEnum.BROWSER, WalletPlatformEnum.MOBILE],
     isDetected: () => Boolean(wallet),
     isConnected: () => Boolean(wallet?.accounts.length),
     connect: async (provider?: Provider) => {
@@ -44,4 +44,4 @@ const Suiet: WalletAdapterInterface<Provider, WalletProvider> = {
     }
 }
 
-export default Suiet
+export default SuiWallet

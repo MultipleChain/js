@@ -26,7 +26,7 @@ const Phantom: WalletAdapterInterface<Provider, WalletProvider> = {
     downloadLink: 'https://phantom.app/download',
     platforms: [WalletPlatformEnum.BROWSER, WalletPlatformEnum.MOBILE],
     createDeepLink: (url: string): string => `https://phantom.app/ul/browse/${url}?ref=${url}`,
-    isDetected: async () => Boolean(window.phantom?.sui?.isPhantom),
+    isDetected: () => Boolean(window.phantom?.sui?.isPhantom),
     isConnected: async () => {
         if (!window.phantom?.sui) {
             return false
