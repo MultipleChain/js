@@ -194,7 +194,7 @@
             window.Sui = Sui
 
             const provider = new Sui.Provider({
-                // options
+                testnet: true
             })
 
             window.adapters = {}
@@ -208,9 +208,7 @@
                 }
 
                 const wallet = new Sui.browser.Wallet(adapter)
-                const adapterProvider = await wallet.connect({
-                    projectId: '113d9f5689edd84ff230c2a6d679c80c'
-                })
+                const adapterProvider = await wallet.connect()
 
                 document.querySelector('.methods').style.display = 'block'
 
@@ -230,13 +228,13 @@
                     document.querySelector('.action-result .sign-message').innerText = result
                 }
 
-                const receiver = '0xbBa4d06D1cEf94b35aDeCfDa893523907fdD36DE'
-                const tokenAddress = '0x4294cb0dD25dC9140B5127f247cBd47Eeb673431'
+                const receiver = '0xda4558a29f4c2dd54d3fbcaf66b22eea73772dd893ebfccc973609d3457cddfd'
+                const tokenAddress = '0xdb2062063e6756bb0c39c1c4a208a8b341f2241d941621ee5c52f00b13e4cb46::Test_USDC::TEST_USDC'
 
                 document.querySelector('.action-result .send-coin').innerText = ''
                 document.querySelector('.action-btn.send-coin').onclick = async () => {
                     const coin = new Sui.assets.Coin()
-                    const signer = await coin.transfer(sender, receiver, 0.00001)
+                    const signer = await coin.transfer(sender, receiver, 0.001)
                     const result = await wallet.sendTransaction(signer)
                     document.querySelector('.action-result .send-coin').innerText = result
                 }
@@ -244,7 +242,7 @@
                 document.querySelector('.action-result .send-token').innerText = ''
                 document.querySelector('.action-btn.send-token').onclick = async () => {
                     const token = new Sui.assets.Token(tokenAddress)
-                    const signer = await token.transfer(sender, receiver, 0.1)
+                    const signer = await token.transfer(sender, receiver, 1)
                     const result = await wallet.sendTransaction(signer)
                     document.querySelector('.action-result .send-token').innerText = result
                 }

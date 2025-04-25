@@ -4,10 +4,6 @@ import type {
     DynamicTransactionType,
     TransactionListenerInterface,
     DynamicTransactionListenerFilterType,
-    NftTransactionListenerFilterInterface,
-    TokenTransactionListenerFilterInterface,
-    CoinTransactionListenerFilterInterface,
-    ContractTransactionListenerFilterInterface,
     TransactionId
 } from '@multiplechain/types'
 import type {
@@ -78,6 +74,7 @@ export class TransactionListener<
         this.type = type
         this.filter = filter ?? {}
         this.provider = provider ?? Provider.instance
+        throw new Error('This class is not implemented for TON')
     }
 
     /**
@@ -140,28 +137,20 @@ export class TransactionListener<
     /**
      * Contract transaction process
      */
-    contractProcess(): void {
-        const filter = this.filter as ContractTransactionListenerFilterInterface
-    }
+    contractProcess(): void {}
 
     /**
      * Coin transaction process
      */
-    coinProcess(): void {
-        const filter = this.filter as CoinTransactionListenerFilterInterface
-    }
+    coinProcess(): void {}
 
     /**
      * Token transaction process
      */
-    tokenProcess(): void {
-        const filter = this.filter as TokenTransactionListenerFilterInterface
-    }
+    tokenProcess(): void {}
 
     /**
      * NFT transaction process
      */
-    nftProcess(): void {
-        const filter = this.filter as NftTransactionListenerFilterInterface
-    }
+    nftProcess(): void {}
 }

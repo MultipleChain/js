@@ -72,8 +72,10 @@
         "url": "https://github.com/MultipleChain/js/issues"
     },
     "dependencies": {
+        "@kunalabs-io/sui-snap-wallet": "^0.4.3",
         "@multiplechain/types": "^0.1.67",
         "@multiplechain/utils": "^0.1.21",
-        "@mysten/sui": "^1.28.2"
+        "@mysten/sui": "^1.28.2",
+        "@mysten/wallet-standard": "^0.14.7"
     }
 }
