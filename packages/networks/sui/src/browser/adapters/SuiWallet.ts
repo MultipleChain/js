@@ -16,6 +16,15 @@ const SuiWallet: WalletAdapterInterface<Provider, WalletProvider> = {
     platforms: [WalletPlatformEnum.BROWSER, WalletPlatformEnum.MOBILE],
     isDetected: () => Boolean(wallet),
     isConnected: () => Boolean(wallet?.accounts.length),
+    disconnect: async () => {
+        try {
+            if (wallet) {
+                await new WalletAdapter(wallet).disconnect()
+            }
+        } catch (error) {
+            console.error('Error disconnecting from Sui Wallet:', error)
+        }
+    },
     connect: async (provider?: Provider) => {
         if (provider === undefined) {
             throw new Error(ErrorTypeEnum.PROVIDER_IS_REQUIRED)

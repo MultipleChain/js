@@ -16,6 +16,15 @@ const SurfWallet: WalletAdapterInterface<Provider, WalletProvider> = {
     downloadLink: 'https://surf.tech/',
     isDetected: () => Boolean(wallet),
     isConnected: () => Boolean(wallet?.accounts.length),
+    disconnect: async () => {
+        try {
+            if (wallet) {
+                await new WalletAdapter(wallet).disconnect()
+            }
+        } catch (error) {
+            console.error('Error disconnecting from Surf Wallet:', error)
+        }
+    },
     connect: async (provider?: Provider) => {
         if (provider === undefined) {
             throw new Error(ErrorTypeEnum.PROVIDER_IS_REQUIRED)

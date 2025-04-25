@@ -34,6 +34,15 @@ const Phantom: WalletAdapterInterface<Provider, WalletProvider> = {
 
         return Boolean(await window.phantom?.sui?.requestAccount())
     },
+    disconnect: async () => {
+        try {
+            if (wallet) {
+                await new WalletAdapter(wallet).disconnect()
+            }
+        } catch (error) {
+            console.error('Error disconnecting from Phantom wallet:', error)
+        }
+    },
     connect: async (provider?: Provider) => {
         if (provider === undefined) {
             throw new Error(ErrorTypeEnum.PROVIDER_IS_REQUIRED)

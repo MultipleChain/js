@@ -28,6 +28,8 @@ const rejectMap = (error: any, reject: (a: any) => any): any => {
     if (
         errorMessage.includes('The user rejected the request') ||
         errorMessage.includes('User rejected the request') ||
+        errorMessage.includes('WALLET.CONNECT_ERROR') ||
+        errorMessage.includes('wallet unknown error') ||
         errorMessage.includes('User rejection')
     ) {
         return reject(new Error(ErrorTypeEnum.WALLET_REQUEST_REJECTED))
