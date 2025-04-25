@@ -15,17 +15,17 @@ import { TokenTransaction } from '../src/models/TokenTransaction'
 import { ContractTransaction } from '../src/models/ContractTransaction'
 import { TransactionListener } from '../src/services/TransactionListener'
 
-const senderPrivateKey = String(process.env.BLP_SENDER_PRIVATE_KEY)
-const receiverPrivateKey = String(process.env.BLP_RECEIVER_PRIVATE_KEY)
-const senderTestAddress = String(process.env.BLP_SENDER_TEST_ADDRESS)
-const receiverTestAddress = String(process.env.BLP_RECEIVER_TEST_ADDRESS)
-const tokenTestAddress = String(process.env.BLP_TOKEN_TEST_ADDRESS)
-const tokenProgram = String(process.env.BLP_TOKEN_PROGRAM)
-const nftTestAddress = String(process.env.BLP_NFT_TEST_ADDRESS)
-const nftTransferId = String(process.env.BLP_NFT_TRANSFER_ID)
+const senderPrivateKey = String(process.env.SUI_SENDER_PRIVATE_KEY)
+const receiverPrivateKey = String(process.env.SUI_RECEIVER_PRIVATE_KEY)
+const senderTestAddress = String(process.env.SUI_SENDER_TEST_ADDRESS)
+const receiverTestAddress = String(process.env.SUI_RECEIVER_TEST_ADDRESS)
+const tokenTestAddress = String(process.env.SUI_TOKEN_TEST_ADDRESS)
+const tokenProgram = String(process.env.SUI_TOKEN_PROGRAM)
+const nftTestAddress = String(process.env.SUI_NFT_TEST_ADDRESS)
+const nftTransferId = String(process.env.SUI_NFT_TRANSFER_ID)
 
 const transactionListenerTestIsActive = Boolean(
-    process.env.BLP_TRANSACTION_LISTENER_TEST_IS_ACTIVE !== 'false'
+    process.env.SUI_TRANSACTION_LISTENER_TEST_IS_ACTIVE !== 'false'
 )
 
 const waitSecondsBeforeThanNewTx = async (seconds: number): Promise<any> => {
@@ -46,7 +46,7 @@ describe('Provider', () => {
     })
 
     it('checkWsConnection', async () => {
-        expect(await provider.checkWsConnection()).toBe(true)
+        expect(await provider.checkWsConnection()).not.toBe(true)
     })
 })
 

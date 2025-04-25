@@ -74,7 +74,7 @@ export class TransactionListener<
         this.type = type
         this.filter = filter ?? {}
         this.provider = provider ?? Provider.instance
-        throw new Error('This class is not implemented for TON')
+        throw new Error('This class is not implemented for Sui')
     }
 
     /**

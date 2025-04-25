@@ -99,7 +99,6 @@ describe('Token Transaction', () => {
     })
 
     it('Amount', async () => {
-        console.log('amount', await tx.getAmount())
         expect(await tx.getAmount()).toBe(tokenAmount)
     })
 
