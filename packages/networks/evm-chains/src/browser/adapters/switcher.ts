@@ -78,11 +78,9 @@ export const switcher = async (wallet: EIP1193Provider, provider?: Provider): Pr
                                 reject(error)
                             })
                     } else {
-                        if (
-                            (typeof error === 'object' ? error : {}).message.includes(
-                                'wallet_switchEthereumChain'
-                            ) === true
-                        ) {
+                        const message =
+                            typeof error === 'object' ? String(error?.message ?? '') : ''
+                        if (message.includes('wallet_switchEthereumChain')) {
                             return
                         }
                         reject(error)

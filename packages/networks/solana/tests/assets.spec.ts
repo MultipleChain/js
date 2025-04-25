@@ -211,6 +211,8 @@ describe('Token', async () => {
     })
 
     it('Transfer from', async () => {
+        await waitSecondsBeforeThanNewTx(5)
+
         const signer = await token.transferFrom(
             receiverTestAddress,
             senderTestAddress,

@@ -1,5 +1,5 @@
 {
-    "name": "@multiplechain/tron",
+    "name": "@multiplechain/sui",
     "version": "0.4.20",
     "type": "module",
     "main": "dist/index.cjs",
@@ -10,21 +10,21 @@
     "exports": {
         ".": {
             "import": {
-                "default": "./dist/index.es.js",
-                "types": "./dist/browser/index.d.ts"
+                "types": "./dist/browser/index.d.ts",
+                "default": "./dist/index.es.js"
             },
             "require": {
-                "default": "./dist/index.cjs",
-                "types": "./dist/index.d.ts"
+                "types": "./dist/index.d.ts",
+                "default": "./dist/index.cjs"
             }
         },
         "./node": {
-            "default": "./dist/index.cjs",
-            "types": "./dist/index.d.ts"
+            "types": "./dist/index.d.ts",
+            "default": "./dist/index.cjs"
         },
         "./browser": {
-            "default": "./dist/index.es.js",
-            "types": "./dist/browser/index.d.ts"
+            "types": "./dist/browser/index.d.ts",
+            "default": "./dist/index.es.js"
         }
     },
     "typesVersions": {
@@ -63,7 +63,7 @@
     ],
     "author": "MultipleChain",
     "license": "MIT",
-    "homepage": "https://github.com/MultipleChain/js/tree/master/packages/networks/tron",
+    "homepage": "https://github.com/MultipleChain/js/tree/master/packages/networks/sui",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/MultipleChain/js.git"
@@ -72,18 +72,11 @@
         "url": "https://github.com/MultipleChain/js/issues"
     },
     "dependencies": {
-        "@beycan/tron-tx-decoder": "^2.0.7",
-        "@multiplechain/tron-walletconnect": "^0.1.0",
-        "@multiplechain/types": "^0.1.70",
+        "@kunalabs-io/sui-snap-wallet": "^0.4.3",
+        "@multiplechain/types": "^0.1.67",
         "@multiplechain/utils": "^0.1.21",
-        "@noble/secp256k1": "^1.7.1",
-        "@tronweb3/tronwallet-adapter-bitkeep": "^1.1.1",
-        "@tronweb3/tronwallet-adapter-okxwallet": "^1.0.3",
-        "@tronweb3/tronwallet-adapter-tokenpocket": "^1.0.3",
-        "@tronweb3/tronwallet-adapter-tronlink": "^1.1.9",
-        "tronweb": "^5.3.2"
-    },
-    "devDependencies": {
-        "@tronweb3/tronwallet-abstract-adapter": "^1.1.6"
+        "@mysten/sui": "^1.28.2",
+        "@mysten/wallet-standard": "^0.14.7",
+        "@suiet/wallet-sdk": "^0.3.3"
     }
 }

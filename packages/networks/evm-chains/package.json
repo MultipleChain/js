@@ -1,6 +1,6 @@
 {
     "name": "@multiplechain/evm-chains",
-    "version": "0.4.18",
+    "version": "0.4.20",
     "type": "module",
     "main": "dist/index.cjs",
     "module": "dist/index.es.js",
@@ -82,7 +82,6 @@
         "@web3modal/core": "4.1.11",
         "@web3modal/ethers": "4.1.11",
         "@web3modal/scaffold-utils": "4.1.11",
-        "axios": "^1.6.8",
         "ethers": "^6.13.4",
         "viem": "^2.21.43"
     }

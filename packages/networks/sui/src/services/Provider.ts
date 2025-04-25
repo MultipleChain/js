@@ -3,15 +3,15 @@ import {
     type NetworkConfigInterface,
     type ProviderInterface
 } from '@multiplechain/types'
-import { Connection } from '@solana/web3.js'
 import { checkWebSocket } from '@multiplechain/utils'
+import { SuiClient, SuiHTTPTransport } from '@mysten/sui/client'
 
 export interface SolanaNodeInfoInterface {
     name: string
-    cluster: string
     wsUrl?: string
     rpcUrl: string
     explorerUrl: string
+    mode: 'mainnet' | 'devnet'
 }
 
 export type SolanaNodeInfoListInterface = Record<string, SolanaNodeInfoInterface>
@@ -28,27 +28,34 @@ export class Provider implements ProviderInterface {
     nodes: SolanaNodeInfoListInterface = {
         mainnet: {
             name: 'Mainnet',
-            cluster: 'mainnet-beta',
-            rpcUrl: 'https://api.mainnet-beta.solana.com/',
-            explorerUrl: 'https://solscan.io/'
+            mode: 'mainnet',
+            wsUrl: 'wss://rpc.mainnet.sui.io:443',
+            rpcUrl: 'https://fullnode.mainnet.sui.io:443',
+            explorerUrl: 'https://suiscan.xyz/mainnet/'
         },
         devnet: {
             name: 'Devnet',
-            cluster: 'devnet',
-            rpcUrl: 'https://api.devnet.solana.com/',
-            explorerUrl: 'https://solscan.io/'
+            mode: 'devnet',
+            wsUrl: 'wss://rpc.devnet.sui.io:443',
+            rpcUrl: 'https://fullnode.devnet.sui.io:443',
+            explorerUrl: 'https://suiscan.xyz/devnet/'
         }
     }
-
-    /**
-     * Web3 connection
-     */
-    web3: Connection
 
     /**
      * Node information
      */
     node: SolanaNodeInfoInterface
+
+    /**
+     * Sui client
+     */
+    client: SuiClient
+
+    /**
+     * Transport
+     */
+    transport: SuiHTTPTransport
 
     /**
      * Static instance of the provider
@@ -64,7 +71,7 @@ export class Provider implements ProviderInterface {
 
     /**
      * Get the static instance of the provider
-     * @returns Provider
+     * @returns Provider instance
      */
     static get instance(): Provider {
         if (Provider._instance === undefined) {
@@ -87,12 +94,14 @@ export class Provider implements ProviderInterface {
     /**
      * Check RPC connection
      * @param url - RPC URL
-     * @returns Connection status
+     * @returns RPC connection status
      */
     async checkRpcConnection(url?: string): Promise<boolean | Error> {
         try {
-            const conn = new Connection(url ?? this.node.rpcUrl ?? '')
-            await conn.getEpochInfo()
+            const client = new SuiClient({ url: url ?? this.node.rpcUrl })
+            await client.getObject({
+                id: '0x1'
+            })
             return true
         } catch (error) {
             return error as any
@@ -102,7 +111,7 @@ export class Provider implements ProviderInterface {
     /**
      * Check WS connection
      * @param url - Websocket URL
-     * @returns Connection status
+     * @returns ws connection status
      */
     async checkWsConnection(url?: string): Promise<boolean | Error> {
         try {
@@ -126,7 +135,7 @@ export class Provider implements ProviderInterface {
 
     /**
      * Update network configuration of the provider
-     * @param network - Network configuration of the provider
+     * @param network - Network configuration
      */
     update(network: NetworkConfigInterface): void {
         this.network = network
@@ -134,14 +143,24 @@ export class Provider implements ProviderInterface {
         this.node = this.nodes[network.testnet ?? false ? 'devnet' : 'mainnet']
         this.node.rpcUrl = this.network.rpcUrl ?? this.node.rpcUrl
         this.node.wsUrl = this.network.wsUrl ?? this.node.wsUrl
-        this.web3 = new Connection(this.node.rpcUrl, {
-            wsEndpoint: this.node.wsUrl
+        this.transport = new SuiHTTPTransport({
+            url: this.node.rpcUrl,
+            rpc: {
+                url: this.node.rpcUrl
+            },
+            websocket: {
+                url: this.node.wsUrl
+            }
+        })
+        this.client = new SuiClient({
+            network: this.node.mode,
+            transport: this.transport
         })
     }
 
     /**
      * Get the current network configuration is testnet or not
-     * @returns Testnet status
+     * @returns testnet status
      */
     isTestnet(): boolean {
         return this.network?.testnet ?? false

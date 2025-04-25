@@ -56,9 +56,6 @@ importers:
       '@walletconnect/types':
         specifier: ^2.17.2
         version: 2.17.2
-      axios:
-        specifier: ^1.6.8
-        version: 1.6.8(debug@4.3.4)
 
 packages:
 

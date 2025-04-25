@@ -29,7 +29,7 @@ const MetaMask: WalletAdapterInterface<Provider, WalletProvider> = {
     name: 'MetaMask Snap',
     icon: metaMask,
     downloadLink: 'https://metamask.io/download/',
-    platforms: [WalletPlatformEnum.BROWSER, WalletPlatformEnum.MOBILE],
+    platforms: [WalletPlatformEnum.BROWSER],
     isDetected: () => {
         return Boolean((window?.ethereum as unknown as WindowEthereum)?.isMetaMask)
     },

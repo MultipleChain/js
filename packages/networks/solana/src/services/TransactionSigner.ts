@@ -71,6 +71,7 @@ export class TransactionSigner
             recoveredTransaction = RawTransaction.from(Buffer.from(encodedTransaction, 'base64'))
         } catch (error) {
             recoveredTransaction = VersionedTransaction.deserialize(
+                // @ts-expect-error ignore
                 Buffer.from(encodedTransaction, 'base64')
             )
         }
