@@ -26,6 +26,7 @@ const rejectMap = (error: any, reject: (a: any) => any): any => {
     const errorMessage = String(error.message ?? '')
 
     if (
+        errorMessage.includes('The user rejected the request') ||
         errorMessage.includes('User rejected the request') ||
         errorMessage.includes('User rejection')
     ) {

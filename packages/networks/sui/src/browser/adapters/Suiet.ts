@@ -6,12 +6,6 @@ import { adapterToProvider, getWalletByName } from './standard'
 import type { WalletAdapterInterface } from '@multiplechain/types'
 import { ErrorTypeEnum, WalletPlatformEnum } from '@multiplechain/types'
 
-declare global {
-    interface Window {
-        example: any
-    }
-}
-
 const wallet = getWalletByName('Suiet')
 
 const Suiet: WalletAdapterInterface<Provider, WalletProvider> = {

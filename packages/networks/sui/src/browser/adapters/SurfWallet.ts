@@ -1,4 +1,4 @@
-import { suiWallet } from './icons'
+import { surfWallet } from './icons'
 import type { WalletProvider } from '../Wallet'
 import { WalletAdapter } from '@suiet/wallet-sdk'
 import type { Provider } from '../../services/Provider'
@@ -6,14 +6,14 @@ import { adapterToProvider, getWalletByName } from './standard'
 import type { WalletAdapterInterface } from '@multiplechain/types'
 import { ErrorTypeEnum, WalletPlatformEnum } from '@multiplechain/types'
 
-const wallet = getWalletByName('Sui Wallet')
+const wallet = getWalletByName('Surf Wallet')
 
-const SuiWallet: WalletAdapterInterface<Provider, WalletProvider> = {
-    id: 'suiwallet',
-    name: 'Sui Wallet',
-    icon: suiWallet,
-    downloadLink: 'https://suiwallet.com/',
+const SurfWallet: WalletAdapterInterface<Provider, WalletProvider> = {
+    icon: surfWallet,
+    id: 'surfwallet',
+    name: 'Surf Wallet',
     platforms: [WalletPlatformEnum.BROWSER, WalletPlatformEnum.MOBILE],
+    downloadLink: 'https://surf.tech/',
     isDetected: () => Boolean(wallet),
     isConnected: () => Boolean(wallet?.accounts.length),
     connect: async (provider?: Provider) => {
@@ -38,4 +38,4 @@ const SuiWallet: WalletAdapterInterface<Provider, WalletProvider> = {
     }
 }
 
-export default SuiWallet
+export default SurfWallet
