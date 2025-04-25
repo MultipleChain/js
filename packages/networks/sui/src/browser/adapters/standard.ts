@@ -4,15 +4,24 @@ import type { Provider } from '../../services/Provider'
 import type { Transaction } from '@mysten/sui/transactions'
 import { getWallets, type StandardEventsNames, type Wallet } from '@mysten/wallet-standard'
 
+export interface BasicAccount {
+    address: string
+    publicKey: Uint8Array
+}
+
 export const getWalletByName = (name: string): Wallet | undefined => {
     return Object.values(getWallets().get()).find((adapter) => adapter.name === name)
 }
 
-export const adapterToProvider = (adapter: WalletAdapter, provider: Provider): WalletProvider => {
+export const adapterToProvider = (
+    adapter: WalletAdapter,
+    provider: Provider,
+    account?: BasicAccount
+): WalletProvider => {
     const network = provider?.isTestnet() ? 'devnet' : 'mainnet'
     return {
         getAddress: async (): Promise<string> => {
-            return adapter.accounts[0].address
+            return account ? account.address : adapter.accounts[0].address
         },
         signMessage: async (message: string): Promise<string> => {
             const res = await adapter.signMessage({
