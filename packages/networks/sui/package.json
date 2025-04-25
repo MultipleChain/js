@@ -76,6 +76,7 @@
         "@multiplechain/types": "^0.1.67",
         "@multiplechain/utils": "^0.1.21",
         "@mysten/sui": "^1.28.2",
-        "@mysten/wallet-standard": "^0.14.7"
+        "@mysten/wallet-standard": "^0.14.7",
+        "@suiet/wallet-sdk": "^0.3.3"
     }
 }
