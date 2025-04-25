@@ -25,7 +25,7 @@ export default mergeConfig(
             },
             testTimeout: 180000,
             environment: 'node',
-            exclude: [...configDefaults.exclude, 'e2e/*', '**/boilerplate/**'],
+            exclude: [...configDefaults.exclude, 'e2e/*', '**/boilerplate/**', '**/ton/**'],
             root: fileURLToPath(new URL('./', import.meta.url)),
             setupFiles: [
                 './packages/networks/evm-chains/tests/setup.ts',
@@ -33,6 +33,7 @@ export default mergeConfig(
                 './packages/networks/solana/tests/setup.ts',
                 './packages/networks/tron/tests/setup.ts',
                 './packages/networks/xrpl/tests/setup.ts',
+                './packages/networks/sui/tests/setup.ts',
                 './packages/networks/ton/tests/setup.ts'
             ]
         }
