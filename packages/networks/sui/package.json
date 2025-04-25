@@ -10,21 +10,21 @@
     "exports": {
         ".": {
             "import": {
-                "default": "./dist/index.es.js",
-                "types": "./dist/browser/index.d.ts"
+                "types": "./dist/browser/index.d.ts",
+                "default": "./dist/index.es.js"
             },
             "require": {
-                "default": "./dist/index.cjs",
-                "types": "./dist/index.d.ts"
+                "types": "./dist/index.d.ts",
+                "default": "./dist/index.cjs"
             }
         },
         "./node": {
-            "default": "./dist/index.cjs",
-            "types": "./dist/index.d.ts"
+            "types": "./dist/index.d.ts",
+            "default": "./dist/index.cjs"
         },
         "./browser": {
-            "default": "./dist/index.es.js",
-            "types": "./dist/browser/index.d.ts"
+            "types": "./dist/browser/index.d.ts",
+            "default": "./dist/index.es.js"
         }
     },
     "typesVersions": {
@@ -73,6 +73,7 @@
     },
     "dependencies": {
         "@multiplechain/types": "^0.1.67",
-        "@multiplechain/utils": "^0.1.21"
+        "@multiplechain/utils": "^0.1.21",
+        "@mysten/sui": "^1.28.2"
     }
 }

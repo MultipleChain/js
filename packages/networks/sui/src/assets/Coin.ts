@@ -1,6 +1,14 @@
+import { fromMist, tomMist } from '../utils'
 import { Provider } from '../services/Provider'
+import { SUI_DECIMALS } from '@mysten/sui/utils'
 import { TransactionSigner } from '../services/TransactionSigner'
-import type { CoinInterface, TransferAmount, WalletAddress } from '@multiplechain/types'
+import {
+    ErrorTypeEnum,
+    type CoinInterface,
+    type TransferAmount,
+    type WalletAddress
+} from '@multiplechain/types'
+import { Transaction } from '@mysten/sui/transactions'
 
 export class Coin implements CoinInterface<TransactionSigner> {
     /**
@@ -19,21 +27,21 @@ export class Coin implements CoinInterface<TransactionSigner> {
      * @returns Coin name
      */
     getName(): string {
-        return 'example'
+        return 'Sui'
     }
 
     /**
      * @returns Coin symbol
      */
     getSymbol(): string {
-        return 'example'
+        return 'SUI'
     }
 
     /**
      * @returns Decimal value of the coin
      */
     getDecimals(): number {
-        return 18
+        return SUI_DECIMALS
     }
 
     /**
@@ -41,7 +49,10 @@ export class Coin implements CoinInterface<TransactionSigner> {
      * @returns Wallet balance as currency of COIN
      */
     async getBalance(owner: WalletAddress): Promise<number> {
-        return 0
+        const balance = await this.provider.client.getBalance({
+            owner
+        })
+        return fromMist(balance.totalBalance)
     }
 
     /**
@@ -55,6 +66,20 @@ export class Coin implements CoinInterface<TransactionSigner> {
         receiver: WalletAddress,
         amount: TransferAmount
     ): Promise<TransactionSigner> {
-        return new TransactionSigner('example')
+        if (amount < 0) {
+            throw new Error(ErrorTypeEnum.INVALID_AMOUNT)
+        }
+
+        if (amount > (await this.getBalance(sender))) {
+            throw new Error(ErrorTypeEnum.INSUFFICIENT_BALANCE)
+        }
+
+        const tx = new Transaction()
+
+        const [coin] = tx.splitCoins(tx.gas, [tomMist(amount)])
+
+        tx.transferObjects([coin], receiver)
+
+        return new TransactionSigner(tx)
     }
 }

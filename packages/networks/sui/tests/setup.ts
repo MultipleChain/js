@@ -6,7 +6,9 @@ try {
     provider = Provider.instance
 } catch (e) {
     provider = new Provider({
-        testnet: true
+        testnet: true,
+        wsUrl: 'wss://rpc.devnet.sui.io:443',
+        rpcUrl: 'https://fullnode.devnet.sui.io:443'
     })
 }
 

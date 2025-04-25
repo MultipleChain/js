@@ -1,10 +1,10 @@
 import { ContractTransaction } from './ContractTransaction'
 import { TransactionStatusEnum } from '@multiplechain/types'
-import type {
-    NftTransactionInterface,
+import {
+    type NftTransactionInterface,
     AssetDirectionEnum,
-    WalletAddress,
-    NftId
+    type WalletAddress,
+    type NftId
 } from '@multiplechain/types'
 
 export class NftTransaction extends ContractTransaction implements NftTransactionInterface {
@@ -12,21 +12,31 @@ export class NftTransaction extends ContractTransaction implements NftTransactio
      * @returns Receiver wallet address
      */
     async getReceiver(): Promise<WalletAddress> {
-        return 'example'
+        const data = await this.getData()
+        if (data === null) {
+            return ''
+        }
+        const ixs = await this.getInputs('pure', 'address')
+        return (ixs?.[0].value ?? '') as string
     }
 
     /**
      * @returns Wallet address of the sender of transaction
      */
     async getSender(): Promise<WalletAddress> {
-        return 'example'
+        return await this.getSigner()
     }
 
     /**
      * @returns NFT ID
      */
     async getNftId(): Promise<NftId> {
-        return 0
+        const data = await this.getData()
+        if (data === null) {
+            return ''
+        }
+        const ix = await this.getInputs('object', 'immOrOwnedObject')
+        return ix?.[0].objectId ?? ''
     }
 
     /**
@@ -40,6 +50,26 @@ export class NftTransaction extends ContractTransaction implements NftTransactio
         address: WalletAddress,
         nftId: NftId
     ): Promise<TransactionStatusEnum> {
-        return TransactionStatusEnum.PENDING
+        const status = await this.getStatus()
+
+        if (status === TransactionStatusEnum.PENDING) {
+            return TransactionStatusEnum.PENDING
+        }
+
+        if ((await this.getNftId()) !== nftId) {
+            return TransactionStatusEnum.FAILED
+        }
+
+        if (direction === AssetDirectionEnum.INCOMING) {
+            if ((await this.getReceiver()).toLowerCase() !== address.toLowerCase()) {
+                return TransactionStatusEnum.FAILED
+            }
+        } else {
+            if ((await this.getSender()).toLowerCase() !== address.toLowerCase()) {
+                return TransactionStatusEnum.FAILED
+            }
+        }
+
+        return TransactionStatusEnum.CONFIRMED
     }
 }

@@ -1,16 +1,21 @@
 import { Provider } from '../services/Provider'
+import type { Transaction } from '@mysten/sui/transactions'
+import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519'
+import type { SignatureWithBytes } from '@mysten/sui/cryptography'
 import type { PrivateKey, TransactionId, TransactionSignerInterface } from '@multiplechain/types'
 
-export class TransactionSigner implements TransactionSignerInterface<unknown, unknown> {
+export class TransactionSigner
+    implements TransactionSignerInterface<Transaction, SignatureWithBytes>
+{
     /**
      * Transaction data from the blockchain network
      */
-    rawData: unknown
+    rawData: Transaction
 
     /**
      * Signed transaction data
      */
-    signedData: unknown
+    signedData: SignatureWithBytes
 
     /**
      * Blockchain network provider
@@ -21,7 +26,7 @@ export class TransactionSigner implements TransactionSignerInterface<unknown, un
      * @param rawData - Transaction data
      * @param provider - Blockchain network provider
      */
-    constructor(rawData: unknown, provider?: Provider) {
+    constructor(rawData: Transaction, provider?: Provider) {
         this.rawData = rawData
         this.provider = provider ?? Provider.instance
     }
@@ -32,7 +37,12 @@ export class TransactionSigner implements TransactionSignerInterface<unknown, un
      * @returns Signed transaction data
      */
     async sign(privateKey: PrivateKey): Promise<this> {
-        return await Promise.resolve(this)
+        const keypair = Ed25519Keypair.fromSecretKey(privateKey)
+        this.rawData.setSenderIfNotSet(keypair.toSuiAddress())
+        this.signedData = await keypair.signTransaction(
+            await this.rawData.build({ client: this.provider.client })
+        )
+        return this
     }
 
     /**
@@ -40,20 +50,24 @@ export class TransactionSigner implements TransactionSignerInterface<unknown, un
      * @returns Transaction ID
      */
     async send(): Promise<TransactionId> {
-        return await Promise.resolve('id')
+        const { digest } = await this.provider.client.executeTransactionBlock({
+            transactionBlock: this.signedData.bytes,
+            signature: this.signedData.signature
+        })
+        return digest
     }
 
     /**
      * @returns raw transaction data
      */
-    getRawData(): unknown {
+    getRawData(): Transaction {
         return this.rawData
     }
 
     /**
      * @returns signed transaction data
      */
-    getSignedData(): unknown {
+    getSignedData(): SignatureWithBytes {
         return this.signedData
     }
 }

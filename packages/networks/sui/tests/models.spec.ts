@@ -6,27 +6,24 @@ import { CoinTransaction } from '../src/models/CoinTransaction'
 import { TokenTransaction } from '../src/models/TokenTransaction'
 import { AssetDirectionEnum, TransactionStatusEnum } from '@multiplechain/types'
 
-const nftId = Number(process.env.BLP_NFT_ID)
-const tokenAmount = Number(process.env.BLP_TOKEN_AMOUNT)
-const coinAmount = Number(process.env.BLP_COIN_AMOUNT)
+const nftObjectId = String(process.env.SUI_MODEL_NFT_OBJECT_ID)
+const tokenAmount = Number(process.env.SUI_MODEL_TOKEN_AMOUNT)
+const coinAmount = Number(process.env.SUI_MODEL_COIN_AMOUNT)
 
-const etherTransferTx = String(process.env.BLP_ETHER_TRANSFER_TX)
-const tokenTransferTx = String(process.env.BLP_TOKEN_TRANSFER_TX)
-const nftTransferTx = String(process.env.BLP_NFT_TRANSFER_TX)
+const tokenType = String(process.env.SUI_TOKEN_TYPE_ADDRESS)
+const nftType = String(process.env.SUI_NFT_TYPE_ADDRESS)
 
-const coinSender = String(process.env.BLP_COIN_SENDER)
-const coinReceiver = String(process.env.BLP_COIN_RECEIVER)
+const suiTransferTx = String(process.env.SUI_TRANSFER_TX)
+const tokenTransferTx = String(process.env.SUI_TOKEN_TRANSFER_TX)
+const nftTransferTx = String(process.env.SUI_NFT_TRANSFER_TX)
 
-const tokenSender = String(process.env.BLP_TOKEN_SENDER)
-const tokenReceiver = String(process.env.BLP_TOKEN_RECEIVER)
-
-const nftSender = String(process.env.BLP_NFT_SENDER)
-const nftReceiver = String(process.env.BLP_NFT_RECEIVER)
+const sender = String(process.env.SUI_MODEL_TEST_SENDER)
+const receiver = String(process.env.SUI_MODEL_TEST_RECEIVER)
 
 describe('Transaction', () => {
-    const tx = new Transaction(etherTransferTx)
+    const tx = new Transaction(suiTransferTx)
     it('Id', async () => {
-        expect(tx.getId()).toBe(etherTransferTx)
+        expect(tx.getId()).toBe(suiTransferTx)
     })
 
     it('Data', async () => {
@@ -38,27 +35,29 @@ describe('Transaction', () => {
     })
 
     it('URL', async () => {
-        expect(tx.getUrl()).toBe('Sui tx url')
+        expect(tx.getUrl()).toBe(
+            'https://suiscan.xyz/devnet/tx/22exMwAKinLgGjd9RqawzYmFb7XUhLnvGWXsLFXgBYRH'
+        )
     })
 
     it('Sender', async () => {
-        expect(await tx.getSigner()).toBe(coinSender)
+        expect(await tx.getSigner()).toBe(sender)
     })
 
     it('Fee', async () => {
-        expect(await tx.getFee()).toBe(0.000371822357865)
+        expect(await tx.getFee()).toBe(0.00199788)
     })
 
     it('Block Number', async () => {
-        expect(await tx.getBlockNumber()).toBe(5461884)
+        expect(await tx.getBlockNumber()).toBe(1040686)
     })
 
     it('Block Timestamp', async () => {
-        expect(await tx.getBlockTimestamp()).toBe(1710141144)
+        expect(await tx.getBlockTimestamp()).toBe(1745471638189)
     })
 
     it('Block Confirmation Count', async () => {
-        expect(await tx.getBlockConfirmationCount()).toBeGreaterThan(129954)
+        expect(await tx.getBlockConfirmationCount()).toBeGreaterThan(45397)
     })
 
     it('Status', async () => {
@@ -67,10 +66,10 @@ describe('Transaction', () => {
 })
 
 describe('Coin Transaction', () => {
-    const tx = new CoinTransaction(etherTransferTx)
+    const tx = new CoinTransaction(suiTransferTx)
 
     it('Receiver', async () => {
-        expect((await tx.getReceiver()).toLowerCase()).toBe(coinReceiver.toLowerCase())
+        expect((await tx.getReceiver()).toLowerCase()).toBe(receiver.toLowerCase())
     })
 
     it('Amount', async () => {
@@ -78,15 +77,15 @@ describe('Coin Transaction', () => {
     })
 
     it('Verify Transfer', async () => {
-        expect(await tx.verifyTransfer(AssetDirectionEnum.INCOMING, coinReceiver, coinAmount)).toBe(
+        expect(await tx.verifyTransfer(AssetDirectionEnum.INCOMING, receiver, coinAmount)).toBe(
             TransactionStatusEnum.CONFIRMED
         )
 
-        expect(await tx.verifyTransfer(AssetDirectionEnum.OUTGOING, coinSender, coinAmount)).toBe(
+        expect(await tx.verifyTransfer(AssetDirectionEnum.OUTGOING, sender, coinAmount)).toBe(
             TransactionStatusEnum.CONFIRMED
         )
 
-        expect(await tx.verifyTransfer(AssetDirectionEnum.OUTGOING, coinReceiver, coinAmount)).toBe(
+        expect(await tx.verifyTransfer(AssetDirectionEnum.OUTGOING, receiver, coinAmount)).toBe(
             TransactionStatusEnum.FAILED
         )
     })
@@ -96,25 +95,30 @@ describe('Token Transaction', () => {
     const tx = new TokenTransaction(tokenTransferTx)
 
     it('Receiver', async () => {
-        expect((await tx.getReceiver()).toLowerCase()).toBe(tokenReceiver.toLowerCase())
+        expect((await tx.getReceiver()).toLowerCase()).toBe(receiver.toLowerCase())
     })
 
     it('Amount', async () => {
+        console.log('amount', await tx.getAmount())
         expect(await tx.getAmount()).toBe(tokenAmount)
     })
 
-    it('Verify Transfer', async () => {
-        expect(
-            await tx.verifyTransfer(AssetDirectionEnum.INCOMING, tokenReceiver, tokenAmount)
-        ).toBe(TransactionStatusEnum.CONFIRMED)
+    it('Address', async () => {
+        expect(await tx.getAddress()).toBe(tokenType)
+    })
 
-        expect(await tx.verifyTransfer(AssetDirectionEnum.OUTGOING, tokenSender, tokenAmount)).toBe(
+    it('Verify Transfer', async () => {
+        expect(await tx.verifyTransfer(AssetDirectionEnum.INCOMING, receiver, tokenAmount)).toBe(
             TransactionStatusEnum.CONFIRMED
         )
 
-        expect(
-            await tx.verifyTransfer(AssetDirectionEnum.OUTGOING, tokenReceiver, tokenAmount)
-        ).toBe(TransactionStatusEnum.FAILED)
+        expect(await tx.verifyTransfer(AssetDirectionEnum.OUTGOING, sender, tokenAmount)).toBe(
+            TransactionStatusEnum.CONFIRMED
+        )
+
+        expect(await tx.verifyTransfer(AssetDirectionEnum.OUTGOING, receiver, tokenAmount)).toBe(
+            TransactionStatusEnum.FAILED
+        )
     })
 })
 
@@ -122,31 +126,35 @@ describe('NFT Transaction', () => {
     const tx = new NftTransaction(nftTransferTx)
 
     it('Receiver', async () => {
-        expect((await tx.getReceiver()).toLowerCase()).toBe(nftReceiver.toLowerCase())
+        expect((await tx.getReceiver()).toLowerCase()).toBe(receiver.toLowerCase())
+    })
+
+    it('Address', async () => {
+        expect(await tx.getAddress()).toBe(nftType)
     })
 
     it('Signer', async () => {
-        expect((await tx.getSigner()).toLowerCase()).toBe(nftReceiver.toLowerCase())
+        expect((await tx.getSigner()).toLowerCase()).toBe(sender.toLowerCase())
     })
 
     it('Sender', async () => {
-        expect((await tx.getSender()).toLowerCase()).toBe(nftSender.toLowerCase())
+        expect((await tx.getSender()).toLowerCase()).toBe(sender.toLowerCase())
     })
 
     it('NFT ID', async () => {
-        expect(await tx.getNftId()).toBe(nftId)
+        expect(await tx.getNftId()).toBe(nftObjectId)
     })
 
     it('Verify Transfer', async () => {
-        expect(await tx.verifyTransfer(AssetDirectionEnum.INCOMING, nftReceiver, nftId)).toBe(
+        expect(await tx.verifyTransfer(AssetDirectionEnum.INCOMING, receiver, nftObjectId)).toBe(
             TransactionStatusEnum.CONFIRMED
         )
 
-        expect(await tx.verifyTransfer(AssetDirectionEnum.OUTGOING, nftSender, nftId)).toBe(
+        expect(await tx.verifyTransfer(AssetDirectionEnum.OUTGOING, sender, nftObjectId)).toBe(
             TransactionStatusEnum.CONFIRMED
         )
 
-        expect(await tx.verifyTransfer(AssetDirectionEnum.OUTGOING, nftReceiver, nftId)).toBe(
+        expect(await tx.verifyTransfer(AssetDirectionEnum.OUTGOING, receiver, nftObjectId)).toBe(
             TransactionStatusEnum.FAILED
         )
     })

@@ -3,12 +3,59 @@ import {
     type NetworkConfigInterface,
     type ProviderInterface
 } from '@multiplechain/types'
+import { checkWebSocket } from '@multiplechain/utils'
+import { SuiClient, SuiHTTPTransport } from '@mysten/sui/client'
+
+export interface SolanaNodeInfoInterface {
+    name: string
+    wsUrl?: string
+    rpcUrl: string
+    explorerUrl: string
+    mode: 'mainnet' | 'devnet'
+}
+
+export type SolanaNodeInfoListInterface = Record<string, SolanaNodeInfoInterface>
 
 export class Provider implements ProviderInterface {
     /**
      * Network configuration of the provider
      */
     network: NetworkConfigInterface
+
+    /**
+     * Node list
+     */
+    nodes: SolanaNodeInfoListInterface = {
+        mainnet: {
+            name: 'Mainnet',
+            mode: 'mainnet',
+            wsUrl: 'wss://rpc.mainnet.sui.io:443',
+            rpcUrl: 'https://fullnode.mainnet.sui.io:443',
+            explorerUrl: 'https://suiscan.xyz/mainnet/'
+        },
+        devnet: {
+            name: 'Devnet',
+            mode: 'devnet',
+            wsUrl: 'wss://rpc.devnet.sui.io:443',
+            rpcUrl: 'https://fullnode.devnet.sui.io:443',
+            explorerUrl: 'https://suiscan.xyz/devnet/'
+        }
+    }
+
+    /**
+     * Node information
+     */
+    node: SolanaNodeInfoInterface
+
+    /**
+     * Sui client
+     */
+    client: SuiClient
+
+    /**
+     * Transport
+     */
+    transport: SuiHTTPTransport
 
     /**
      * Static instance of the provider
@@ -50,7 +97,15 @@ export class Provider implements ProviderInterface {
      * @returns RPC connection status
      */
     async checkRpcConnection(url?: string): Promise<boolean | Error> {
-        return true
+        try {
+            const client = new SuiClient({ url: url ?? this.node.rpcUrl })
+            await client.getObject({
+                id: '0x1'
+            })
+            return true
+        } catch (error) {
+            return error as any
+        }
     }
 
     /**
@@ -59,7 +114,23 @@ export class Provider implements ProviderInterface {
      * @returns ws connection status
      */
     async checkWsConnection(url?: string): Promise<boolean | Error> {
-        return true
+        try {
+            const wsUrl = url ?? this.node.wsUrl ?? ''
+
+            if (wsUrl === '' || wsUrl === undefined) {
+                return new Error(ErrorTypeEnum.WS_URL_NOT_DEFINED)
+            }
+
+            const result: any = await checkWebSocket(wsUrl)
+
+            if (result instanceof Error) {
+                return result
+            }
+
+            return true
+        } catch (error) {
+            return error as Error
+        }
     }
 
     /**
@@ -69,6 +140,22 @@ export class Provider implements ProviderInterface {
     update(network: NetworkConfigInterface): void {
         this.network = network
         Provider._instance = this
+        this.node = this.nodes[network.testnet ?? false ? 'devnet' : 'mainnet']
+        this.node.rpcUrl = this.network.rpcUrl ?? this.node.rpcUrl
+        this.node.wsUrl = this.network.wsUrl ?? this.node.wsUrl
+        this.transport = new SuiHTTPTransport({
+            url: this.node.rpcUrl,
+            rpc: {
+                url: this.node.rpcUrl
+            },
+            websocket: {
+                url: this.node.wsUrl
+            }
+        })
+        this.client = new SuiClient({
+            network: this.node.mode,
+            transport: this.transport
+        })
     }
 
     /**
