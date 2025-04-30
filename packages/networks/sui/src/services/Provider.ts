@@ -11,7 +11,7 @@ export interface SolanaNodeInfoInterface {
     wsUrl?: string
     rpcUrl: string
     explorerUrl: string
-    mode: 'mainnet' | 'devnet'
+    mode: 'mainnet' | 'testnet'
 }
 
 export type SolanaNodeInfoListInterface = Record<string, SolanaNodeInfoInterface>
@@ -33,12 +33,12 @@ export class Provider implements ProviderInterface {
             rpcUrl: 'https://fullnode.mainnet.sui.io:443',
             explorerUrl: 'https://suiscan.xyz/mainnet/'
         },
-        devnet: {
-            name: 'Devnet',
-            mode: 'devnet',
-            wsUrl: 'wss://rpc.devnet.sui.io:443',
-            rpcUrl: 'https://fullnode.devnet.sui.io:443',
-            explorerUrl: 'https://suiscan.xyz/devnet/'
+        testnet: {
+            name: 'Testnet',
+            mode: 'testnet',
+            wsUrl: 'wss://rpc.testnet.sui.io:443',
+            rpcUrl: 'https://fullnode.testnet.sui.io:443',
+            explorerUrl: 'https://suiscan.xyz/testnet/'
         }
     }
 
@@ -140,7 +140,7 @@ export class Provider implements ProviderInterface {
     update(network: NetworkConfigInterface): void {
         this.network = network
         Provider._instance = this
-        this.node = this.nodes[network.testnet ?? false ? 'devnet' : 'mainnet']
+        this.node = this.nodes[network.testnet ?? false ? 'testnet' : 'mainnet']
         this.node.rpcUrl = this.network.rpcUrl ?? this.node.rpcUrl
         this.node.wsUrl = this.network.wsUrl ?? this.node.wsUrl
         this.transport = new SuiHTTPTransport({

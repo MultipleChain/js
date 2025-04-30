@@ -7,8 +7,8 @@ try {
 } catch (e) {
     provider = new Provider({
         testnet: true,
-        wsUrl: 'wss://rpc.devnet.sui.io:443',
-        rpcUrl: 'https://fullnode.devnet.sui.io:443'
+        wsUrl: 'wss://rpc.testnet.sui.io:443',
+        rpcUrl: 'https://fullnode.testnet.sui.io:443'
     })
 }
 

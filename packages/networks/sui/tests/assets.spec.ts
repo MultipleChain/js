@@ -101,7 +101,7 @@ describe('Token', () => {
     })
 
     it('Decimals', async () => {
-        expect(await token.getDecimals()).toBe(6)
+        expect(await token.getDecimals()).toBe(9)
     })
 
     it('Balance', async () => {
@@ -110,7 +110,7 @@ describe('Token', () => {
 
     it('Total supply', async () => {
         const totalSupply = await token.getTotalSupply()
-        expect(totalSupply).toBe(100000000)
+        expect(totalSupply).toBe(10000000)
     })
 
     it('Transfer', async () => {

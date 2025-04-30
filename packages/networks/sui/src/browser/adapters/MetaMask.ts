@@ -47,7 +47,7 @@ const MetaMask: WalletAdapterInterface<Provider, WalletProvider> = {
                 throw new Error(ErrorTypeEnum.PROVIDER_IS_REQUIRED)
             }
 
-            const network = provider?.isTestnet() ? 'devnet' : 'mainnet'
+            const network = provider?.isTestnet() ? 'testnet' : 'mainnet'
             const metamaskProvider = window?.ethereum as unknown as WindowEthereum
 
             try {
