@@ -10,21 +10,21 @@
     "exports": {
         ".": {
             "import": {
-                "default": "./dist/index.es.js",
-                "types": "./dist/browser/index.d.ts"
+                "types": "./dist/browser/index.d.ts",
+                "default": "./dist/index.es.js"
             },
             "require": {
-                "default": "./dist/index.cjs",
-                "types": "./dist/index.d.ts"
+                "types": "./dist/index.d.ts",
+                "default": "./dist/index.cjs"
             }
         },
         "./node": {
-            "default": "./dist/index.cjs",
-            "types": "./dist/index.d.ts"
+            "types": "./dist/index.d.ts",
+            "default": "./dist/index.cjs"
         },
         "./browser": {
-            "default": "./dist/index.es.js",
-            "types": "./dist/browser/index.d.ts"
+            "types": "./dist/browser/index.d.ts",
+            "default": "./dist/index.es.js"
         }
     },
     "typesVersions": {
