@@ -1,6 +1,6 @@
 {
     "name": "@multiplechain/solana",
-    "version": "0.4.20",
+    "version": "0.4.21",
     "type": "module",
     "main": "dist/index.cjs",
     "module": "dist/index.es.js",
@@ -72,6 +72,8 @@
         "url": "https://github.com/MultipleChain/js/issues"
     },
     "dependencies": {
+        "@metamask/multichain-api-client": "^0.6.1",
+        "@metamask/solana-wallet-standard": "^0.4.1",
         "@metaplex-foundation/js": "^0.20.1",
         "@multiplechain/types": "^0.1.68",
         "@multiplechain/utils": "^0.1.21",
