@@ -191,7 +191,7 @@ describe('Nft', () => {
     })
 
     it('Owner', async () => {
-        expect(await nft.getOwner(nftBalanceObjectId)).toBe(balanceTestAddress)
+        expect(await nft.getOwner(nftBalanceObjectId)).toBe(receiverTestAddress)
     })
 
     it('Token URI', async () => {

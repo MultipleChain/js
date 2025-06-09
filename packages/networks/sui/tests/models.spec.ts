@@ -36,7 +36,7 @@ describe('Transaction', () => {
 
     it('URL', async () => {
         expect(tx.getUrl()).toBe(
-            'https://suiscan.xyz/testnet/tx/D2KtD3AGtqGEPkEVxzkXYBgcXwgHAsXTZzTottme5ifQ'
+            'https://suiscan.xyz/testnet/tx/38rQ6ThScL69gSLaWez9i8kj3CEw6eyqjkCoNPbcxPKN'
         )
     })
 
@@ -45,15 +45,15 @@ describe('Transaction', () => {
     })
 
     it('Fee', async () => {
-        expect(await tx.getFee()).toBe(0.0019146)
+        expect(await tx.getFee()).toBe(0.00199788)
     })
 
     it('Block Number', async () => {
-        expect(await tx.getBlockNumber()).toBe(190342129)
+        expect(await tx.getBlockNumber()).toBe(205822572)
     })
 
     it('Block Timestamp', async () => {
-        expect(await tx.getBlockTimestamp()).toBe(1745975487618)
+        expect(await tx.getBlockTimestamp()).toBe(1749451910786)
     })
 
     it('Block Confirmation Count', async () => {
