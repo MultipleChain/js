@@ -1,4 +1,4 @@
-import { suiWallet } from './icons'
+import { slush } from './icons'
 import type { WalletProvider } from '../Wallet'
 import { WalletAdapter } from '@suiet/wallet-sdk'
 import type { Provider } from '../../services/Provider'
@@ -6,13 +6,13 @@ import { adapterToProvider, getWalletByName } from './standard'
 import type { WalletAdapterInterface } from '@multiplechain/types'
 import { ErrorTypeEnum, WalletPlatformEnum } from '@multiplechain/types'
 
-const wallet = getWalletByName('Sui Wallet')
+const wallet = getWalletByName('Slush')
 
-const SuiWallet: WalletAdapterInterface<Provider, WalletProvider> = {
-    id: 'suiwallet',
-    name: 'Sui Wallet',
-    icon: suiWallet,
-    downloadLink: 'https://suiwallet.com/',
+const Slush: WalletAdapterInterface<Provider, WalletProvider> = {
+    id: 'slush',
+    name: 'Slush',
+    icon: slush,
+    downloadLink: 'https://slush.app/',
     platforms: [WalletPlatformEnum.BROWSER, WalletPlatformEnum.MOBILE],
     isDetected: () => Boolean(wallet),
     isConnected: () => Boolean(wallet?.accounts.length),
@@ -22,7 +22,7 @@ const SuiWallet: WalletAdapterInterface<Provider, WalletProvider> = {
                 await new WalletAdapter(wallet).disconnect()
             }
         } catch (error) {
-            console.error('Error disconnecting from Sui Wallet:', error)
+            console.error('Error disconnecting from Slush:', error)
         }
     },
     connect: async (provider?: Provider) => {
@@ -47,4 +47,4 @@ const SuiWallet: WalletAdapterInterface<Provider, WalletProvider> = {
     }
 }
 
-export default SuiWallet
+export default Slush

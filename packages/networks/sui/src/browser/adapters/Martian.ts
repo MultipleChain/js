@@ -55,7 +55,7 @@ const Martian: WalletAdapterInterface<Provider, WalletProvider> = {
     name: 'Martian',
     platforms: [WalletPlatformEnum.BROWSER],
     downloadLink: 'https://martianwallet.xyz/',
-    isDetected: () => Boolean(window.martian.sui),
+    isDetected: () => Boolean(window.martian?.sui),
     isConnected: () => Boolean(wallet?.accounts.length),
     disconnect: async () => {
         try {
@@ -71,7 +71,7 @@ const Martian: WalletAdapterInterface<Provider, WalletProvider> = {
             throw new Error(ErrorTypeEnum.PROVIDER_IS_REQUIRED)
         }
 
-        if (!wallet || !window.martian.sui) {
+        if (!wallet || !window.martian?.sui) {
             throw new Error(ErrorTypeEnum.WALLET_CONNECTION_FAILED)
         }
 
