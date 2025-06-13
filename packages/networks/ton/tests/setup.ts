@@ -7,7 +7,7 @@ try {
 } catch (e) {
     provider = new Provider({
         testnet: true,
-        apiKey: '0a804e1153b5dec04715342789d68c219845e3f1336da822399d7b180a5b5533'
+        apiKey: '335ae92038c1cdb31a5446726d35d79ad36ede8fd254febd2fb55ee3cfd2d7f2'
     })
 }
 
