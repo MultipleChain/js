@@ -1,6 +1,7 @@
 import icons from './icons'
 import { networks } from '../../index'
 import type { EIP1193Provider } from './EIP6963'
+import { OptionsController } from '@web3modal/core'
 import type { Provider } from '../../services/Provider'
 import type { Chain } from '@web3modal/scaffold-utils/ethers'
 import { createWeb3Modal, defaultConfig } from '@web3modal/ethers'
@@ -147,6 +148,7 @@ const Web3Wallets: WalletAdapterInterface<Provider, EIP1193Provider> = {
         return await new Promise((resolve, reject) => {
             try {
                 const wallets = createWeb3Wallets(config)
+                OptionsController.setCustomWallets(config.customWallets ?? [])
                 connectRejectMethod = async (reason) => {
                     await wallets.disconnect()
                     reject(reason)
