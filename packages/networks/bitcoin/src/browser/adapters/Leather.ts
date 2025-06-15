@@ -52,8 +52,12 @@ const Leather: WalletAdapterInterface<Provider, WalletProvider> = {
                         try {
                             leather
                                 .request('sendTransfer', {
-                                    address: to,
-                                    amount,
+                                    recipients: [
+                                        {
+                                            address: to,
+                                            amount: String(amount)
+                                        }
+                                    ],
                                     network
                                 })
                                 .then((response) => {
