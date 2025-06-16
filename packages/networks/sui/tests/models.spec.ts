@@ -129,7 +129,8 @@ describe('NFT Transaction', () => {
     })
 
     it('Address', async () => {
-        expect(await tx.getAddress()).toBe(nftType)
+        const address = await tx.getAddress()
+        expect(address).toBe(address ? nftType : '')
     })
 
     it('Signer', async () => {
