@@ -6,17 +6,16 @@ import { adapterToProvider, getWalletByName } from './standard'
 import type { WalletAdapterInterface } from '@multiplechain/types'
 import { ErrorTypeEnum, WalletPlatformEnum } from '@multiplechain/types'
 
-const wallet = getWalletByName('Surf Wallet')
-
 const SurfWallet: WalletAdapterInterface<Provider, WalletProvider> = {
     icon: surfWallet,
     id: 'surfwallet',
     name: 'Surf Wallet',
     platforms: [WalletPlatformEnum.BROWSER, WalletPlatformEnum.MOBILE],
     downloadLink: 'https://surf.tech/',
-    isDetected: () => Boolean(wallet),
-    isConnected: () => Boolean(wallet?.accounts.length),
+    isDetected: () => Boolean(getWalletByName('Surf Wallet')),
+    isConnected: () => Boolean(getWalletByName('Surf Wallet')?.accounts.length),
     disconnect: async () => {
+        const wallet = getWalletByName('Surf Wallet')
         try {
             if (wallet) {
                 await new WalletAdapter(wallet).disconnect()
@@ -26,6 +25,7 @@ const SurfWallet: WalletAdapterInterface<Provider, WalletProvider> = {
         }
     },
     connect: async (provider?: Provider) => {
+        const wallet = getWalletByName('Surf Wallet')
         if (provider === undefined) {
             throw new Error(ErrorTypeEnum.PROVIDER_IS_REQUIRED)
         }

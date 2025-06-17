@@ -17,8 +17,6 @@ declare global {
     }
 }
 
-const wallet = getWalletByName('Phantom')
-
 const Phantom: WalletAdapterInterface<Provider, WalletProvider> = {
     icon: phantom,
     id: 'phantom',
@@ -35,6 +33,7 @@ const Phantom: WalletAdapterInterface<Provider, WalletProvider> = {
         return Boolean(await window.phantom?.sui?.requestAccount())
     },
     disconnect: async () => {
+        const wallet = getWalletByName('Phantom')
         try {
             if (wallet) {
                 await new WalletAdapter(wallet).disconnect()
@@ -44,6 +43,7 @@ const Phantom: WalletAdapterInterface<Provider, WalletProvider> = {
         }
     },
     connect: async (provider?: Provider) => {
+        const wallet = getWalletByName('Phantom')
         if (provider === undefined) {
             throw new Error(ErrorTypeEnum.PROVIDER_IS_REQUIRED)
         }

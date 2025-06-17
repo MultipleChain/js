@@ -6,17 +6,16 @@ import { adapterToProvider, getWalletByName } from './standard'
 import type { WalletAdapterInterface } from '@multiplechain/types'
 import { ErrorTypeEnum, WalletPlatformEnum } from '@multiplechain/types'
 
-const wallet = getWalletByName('Slush')
-
 const Slush: WalletAdapterInterface<Provider, WalletProvider> = {
     id: 'slush',
     name: 'Slush',
     icon: slush,
     downloadLink: 'https://slush.app/',
     platforms: [WalletPlatformEnum.BROWSER, WalletPlatformEnum.MOBILE],
-    isDetected: () => Boolean(wallet),
-    isConnected: () => Boolean(wallet?.accounts.length),
+    isDetected: () => Boolean(getWalletByName('Slush')),
+    isConnected: () => Boolean(getWalletByName('Slush')?.accounts.length),
     disconnect: async () => {
+        const wallet = getWalletByName('Slush')
         try {
             if (wallet) {
                 await new WalletAdapter(wallet).disconnect()
@@ -26,6 +25,7 @@ const Slush: WalletAdapterInterface<Provider, WalletProvider> = {
         }
     },
     connect: async (provider?: Provider) => {
+        const wallet = getWalletByName('Slush')
         if (provider === undefined) {
             throw new Error(ErrorTypeEnum.PROVIDER_IS_REQUIRED)
         }
