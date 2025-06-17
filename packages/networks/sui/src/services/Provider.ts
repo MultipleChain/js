@@ -6,7 +6,7 @@ import {
 import { checkWebSocket } from '@multiplechain/utils'
 import { SuiClient, SuiHTTPTransport } from '@mysten/sui/client'
 
-export interface SolanaNodeInfoInterface {
+export interface SuiNodeInfoInterface {
     name: string
     wsUrl?: string
     rpcUrl: string
@@ -14,7 +14,7 @@ export interface SolanaNodeInfoInterface {
     mode: 'mainnet' | 'testnet'
 }
 
-export type SolanaNodeInfoListInterface = Record<string, SolanaNodeInfoInterface>
+export type SuiNodeInfoListInterface = Record<string, SuiNodeInfoInterface>
 
 export class Provider implements ProviderInterface {
     /**
@@ -25,7 +25,7 @@ export class Provider implements ProviderInterface {
     /**
      * Node list
      */
-    nodes: SolanaNodeInfoListInterface = {
+    nodes: SuiNodeInfoListInterface = {
         mainnet: {
             name: 'Mainnet',
             mode: 'mainnet',
@@ -45,7 +45,7 @@ export class Provider implements ProviderInterface {
     /**
      * Node information
      */
-    node: SolanaNodeInfoInterface
+    node: SuiNodeInfoInterface
 
     /**
      * Sui client
