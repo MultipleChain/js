@@ -215,8 +215,6 @@ export class TransactionListener<
             txId: ''
         }
 
-        console.log('Received data:', data)
-
         if (this.provider.isTestnet()) {
             const tx = data['address-transactions']?.[0] ?? data['block-transactions']?.[0]
             values.txId = tx.txid

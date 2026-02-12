@@ -29,3 +29,5 @@ index.html
 *.njsproj
 *.sln
 *.sw?
+
+.npmrc
