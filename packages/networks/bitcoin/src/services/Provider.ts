@@ -37,11 +37,6 @@ export class Provider implements ProviderInterface<BitcoinNetworkConfigInterface
     blockCypherToken?: string
 
     /**
-     * Default BlockCypher token
-     */
-    defaultBlockCypherToken = '49d43a59a4f24d31a9731eb067ab971c'
-
-    /**
      * Static instance of the provider
      */
     private static _instance: Provider
@@ -125,8 +120,7 @@ export class Provider implements ProviderInterface<BitcoinNetworkConfigInterface
         if (testnet) {
             this.api = 'https://blockstream.info/testnet/api/'
             this.explorer = 'https://blockstream.info/testnet/'
-            const token = this.network.blockCypherToken ?? this.defaultBlockCypherToken
-            this.wsUrl = 'wss://socket.blockcypher.com/v1/btc/test3?token=' + token
+            this.wsUrl = 'wss://mempool.space/testnet/api/v1/ws'
         } else {
             this.api = 'https://blockstream.info/api/'
             this.explorer = 'https://blockstream.info/'

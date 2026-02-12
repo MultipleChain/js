@@ -157,10 +157,6 @@ export class TransactionListener<
         }
     }
 
-    isBlockCypherProcess(): boolean {
-        return this.provider.isTestnet() || this.provider.blockCypherToken !== undefined
-    }
-
     /**
      * Create message for the listener
      * @param receiver - Receiver address
@@ -168,7 +164,11 @@ export class TransactionListener<
      */
     createMessage(receiver?: string): string {
         let message
-        if (this.isBlockCypherProcess()) {
+        if (this.provider.isTestnet()) {
+            message = JSON.stringify({
+                'track-address': receiver
+            })
+        } else if (this.provider.blockCypherToken !== undefined) {
             interface Config {
                 event: string
                 token: string
@@ -177,7 +177,7 @@ export class TransactionListener<
 
             const config: Config = {
                 event: 'unconfirmed-tx',
-                token: this.provider.blockCypherToken ?? this.provider.defaultBlockCypherToken
+                token: this.provider.blockCypherToken
             }
 
             if (receiver !== undefined) {
@@ -192,7 +192,7 @@ export class TransactionListener<
         }
 
         this.dynamicStop = () => {
-            if (!this.isBlockCypherProcess()) {
+            if (this.provider.blockCypherToken === undefined) {
                 this.webSocket.send(
                     JSON.stringify({
                         op: 'unconfirmed_unsub'
@@ -215,7 +215,15 @@ export class TransactionListener<
             txId: ''
         }
 
-        if (this.isBlockCypherProcess()) {
+        console.log('Received data:', data)
+
+        if (this.provider.isTestnet()) {
+            const tx = data['address-transactions']?.[0] ?? data['block-transactions']?.[0]
+            values.txId = tx.txid
+            values.sender = tx.vin[0].prevout.scriptpubkey_address
+            values.receiver = tx.vout[0].scriptpubkey_address
+            values.amount = fromSatoshi(tx.vout[0].value as number)
+        } else if (this.provider.blockCypherToken !== undefined) {
             values.txId = data.hash
             values.sender = data.inputs[0].addresses[0]
             values.receiver = data.outputs[0].addresses[0]
@@ -234,14 +242,24 @@ export class TransactionListener<
      * General transaction process
      */
     generalProcess(): void {
-        const message = this.createMessage()
+        if (this.provider.isTestnet() && this.filter?.signer === undefined) {
+            throw new Error('General transaction listener must have a signer filter in testnet.')
+        }
+
+        const message = this.createMessage(this.filter?.signer)
 
         this.webSocket.addEventListener('open', () => {
             this.webSocket.send(message)
         })
 
         this.webSocket.addEventListener('message', async (res: WebSocket.MessageEvent) => {
-            const values = this.getValues(JSON.parse(res.data as string))
+            const data = JSON.parse(res.data as string)
+
+            if (data.loadingIndicators) {
+                return
+            }
+
+            const values = this.getValues(data)
 
             if (
                 this.filter?.signer !== undefined &&
@@ -288,6 +306,10 @@ export class TransactionListener<
         this.webSocket.addEventListener('message', async (res: WebSocket.MessageEvent) => {
             const data = JSON.parse(res.data as string)
 
+            if (data.loadingIndicators) {
+                return
+            }
+
             interface ParamsType {
                 sender?: string
                 receiver?: string
@@ -296,7 +318,7 @@ export class TransactionListener<
             const expectedParams: ParamsType = {}
             const receivedParams: ParamsType = {}
 
-            if (String(data.event).includes('events limit reached')) {
+            if (data.event && String(data.event).includes('events limit reached')) {
                 throw new Error('BlockCypher events limit reached.')
             }
 
