@@ -23,12 +23,6 @@ export class Provider implements ProviderInterface<NetworkConfigInterface> {
 
     testnetWs = 'wss://s.altnet.rippletest.net:51233'
 
-    testnetRpc2 =
-        'https://young-multi-liquid.xrp-testnet.quiknode.pro/d8af58c32952286972ad82bc5dc1156e70c4a2a0'
-
-    testnetWs2 =
-        'wss://young-multi-liquid.xrp-testnet.quiknode.pro/d8af58c32952286972ad82bc5dc1156e70c4a2a0'
-
     mainnetRpc = 'https://xrplcluster.com'
 
     mainnetWs = 'wss://xrplcluster.com'
@@ -123,10 +117,10 @@ export class Provider implements ProviderInterface<NetworkConfigInterface> {
         Provider._instance = this
         this.explorer = network.testnet ? 'https://testnet.xrpl.org/' : 'https://livenet.xrpl.org/'
         if (!network.rpcUrl) {
-            this.network.rpcUrl = network.testnet ? this.testnetRpc2 : this.mainnetRpc
+            this.network.rpcUrl = network.testnet ? this.testnetRpc : this.mainnetRpc
         }
         if (!network.wsUrl) {
-            this.network.wsUrl = network.testnet ? this.testnetWs2 : this.mainnetWs
+            this.network.wsUrl = network.testnet ? this.testnetWs : this.mainnetWs
         }
         if (!this.network.wsUrl) {
             throw new Error(ErrorTypeEnum.WS_URL_NOT_DEFINED)
