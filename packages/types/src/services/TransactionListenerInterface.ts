@@ -14,31 +14,26 @@ export interface TransactionListenerFilterInterface {
     signer?: WalletAddress
 }
 
-export interface ContractTransactionListenerFilterInterface
-    extends TransactionListenerFilterInterface {
+export interface ContractTransactionListenerFilterInterface extends TransactionListenerFilterInterface {
     address?: ContractAddress
 }
 
-export interface AssetTransactionListenerFilterInterface
-    extends TransactionListenerFilterInterface {
+export interface AssetTransactionListenerFilterInterface extends TransactionListenerFilterInterface {
     sender?: WalletAddress
     receiver?: WalletAddress
 }
 
-export interface CoinTransactionListenerFilterInterface
-    extends AssetTransactionListenerFilterInterface {
+export interface CoinTransactionListenerFilterInterface extends AssetTransactionListenerFilterInterface {
     amount?: TransferAmount
 }
 
 export interface TokenTransactionListenerFilterInterface
-    extends AssetTransactionListenerFilterInterface,
-        ContractTransactionListenerFilterInterface {
+    extends AssetTransactionListenerFilterInterface, ContractTransactionListenerFilterInterface {
     amount?: TransferAmount
 }
 
 export interface NftTransactionListenerFilterInterface
-    extends AssetTransactionListenerFilterInterface,
-        ContractTransactionListenerFilterInterface {
+    extends AssetTransactionListenerFilterInterface, ContractTransactionListenerFilterInterface {
     nftId?: NftId
 }
 /**

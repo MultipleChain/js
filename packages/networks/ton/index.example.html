@@ -176,7 +176,8 @@
             </div>
             <div class="info"><span>Platforms: </span> <span class="platforms"></span></div>
             <div class="info">
-                <span>Connected address: </span> <span class="connected-address" style="font-size: 14px;"></span>
+                <span>Connected address: </span>
+                <span class="connected-address" style="font-size: 14px"></span>
             </div>
             <button class="action-btn sign-message">Sign Message (Personal Sign)</button>
             <div class="action-result"><span>Result:</span> <span class="sign-message"></span></div>
@@ -204,7 +205,8 @@
 
                 const wallet = new TON.browser.Wallet(adapter)
                 const adapterProvider = await wallet.connect({
-                    manifestUrl: 'https://gist.githubusercontent.com/0xBeycan/4ecdb38ae4157278c72398fe4a89508a/raw/cc5ef2f7f308b5ef2a4def51300b033ffe04904b/ton-manifest.json'
+                    manifestUrl:
+                        'https://gist.githubusercontent.com/0xBeycan/4ecdb38ae4157278c72398fe4a89508a/raw/cc5ef2f7f308b5ef2a4def51300b033ffe04904b/ton-manifest.json'
                 })
 
                 document.querySelector('.methods').style.display = 'block'

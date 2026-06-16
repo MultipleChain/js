@@ -5,9 +5,10 @@ import { Keypair, VersionedTransaction, Transaction as RawTransaction } from '@s
 
 type SignedTransaction = Buffer | Uint8Array
 
-export class TransactionSigner
-    implements TransactionSignerInterface<RawTransaction, SignedTransaction>
-{
+export class TransactionSigner implements TransactionSignerInterface<
+    RawTransaction,
+    SignedTransaction
+> {
     /**
      * Transaction data from the blockchain network
      */

@@ -57,7 +57,7 @@ const addBalanceAmount = (owner: string, amount: number, coinType?: string): voi
     balances[owner][key] = String(current + BigInt(mistBalance(amount)))
 }
 
-const buildObjectResponse = (id: string) => {
+const buildObjectResponse = (id: string): Record<string, unknown> => {
     const nftMetadata = nftMetadataById[id]
 
     if (nftMetadata) {
@@ -103,7 +103,9 @@ export const createMockClient = (): SuiClient => {
         getTransactionBlock: vi.fn(async ({ digest }: { digest: string }) => {
             const fixture = transactionFixtures[digest]
             if (!fixture) {
-                throw new Error(`Could not find the referenced transaction [TransactionDigest(${digest})].`)
+                throw new Error(
+                    `Could not find the referenced transaction [TransactionDigest(${digest})].`
+                )
             }
             return structuredClone(fixture)
         }),
@@ -126,24 +128,22 @@ export const createMockClient = (): SuiClient => {
             }
             return { value: '0' }
         }),
-        getCoins: vi.fn(
-            async ({ owner, coinType }: { owner: string; coinType?: string }) => {
-                const isSui = !coinType || coinType === '0x2::sui::SUI'
-                const coinObjectId = isSui ? mockCoinObjectId : mockTokenCoinObjectId
+        getCoins: vi.fn(async ({ owner, coinType }: { owner: string; coinType?: string }) => {
+            const isSui = !coinType || coinType === '0x2::sui::SUI'
+            const coinObjectId = isSui ? mockCoinObjectId : mockTokenCoinObjectId
 
-                return {
-                    data: [
-                        {
-                            coinObjectId,
-                            balance: getBalanceAmount(owner, coinType),
-                            version: '1',
-                            digest: mockDigest,
-                            previousTransaction: mockDigest
-                        }
-                    ]
-                }
+            return {
+                data: [
+                    {
+                        coinObjectId,
+                        balance: getBalanceAmount(owner, coinType),
+                        version: '1',
+                        digest: mockDigest,
+                        previousTransaction: mockDigest
+                    }
+                ]
             }
-        ),
+        }),
         getObject: vi.fn(async ({ id }: { id: string }) => {
             if (id === '0x1') {
                 return { data: { objectId: '0x1' } }
@@ -154,7 +154,11 @@ export const createMockClient = (): SuiClient => {
         getOwnedObjects: vi.fn(
             async ({ owner, filter }: { owner: string; filter?: { StructType?: string } }) => {
                 if (filter?.StructType === nftTestAddress && owner === balanceTestAddress) {
-                    return { data: Array.from({ length: nftBalanceTestAmount }, (_, index) => ({ data: { objectId: `nft-${index}` } })) }
+                    return {
+                        data: Array.from({ length: nftBalanceTestAmount }, (_, index) => ({
+                            data: { objectId: `nft-${index}` }
+                        }))
+                    }
                 }
                 if (filter?.StructType === nftTestAddress) {
                     return { data: [{ data: { objectId: Object.keys(nftMetadataById)[0] } }] }

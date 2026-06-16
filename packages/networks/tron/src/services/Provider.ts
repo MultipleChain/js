@@ -113,7 +113,7 @@ export class Provider implements ProviderInterface {
     update(network: NetworkConfigInterface): void {
         this.network = network
         Provider._instance = this
-        this.node = this.nodes[network.testnet ?? false ? 'testnet' : 'mainnet']
+        this.node = this.nodes[(network.testnet ?? false) ? 'testnet' : 'mainnet']
         this.node.host = this.network.rpcUrl ?? this.node.host
         this.node.event = this.network.wsUrl ?? this.node.event
         this.tronWeb = new TronWeb({

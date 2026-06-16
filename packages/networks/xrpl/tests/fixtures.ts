@@ -16,7 +16,7 @@ export const balanceTestAddress = String(process.env.XRP_BALANCE_TEST_ADDRESS)
 export const coinBalanceTestAmount = Number(process.env.XRP_COIN_BALANCE_TEST_AMOUNT)
 export const transferTestAmount = Number(process.env.XRP_TRANSFER_AMOUNT)
 
-const buildPaymentTx = (hash: string) => ({
+const buildPaymentTx = (hash: string): Record<string, unknown> => ({
     hash,
     Account: sender,
     Destination: receiver,

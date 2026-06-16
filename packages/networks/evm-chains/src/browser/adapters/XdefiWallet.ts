@@ -19,8 +19,7 @@ const XdefiWallet: WalletAdapterInterface<Provider, EIP1193Provider> = {
         return await new Promise((resolve, reject) => {
             const xfi = window?.xfi?.ethereum
             try {
-                xfi
-                    ?.request({ method: 'eth_requestAccounts' })
+                xfi?.request({ method: 'eth_requestAccounts' })
                     .then(() => {
                         switcher(xfi, provider)
                             .then(() => {

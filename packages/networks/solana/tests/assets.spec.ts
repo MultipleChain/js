@@ -43,7 +43,7 @@ const nftTestAddress = String(process.env.SOL_NFT_TEST_ADDRESS)
 const rpcDelaySeconds = Number(process.env.SOL_TEST_RPC_DELAY_SECONDS ?? 5)
 
 const waitSecondsBeforeThanNewTx = async (seconds: number = rpcDelaySeconds): Promise<void> => {
-    return await new Promise((resolve) => setTimeout(resolve, seconds * 1000))
+    await new Promise((resolve) => setTimeout(resolve, seconds * 1000))
 }
 
 const isRateLimitError = (error: unknown): boolean => {

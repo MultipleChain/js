@@ -99,9 +99,7 @@ export class Provider implements ProviderInterface {
     async checkRpcConnection(url?: string): Promise<boolean | Error> {
         try {
             const client =
-                url === undefined || url === this.node.rpcUrl
-                    ? this.client
-                    : new SuiClient({ url })
+                url === undefined || url === this.node.rpcUrl ? this.client : new SuiClient({ url })
             await client.getObject({
                 id: '0x1'
             })
@@ -143,7 +141,7 @@ export class Provider implements ProviderInterface {
     update(network: NetworkConfigInterface): void {
         this.network = network
         Provider._instance = this
-        this.node = this.nodes[network.testnet ?? false ? 'testnet' : 'mainnet']
+        this.node = this.nodes[(network.testnet ?? false) ? 'testnet' : 'mainnet']
         this.node.rpcUrl = this.network.rpcUrl ?? this.node.rpcUrl
         this.node.wsUrl = this.network.wsUrl ?? this.node.wsUrl
         this.transport = new SuiHTTPTransport({

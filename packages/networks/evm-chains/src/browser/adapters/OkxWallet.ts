@@ -20,8 +20,7 @@ const OkxWallet: WalletAdapterInterface<Provider, EIP1193Provider> = {
         return await new Promise((resolve, reject) => {
             const okx = window?.okxwallet
             try {
-                okx
-                    ?.request({ method: 'eth_requestAccounts' })
+                okx?.request({ method: 'eth_requestAccounts' })
                     .then(() => {
                         switcher(okx, provider)
                             .then(() => {

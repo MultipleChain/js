@@ -85,7 +85,7 @@ export class Provider implements ProviderInterface<EvmNetworkConfigInterface> {
         } catch (error) {
             return error as Error
         } finally {
-            await rpc.destroy()
+            rpc.destroy()
         }
     }
 

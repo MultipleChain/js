@@ -50,7 +50,7 @@ const successEffects = {
 const programmableTransaction = (
     amountMist: number,
     extraInputs: Array<Record<string, unknown>> = []
-) => ({
+): Record<string, unknown> => ({
     kind: 'ProgrammableTransaction' as const,
     inputs: [
         { type: 'pure' as const, valueType: 'address', value: receiver },
@@ -85,9 +85,7 @@ export const transactionFixtures: Record<string, Record<string, unknown>> = {
         transaction: {
             data: {
                 sender,
-                transaction: programmableTransaction(
-                    Math.round(tokenAmount * 1_000_000_000)
-                )
+                transaction: programmableTransaction(Math.round(tokenAmount * 1_000_000_000))
             }
         },
         effects: successEffects,

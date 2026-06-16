@@ -53,7 +53,11 @@ describe('Coin', () => {
     })
 
     it('Transfer', async () => {
-        const signer = await coin.transfer(senderTestAddress, receiverTestAddress, transferTestAmount)
+        const signer = await coin.transfer(
+            senderTestAddress,
+            receiverTestAddress,
+            transferTestAmount
+        )
 
         await checkSigner(signer)
 

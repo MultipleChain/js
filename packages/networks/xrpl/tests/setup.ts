@@ -8,7 +8,7 @@ const provider = new Provider({
 })
 
 provider.rpc = createMockClient()
-provider.ws = {
+const mockWs: typeof provider.ws = {
     connect: vi.fn(async () => undefined),
     disconnect: vi.fn(async () => undefined),
     isConnected: vi.fn(() => false),
@@ -18,7 +18,8 @@ provider.ws = {
         Sequence: 1,
         LastLedgerSequence: mockLatestLedger
     }))
-} as typeof provider.ws
+}
+provider.ws = mockWs
 
 provider.checkRpcConnection = vi.fn(async () => true)
 provider.checkWsConnection = vi.fn(async () => true)
