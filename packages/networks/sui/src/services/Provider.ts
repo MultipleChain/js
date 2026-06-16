@@ -98,7 +98,10 @@ export class Provider implements ProviderInterface {
      */
     async checkRpcConnection(url?: string): Promise<boolean | Error> {
         try {
-            const client = new SuiClient({ url: url ?? this.node.rpcUrl })
+            const client =
+                url === undefined || url === this.node.rpcUrl
+                    ? this.client
+                    : new SuiClient({ url })
             await client.getObject({
                 id: '0x1'
             })

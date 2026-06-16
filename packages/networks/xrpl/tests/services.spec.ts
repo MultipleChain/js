@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 
+import './setup'
 import { provider } from './setup'
 import { Provider } from '../src/services/Provider'
 import { TransactionListener } from '../src/services/TransactionListener'

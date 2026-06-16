@@ -1,24 +1,25 @@
 import { describe, it, expect } from 'vitest'
 
+import './setup'
 import { Transaction } from '../src/models/Transaction'
 import { NftTransaction } from '../src/models/NftTransaction'
 import { CoinTransaction } from '../src/models/CoinTransaction'
 import { TokenTransaction } from '../src/models/TokenTransaction'
 import { AssetDirectionEnum, TransactionStatusEnum } from '@multiplechain/types'
-
-const nftObjectId = String(process.env.SUI_MODEL_NFT_OBJECT_ID)
-const tokenAmount = Number(process.env.SUI_MODEL_TOKEN_AMOUNT)
-const coinAmount = Number(process.env.SUI_MODEL_COIN_AMOUNT)
-
-const tokenType = String(process.env.SUI_TOKEN_TYPE_ADDRESS)
-const nftType = String(process.env.SUI_NFT_TYPE_ADDRESS)
-
-const suiTransferTx = String(process.env.SUI_TRANSFER_TX)
-const tokenTransferTx = String(process.env.SUI_TOKEN_TRANSFER_TX)
-const nftTransferTx = String(process.env.SUI_NFT_TRANSFER_TX)
-
-const sender = String(process.env.SUI_MODEL_TEST_SENDER)
-const receiver = String(process.env.SUI_MODEL_TEST_RECEIVER)
+import {
+    mockBlockNumber,
+    mockBlockTimestamp,
+    nftObjectId,
+    nftTransferTx,
+    senderTestAddress as sender,
+    receiverTestAddress as receiver,
+    suiTransferTx,
+    tokenAmount,
+    coinAmount,
+    tokenTestAddress as tokenType,
+    nftTestAddress as nftType,
+    tokenTransferTx
+} from './fixtures'
 
 describe('Transaction', () => {
     const tx = new Transaction(suiTransferTx)
@@ -35,9 +36,7 @@ describe('Transaction', () => {
     })
 
     it('URL', async () => {
-        expect(tx.getUrl()).toBe(
-            'https://suiscan.xyz/testnet/tx/38rQ6ThScL69gSLaWez9i8kj3CEw6eyqjkCoNPbcxPKN'
-        )
+        expect(tx.getUrl()).toBe(`https://suiscan.xyz/testnet/tx/${suiTransferTx}`)
     })
 
     it('Sender', async () => {
@@ -49,11 +48,11 @@ describe('Transaction', () => {
     })
 
     it('Block Number', async () => {
-        expect(await tx.getBlockNumber()).toBe(205822572)
+        expect(await tx.getBlockNumber()).toBe(mockBlockNumber)
     })
 
     it('Block Timestamp', async () => {
-        expect(await tx.getBlockTimestamp()).toBe(1749451910786)
+        expect(await tx.getBlockTimestamp()).toBe(mockBlockTimestamp)
     })
 
     it('Block Confirmation Count', async () => {

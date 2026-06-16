@@ -1,5 +1,6 @@
 import { describe, it, expect, assert } from 'vitest'
 
+import './setup'
 import { NFT } from '../src/assets/NFT'
 import { Coin } from '../src/assets/Coin'
 import { Token } from '../src/assets/Token'
