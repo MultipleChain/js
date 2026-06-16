@@ -15,10 +15,19 @@ import {
     type TransactionId,
     type WalletAddress
 } from '@multiplechain/types'
-import { sleep, checkWebSocket } from '@multiplechain/utils'
+import { sleep } from '@multiplechain/utils'
 import type { EvmNetworkConfigInterface } from './Provider'
 import type { TransactionData } from '../services/TransactionSigner'
-import { Wallet, Contract, ContractFactory, JsonRpcProvider, WebSocketProvider } from 'ethers'
+import {
+    Wallet,
+    Contract,
+    ContractFactory,
+    JsonRpcProvider,
+    Network,
+    WebSocketProvider
+} from 'ethers'
+
+const WS_CONNECT_TIMEOUT_MS = 10_000
 
 export type { EthersError } from 'ethers'
 
@@ -43,7 +52,9 @@ export class Ethers {
      */
     constructor(network: EvmNetworkConfigInterface) {
         this.network = network
-        this.jsonRpcProvider = new JsonRpcProvider(network.rpcUrl)
+        this.jsonRpcProvider = new JsonRpcProvider(network.rpcUrl, Network.from(network.id), {
+            staticNetwork: true
+        })
     }
 
     /**
@@ -61,25 +72,40 @@ export class Ethers {
     }
 
     /**
+     * Drop cached websocket so the next connect opens a fresh socket.
+     */
+    public resetWebSocket(): void {
+        this.webSocketProvider = undefined
+    }
+
+    /**
      * @returns Ethers webSocket provider
      */
     public async connectWebSocket(): Promise<WebSocketProvider> {
-        return await new Promise((resolve, reject) => {
-            if (this.network.wsUrl === undefined) {
-                reject(new Error(ErrorTypeEnum.WS_URL_NOT_DEFINED))
-            } else {
-                const url = this.network.wsUrl
-                checkWebSocket(url)
-                    .then((status: any) => {
-                        if (status instanceof Error) {
-                            reject(status)
-                        } else {
-                            resolve((this.webSocketProvider = new WebSocketProvider(url)))
-                        }
-                    })
-                    .catch(reject)
-            }
+        if (this.network.wsUrl === undefined) {
+            throw new Error(ErrorTypeEnum.WS_URL_NOT_DEFINED)
+        }
+
+        if (this.webSocketProvider !== undefined) {
+            return this.webSocketProvider
+        }
+
+        const url = this.network.wsUrl
+        const provider = new WebSocketProvider(url, Network.from(this.network.id), {
+            staticNetwork: true
         })
+
+        await Promise.race([
+            provider.getBlockNumber(),
+            new Promise<never>((_resolve, reject) => {
+                setTimeout(() => {
+                    reject(new Error(ErrorTypeEnum.WS_CONNECTION_FAILED))
+                }, WS_CONNECT_TIMEOUT_MS)
+            })
+        ])
+
+        this.webSocketProvider = provider
+        return provider
     }
 
     /**

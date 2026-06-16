@@ -14,7 +14,7 @@ import { Transaction } from '../models/Transaction'
 import { NftTransaction } from '../models/NftTransaction'
 import { CoinTransaction } from '../models/CoinTransaction'
 import { TokenTransaction } from '../models/TokenTransaction'
-import { ErrorTypeEnum, TransactionListenerProcessIndex } from '@multiplechain/types'
+import { TransactionListenerProcessIndex } from '@multiplechain/types'
 import { ContractTransaction } from '../models/ContractTransaction'
 import {
     type WebSocketProvider,
@@ -37,6 +37,13 @@ type TransactionListenerCallbackType<
     T extends TransactionTypeEnum,
     Transaction = TransactionListenerTriggerType<T>
 > = (transaction: Transaction) => void
+
+interface RawWebSocket {
+    on: (event: string, handler: (...args: any[]) => void) => void
+    removeListener: (event: string, handler: (...args: any[]) => void) => void
+    readyState?: number
+    close: () => void
+}
 
 export class TransactionListener<
     T extends TransactionTypeEnum,
@@ -72,7 +79,7 @@ export class TransactionListener<
     /**
      * WebSocket provider
      */
-    webSocket: WebSocketProvider
+    webSocket?: WebSocketProvider
 
     /**
      * Transaction listener callback
@@ -95,6 +102,27 @@ export class TransactionListener<
     filter?: DynamicTransactionListenerFilterType<T> | Record<string, never>
 
     /**
+     * Whether stop() was called intentionally
+     */
+    private intentionalStop = false
+
+    /**
+     * Reconnect backoff in milliseconds
+     */
+    private reconnectDelayMs = 1_000
+
+    /**
+     * Pending reconnect timer
+     */
+    private reconnectTimer?: ReturnType<typeof setTimeout>
+
+    /**
+     * Bound websocket resilience handlers
+     */
+    private wsCloseHandler?: () => void
+    private wsErrorHandler?: (error: Error) => void
+
+    /**
      * @param type - Transaction type
      * @param filter - Transaction listener filter
      * @param provider - Provider
@@ -113,6 +141,9 @@ export class TransactionListener<
     stop(): void {
         if (this.status) {
             this.status = false
+            this.intentionalStop = true
+            this.clearReconnectTimer()
+            this.unbindWebSocketResilience()
             this.dynamicStop()
         }
     }
@@ -123,8 +154,8 @@ export class TransactionListener<
     start(): void {
         if (!this.status) {
             this.status = true
-            // @ts-expect-error allow dynamic access
-            this[TransactionListenerProcessIndex[this.type]]()
+            this.intentionalStop = false
+            this.restartSubscriptions()
         }
     }
 
@@ -142,17 +173,9 @@ export class TransactionListener<
      * @returns - listener status
      */
     async on(callback: CallBackType): Promise<boolean> {
-        if (this.webSocket === undefined) {
-            const socket = await this.provider.ethers.connectWebSocket()
-            if (typeof socket === 'string') {
-                throw new Error(ErrorTypeEnum.WS_CONNECTION_FAILED)
-            } else {
-                this.webSocket = socket
-            }
-        }
-
-        this.start()
+        await this.ensureWebSocket()
         this.callbacks.push(callback)
+        this.start()
 
         return true
     }
@@ -170,6 +193,153 @@ export class TransactionListener<
         }
     }
 
+    private clearReconnectTimer(): void {
+        if (this.reconnectTimer !== undefined) {
+            clearTimeout(this.reconnectTimer)
+            this.reconnectTimer = undefined
+        }
+    }
+
+    private getRawWebSocket(): RawWebSocket | undefined {
+        if (this.webSocket === undefined) {
+            return undefined
+        }
+
+        const provider = this.webSocket as WebSocketProvider & {
+            _websocket?: RawWebSocket
+            websocket?: RawWebSocket
+        }
+
+        return provider._websocket ?? provider.websocket
+    }
+
+    private unbindWebSocketResilience(): void {
+        const raw = this.getRawWebSocket()
+
+        if (raw === undefined) {
+            return
+        }
+
+        if (this.wsCloseHandler !== undefined) {
+            raw.removeListener('close', this.wsCloseHandler)
+            this.wsCloseHandler = undefined
+        }
+
+        if (this.wsErrorHandler !== undefined) {
+            raw.removeListener('error', this.wsErrorHandler)
+            this.wsErrorHandler = undefined
+        }
+    }
+
+    private bindWebSocketResilience(): void {
+        const raw = this.getRawWebSocket()
+
+        if (raw === undefined || this.wsCloseHandler !== undefined) {
+            return
+        }
+
+        this.wsCloseHandler = (): void => {
+            if (this.intentionalStop || !this.status) {
+                return
+            }
+
+            this.scheduleReconnect()
+        }
+
+        this.wsErrorHandler = (): void => {
+            if (this.intentionalStop || !this.status) {
+                return
+            }
+
+            if (raw.readyState === 1) {
+                raw.close()
+            }
+        }
+
+        raw.on('close', this.wsCloseHandler)
+        raw.on('error', this.wsErrorHandler)
+    }
+
+    private scheduleReconnect(): void {
+        if (this.intentionalStop || !this.status || this.reconnectTimer !== undefined) {
+            return
+        }
+
+        this.dynamicStop()
+        this.unbindWebSocketResilience()
+
+        try {
+            void this.webSocket?.destroy()
+        } catch {
+            /* ignore */
+        }
+
+        this.webSocket = undefined
+        this.ethers.resetWebSocket()
+
+        this.reconnectTimer = setTimeout(() => {
+            this.reconnectTimer = undefined
+            void this.reconnect()
+        }, this.reconnectDelayMs)
+
+        this.reconnectDelayMs = Math.min(this.reconnectDelayMs * 2, 30_000)
+    }
+
+    private async reconnect(): Promise<void> {
+        if (this.intentionalStop || !this.status) {
+            return
+        }
+
+        try {
+            await this.ensureWebSocket()
+            this.restartSubscriptions()
+            this.reconnectDelayMs = 1_000
+        } catch {
+            this.scheduleReconnect()
+        }
+    }
+
+    private async ensureWebSocket(): Promise<void> {
+        if (this.webSocket === undefined) {
+            const socket = await this.provider.ethers.connectWebSocket()
+            this.webSocket = socket
+            this.bindWebSocketResilience()
+        }
+    }
+
+    private restartSubscriptions(): void {
+        this.dynamicStop()
+        // @ts-expect-error allow dynamic access
+        this[TransactionListenerProcessIndex[this.type]]()
+    }
+
+    private matchesCoinTransfer(
+        tx: TransactionResponse,
+        filter: DynamicTransactionListenerFilterType<TransactionTypeEnum.COIN>
+    ): boolean {
+        const sender = filter.sender ?? filter.signer
+
+        interface ParamsType {
+            sender?: string
+            receiver?: string
+        }
+
+        const expectedParams: ParamsType = {}
+        const receivedParams: ParamsType = {}
+
+        if (sender !== undefined) {
+            expectedParams.sender = sender.toLowerCase()
+            receivedParams.sender = tx.from.toLowerCase()
+        }
+
+        if (filter.receiver !== undefined) {
+            expectedParams.receiver = filter.receiver.toLowerCase()
+            receivedParams.receiver = tx.to?.toLowerCase()
+        }
+
+        return objectsEqual(expectedParams, receivedParams)
+    }
+
     /**
      * General transaction process
      */
@@ -185,9 +355,9 @@ export class TransactionListener<
             this.trigger(new Transaction(transactionId))
         }
 
-        void this.webSocket.on('pending', callback)
+        void this.webSocket?.on('pending', callback)
         this.dynamicStop = () => {
-            void this.webSocket.off('pending', callback)
+            void this.webSocket?.off('pending', callback)
         }
     }
 
@@ -257,9 +427,9 @@ export class TransactionListener<
             this.trigger(new ContractTransaction(transaction.hash))
         }
 
-        void this.webSocket.on(params, callback)
+        void this.webSocket?.on(params, callback)
         this.dynamicStop = () => {
-            void this.webSocket.off(params, callback)
+            void this.webSocket?.off(params, callback)
         }
     }
 
@@ -279,59 +449,43 @@ export class TransactionListener<
             )
         }
 
-        const callback = async (transactionId: string): Promise<void> => {
-            const tx = await this.ethers.getTransaction(transactionId)
+        const callback = async (blockNumber: number): Promise<void> => {
+            const block = await this.ethers.getBlock(blockNumber, true)
 
-            if (tx === null) {
+            if (block === null) {
                 return
             }
 
-            const sender = filter.sender ?? filter.signer
+            const transactions = block.prefetchedTransactions ?? []
 
-            interface ParamsType {
-                sender?: string
-                receiver?: string
-            }
-
-            const expectedParams: ParamsType = {}
-            const receivedParams: ParamsType = {}
-
-            if (sender !== undefined) {
-                expectedParams.sender = sender.toLowerCase()
-                receivedParams.sender = tx.from.toLowerCase()
-            }
-
-            if (filter.receiver !== undefined) {
-                expectedParams.receiver = filter.receiver.toLowerCase()
-                receivedParams.receiver = tx.to?.toLowerCase()
-            }
-
-            if (!objectsEqual(expectedParams, receivedParams)) {
-                return
-            }
-
-            const contractBytecode = await this.ethers.getByteCode(tx?.to ?? '')
-
-            if (contractBytecode !== '0x') {
-                return
-            }
-
-            const transaction = new CoinTransaction(transactionId)
-
-            if (filter.amount !== undefined) {
-                await transaction.wait()
-                const amount = await transaction.getAmount()
-                if (amount !== filter.amount) {
-                    return
+            for (const tx of transactions) {
+                if (tx.hash === undefined || !this.matchesCoinTransfer(tx, filter)) {
+                    continue
                 }
-            }
 
-            this.trigger(transaction)
+                const contractBytecode = await this.ethers.getByteCode(tx.to ?? '')
+
+                if (contractBytecode !== '0x') {
+                    continue
+                }
+
+                const transaction = new CoinTransaction(tx.hash)
+
+                if (filter.amount !== undefined) {
+                    await transaction.wait()
+                    const amount = await transaction.getAmount()
+                    if (amount !== filter.amount) {
+                        continue
+                    }
+                }
+
+                this.trigger(transaction)
+            }
         }
 
-        void this.webSocket.on('pending', callback)
+        void this.webSocket?.on('block', callback)
         this.dynamicStop = () => {
-            void this.webSocket.off('pending', callback)
+            void this.webSocket?.off('block', callback)
         }
     }
 
@@ -396,9 +550,9 @@ export class TransactionListener<
             this.trigger(transaction)
         }
 
-        void this.webSocket.on(params, callback)
+        void this.webSocket?.on(params, callback)
         this.dynamicStop = () => {
-            void this.webSocket.off(params, callback)
+            void this.webSocket?.off(params, callback)
         }
     }
 
@@ -457,9 +611,9 @@ export class TransactionListener<
             this.trigger(transaction)
         }
 
-        void this.webSocket.on(params, callback)
+        void this.webSocket?.on(params, callback)
         this.dynamicStop = () => {
-            void this.webSocket.off(params, callback)
+            void this.webSocket?.off(params, callback)
         }
     }
 }
