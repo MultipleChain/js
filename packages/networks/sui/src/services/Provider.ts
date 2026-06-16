@@ -6,15 +6,15 @@ import {
 import { checkWebSocket } from '@multiplechain/utils'
 import { SuiClient, SuiHTTPTransport } from '@mysten/sui/client'
 
-export interface SolanaNodeInfoInterface {
+export interface SuiNodeInfoInterface {
     name: string
     wsUrl?: string
     rpcUrl: string
     explorerUrl: string
-    mode: 'mainnet' | 'devnet'
+    mode: 'mainnet' | 'testnet'
 }
 
-export type SolanaNodeInfoListInterface = Record<string, SolanaNodeInfoInterface>
+export type SuiNodeInfoListInterface = Record<string, SuiNodeInfoInterface>
 
 export class Provider implements ProviderInterface {
     /**
@@ -25,7 +25,7 @@ export class Provider implements ProviderInterface {
     /**
      * Node list
      */
-    nodes: SolanaNodeInfoListInterface = {
+    nodes: SuiNodeInfoListInterface = {
         mainnet: {
             name: 'Mainnet',
             mode: 'mainnet',
@@ -33,19 +33,19 @@ export class Provider implements ProviderInterface {
             rpcUrl: 'https://fullnode.mainnet.sui.io:443',
             explorerUrl: 'https://suiscan.xyz/mainnet/'
         },
-        devnet: {
-            name: 'Devnet',
-            mode: 'devnet',
-            wsUrl: 'wss://rpc.devnet.sui.io:443',
-            rpcUrl: 'https://fullnode.devnet.sui.io:443',
-            explorerUrl: 'https://suiscan.xyz/devnet/'
+        testnet: {
+            name: 'Testnet',
+            mode: 'testnet',
+            wsUrl: 'wss://rpc.testnet.sui.io:443',
+            rpcUrl: 'https://fullnode.testnet.sui.io:443',
+            explorerUrl: 'https://suiscan.xyz/testnet/'
         }
     }
 
     /**
      * Node information
      */
-    node: SolanaNodeInfoInterface
+    node: SuiNodeInfoInterface
 
     /**
      * Sui client
@@ -98,7 +98,8 @@ export class Provider implements ProviderInterface {
      */
     async checkRpcConnection(url?: string): Promise<boolean | Error> {
         try {
-            const client = new SuiClient({ url: url ?? this.node.rpcUrl })
+            const client =
+                url === undefined || url === this.node.rpcUrl ? this.client : new SuiClient({ url })
             await client.getObject({
                 id: '0x1'
             })
@@ -140,7 +141,7 @@ export class Provider implements ProviderInterface {
     update(network: NetworkConfigInterface): void {
         this.network = network
         Provider._instance = this
-        this.node = this.nodes[network.testnet ?? false ? 'devnet' : 'mainnet']
+        this.node = this.nodes[network.testnet ?? false ? 'testnet' : 'mainnet']
         this.node.rpcUrl = this.network.rpcUrl ?? this.node.rpcUrl
         this.node.wsUrl = this.network.wsUrl ?? this.node.wsUrl
         this.transport = new SuiHTTPTransport({

@@ -40,8 +40,6 @@ declare global {
     }
 }
 
-const wallet = getWalletByName('Martian Sui Wallet')
-
 interface ExtendedSuiSignTransactionInput extends SuiSignTransactionInput {
     transaction: {
         serialize: () => string
@@ -55,9 +53,10 @@ const Martian: WalletAdapterInterface<Provider, WalletProvider> = {
     name: 'Martian',
     platforms: [WalletPlatformEnum.BROWSER],
     downloadLink: 'https://martianwallet.xyz/',
-    isDetected: () => Boolean(window.martian.sui),
-    isConnected: () => Boolean(wallet?.accounts.length),
+    isDetected: () => Boolean(window.martian?.sui),
+    isConnected: () => Boolean(getWalletByName('Martian Sui Wallet')?.accounts.length),
     disconnect: async () => {
+        const wallet = getWalletByName('Martian Sui Wallet')
         try {
             if (wallet) {
                 await new WalletAdapter(wallet).disconnect()
@@ -67,11 +66,13 @@ const Martian: WalletAdapterInterface<Provider, WalletProvider> = {
         }
     },
     connect: async (provider?: Provider) => {
+        const wallet = getWalletByName('Martian Sui Wallet')
+
         if (provider === undefined) {
             throw new Error(ErrorTypeEnum.PROVIDER_IS_REQUIRED)
         }
 
-        if (!wallet || !window.martian.sui) {
+        if (!wallet || !window.martian?.sui) {
             throw new Error(ErrorTypeEnum.WALLET_CONNECTION_FAILED)
         }
 

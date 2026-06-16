@@ -1,6 +1,6 @@
 {
     "name": "@multiplechain/sui",
-    "version": "0.4.20",
+    "version": "0.4.25",
     "type": "module",
     "main": "dist/index.cjs",
     "module": "dist/index.es.js",
@@ -74,7 +74,7 @@
     "dependencies": {
         "@kunalabs-io/sui-snap-wallet": "^0.4.3",
         "@multiplechain/types": "^0.1.67",
-        "@multiplechain/utils": "^0.1.21",
+        "@multiplechain/utils": "^0.1.24",
         "@mysten/sui": "^1.28.2",
         "@mysten/wallet-standard": "^0.14.7",
         "@suiet/wallet-sdk": "^0.3.3"

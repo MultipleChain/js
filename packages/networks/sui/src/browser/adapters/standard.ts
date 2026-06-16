@@ -18,7 +18,7 @@ export const adapterToProvider = (
     provider: Provider,
     account?: BasicAccount
 ): WalletProvider => {
-    const network = provider?.isTestnet() ? 'devnet' : 'mainnet'
+    const network = provider?.isTestnet() ? 'testnet' : 'mainnet'
     return {
         getAddress: async (): Promise<string> => {
             return account ? account.address : adapter.accounts[0].address

@@ -1,15 +1,20 @@
 import { describe, it, expect, assert } from 'vitest'
 
+import './setup'
 import { Coin } from '../src/assets/Coin'
 import { math } from '@multiplechain/utils'
 import { Transaction } from '../src/models/Transaction'
 import { TransactionStatusEnum, type TransactionId } from '@multiplechain/types'
 import { TransactionSigner } from '../src/services/TransactionSigner'
 import { ECDSA } from 'xrpl'
+import {
+    balanceTestAddress,
+    coinBalanceTestAmount,
+    receiverTestAddress,
+    senderTestAddress,
+    transferTestAmount
+} from './fixtures'
 
-const testAmount = Number(process.env.XRP_TRANSFER_AMOUNT)
-const senderTestAddress = String(process.env.XRP_SENDER_ADDRESS)
-const receiverTestAddress = String(process.env.XRP_RECEIVER_ADDRESS)
 const senderPrivateKey = String(process.env.XRP_SENDER_PRIVATE_KEY)
 const transferTestIsActive = Boolean(process.env.XRP_TRANSFER_TEST_IS_ACTIVE !== 'false')
 
@@ -43,12 +48,16 @@ describe('Coin', () => {
     })
 
     it('Balance', async () => {
-        const balance = await coin.getBalance('rsDiH2LtPbcmkbTT3iLfKcPVtCJPGXxjry')
-        expect(balance).toBe(100)
+        const balance = await coin.getBalance(balanceTestAddress)
+        expect(balance).toBe(coinBalanceTestAmount)
     })
 
     it('Transfer', async () => {
-        const signer = await coin.transfer(senderTestAddress, receiverTestAddress, testAmount)
+        const signer = await coin.transfer(
+            senderTestAddress,
+            receiverTestAddress,
+            transferTestAmount
+        )
 
         await checkSigner(signer)
 
@@ -59,6 +68,6 @@ describe('Coin', () => {
         await checkTx(await signer.send())
 
         const afterBalance = await coin.getBalance(receiverTestAddress)
-        expect(afterBalance).toBe(math.add(beforeBalance, testAmount))
+        expect(afterBalance).toBe(math.add(beforeBalance, transferTestAmount))
     })
 })

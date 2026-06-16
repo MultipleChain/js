@@ -74,12 +74,43 @@ export class TransactionListener<
     /**
      * WebSocket
      */
-    webSocket: WsClient
+    webSocket?: WsClient
 
     /**
      * Dynamic stop method
      */
     dynamicStop: () => void = () => {}
+
+    /**
+     * Active subscribe command (restored after reconnect)
+     */
+    private subscribeCommand?: Command
+
+    /**
+     * Active transaction stream handler
+     */
+    private transactionHandler?: (tx: TransactionStreamWithHash) => void | Promise<void>
+
+    /**
+     * Whether stop() was called intentionally
+     */
+    private intentionalStop = false
+
+    /**
+     * Reconnect backoff in milliseconds
+     */
+    private reconnectDelayMs = 1_000
+
+    /**
+     * Pending reconnect timer
+     */
+    private reconnectTimer?: ReturnType<typeof setTimeout>
+
+    /**
+     * Resilience handlers bound to the active client
+     */
+    private disconnectedHandler?: (code: number) => void
+    private resilienceBound = false
 
     /**
      * @param type - Transaction type
@@ -98,6 +129,9 @@ export class TransactionListener<
     stop(): void {
         if (this.status) {
             this.status = false
+            this.intentionalStop = true
+            this.clearReconnectTimer()
+            this.unbindResilience()
             this.dynamicStop()
         }
     }
@@ -108,8 +142,8 @@ export class TransactionListener<
     start(): void {
         if (!this.status) {
             this.status = true
-            // @ts-expect-error allow dynamic access
-            this[TransactionListenerProcessIndex[this.type]]()
+            this.intentionalStop = false
+            this.restartSubscriptions()
         }
     }
 
@@ -127,20 +161,9 @@ export class TransactionListener<
      * @returns Connection status
      */
     async on(callback: CallBackType): Promise<boolean> {
-        if (this.webSocket === undefined) {
-            try {
-                await this.provider.ws.connect()
-                this.webSocket = this.provider.ws
-            } catch (error) {
-                throw new Error(
-                    'WebSocket connection is not available' +
-                        (error instanceof Error ? ': ' + error.message : '')
-                )
-            }
-        }
-
-        this.start()
+        await this.ensureWebSocket()
         this.callbacks.push(callback)
+        this.start()
 
         return true
     }
@@ -180,6 +203,126 @@ export class TransactionListener<
         }
     }
 
+    private clearReconnectTimer(): void {
+        if (this.reconnectTimer !== undefined) {
+            clearTimeout(this.reconnectTimer)
+            this.reconnectTimer = undefined
+        }
+    }
+
+    private unbindResilience(): void {
+        if (this.webSocket === undefined || !this.resilienceBound) {
+            return
+        }
+
+        if (this.disconnectedHandler !== undefined) {
+            this.webSocket.removeListener('disconnected', this.disconnectedHandler)
+            this.disconnectedHandler = undefined
+        }
+
+        this.resilienceBound = false
+    }
+
+    private bindResilience(): void {
+        if (this.webSocket === undefined || this.resilienceBound) {
+            return
+        }
+
+        this.disconnectedHandler = (): void => {
+            if (this.intentionalStop || !this.status) {
+                return
+            }
+
+            this.scheduleReconnect()
+        }
+
+        this.webSocket.on('disconnected', this.disconnectedHandler)
+        this.resilienceBound = true
+    }
+
+    private scheduleReconnect(): void {
+        if (this.intentionalStop || !this.status || this.reconnectTimer !== undefined) {
+            return
+        }
+
+        try {
+            this.dynamicStop()
+        } catch {
+            /* ignore unsubscribe errors on dead socket */
+        }
+
+        this.unbindResilience()
+        this.webSocket = undefined
+        this.provider.resetWebSocket()
+
+        this.reconnectTimer = setTimeout(() => {
+            this.reconnectTimer = undefined
+            void this.reconnect()
+        }, this.reconnectDelayMs)
+
+        this.reconnectDelayMs = Math.min(this.reconnectDelayMs * 2, 30_000)
+    }
+
+    private async reconnect(): Promise<void> {
+        if (this.intentionalStop || !this.status) {
+            return
+        }
+
+        try {
+            await this.ensureWebSocket()
+            await this.activateSubscription()
+            this.reconnectDelayMs = 1_000
+        } catch {
+            this.scheduleReconnect()
+        }
+    }
+
+    private async ensureWebSocket(): Promise<void> {
+        if (this.webSocket === undefined || !this.webSocket.isConnected()) {
+            this.webSocket = await this.provider.connectWebSocket()
+            this.bindResilience()
+        }
+    }
+
+    private restartSubscriptions(): void {
+        try {
+            this.dynamicStop()
+        } catch {
+            /* ignore */
+        }
+
+        // @ts-expect-error allow dynamic access
+        this[TransactionListenerProcessIndex[this.type]]()
+    }
+
+    private async activateSubscription(): Promise<void> {
+        if (this.subscribeCommand === undefined || this.transactionHandler === undefined) {
+            return
+        }
+
+        if (this.webSocket === undefined) {
+            return
+        }
+
+        const { sub, unSub } = this.createCommands(this.subscribeCommand)
+        const handler = this.transactionHandler
+
+        try {
+            await this.webSocket.request(sub)
+        } catch (error) {
+            throw error instanceof Error ? error : new Error(String(error))
+        }
+
+        this.webSocket.on('transaction', handler)
+
+        this.dynamicStop = () => {
+            if (this.webSocket?.isConnected()) {
+                void this.webSocket.request(unSub)
+            }
+            this.webSocket?.off('transaction', handler)
+        }
+    }
+
     /**
      * General transaction process
      */
@@ -190,25 +333,21 @@ export class TransactionListener<
             args.accounts = [this.filter.signer]
         }
 
-        const { sub, unSub } = this.createCommands(args)
-
-        void this.webSocket.request(sub).then(() => {
-            const callback = (tx: TransactionStreamWithHash): void => {
-                if (
-                    this.filter?.signer !== undefined &&
-                    tx.tx_json?.Account.toLowerCase() !== this.filter.signer.toLowerCase()
-                ) {
-                    return
-                }
-
-                this.trigger(new Transaction(tx.hash))
+        this.subscribeCommand = args
+        this.transactionHandler = (tx: TransactionStreamWithHash): void => {
+            if (
+                this.filter?.signer !== undefined &&
+                tx.tx_json?.Account.toLowerCase() !== this.filter.signer.toLowerCase()
+            ) {
+                return
             }
 
-            this.webSocket.on('transaction', callback)
+            this.trigger(new Transaction(tx.hash))
+        }
 
-            this.dynamicStop = () => {
-                void this.webSocket.request(unSub)
-                void this.webSocket.off('transaction', callback)
+        void this.activateSubscription().catch(() => {
+            if (!this.intentionalStop && this.status) {
+                this.scheduleReconnect()
             }
         })
     }
@@ -238,69 +377,60 @@ export class TransactionListener<
 
         const sender = filter.sender ?? filter.signer
 
-        const args: Command & {
-            accounts: string[]
-        } = { streams: ['transactions'], accounts: [] }
+        const args: Command = { streams: ['transactions'] }
 
-        if (sender) {
-            args.accounts.push(sender)
+        if (sender !== undefined || filter.receiver !== undefined) {
+            args.accounts = []
+            if (sender !== undefined) {
+                args.accounts.push(sender)
+            }
+            if (filter.receiver !== undefined) {
+                args.accounts.push(filter.receiver)
+            }
         }
 
-        if (filter.receiver) {
-            args.accounts.push(filter.receiver)
-        }
+        this.subscribeCommand = args
+        this.transactionHandler = async (tx: TransactionStreamWithHash): Promise<void> => {
+            const txJson = tx.tx_json as { Account?: string; Destination?: string } | undefined
 
-        const { sub, unSub } = this.createCommands(args)
-
-        void this.webSocket.request(sub).then(() => {
-            const callback = async (
-                tx: TransactionStreamWithHash & {
-                    tx_json: {
-                        Account: string
-                        Destination?: string
-                    }
-                }
-            ): Promise<void> => {
-                interface ParamsType {
-                    sender?: string
-                    receiver?: string
-                }
-
-                const expectedParams: ParamsType = {}
-                const receivedParams: ParamsType = {}
-
-                if (sender !== undefined) {
-                    expectedParams.sender = sender.toLowerCase()
-                    receivedParams.sender = tx.tx_json?.Account.toLowerCase()
-                }
-
-                if (filter.receiver !== undefined) {
-                    expectedParams.receiver = filter.receiver.toLowerCase()
-                    receivedParams.receiver = tx.tx_json?.Destination?.toLowerCase()
-                }
-
-                if (!objectsEqual(expectedParams, receivedParams)) {
-                    return
-                }
-
-                const transaction = new CoinTransaction(tx.hash)
-
-                if (filter.amount !== undefined) {
-                    await transaction.wait()
-                    const amount = await transaction.getAmount()
-                    if (amount !== filter.amount) {
-                        return
-                    }
-                }
-
-                this.trigger(transaction)
+            interface ParamsType {
+                sender?: string
+                receiver?: string
             }
 
-            this.webSocket.on('transaction', callback)
+            const expectedParams: ParamsType = {}
+            const receivedParams: ParamsType = {}
 
-            this.dynamicStop = () => {
-                void this.webSocket.request(unSub)
-                void this.webSocket.off('transaction', callback)
+            if (sender !== undefined) {
+                expectedParams.sender = sender.toLowerCase()
+                receivedParams.sender = txJson?.Account?.toLowerCase()
+            }
+
+            if (filter.receiver !== undefined) {
+                expectedParams.receiver = filter.receiver.toLowerCase()
+                receivedParams.receiver = txJson?.Destination?.toLowerCase()
+            }
+
+            if (!objectsEqual(expectedParams, receivedParams)) {
+                return
+            }
+
+            const transaction = new CoinTransaction(tx.hash)
+
+            if (filter.amount !== undefined) {
+                await transaction.wait()
+                const amount = await transaction.getAmount()
+                if (amount !== filter.amount) {
+                    return
+                }
+            }
+
+            this.trigger(transaction)
+        }
+
+        void this.activateSubscription().catch(() => {
+            if (!this.intentionalStop && this.status) {
+                this.scheduleReconnect()
             }
         })
     }

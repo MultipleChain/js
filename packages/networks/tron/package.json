@@ -1,6 +1,6 @@
 {
     "name": "@multiplechain/tron",
-    "version": "0.4.20",
+    "version": "0.4.25",
     "type": "module",
     "main": "dist/index.cjs",
     "module": "dist/index.es.js",
@@ -10,21 +10,21 @@
     "exports": {
         ".": {
             "import": {
-                "default": "./dist/index.es.js",
-                "types": "./dist/browser/index.d.ts"
+                "types": "./dist/browser/index.d.ts",
+                "default": "./dist/index.es.js"
             },
             "require": {
-                "default": "./dist/index.cjs",
-                "types": "./dist/index.d.ts"
+                "types": "./dist/index.d.ts",
+                "default": "./dist/index.cjs"
             }
         },
         "./node": {
-            "default": "./dist/index.cjs",
-            "types": "./dist/index.d.ts"
+            "types": "./dist/index.d.ts",
+            "default": "./dist/index.cjs"
         },
         "./browser": {
-            "default": "./dist/index.es.js",
-            "types": "./dist/browser/index.d.ts"
+            "types": "./dist/browser/index.d.ts",
+            "default": "./dist/index.es.js"
         }
     },
     "typesVersions": {
@@ -75,7 +75,7 @@
         "@beycan/tron-tx-decoder": "^2.0.7",
         "@multiplechain/tron-walletconnect": "^0.1.0",
         "@multiplechain/types": "^0.1.70",
-        "@multiplechain/utils": "^0.1.21",
+        "@multiplechain/utils": "^0.1.24",
         "@noble/secp256k1": "^1.7.1",
         "@tronweb3/tronwallet-adapter-bitkeep": "^1.1.1",
         "@tronweb3/tronwallet-adapter-okxwallet": "^1.0.3",

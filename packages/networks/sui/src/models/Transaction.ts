@@ -167,7 +167,7 @@ export class Transaction implements TransactionInterface<TxData> {
         const storageCost = fromMist(data.effects?.gasUsed.storageCost ?? 0)
         const storageRebate = fromMist(data.effects?.gasUsed.storageRebate ?? 0)
         const computationCost = fromMist(data.effects?.gasUsed.computationCost ?? 0)
-        return math.sub(math.add(storageCost, computationCost, 9), storageRebate, 9)
+        return Math.abs(math.sub(math.add(storageCost, computationCost, 9), storageRebate, 9))
     }
 
     /**

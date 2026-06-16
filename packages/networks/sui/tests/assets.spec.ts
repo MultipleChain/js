@@ -1,5 +1,6 @@
 import { describe, it, expect, assert } from 'vitest'
 
+import './setup'
 import { NFT } from '../src/assets/NFT'
 import { Coin } from '../src/assets/Coin'
 import { Token } from '../src/assets/Token'
@@ -101,7 +102,7 @@ describe('Token', () => {
     })
 
     it('Decimals', async () => {
-        expect(await token.getDecimals()).toBe(6)
+        expect(await token.getDecimals()).toBe(9)
     })
 
     it('Balance', async () => {
@@ -110,7 +111,7 @@ describe('Token', () => {
 
     it('Total supply', async () => {
         const totalSupply = await token.getTotalSupply()
-        expect(totalSupply).toBe(100000000)
+        expect(totalSupply).toBe(10000000)
     })
 
     it('Transfer', async () => {
@@ -191,7 +192,7 @@ describe('Nft', () => {
     })
 
     it('Owner', async () => {
-        expect(await nft.getOwner(nftBalanceObjectId)).toBe(balanceTestAddress)
+        expect(await nft.getOwner(nftBalanceObjectId)).toBe(receiverTestAddress)
     })
 
     it('Token URI', async () => {

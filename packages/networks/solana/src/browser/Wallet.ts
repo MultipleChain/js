@@ -202,7 +202,7 @@ export class Wallet implements WalletInterface<Provider, WalletProvider, Transac
         return await new Promise((resolve, reject) => {
             this.currentReject = reject
             this.walletProvider
-                .signMessage(Buffer.from(message, 'utf8'))
+                .signMessage(new Uint8Array(Buffer.from(message, 'utf8')))
                 .then((signature: Uint8Array) => {
                     resolve(base58Encode(signature))
                 })

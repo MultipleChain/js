@@ -6,17 +6,17 @@ import { adapterToProvider, getWalletByName } from './standard'
 import type { WalletAdapterInterface } from '@multiplechain/types'
 import { ErrorTypeEnum, WalletPlatformEnum } from '@multiplechain/types'
 
-const wallet = getWalletByName('Suiet')
-
 const Suiet: WalletAdapterInterface<Provider, WalletProvider> = {
     icon: suiet,
     id: 'suiet',
     name: 'Suiet',
     platforms: [WalletPlatformEnum.BROWSER],
     downloadLink: 'https://suiet.app/install',
-    isDetected: () => Boolean(wallet),
-    isConnected: () => Boolean(wallet?.accounts.length),
+    isDetected: () => Boolean(getWalletByName('Suiet')),
+    isConnected: () => Boolean(getWalletByName('Suiet')?.accounts.length),
     disconnect: async () => {
+        const wallet = getWalletByName('Suiet')
+
         try {
             if (wallet) {
                 await new WalletAdapter(wallet).disconnect()
@@ -26,6 +26,7 @@ const Suiet: WalletAdapterInterface<Provider, WalletProvider> = {
         }
     },
     connect: async (provider?: Provider) => {
+        const wallet = getWalletByName('Suiet')
         if (provider === undefined) {
             throw new Error(ErrorTypeEnum.PROVIDER_IS_REQUIRED)
         }

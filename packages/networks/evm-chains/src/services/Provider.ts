@@ -6,7 +6,7 @@ import {
 } from '@multiplechain/types'
 
 import { checkWebSocket } from '@multiplechain/utils'
-import { JsonRpcProvider } from 'ethers'
+import { JsonRpcProvider, Network } from 'ethers'
 
 export interface EvmNetworkConfigInterface extends NetworkConfigInterface {
     id: number
@@ -73,12 +73,19 @@ export class Provider implements ProviderInterface<EvmNetworkConfigInterface> {
      * @returns RPC connection status
      */
     async checkRpcConnection(url?: string): Promise<boolean | Error> {
+        const rpc = new JsonRpcProvider(
+            url ?? this.network.rpcUrl ?? '',
+            Network.from(this.network.id),
+            { staticNetwork: true }
+        )
+
         try {
-            const rpc = new JsonRpcProvider(url ?? this.network.rpcUrl ?? '')
             await rpc.getBlockNumber()
             return true
         } catch (error) {
-            return error as any
+            return error as Error
+        } finally {
+            rpc.destroy()
         }
     }
 
