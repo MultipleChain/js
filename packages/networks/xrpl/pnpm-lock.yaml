@@ -15,8 +15,8 @@ importers:
         specifier: ^0.1.70
         version: 0.1.70
       '@multiplechain/utils':
-        specifier: ^0.1.21
-        version: 0.1.23
+        specifier: ^0.1.24
+        version: 0.1.24
       add:
         specifier: ^2.0.6
         version: 2.0.6
@@ -35,8 +35,8 @@ packages:
   '@multiplechain/types@0.1.70':
     resolution: {integrity: sha512-o9ovdaefDHE5gorb83avugCjeixfBXrfJkIgSEEcT549yGF8CkmG/jgZIlqXKJf8Lh0tbg4zMAAanUSxUqV1FQ==}
 
-  '@multiplechain/utils@0.1.23':
-    resolution: {integrity: sha512-6mgJiXQsElObKgX/yA8DUpQYd+BS1GKhAyLj5F/2mv9yY3boZrX8sS7ZLk+g5NX45N+BACNMxbs09TG1iFiRsA==}
+  '@multiplechain/utils@0.1.24':
+    resolution: {integrity: sha512-Q6MgYcYUwV0c4tZtYhvGNCdfr+9EHS6lFTfzn58Rj/XuJHWQ0dNs97tV6hjTlaMlhNZxXwlRk+iwMpaqUgDPFA==}
 
   '@noble/curves@1.4.2':
     resolution: {integrity: sha512-TavHr8qycMChk8UwMld0ZDRvatedkzWfH8IiaeGCfymOP5i0hSCozz9vHOL0nkwk7HRMlFnAiKpS2jrUmSybcw==}
@@ -289,7 +289,7 @@ snapshots:
 
   '@multiplechain/types@0.1.70': {}
 
-  '@multiplechain/utils@0.1.23':
+  '@multiplechain/utils@0.1.24':
     dependencies:
       '@types/ws': 8.5.14
       bignumber.js: 9.1.2

@@ -15,8 +15,8 @@ importers:
         specifier: ^0.1.67
         version: 0.1.70
       '@multiplechain/utils':
-        specifier: ^0.1.21
-        version: 0.1.23(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+        specifier: ^0.1.24
+        version: 0.1.24(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       '@mysten/sui':
         specifier: ^1.28.2
         version: 1.28.2(typescript@5.8.3)
@@ -130,8 +130,8 @@ packages:
   '@multiplechain/types@0.1.70':
     resolution: {integrity: sha512-o9ovdaefDHE5gorb83avugCjeixfBXrfJkIgSEEcT549yGF8CkmG/jgZIlqXKJf8Lh0tbg4zMAAanUSxUqV1FQ==}
 
-  '@multiplechain/utils@0.1.23':
-    resolution: {integrity: sha512-6mgJiXQsElObKgX/yA8DUpQYd+BS1GKhAyLj5F/2mv9yY3boZrX8sS7ZLk+g5NX45N+BACNMxbs09TG1iFiRsA==}
+  '@multiplechain/utils@0.1.24':
+    resolution: {integrity: sha512-Q6MgYcYUwV0c4tZtYhvGNCdfr+9EHS6lFTfzn58Rj/XuJHWQ0dNs97tV6hjTlaMlhNZxXwlRk+iwMpaqUgDPFA==}
 
   '@mysten/bcs@0.11.1':
     resolution: {integrity: sha512-xP85isNSYUCHd3O/g+TmZYmg4wK6cU8q/n/MebkIGP4CYVJZz2wU/G24xIZ3wI+0iTop4dfgA5kYrg/DQKCUzA==}
@@ -801,7 +801,7 @@ snapshots:
 
   '@multiplechain/types@0.1.70': {}
 
-  '@multiplechain/utils@0.1.23(bufferutil@4.0.9)(utf-8-validate@5.0.10)':
+  '@multiplechain/utils@0.1.24(bufferutil@4.0.9)(utf-8-validate@5.0.10)':
     dependencies:
       '@types/ws': 8.18.1
       bignumber.js: 9.3.0

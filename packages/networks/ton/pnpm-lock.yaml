@@ -12,8 +12,8 @@ importers:
         specifier: ^0.1.67
         version: 0.1.67
       '@multiplechain/utils':
-        specifier: ^0.1.21
-        version: 0.1.21
+        specifier: ^0.1.24
+        version: 0.1.24
       '@ton/core':
         specifier: ^0.59.1
         version: 0.59.1(@ton/crypto@3.3.0)
@@ -41,8 +41,8 @@ packages:
   '@multiplechain/types@0.1.67':
     resolution: {integrity: sha512-8TN5HhDC7lILh7wDKneJFS1Nyvxa+YGi0L56m6jnj0mBmTmwxNN42W5tP/3KYUlsfTHqb64iijjXMTLYZ0x+Dg==}
 
-  '@multiplechain/utils@0.1.21':
-    resolution: {integrity: sha512-4mRlnhvXcS+7Hb1By5s2eoCH02kqOSQzV8qj0DHqZK20FtxtduaoGCtcClrFgEjN/HAXnHgdDc1pxTpveIkvRQ==}
+  '@multiplechain/utils@0.1.24':
+    resolution: {integrity: sha512-Q6MgYcYUwV0c4tZtYhvGNCdfr+9EHS6lFTfzn58Rj/XuJHWQ0dNs97tV6hjTlaMlhNZxXwlRk+iwMpaqUgDPFA==}
 
   '@noble/curves@1.3.0':
     resolution: {integrity: sha512-t01iSXPuN+Eqzb4eBX0S5oubSqXbK/xXa1Ne18Hj8f9pStxztHCE2gfboSp/dZRLSqfuLpRK2nDXDK+W9puocA==}
@@ -332,7 +332,7 @@ snapshots:
 
   '@multiplechain/types@0.1.67': {}
 
-  '@multiplechain/utils@0.1.21':
+  '@multiplechain/utils@0.1.24':
     dependencies:
       '@types/ws': 8.5.10
       bignumber.js: 9.1.2
