@@ -42,10 +42,9 @@ export interface SignedTransactionData extends TransactionData {
     signature: string[]
 }
 
-export class TransactionSigner implements TransactionSignerInterface<
-    TransactionData,
-    SignedTransactionData
-> {
+export class TransactionSigner
+    implements TransactionSignerInterface<TransactionData, SignedTransactionData>
+{
     /**
      * Transaction data from the blockchain network
      */

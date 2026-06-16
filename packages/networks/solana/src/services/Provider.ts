@@ -141,7 +141,7 @@ export class Provider implements ProviderInterface {
     update(network: NetworkConfigInterface): void {
         this.network = network
         Provider._instance = this
-        this.node = this.nodes[(network.testnet ?? false) ? 'devnet' : 'mainnet']
+        this.node = this.nodes[network.testnet ?? false ? 'devnet' : 'mainnet']
         this.node.rpcUrl = this.network.rpcUrl ?? this.node.rpcUrl
         this.node.wsUrl = this.network.wsUrl ?? this.node.wsUrl
         this.web3 = new Connection(this.node.rpcUrl, {

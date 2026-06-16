@@ -119,11 +119,11 @@ export interface AssetTransactionInterface extends TransactionInterface {
 export interface CoinTransactionInterface extends AssetTransactionInterface {}
 
 export interface TokenTransactionInterface
-    extends AssetTransactionInterface, ContractTransactionInterface {}
+    extends AssetTransactionInterface,
+        ContractTransactionInterface {}
 
 export interface NftTransactionInterface
-    extends
-        Omit<AssetTransactionInterface, 'verifyTransfer' | 'getAmount'>,
+    extends Omit<AssetTransactionInterface, 'verifyTransfer' | 'getAmount'>,
         ContractTransactionInterface {
     /**
      * Replaces getAmount in the Asset interface.

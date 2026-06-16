@@ -4,10 +4,9 @@ import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519'
 import type { SignatureWithBytes } from '@mysten/sui/cryptography'
 import type { PrivateKey, TransactionId, TransactionSignerInterface } from '@multiplechain/types'
 
-export class TransactionSigner implements TransactionSignerInterface<
-    Transaction,
-    SignatureWithBytes
-> {
+export class TransactionSigner
+    implements TransactionSignerInterface<Transaction, SignatureWithBytes>
+{
     /**
      * Transaction data from the blockchain network
      */

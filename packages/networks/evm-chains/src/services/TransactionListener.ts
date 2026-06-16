@@ -49,7 +49,8 @@ export class TransactionListener<
     T extends TransactionTypeEnum,
     DTransaction extends TransactionListenerTriggerType<T>,
     CallBackType extends TransactionListenerCallbackType<T>
-> implements TransactionListenerInterface<T, DTransaction, CallBackType> {
+> implements TransactionListenerInterface<T, DTransaction, CallBackType>
+{
     /**
      * Transaction type
      */

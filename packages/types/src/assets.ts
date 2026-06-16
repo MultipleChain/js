@@ -102,7 +102,8 @@ export interface CoinInterface<TransactionSigner> extends AssetInterface<Transac
 }
 
 export interface TokenInterface<TransactionSigner>
-    extends Omit<AssetInterface<TransactionSigner>, 'getName' | 'getSymbol'>, ContractInterface {
+    extends Omit<AssetInterface<TransactionSigner>, 'getName' | 'getSymbol'>,
+        ContractInterface {
     /**
      * @returns {Promise<string>} Name of the asset (long name)
      */
@@ -161,8 +162,7 @@ export interface TokenInterface<TransactionSigner>
 }
 
 export interface NftInterface<TransactionSigner>
-    extends
-        Omit<AssetInterface<TransactionSigner>, 'transfer' | 'getName' | 'getSymbol'>,
+    extends Omit<AssetInterface<TransactionSigner>, 'transfer' | 'getName' | 'getSymbol'>,
         ContractInterface {
     /**
      * @returns {Promise<string>} Name of the asset (long name)
