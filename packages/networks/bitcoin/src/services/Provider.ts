@@ -129,7 +129,7 @@ export class Provider implements ProviderInterface<BitcoinNetworkConfigInterface
                     'wss://socket.blockcypher.com/v1/btc/main?token=' +
                     this.network.blockCypherToken
             } else {
-                this.wsUrl = 'wss://ws.blockchain.info/inv'
+                this.wsUrl = 'wss://mempool.space/api/v1/ws'
             }
         }
         this.network.rpcUrl = this.api
