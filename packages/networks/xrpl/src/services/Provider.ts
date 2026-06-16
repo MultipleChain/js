@@ -109,6 +109,36 @@ export class Provider implements ProviderInterface<NetworkConfigInterface> {
     }
 
     /**
+     * Drop the websocket client so the next connect opens a fresh socket.
+     */
+    resetWebSocket(): void {
+        if (this.ws.isConnected()) {
+            void this.ws.disconnect()
+        }
+        this.ws = new WsClient(this.network.wsUrl ?? '')
+    }
+
+    /**
+     * Connect websocket with timeout (no separate probe connection).
+     */
+    async connectWebSocket(timeoutMs: number = 10_000): Promise<WsClient> {
+        if (this.ws.isConnected()) {
+            return this.ws
+        }
+
+        await Promise.race([
+            this.ws.connect(),
+            new Promise<never>((_resolve, reject) => {
+                setTimeout(() => {
+                    reject(new Error(ErrorTypeEnum.WS_CONNECTION_FAILED))
+                }, timeoutMs)
+            })
+        ])
+
+        return this.ws
+    }
+
+    /**
      * Update network configuration of the provider
      * @param network - Network configuration
      */

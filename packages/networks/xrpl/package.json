@@ -1,6 +1,6 @@
 {
     "name": "@multiplechain/xrpl",
-    "version": "0.4.21",
+    "version": "0.4.25",
     "type": "module",
     "main": "dist/index.cjs",
     "module": "dist/index.es.js",
@@ -74,7 +74,7 @@
     "dependencies": {
         "@gemwallet/api": "^3.8.0",
         "@multiplechain/types": "^0.1.70",
-        "@multiplechain/utils": "^0.1.21",
+        "@multiplechain/utils": "^0.1.24",
         "add": "^2.0.6",
         "axios": "^1.7.9",
         "xrpl": "^4.1.0"

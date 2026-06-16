@@ -9,6 +9,7 @@ import { getAssociatedTokenAddressSync } from '@solana/spl-token'
 import {
     PublicKey,
     SystemProgram,
+    type Commitment,
     type Logs,
     type LogsFilter,
     type ParsedAccountData,
@@ -72,6 +73,32 @@ export class TransactionListener<
     connected: boolean = false
 
     /**
+     * Whether stop() was called intentionally
+     */
+    private intentionalStop = false
+
+    /**
+     * Reconnect backoff in milliseconds
+     */
+    private reconnectDelayMs = 1_000
+
+    /**
+     * Pending reconnect timer
+     */
+    private reconnectTimer?: ReturnType<typeof setTimeout>
+
+    /**
+     * Active logs subscription id
+     */
+    private logsSubscriptionId?: number
+
+    /**
+     * Websocket close handler
+     */
+    private wsCloseHandler?: () => void
+    private resilienceBound = false
+
+    /**
      * Transaction listener callback
      */
     callbacks: CallBackType[] = []
@@ -108,6 +135,10 @@ export class TransactionListener<
     stop(): void {
         if (this.status) {
             this.status = false
+            this.intentionalStop = true
+            this.connected = false
+            this.clearReconnectTimer()
+            this.unbindResilience()
             this.dynamicStop()
         }
     }
@@ -118,8 +149,8 @@ export class TransactionListener<
     start(): void {
         if (!this.status) {
             this.status = true
-            // @ts-expect-error allow dynamic access
-            this[TransactionListenerProcessIndex[this.type]]()
+            this.intentionalStop = false
+            this.restartSubscriptions()
         }
     }
 
@@ -137,16 +168,12 @@ export class TransactionListener<
      * @returns Listener status
      */
     async on(callback: CallBackType): Promise<boolean> {
-        if (!this.connected) {
-            if ((await this.provider.checkWsConnection()) instanceof Error) {
-                throw new Error(ErrorTypeEnum.WS_CONNECTION_FAILED)
-            } else {
-                this.connected = true
-            }
+        if (this.provider.node.wsUrl === undefined || this.provider.node.wsUrl === '') {
+            throw new Error(ErrorTypeEnum.WS_CONNECTION_FAILED)
         }
 
-        this.start()
         this.callbacks.push(callback)
+        this.start()
 
         return true
     }
@@ -168,10 +195,8 @@ export class TransactionListener<
      * General transaction process
      */
     generalProcess(): void {
-        let subscriptionId: number
-
         if (this.filter?.signer === undefined) {
-            subscriptionId = this.provider.web3.onLogs(
+            this.subscribeLogs(
                 'all',
                 (logs) => {
                     this.trigger(new Transaction(logs.signature))
@@ -180,7 +205,7 @@ export class TransactionListener<
             )
         } else {
             const signer = this.filter.signer
-            subscriptionId = this.provider.web3.onLogs(
+            this.subscribeLogs(
                 new PublicKey(signer),
                 async (logs) => {
                     try {
@@ -205,10 +230,113 @@ export class TransactionListener<
                 'confirmed'
             )
         }
+    }
+
+    private clearReconnectTimer(): void {
+        if (this.reconnectTimer !== undefined) {
+            clearTimeout(this.reconnectTimer)
+            this.reconnectTimer = undefined
+        }
+    }
+
+    private getRpcWebSocket(): { on: (event: string, handler: () => void) => void; removeListener: (event: string, handler: () => void) => void } | undefined {
+        return (this.provider.web3 as { _rpcWebSocket?: { on: (event: string, handler: () => void) => void; removeListener: (event: string, handler: () => void) => void } })._rpcWebSocket
+    }
+
+    private unbindResilience(): void {
+        const rpcWs = this.getRpcWebSocket()
+
+        if (rpcWs === undefined || this.wsCloseHandler === undefined) {
+            return
+        }
+
+        rpcWs.removeListener('close', this.wsCloseHandler)
+        this.wsCloseHandler = undefined
+        this.resilienceBound = false
+    }
+
+    private bindResilience(): void {
+        queueMicrotask(() => {
+            const rpcWs = this.getRpcWebSocket()
+
+            if (rpcWs === undefined || this.resilienceBound) {
+                return
+            }
+
+            this.wsCloseHandler = (): void => {
+                if (this.intentionalStop || !this.status) {
+                    return
+                }
+
+                this.scheduleReconnect()
+            }
+
+            rpcWs.on('close', this.wsCloseHandler)
+            this.resilienceBound = true
+        })
+    }
+
+    private scheduleReconnect(): void {
+        if (this.intentionalStop || !this.status || this.reconnectTimer !== undefined) {
+            return
+        }
+
+        this.dynamicStop()
+        this.unbindResilience()
+        this.provider.resetConnection()
+        this.connected = false
+
+        this.reconnectTimer = setTimeout(() => {
+            this.reconnectTimer = undefined
+            void this.reconnect()
+        }, this.reconnectDelayMs)
+
+        this.reconnectDelayMs = Math.min(this.reconnectDelayMs * 2, 30_000)
+    }
+
+    private async reconnect(): Promise<void> {
+        if (this.intentionalStop || !this.status) {
+            return
+        }
+
+        try {
+            this.connected = true
+            this.restartSubscriptions()
+            this.reconnectDelayMs = 1_000
+        } catch {
+            this.scheduleReconnect()
+        }
+    }
+
+    private restartSubscriptions(): void {
+        this.dynamicStop()
+
+        const processName = TransactionListenerProcessIndex[this.type] as keyof this
+        const result = (this[processName] as () => void | Promise<void>)()
+
+        if (result instanceof Promise) {
+            void result.catch(() => {
+                this.scheduleReconnect()
+            })
+        }
+    }
+
+    private subscribeLogs(
+        parameter: LogsFilter,
+        callback: (logs: Logs) => void,
+        commitment: Commitment = 'confirmed'
+    ): void {
+        this.logsSubscriptionId = this.provider.web3.onLogs(parameter, callback, commitment)
+        this.connected = true
 
         this.dynamicStop = () => {
-            void this.provider.web3.removeOnLogsListener(subscriptionId)
+            if (this.logsSubscriptionId !== undefined) {
+                void this.provider.web3.removeOnLogsListener(this.logsSubscriptionId)
+                this.logsSubscriptionId = undefined
+            }
         }
+
+        this.bindResilience()
     }
 
     /**
@@ -275,11 +403,7 @@ export class TransactionListener<
 
         const address = filter.signer ?? filter.address
         const parameter = address !== undefined ? new PublicKey(address) : 'all'
-        const subscriptionId = this.provider.web3.onLogs(parameter, callback, 'confirmed')
-
-        this.dynamicStop = () => {
-            void this.provider.web3.removeOnLogsListener(subscriptionId)
-        }
+        this.subscribeLogs(parameter, callback, 'confirmed')
     }
 
     /**
@@ -345,11 +469,7 @@ export class TransactionListener<
             }
         }
 
-        const subscriptionId = this.provider.web3.onLogs(parameter, callback, 'confirmed')
-
-        this.dynamicStop = () => {
-            void this.provider.web3.removeOnLogsListener(subscriptionId)
-        }
+        this.subscribeLogs(parameter, callback, 'confirmed')
     }
 
     private async tokenNftCondition(
@@ -492,11 +612,7 @@ export class TransactionListener<
         }
 
         const parameter = await this.createTokenNftListenParameter()
-        const subscriptionId = this.provider.web3.onLogs(parameter, callback, 'confirmed')
-
-        this.dynamicStop = () => {
-            void this.provider.web3.removeOnLogsListener(subscriptionId)
-        }
+        this.subscribeLogs(parameter, callback, 'confirmed')
     }
 
     /**
@@ -537,10 +653,6 @@ export class TransactionListener<
         }
 
         const parameter = await this.createTokenNftListenParameter()
-        const subscriptionId = this.provider.web3.onLogs(parameter, callback, 'confirmed')
-
-        this.dynamicStop = () => {
-            void this.provider.web3.removeOnLogsListener(subscriptionId)
-        }
+        this.subscribeLogs(parameter, callback, 'confirmed')
     }
 }

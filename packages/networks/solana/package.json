@@ -1,6 +1,6 @@
 {
     "name": "@multiplechain/solana",
-    "version": "0.4.21",
+    "version": "0.4.25",
     "type": "module",
     "main": "dist/index.cjs",
     "module": "dist/index.es.js",
@@ -76,7 +76,7 @@
         "@metamask/solana-wallet-standard": "^0.4.1",
         "@metaplex-foundation/js": "^0.20.1",
         "@multiplechain/types": "^0.1.68",
-        "@multiplechain/utils": "^0.1.21",
+        "@multiplechain/utils": "^0.1.24",
         "@solana/spl-token": "^0.4.6",
         "@solana/spl-token-metadata": "^0.1.4",
         "@solana/wallet-adapter-base": "^0.9.23",

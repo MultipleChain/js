@@ -125,6 +125,16 @@ export class Provider implements ProviderInterface {
     }
 
     /**
+     * Recreate the RPC/WebSocket connection (e.g. after a socket drop).
+     */
+    resetConnection(): void {
+        this.web3 = new Connection(this.node.rpcUrl, {
+            wsEndpoint: this.node.wsUrl,
+            commitment: 'confirmed'
+        })
+    }
+
+    /**
      * Update network configuration of the provider
      * @param network - Network configuration of the provider
      */
@@ -135,7 +145,8 @@ export class Provider implements ProviderInterface {
         this.node.rpcUrl = this.network.rpcUrl ?? this.node.rpcUrl
         this.node.wsUrl = this.network.wsUrl ?? this.node.wsUrl
         this.web3 = new Connection(this.node.rpcUrl, {
-            wsEndpoint: this.node.wsUrl
+            wsEndpoint: this.node.wsUrl,
+            commitment: 'confirmed'
         })
     }
 

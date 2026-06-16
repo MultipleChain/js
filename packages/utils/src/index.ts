@@ -84,7 +84,7 @@ export const base58Decode = (input: string): Uint8Array => {
  * @returns string
  */
 export const bufferToString = (input: Buffer): string => {
-    return Buffer.from(input).toString('utf8')
+    return input.toString('utf8')
 }
 
 /**
@@ -145,11 +145,33 @@ export const toReadableString = (num: number): string => {
 /**
  * checks if the given url is a valid websocket url
  * @param url - string
+ * @param timeoutMs - max wait before rejecting (default 10s)
  * @returns Promise<boolean>
  */
-export const checkWebSocket = async (url: string): Promise<boolean> => {
+export const checkWebSocket = async (url: string, timeoutMs: number = 10_000): Promise<boolean> => {
     return await new Promise((resolve, reject) => {
         let socket: WebSocket | NodeWebSocket
+        let settled = false
+
+        const finish = (handler: () => void): void => {
+            if (settled) {
+                return
+            }
+            settled = true
+            clearTimeout(timer)
+            handler()
+        }
+
+        const timer = setTimeout(() => {
+            finish(() => {
+                try {
+                    socket.close()
+                } catch {
+                    /* ignore */
+                }
+                reject(new Error('WebSocket connection timeout'))
+            })
+        }, timeoutMs)
 
         if (typeof window !== 'undefined') {
             socket = new WebSocket(url)
@@ -158,13 +180,21 @@ export const checkWebSocket = async (url: string): Promise<boolean> => {
         }
 
         socket.onopen = () => {
-            resolve(true)
-            socket.close()
+            finish(() => {
+                resolve(true)
+                socket.close()
+            })
         }
 
         socket.onerror = (error: ErrorEvent) => {
-            reject(new Error(error.message))
-            socket.close()
+            finish(() => {
+                reject(new Error(error.message))
+                try {
+                    socket.close()
+                } catch {
+                    /* ignore */
+                }
+            })
         }
     })
 }
