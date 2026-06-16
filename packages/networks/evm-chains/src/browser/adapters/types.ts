@@ -4,6 +4,7 @@ export interface WindowEthereum extends EIP1193Provider {
     isTrust?: boolean
     isTronLink?: boolean
     isMetaMask?: boolean
+    providers?: WindowEthereum[]
 }
 
 declare global {
