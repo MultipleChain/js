@@ -46,6 +46,15 @@ type TransactionListenerCallbackType<
     Transaction = TransactionListenerTriggerType<T>
 > = (transaction: Transaction) => void
 
+interface RpcWebSocketLike {
+    on: (event: string, handler: () => void) => void
+    removeListener: (event: string, handler: () => void) => void
+}
+
+interface ConnectionWithRpcWebSocket {
+    _rpcWebSocket?: RpcWebSocketLike
+}
+
 export class TransactionListener<
     T extends TransactionTypeEnum,
     DTransaction extends TransactionListenerTriggerType<T>,
@@ -239,8 +248,8 @@ export class TransactionListener<
         }
     }
 
-    private getRpcWebSocket(): { on: (event: string, handler: () => void) => void; removeListener: (event: string, handler: () => void) => void } | undefined {
-        return (this.provider.web3 as { _rpcWebSocket?: { on: (event: string, handler: () => void) => void; removeListener: (event: string, handler: () => void) => void } })._rpcWebSocket
+    private getRpcWebSocket(): RpcWebSocketLike | undefined {
+        return (this.provider.web3 as ConnectionWithRpcWebSocket)._rpcWebSocket
     }
 
     private unbindResilience(): void {

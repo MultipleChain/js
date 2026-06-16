@@ -120,6 +120,8 @@ export class Provider implements ProviderInterface<NetworkConfigInterface> {
 
     /**
      * Connect websocket with timeout (no separate probe connection).
+     * @param timeoutMs - Max wait before rejecting the connection attempt
+     * @returns Connected XRPL websocket client
      */
     async connectWebSocket(timeoutMs: number = 10_000): Promise<WsClient> {
         if (this.ws.isConnected()) {
