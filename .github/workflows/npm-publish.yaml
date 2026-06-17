@@ -26,7 +26,7 @@ jobs:
 
       - name: Publish if version changed
         run: |
-          npm install -g pnpm
+          npm install -g pnpm@11.6.0
           pnpm install
 
           for dir in packages/*/ packages/networks/*/; do
@@ -42,7 +42,7 @@ jobs:
 
                 if [ "$PREVIOUS_VERSION" != "$CURRENT_VERSION" ]; then
                   echo "Version changed for $PACKAGE_NAME from $PREVIOUS_VERSION to $CURRENT_VERSION"
-                  pnpm install && npm publish
+                  npm publish
                 fi
               else
                 echo "package.json not found in $dir"
