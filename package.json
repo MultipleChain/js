@@ -1,9 +1,7 @@
 {
   "name": "js",
   "version": "0.0.0",
-  "private": true,
   "type": "module",
-  "packageManager": "pnpm@11.6.0",
   "scripts": {
     "dev": "vite",
     "test": "vitest",
@@ -12,8 +10,8 @@
     "format": "prettier --write packages/",
     "lint": "eslint . --ext .ts --ignore-path .gitignore",
     "lint:fix": "eslint . --ext .ts --ignore-path .gitignore --fix",
-    "install:all": "pnpm install",
-    "build:all": "pnpm -r --if-present --filter './packages/**' --filter '!./packages/networks/boilerplate' run build"
+    "install:all": "pnpm install && for dir in packages/*/ packages/networks/*/; do if [ -d \"$dir\" ] && [ \"$(basename \"$dir\")\" != \"boilerplate\" ]; then cd \"$dir\" && pnpm install && cd -; fi; done",
+    "build:all": "for dir in packages/*/ packages/networks/*/; do if [ -f \"$dir/package.json\" ] && [ \"$(basename \"$dir\")\" != \"boilerplate\" ] && grep -q '\"build\":' \"$dir/package.json\" 2>/dev/null; then (cd \"$dir\" && pnpm run build) || exit 1; fi; done"
   },
   "devDependencies": {
     "@rollup/plugin-strip": "^3.0.4",
@@ -43,5 +41,6 @@
   },
   "dependencies": {
     "@multiplechain/utils": "^0.1.24"
-  }
+  },
+  "packageManager": "pnpm@9.15.9+sha512.68046141893c66fad01c079231128e9afb89ef87e2691d69e4d40eee228988295fd4682181bae55b58418c3a253bde65a505ec7c5f9403ece5cc3cd37dcf2531"
 }
