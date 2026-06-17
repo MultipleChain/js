@@ -39,9 +39,10 @@ export class TransactionSigner
     async sign(privateKey: PrivateKey): Promise<this> {
         const keypair = Ed25519Keypair.fromSecretKey(privateKey)
         this.rawData.setSenderIfNotSet(keypair.toSuiAddress())
-        this.signedData = await keypair.signTransaction(
-            await this.rawData.build({ client: this.provider.client })
-        )
+        const transactionBytes = (await this.rawData.build({
+            client: this.provider.client
+        })) as Uint8Array
+        this.signedData = await keypair.signTransaction(transactionBytes)
         return this
     }
 
