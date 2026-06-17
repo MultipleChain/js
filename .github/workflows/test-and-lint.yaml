@@ -24,8 +24,16 @@ jobs:
 
       - name: Install dependencies
         run: |
-          npm install -g pnpm@11.6.0
+          npm install -g pnpm@9
           pnpm install
+
+          for dir in packages/*/ packages/networks/*/; do
+            if [ -d "$dir" ] && [ "$(basename "$dir")" != "boilerplate" ]; then
+              cd "$dir" || exit
+              pnpm install
+              cd - || exit
+            fi
+          done
 
       - name: Runt lint
         run: npm run lint

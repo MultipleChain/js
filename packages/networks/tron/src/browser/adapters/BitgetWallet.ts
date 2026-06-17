@@ -6,6 +6,14 @@ import { BitKeepAdapter } from '@tronweb3/tronwallet-adapter-bitkeep'
 
 const walletProvider = new BitKeepAdapter()
 
+declare global {
+    interface Window {
+        bitkeep?: {
+            tronLink?: boolean
+        }
+    }
+}
+
 const BitgetWallet: WalletAdapterInterface<Provider, WalletProvider> = {
     id: 'bitgetwallet',
     name: 'BitgetWallet',
