@@ -48,7 +48,7 @@ const MetaMask: WalletAdapterInterface<Provider, WalletProvider> = {
         const metamaskProvider = {
             publicKey:
                 metamaskAdapter.accounts.length > 0
-                    ? new PublicKey(metamaskAdapter.accounts[0].publicKey)
+                    ? new PublicKey(metamaskAdapter.accounts[0].address)
                     : null,
             signMessage: async (message: Uint8Array): Promise<Uint8Array> => {
                 return (
@@ -75,7 +75,7 @@ const MetaMask: WalletAdapterInterface<Provider, WalletProvider> = {
             },
             connect: async () => {
                 const { accounts } = await metamaskAdapter.features['standard:connect'].connect()
-                metamaskProvider.publicKey = new PublicKey(accounts[0].publicKey)
+                metamaskProvider.publicKey = new PublicKey(accounts[0].address)
                 return metamaskProvider.publicKey
             },
             disconnect: async () => {

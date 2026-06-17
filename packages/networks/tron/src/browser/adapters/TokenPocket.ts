@@ -6,14 +6,6 @@ import { TokenPocketAdapter } from '@tronweb3/tronwallet-adapter-tokenpocket'
 
 const walletProvider = new TokenPocketAdapter()
 
-declare global {
-    interface Window {
-        tokenpocket?: {
-            tron: any
-        }
-    }
-}
-
 const TokenPocket: WalletAdapterInterface<Provider, WalletProvider> = {
     id: 'tokenpocket',
     name: 'TokenPocket',

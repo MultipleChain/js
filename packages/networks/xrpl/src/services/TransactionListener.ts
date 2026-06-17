@@ -380,13 +380,14 @@ export class TransactionListener<
         const args: Command = { streams: ['transactions'] }
 
         if (sender !== undefined || filter.receiver !== undefined) {
-            args.accounts = []
+            const accounts: string[] = []
             if (sender !== undefined) {
-                args.accounts.push(sender)
+                accounts.push(sender)
             }
             if (filter.receiver !== undefined) {
-                args.accounts.push(filter.receiver)
+                accounts.push(filter.receiver)
             }
+            args.accounts = accounts
         }
 
         this.subscribeCommand = args

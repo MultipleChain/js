@@ -17,23 +17,15 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Create .env file
         run: cp .env.example .env
 
       - name: Install dependencies
         run: |
-          npm install -g pnpm
+          npm install -g pnpm@11.6.0
           pnpm install
-
-          for dir in packages/*/ packages/networks/*/; do
-            if [ -d "$dir" ] && [ "$(basename "$dir")" != "boilerplate" ]; then
-              cd "$dir" || exit
-              pnpm install
-              cd - || exit
-            fi
-          done
 
       - name: Runt lint
         run: npm run lint
