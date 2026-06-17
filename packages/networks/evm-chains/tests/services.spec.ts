@@ -78,8 +78,8 @@ describe('Networks', () => {
     })
 
     it('findBySymbol', () => {
-        // @ts-expect-error abstractTestnet is defined
-        expect(networks.findBySymbol('ETH')).toBe(networks.abstractTestnet)
+        // @ts-expect-error abey is defined
+        expect(networks.findBySymbol('ABEY')).toBe(networks.abey)
     })
 
     it('findByHexId', () => {
