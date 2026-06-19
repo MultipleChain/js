@@ -45,12 +45,16 @@ export class Transaction implements TransactionInterface<TransactionData> {
         this.provider = provider ?? Provider.instance
     }
 
+    private isFinalized(data: TransactionData | null): boolean {
+        return Boolean(data?.transaction.prev_trans_hash)
+    }
+
     /**
      * @returns Transaction data
      */
     async getData(): Promise<TransactionData | null> {
         try {
-            if (this.data !== null) {
+            if (this.data !== null && this.isFinalized(this.data)) {
                 return this.data
             }
 
@@ -77,7 +81,11 @@ export class Transaction implements TransactionInterface<TransactionData> {
                 return null
             }
 
-            return (this.data = { transaction, action })
+            const txData = { transaction, action }
+            if (this.isFinalized(txData)) {
+                this.data = txData
+            }
+            return txData
         } catch (error) {
             console.error('MC TON TX getData', error)
             throw new Error(ErrorTypeEnum.RPC_REQUEST_ERROR)

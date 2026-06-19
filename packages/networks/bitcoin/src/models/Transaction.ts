@@ -55,8 +55,6 @@ export interface TransactionData {
     }
 }
 
-let counter = 0
-
 export class Transaction implements TransactionInterface<TransactionData> {
     /**
      * Each transaction has its own unique ID defined by the user
@@ -73,6 +71,8 @@ export class Transaction implements TransactionInterface<TransactionData> {
      */
     data: TransactionData | null = null
 
+    private notFoundRetries = 0
+
     /**
      * @param id Transaction id
      * @param provider Blockchain network provider
@@ -82,30 +82,41 @@ export class Transaction implements TransactionInterface<TransactionData> {
         this.provider = provider ?? Provider.instance
     }
 
+    private isFinalized(data: TransactionData | null): boolean {
+        if (data === null) {
+            return false
+        }
+        return data.status?.confirmed === true || data.status?.block_height !== undefined
+    }
+
     /**
      * @returns Transaction data
      */
     async getData(): Promise<TransactionData | null> {
-        if (this.data !== null) {
+        if (this.data !== null && this.isFinalized(this.data)) {
             return this.data
         }
         try {
             const data = (await axios.get(this.provider.createEndpoint('tx/' + this.id))).data
 
             if (data?.txid !== this.id) {
-                return (this.data = null)
+                return null
             }
 
-            return (this.data = data as TransactionData)
+            const txData = data as TransactionData
+            if (this.isFinalized(txData)) {
+                this.data = txData
+            }
+            return txData
         } catch (error) {
             console.error('MC Bitcoin TX getData', error)
             const axiosError = error as AxiosError
             // Returns empty data when the transaction is first created. For this reason, it would be better to check it intermittently and give an error if it still does not exist. Average 10 seconds.
             if (String(axiosError?.response?.data).includes('Transaction not found')) {
-                if (counter > 5) {
+                if (this.notFoundRetries > 5) {
                     throw new Error(ErrorTypeEnum.TRANSACTION_NOT_FOUND)
                 }
-                counter++
+                this.notFoundRetries++
                 await sleep(2000)
                 return await this.getData()
             }
