@@ -43,11 +43,15 @@ export class Transaction implements TransactionInterface<ParsedTransactionWithMe
         this.provider = provider ?? Provider.instance
     }
 
+    private isFinalized(data: ParsedTransactionWithMeta | null): boolean {
+        return data !== null
+    }
+
     /**
      * @returns Transaction data
      */
     async getData(): Promise<ParsedTransactionWithMeta | null> {
-        if (this.data !== null) {
+        if (this.data !== null && this.isFinalized(this.data)) {
             return this.data
         }
         try {
@@ -59,7 +63,8 @@ export class Transaction implements TransactionInterface<ParsedTransactionWithMe
                 return null
             }
 
-            return (this.data = data)
+            this.data = data
+            return data
         } catch (error) {
             console.error('MC Solana TX getData', error)
             throw new Error(ErrorTypeEnum.RPC_REQUEST_ERROR)

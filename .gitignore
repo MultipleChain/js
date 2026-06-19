@@ -31,3 +31,6 @@ index.html
 *.sw?
 
 .npmrc
+
+# Local WordPress deploy script (machine-specific paths)
+build-wp.ts

@@ -21,8 +21,6 @@ export type TransactionData = BaseTransactionData & {
     date?: number
 }
 
-let counter = 0
-
 export class Transaction implements TransactionInterface<TransactionData> {
     /**
      * Each transaction has its own unique ID defined by the user
@@ -39,6 +37,8 @@ export class Transaction implements TransactionInterface<TransactionData> {
      */
     data: TransactionData | null = null
 
+    private notFoundRetries = 0
+
     /**
      * @param id Transaction id
      * @param provider Blockchain network provider
@@ -48,23 +48,31 @@ export class Transaction implements TransactionInterface<TransactionData> {
         this.provider = provider ?? Provider.instance
     }
 
+    private isFinalized(data: TransactionData | null): boolean {
+        return data?.meta !== undefined
+    }
+
     /**
      * @returns Transaction data
      */
     async getData(): Promise<TransactionData | null> {
-        if (this.data?.meta) {
+        if (this.data !== null && this.isFinalized(this.data)) {
             return this.data
         }
         try {
-            return (this.data = await this.provider.rpc.getTransaction(this.id))
+            const data = await this.provider.rpc.getTransaction(this.id)
+            if (this.isFinalized(data)) {
+                this.data = data
+            }
+            return data
         } catch (error) {
             console.error('MC XRPl TX getData', error)
             // Returns empty data when the transaction is first created. For this reason, it would be better to check it intermittently and give an error if it still does not exist. Average 10 seconds.
             if (String((error as any).message).includes('Transaction not found')) {
-                if (counter > 5) {
+                if (this.notFoundRetries > 5) {
                     throw new Error(ErrorTypeEnum.TRANSACTION_NOT_FOUND)
                 }
-                counter++
+                this.notFoundRetries++
                 await sleep(2000)
                 return await this.getData()
             }
@@ -83,6 +91,7 @@ export class Transaction implements TransactionInterface<TransactionData> {
                     const status = await this.getStatus()
                     if (status !== TransactionStatusEnum.PENDING) {
                         resolve(status)
+                        return
                     }
                     setTimeout(check, ms)
                 } catch (error) {

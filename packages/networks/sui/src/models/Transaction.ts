@@ -54,11 +54,16 @@ export class Transaction implements TransactionInterface<TxData> {
         this.provider = provider ?? Provider.instance
     }
 
+    private isFinalized(data: TxData | null): boolean {
+        const status = data?.effects?.status.status
+        return status === 'success' || status === 'failure'
+    }
+
     /**
      * @returns Transaction data
      */
     async getData(): Promise<TxData | null> {
-        if (this.data) {
+        if (this.data !== null && this.isFinalized(this.data)) {
             return this.data
         }
         try {
@@ -76,7 +81,10 @@ export class Transaction implements TransactionInterface<TxData> {
             if (response.transaction === null) {
                 return null
             }
-            return (this.data = response)
+            if (this.isFinalized(response)) {
+                this.data = response
+            }
+            return response
         } catch (error) {
             console.error('MC SUI TX getData', error)
             if (error instanceof Error && String(error.message).includes('timeout')) {

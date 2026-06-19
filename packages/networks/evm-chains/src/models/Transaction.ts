@@ -72,11 +72,15 @@ export class Transaction implements TransactionInterface<TransactionData> {
         this.ethers = this.provider.ethers
     }
 
+    private isFinalized(data: TransactionData | undefined): boolean {
+        return data?.receipt !== null && data?.receipt !== undefined
+    }
+
     /**
      * @returns Transaction data
      */
     async getData(): Promise<TransactionData | null> {
-        if (this.data?.response !== undefined && this.data?.receipt !== null) {
+        if (this.data !== undefined && this.isFinalized(this.data)) {
             return this.data
         }
         try {
@@ -85,7 +89,11 @@ export class Transaction implements TransactionInterface<TransactionData> {
                 return null
             }
             const receipt = await this.ethers.getTransactionReceipt(this.id)
-            return (this.data = { response, receipt })
+            const txData = { response, receipt }
+            if (this.isFinalized(txData)) {
+                this.data = txData
+            }
+            return txData
         } catch (error) {
             console.error('MC EVM TX getData', error)
             if (error instanceof Error && String(error.message).includes('timeout')) {

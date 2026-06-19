@@ -118,12 +118,16 @@ export class Transaction implements TransactionInterface<TransactionData> {
         this.provider = provider ?? Provider.instance
     }
 
+    private isFinalized(data: TransactionData | undefined): boolean {
+        return data?.info?.blockNumber !== undefined
+    }
+
     /**
      * @returns Transaction data
      */
     async getData(): Promise<TransactionData | null> {
         try {
-            if (this.data?.info !== undefined) {
+            if (this.data !== undefined && this.isFinalized(this.data)) {
                 return this.data
             }
             this.data = (await this.provider.tronWeb.trx.getTransaction(this.id)) ?? undefined
