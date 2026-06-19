@@ -41,6 +41,7 @@
         "dist/",
         "node_modules/",
         "test*.ts",
+        "build-wp.ts",
         "packages/networks/boilerplate/"
     ]
 }
