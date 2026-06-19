@@ -208,11 +208,12 @@ export class Transaction implements TransactionInterface<TransactionData> {
      */
     async getBlockConfirmationCount(): Promise<BlockConfirmationCount> {
         const data = await this.getData()
-        if (data === null) {
+        if (data?.status?.block_height === undefined) {
             return 0
         }
         const latestBlock = await axios.get(this.provider.createEndpoint('blocks/tip/height'))
-        return (latestBlock.data as number) - data?.status?.block_height
+        const confirmations = (latestBlock.data as number) - data.status.block_height + 1
+        return confirmations < 0 ? 0 : confirmations
     }
 
     /**
