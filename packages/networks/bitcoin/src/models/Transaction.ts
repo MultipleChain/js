@@ -86,7 +86,7 @@ export class Transaction implements TransactionInterface<TransactionData> {
         if (data === null) {
             return false
         }
-        return data.status?.confirmed === true || data.status?.block_height !== undefined
+        return data.status?.confirmed || data.status?.block_height !== undefined
     }
 
     /**
