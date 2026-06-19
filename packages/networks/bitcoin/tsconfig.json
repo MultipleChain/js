@@ -12,6 +12,7 @@
         ".eslintrc.json",
         "tests",
         "vite.config.ts",
+        "vite-bitcore-plugin.ts",
         "esbuild.ts",
         "vitest.config.ts",
         "../../../esbuild.ts",
