@@ -1,15 +1,36 @@
 import { fromSatoshi } from '../utils'
-import { Transaction } from './Transaction'
+import { Transaction, type VoutObject } from './Transaction'
 import { TransactionStatusEnum, AssetDirectionEnum } from '@multiplechain/types'
 import type { WalletAddress, CoinTransactionInterface, TransferAmount } from '@multiplechain/types'
 
 export class CoinTransaction extends Transaction implements CoinTransactionInterface {
     /**
+     * Sum the value (in satoshi) of every output paying to the given address.
+     * Bitcoin allows an address to appear in multiple outputs, so we sum
+     * instead of picking the first match.
+     * @param outputs - Transaction outputs (vout)
+     * @param address - Wallet address to total
+     * @returns Total value in satoshi
+     */
+    private sumOutputsFor(outputs: VoutObject[], address: WalletAddress): number {
+        const target = address.toLowerCase()
+        return outputs
+            .filter((output) => output.scriptpubkey_address?.toLowerCase() === target)
+            .reduce((total, output) => total + output.value, 0)
+    }
+
+    /**
      * @returns Wallet address of the receiver of transaction
      */
     async getReceiver(): Promise<WalletAddress> {
         const data = await this.getData()
-        return data?.vout[0].scriptpubkey_address ?? ''
+        const outputs = data?.vout ?? []
+        const sender = (await this.getSender()).toLowerCase()
+        // The receiver is the first output that is not change back to the sender.
+        const received = outputs.find(
+            (output) => output.scriptpubkey_address?.toLowerCase() !== sender
+        )
+        return received?.scriptpubkey_address ?? outputs[0]?.scriptpubkey_address ?? ''
     }
 
     /**
@@ -20,11 +41,29 @@ export class CoinTransaction extends Transaction implements CoinTransactionInter
     }
 
     /**
-     * @returns Amount of coin that will be transferred
+     * Bitcoin has no protocol-level "transfer amount": a transaction is just
+     * inputs -> outputs with no flag marking payment vs. change. So the amount
+     * can only be resolved relative to an address.
+     * @param address - When given, totals every output paying to that address.
+     *                   When omitted, returns the amount that left the sender
+     *                   (every output not returning to the sender as change).
+     * @returns Amount of coin that was transferred
      */
-    async getAmount(): Promise<TransferAmount> {
+    async getAmount(address?: WalletAddress): Promise<TransferAmount> {
         const data = await this.getData()
-        return fromSatoshi(data?.vout[0].value ?? 0)
+        const outputs = data?.vout ?? []
+
+        if (address !== undefined) {
+            return fromSatoshi(this.sumOutputsFor(outputs, address))
+        }
+
+        const sender = (await this.getSender()).toLowerCase()
+        const outgoing = outputs.filter(
+            (output) => output.scriptpubkey_address?.toLowerCase() !== sender
+        )
+        // Self-transfer (every output returns to the sender): fall back to total.
+        const relevant = outgoing.length > 0 ? outgoing : outputs
+        return fromSatoshi(relevant.reduce((total, output) => total + output.value, 0))
     }
 
     /**
@@ -44,16 +83,16 @@ export class CoinTransaction extends Transaction implements CoinTransactionInter
             return TransactionStatusEnum.PENDING
         }
 
-        if ((await this.getAmount()) !== amount) {
-            return TransactionStatusEnum.FAILED
-        }
-
         if (direction === AssetDirectionEnum.INCOMING) {
-            if ((await this.getReceiver()).toLowerCase() !== address.toLowerCase()) {
+            // Total received by this specific address, regardless of output order.
+            if ((await this.getAmount(address)) !== amount) {
                 return TransactionStatusEnum.FAILED
             }
         } else {
             if ((await this.getSender()).toLowerCase() !== address.toLowerCase()) {
+                return TransactionStatusEnum.FAILED
+            }
+            if ((await this.getAmount()) !== amount) {
                 return TransactionStatusEnum.FAILED
             }
         }

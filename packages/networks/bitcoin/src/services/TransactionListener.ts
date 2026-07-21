@@ -5,9 +5,10 @@ import type {
     DynamicTransactionListenerFilterType,
     TransactionId
 } from '@multiplechain/types'
+import axios from 'axios'
 import WebSocket from 'isomorphic-ws'
 import { Provider } from './Provider'
-import { fromSatoshi } from '../utils'
+import { fromSatoshi, toSatoshi } from '../utils'
 import { Transaction } from '../models/Transaction'
 import { CoinTransaction } from '../models/CoinTransaction'
 import { checkWebSocket } from '@multiplechain/utils'
@@ -106,6 +107,62 @@ export class TransactionListener<
     private connectionVerified = false
 
     /**
+     * Timestamp (ms) of the last message received on the active socket.
+     * Any inbound frame (including pong) refreshes it; the heartbeat uses
+     * it to detect a silently dropped ("half-open") connection.
+     */
+    private lastMessageAt = 0
+
+    /**
+     * Consecutive reconnect attempts, used for exponential backoff
+     */
+    private reconnectAttempts = 0
+
+    /**
+     * Pending reconnect timer handle
+     */
+    private reconnectTimer?: ReturnType<typeof setTimeout>
+
+    /**
+     * Timer that resets the backoff once a connection proves stable
+     */
+    private stabilityTimer?: ReturnType<typeof setTimeout>
+
+    /**
+     * Whether at least one connection has already been established.
+     * Used to run gap catch-up on reconnects but not on the first connect.
+     */
+    private hasConnectedOnce = false
+
+    /**
+     * Block height when the listener started. Catch-up replays confirmed
+     * transactions only above this height, so a transaction that arrived AND
+     * confirmed during a reconnect gap is still recovered, without ever
+     * re-triggering historical activity from before the listener started.
+     */
+    private startBlockHeight?: number
+
+    /**
+     * Best-effort routine run after a reconnect to recover transactions
+     * that arrived while the socket was down (mempool.space only pushes
+     * transactions seen after subscription, so a reconnect gap can miss them).
+     */
+    private catchUp?: () => void | Promise<void>
+
+    /**
+     * Interval between keepalive pings (ms). Kept well below typical
+     * proxy/Cloudflare idle timeouts so the connection stays alive.
+     */
+    private readonly pingIntervalMs = 15_000
+
+    /**
+     * Max silence (ms) tolerated before the socket is considered dead.
+     * Three ping intervals, so a single slow pong does not trip it while
+     * still keeping worst-case dead-connection detection around ~45-60s.
+     */
+    private readonly livenessTimeoutMs = 45_000
+
+    /**
      * Dynamic stop method
      */
     dynamicStop: () => void = () => {}
@@ -170,6 +227,21 @@ export class TransactionListener<
             }
         }
 
+        // Record the tip height once, so reconnect catch-up can recover a
+        // transaction that both arrived and confirmed during a gap without
+        // replaying older history. Best-effort; esplora endpoint only.
+        if (this.provider.blockCypherToken === undefined && this.startBlockHeight === undefined) {
+            try {
+                const res = await axios.get(this.provider.createEndpoint('blocks/tip/height'))
+                const height = Number(res.data)
+                if (Number.isFinite(height)) {
+                    this.startBlockHeight = height
+                }
+            } catch {
+                /* best-effort: confirmed catch-up is skipped if height is unknown */
+            }
+        }
+
         this.callbacks.push(callback)
         this.start()
 
@@ -228,10 +300,30 @@ export class TransactionListener<
         return message
     }
 
-    private clearResilienceTimers(): void {
+    /**
+     * Clear per-connection timers (heartbeat + stability), leaving any
+     * pending reconnect intact.
+     */
+    private clearHeartbeat(): void {
         if (this.keepaliveTimer !== undefined) {
             clearInterval(this.keepaliveTimer)
             this.keepaliveTimer = undefined
+        }
+        if (this.stabilityTimer !== undefined) {
+            clearTimeout(this.stabilityTimer)
+            this.stabilityTimer = undefined
+        }
+    }
+
+    /**
+     * Clear every resilience timer, including a scheduled reconnect.
+     * Used when the listener is stopped for good.
+     */
+    private clearResilienceTimers(): void {
+        this.clearHeartbeat()
+        if (this.reconnectTimer !== undefined) {
+            clearTimeout(this.reconnectTimer)
+            this.reconnectTimer = undefined
         }
     }
 
@@ -252,35 +344,100 @@ export class TransactionListener<
         }
     }
 
-    private startKeepalive(): void {
+    /**
+     * Start the heartbeat: periodically ping the endpoint and, on ping-capable
+     * endpoints, tear down the socket if it stops answering (dead-connection
+     * detection). Also arms a stability timer that resets the backoff once the
+     * connection has held for a while.
+     */
+    private startHeartbeat(): void {
         const pingMessage = this.getPingMessage()
+        this.clearHeartbeat()
+        this.lastMessageAt = Date.now()
 
+        // Once a connection stays up for a while, treat it as healthy and
+        // reset the backoff so the next unrelated drop reconnects quickly.
+        this.stabilityTimer = setTimeout(() => {
+            this.reconnectAttempts = 0
+        }, 15_000)
+
+        // BlockCypher has no app-level ping; rely on close + backoff only.
         if (pingMessage === null) {
             return
         }
 
-        if (this.keepaliveTimer !== undefined) {
-            clearInterval(this.keepaliveTimer)
-        }
-
         this.keepaliveTimer = setInterval(() => {
-            if (this.webSocket?.readyState === WebSocket.OPEN) {
-                this.webSocket.send(pingMessage)
+            if (this.webSocket?.readyState !== WebSocket.OPEN) {
+                return
             }
-        }, 30_000)
+
+            // No inbound frame (not even a pong) for too long => the socket is
+            // silently dead. Force a reconnect instead of waiting forever.
+            if (Date.now() - this.lastMessageAt > this.livenessTimeoutMs) {
+                this.handleDeadConnection()
+                return
+            }
+
+            this.webSocket.send(pingMessage)
+        }, this.pingIntervalMs)
     }
 
+    /**
+     * Handle a socket that is open at the OS level but no longer delivering
+     * data. Orphan the stale socket (so its late handlers are ignored), close
+     * it, and schedule a backed-off reconnect.
+     */
+    private handleDeadConnection(): void {
+        this.clearHeartbeat()
+        const socket = this.webSocket
+        this.connectionId++
+        if (socket !== undefined) {
+            try {
+                socket.close()
+            } catch {
+                /* ignore */
+            }
+        }
+        this.scheduleReconnect()
+    }
+
+    /**
+     * Schedule a single reconnect with exponential backoff + jitter. Idempotent:
+     * if a reconnect is already pending it is a no-op, so a dead-connection
+     * teardown and a late close event cannot stack up into a hot reconnect loop
+     * (which would get the IP rate-limited/banned).
+     */
     private scheduleReconnect(): void {
         if (this.intentionalStop || !this.status) {
             return
         }
 
-        this.clearResilienceTimers()
-        queueMicrotask(() => {
+        if (this.reconnectTimer !== undefined) {
+            return
+        }
+
+        this.clearHeartbeat()
+        const delay = this.getReconnectDelay()
+        this.reconnectTimer = setTimeout(() => {
+            this.reconnectTimer = undefined
             if (!this.intentionalStop && this.status) {
                 this.connectWebSocket()
             }
-        })
+        }, delay)
+    }
+
+    /**
+     * Compute the next reconnect delay: exponential (1s, 2s, 4s, …) capped at
+     * 30s, plus up to 30% jitter to avoid synchronized reconnect storms.
+     * @returns Delay in milliseconds before the next reconnect attempt
+     */
+    private getReconnectDelay(): number {
+        const base = 1_000
+        const cap = 30_000
+        const exp = Math.min(cap, base * 2 ** this.reconnectAttempts)
+        this.reconnectAttempts++
+        const jitter = Math.random() * exp * 0.3
+        return Math.min(cap, Math.round(exp + jitter))
     }
 
     private bindWebSocketHandlers(connectionId: number): void {
@@ -290,13 +447,23 @@ export class TransactionListener<
             }
 
             this.sendSubscription()
-            this.startKeepalive()
+            this.startHeartbeat()
+
+            // On a reconnect (not the first connect) recover anything missed
+            // during the gap; the initial connect keeps its "future only" semantics.
+            if (this.hasConnectedOnce) {
+                void this.runCatchUp()
+            }
+            this.hasConnectedOnce = true
         })
 
         this.webSocket.addEventListener('message', (res: WebSocket.MessageEvent) => {
             if (connectionId !== this.connectionId) {
                 return
             }
+
+            // Any inbound frame (including {"pong":true}) proves the socket is alive.
+            this.lastMessageAt = Date.now()
 
             let data: any
 
@@ -318,7 +485,7 @@ export class TransactionListener<
                 return
             }
 
-            this.clearResilienceTimers()
+            this.clearHeartbeat()
             this.scheduleReconnect()
         })
 
@@ -334,7 +501,7 @@ export class TransactionListener<
 
         if (this.webSocket.readyState === WebSocket.OPEN) {
             this.sendSubscription()
-            this.startKeepalive()
+            this.startHeartbeat()
         }
     }
 
@@ -348,9 +515,14 @@ export class TransactionListener<
         this.bindWebSocketHandlers(connectionId)
     }
 
-    private ensureConnected(message: string, onData: (data: any) => void): void {
+    private ensureConnected(
+        message: string,
+        onData: (data: any) => void,
+        catchUp?: () => void | Promise<void>
+    ): void {
         this.subscriptionMessage = message
         this.onData = onData
+        this.catchUp = catchUp
         this.intentionalStop = false
 
         if (
@@ -364,8 +536,58 @@ export class TransactionListener<
 
         if (this.webSocket.readyState === WebSocket.OPEN) {
             this.sendSubscription()
-            this.startKeepalive()
+            this.startHeartbeat()
         }
+    }
+
+    /**
+     * Run the registered catch-up routine, swallowing any failure. Catch-up is
+     * best-effort; the live socket remains the primary source of truth.
+     */
+    private async runCatchUp(): Promise<void> {
+        if (this.catchUp === undefined) {
+            return
+        }
+
+        try {
+            await this.catchUp()
+        } catch {
+            /* ignore: catch-up must never disrupt the live listener */
+        }
+    }
+
+    /**
+     * Fetch the transactions to replay after a reconnect for an address, via
+     * the esplora/blockstream REST API. Includes every unconfirmed transaction
+     * plus any transaction confirmed above the listener's start height, so a
+     * transaction that arrived — or arrived and confirmed — during the gap is
+     * recovered, while historical activity from before the listener started is
+     * never replayed. Not available on the BlockCypher endpoint.
+     * @param address - Address to fetch catch-up transactions for
+     * @returns Array of transactions to replay, or empty when unavailable
+     */
+    private async fetchAddressCatchUpTxs(address: string): Promise<any[]> {
+        if (this.provider.blockCypherToken !== undefined) {
+            return []
+        }
+
+        // /txs returns pending transactions first, then the most recent confirmed.
+        const url = this.provider.createEndpoint('address/' + address + '/txs')
+        const response = await axios.get(url)
+        const txs = Array.isArray(response.data) ? response.data : []
+
+        return txs.filter((tx: any) => {
+            if (tx?.status?.confirmed !== true) {
+                return true // still pending: a payment that landed during the gap
+            }
+
+            // Confirmed: replay only blocks mined after we started listening.
+            return (
+                this.startBlockHeight !== undefined &&
+                typeof tx.status.block_height === 'number' &&
+                tx.status.block_height > this.startBlockHeight
+            )
+        })
     }
 
     private extractTransactions(data: any): any[] | null {
@@ -397,6 +619,12 @@ export class TransactionListener<
         tx: any,
         options?: { receiver?: string; sender?: string }
     ): Values | null {
+        // BlockCypher pushes a different shape (.hash/.outputs/.inputs/.addresses)
+        // than esplora/mempool.space (.txid/.vout/.vin). Route accordingly.
+        if (this.provider.blockCypherToken !== undefined) {
+            return this.getValuesFromBlockCypherTx(tx, options)
+        }
+
         if (tx?.txid === undefined) {
             return null
         }
@@ -408,16 +636,43 @@ export class TransactionListener<
         let amount: number | undefined
 
         if (receiverFilter !== undefined) {
-            const vout = tx.vout?.find(
+            // An address can appear in multiple outputs, so total them all
+            // instead of picking the first match.
+            const outputs = (tx.vout ?? []).filter(
                 (output: any) => output.scriptpubkey_address?.toLowerCase() === receiverFilter
             )
 
-            if (vout === undefined) {
+            if (outputs.length === 0) {
                 return null
             }
 
-            receiver = vout.scriptpubkey_address
-            amount = fromSatoshi(vout.value as number)
+            receiver = outputs[0].scriptpubkey_address
+            amount = fromSatoshi(
+                Number(
+                    outputs.reduce(
+                        (total: number, output: any) => total + (output.value as number),
+                        0
+                    )
+                )
+            )
+        } else if (senderFilter !== undefined) {
+            // Outgoing: the transferred amount is what left the sender, i.e.
+            // every output not returning to the sender as change. Reading vout[0]
+            // here would report the change output on many wallets.
+            const all = tx.vout ?? []
+            const outgoing = all.filter(
+                (output: any) => output.scriptpubkey_address?.toLowerCase() !== senderFilter
+            )
+            const relevant = outgoing.length > 0 ? outgoing : all
+            receiver = relevant[0]?.scriptpubkey_address
+            amount = fromSatoshi(
+                Number(
+                    relevant.reduce(
+                        (total: number, output: any) => total + (output.value as number),
+                        0
+                    )
+                )
+            )
         } else {
             receiver = tx.vout?.[0]?.scriptpubkey_address
             amount = fromSatoshi(tx.vout?.[0]?.value as number)
@@ -457,65 +712,74 @@ export class TransactionListener<
      * @param options.sender - Sender address to match in inputs
      * @returns Parsed data, or null when the message has no transaction payload
      */
-    getValues(data: any, options?: { receiver?: string; sender?: string }): Values | null {
-        if (this.provider.blockCypherToken !== undefined) {
-            if (data.hash === undefined) {
-                return null
-            }
-
-            const receiverFilter = options?.receiver?.toLowerCase()
-            const senderFilter = options?.sender?.toLowerCase()
-
-            let receiver: string | undefined
-            let amount: number | undefined
-
-            if (receiverFilter !== undefined) {
-                const output = data.outputs?.find(
-                    (o: any) => o.addresses?.[0]?.toLowerCase() === receiverFilter
-                )
-
-                if (output === undefined) {
-                    return null
-                }
-
-                receiver = output.addresses[0]
-                amount = fromSatoshi(output.value as number)
-            } else {
-                receiver = data.outputs?.[0]?.addresses?.[0]
-                amount = fromSatoshi(data.outputs?.[0]?.value as number)
-            }
-
-            let sender: string | undefined
-
-            if (senderFilter !== undefined) {
-                const input = data.inputs?.find(
-                    (i: any) => i.addresses?.[0]?.toLowerCase() === senderFilter
-                )
-
-                if (input === undefined) {
-                    return null
-                }
-
-                sender = input.addresses[0]
-            } else {
-                sender = data.inputs?.[0]?.addresses?.[0]
-            }
-
-            return {
-                txId: data.hash,
-                sender,
-                receiver,
-                amount
-            }
-        }
-
-        const transactions = this.extractTransactions(data)
-
-        if (transactions === null) {
+    private getValuesFromBlockCypherTx(
+        data: any,
+        options?: { receiver?: string; sender?: string }
+    ): Values | null {
+        if (data?.hash === undefined) {
             return null
         }
 
-        return this.getValuesFromTx(transactions[0], options)
+        const receiverFilter = options?.receiver?.toLowerCase()
+        const senderFilter = options?.sender?.toLowerCase()
+
+        let receiver: string | undefined
+        let amount: number | undefined
+
+        if (receiverFilter !== undefined) {
+            // An address can appear in multiple outputs, so total them all
+            // instead of picking the first match.
+            const outputs = (data.outputs ?? []).filter(
+                (o: any) => o.addresses?.[0]?.toLowerCase() === receiverFilter
+            )
+
+            if (outputs.length === 0) {
+                return null
+            }
+
+            receiver = outputs[0].addresses[0]
+            amount = fromSatoshi(
+                Number(outputs.reduce((total: number, o: any) => total + (o.value as number), 0))
+            )
+        } else if (senderFilter !== undefined) {
+            // Outgoing: total what left the sender (every output not returning
+            // to the sender as change), not vout[0] which is often the change.
+            const all = data.outputs ?? []
+            const outgoing = all.filter(
+                (o: any) => o.addresses?.[0]?.toLowerCase() !== senderFilter
+            )
+            const relevant = outgoing.length > 0 ? outgoing : all
+            receiver = relevant[0]?.addresses?.[0]
+            amount = fromSatoshi(
+                Number(relevant.reduce((total: number, o: any) => total + (o.value as number), 0))
+            )
+        } else {
+            receiver = data.outputs?.[0]?.addresses?.[0]
+            amount = fromSatoshi(data.outputs?.[0]?.value as number)
+        }
+
+        let sender: string | undefined
+
+        if (senderFilter !== undefined) {
+            const input = data.inputs?.find(
+                (i: any) => i.addresses?.[0]?.toLowerCase() === senderFilter
+            )
+
+            if (input === undefined) {
+                return null
+            }
+
+            sender = input.addresses[0]
+        } else {
+            sender = data.inputs?.[0]?.addresses?.[0]
+        }
+
+        return {
+            txId: data.hash,
+            sender,
+            receiver,
+            amount
+        }
     }
 
     /**
@@ -528,27 +792,40 @@ export class TransactionListener<
             )
         }
 
-        const message = this.createMessage(this.filter?.signer)
+        const signer = this.filter?.signer
+        const message = this.createMessage(signer)
 
-        this.ensureConnected(message, (data) => {
-            const transactions = this.extractTransactions(data)
+        const handleTx = (tx: any): void => {
+            const values = this.getValuesFromTx(tx, { sender: signer })
 
-            if (transactions === null) {
+            if (values === null) {
                 return
             }
 
-            for (const tx of transactions) {
-                const values = this.getValuesFromTx(tx, {
-                    sender: this.filter?.signer
-                })
+            this.trigger(new Transaction(values.txId))
+        }
 
-                if (values === null) {
-                    continue
+        this.ensureConnected(
+            message,
+            (data) => {
+                const transactions = this.extractTransactions(data)
+
+                if (transactions === null) {
+                    return
                 }
 
-                this.trigger(new Transaction(values.txId))
-            }
-        })
+                for (const tx of transactions) {
+                    handleTx(tx)
+                }
+            },
+            signer !== undefined
+                ? async () => {
+                      for (const tx of await this.fetchAddressCatchUpTxs(signer)) {
+                          handleTx(tx)
+                      }
+                  }
+                : undefined
+        )
     }
 
     /**
@@ -586,36 +863,69 @@ export class TransactionListener<
             )
         }
 
-        const message = this.createMessage(filter.receiver ?? sender)
+        // An amount filter is only well-defined against a receiver. Bitcoin has no
+        // unambiguous "amount sent" for an outgoing transaction: change to a fresh
+        // address is indistinguishable on-chain from a payment, so a sender-only
+        // amount cannot be trusted. Require the receiver instead of silently
+        // matching against an inflated best-effort amount.
+        if (filter.amount !== undefined && filter.receiver === undefined) {
+            throw new Error(
+                'Coin transaction listener with an amount filter must also define a receiver; ' +
+                    'the amount sent in an outgoing transaction cannot be determined unambiguously on Bitcoin.'
+            )
+        }
 
-        this.ensureConnected(message, (data) => {
-            if (data.event && String(data.event).includes('events limit reached')) {
-                throw new Error('BlockCypher events limit reached.')
-            }
+        const trackedAddress = filter.receiver ?? sender
+        const message = this.createMessage(trackedAddress)
 
-            const transactions = this.extractTransactions(data)
+        const handleTx = (tx: any): void => {
+            const values = this.getValuesFromTx(tx, {
+                receiver: filter.receiver,
+                sender
+            })
 
-            if (transactions === null) {
+            if (values === null) {
                 return
             }
 
-            for (const tx of transactions) {
-                const values = this.getValuesFromTx(tx, {
-                    receiver: filter.receiver,
-                    sender
-                })
-
-                if (values === null) {
-                    continue
+            // Compare as integer satoshis to avoid float-equality misses.
+            if (filter.amount !== undefined) {
+                if (
+                    values.amount === undefined ||
+                    Math.round(toSatoshi(values.amount)) !== Math.round(toSatoshi(filter.amount))
+                ) {
+                    return
                 }
-
-                if (filter.amount !== undefined && values.amount !== filter.amount) {
-                    continue
-                }
-
-                this.trigger(new CoinTransaction(values.txId))
             }
-        })
+
+            this.trigger(new CoinTransaction(values.txId))
+        }
+
+        this.ensureConnected(
+            message,
+            (data) => {
+                if (data.event && String(data.event).includes('events limit reached')) {
+                    throw new Error('BlockCypher events limit reached.')
+                }
+
+                const transactions = this.extractTransactions(data)
+
+                if (transactions === null) {
+                    return
+                }
+
+                for (const tx of transactions) {
+                    handleTx(tx)
+                }
+            },
+            trackedAddress !== undefined
+                ? async () => {
+                      for (const tx of await this.fetchAddressCatchUpTxs(trackedAddress)) {
+                          handleTx(tx)
+                      }
+                  }
+                : undefined
+        )
     }
 
     /**
