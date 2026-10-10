@@ -97,6 +97,11 @@ export class TransactionListener<
     private intentionalStop = false
 
     /**
+     * Incremented by every stop(); pending async work started before a stop must not start afterwards
+     */
+    private stopGeneration = 0
+
+    /**
      * Reconnect backoff in milliseconds
      */
     private reconnectDelayMs = 1_000
@@ -127,6 +132,8 @@ export class TransactionListener<
      * Close the listener
      */
     stop(): void {
+        // Also covers a stop() while on() is still connecting (status is not true yet)
+        this.stopGeneration++
         if (this.status) {
             this.status = false
             this.intentionalStop = true
@@ -134,6 +141,7 @@ export class TransactionListener<
             this.unbindResilience()
             this.dynamicStop()
         }
+        this.provider.releaseWebSocket(this)
     }
 
     /**
@@ -161,7 +169,30 @@ export class TransactionListener<
      * @returns Connection status
      */
     async on(callback: CallBackType): Promise<boolean> {
-        await this.ensureWebSocket()
+        const generation = this.stopGeneration
+        this.provider.holdWebSocket(this)
+
+        try {
+            await this.ensureWebSocket()
+        } catch (error) {
+            // stop() during the connect closed the socket; this is not a failure
+            if (generation !== this.stopGeneration) {
+                return false
+            }
+            if (!this.status) {
+                this.provider.releaseWebSocket(this)
+            }
+            throw error
+        }
+
+        // stop() was called while connecting: do not start
+        if (generation !== this.stopGeneration) {
+            if (!this.status) {
+                this.unbindResilience()
+            }
+            return false
+        }
+
         this.callbacks.push(callback)
         this.start()
 
@@ -173,6 +204,11 @@ export class TransactionListener<
      * @param transaction - Transaction data
      */
     trigger<T extends TransactionTypeEnum>(transaction: TransactionListenerTriggerType<T>): void {
+        // A stopped listener stays silent: an in-flight handler can reach here after stop()
+        if (!this.status) {
+            return
+        }
+
         if (!this.triggeredTransactions.includes(transaction.id)) {
             this.triggeredTransactions.push(transaction.id)
             this.callbacks.forEach((callback) => {
@@ -268,8 +304,17 @@ export class TransactionListener<
             return
         }
 
+        const generation = this.stopGeneration
+
         try {
             await this.ensureWebSocket()
+            // stop() was called while reconnecting: do not resubscribe
+            if (generation !== this.stopGeneration) {
+                if (!this.status) {
+                    this.unbindResilience()
+                }
+                return
+            }
             await this.activateSubscription()
             this.reconnectDelayMs = 1_000
         } catch {
@@ -304,8 +349,16 @@ export class TransactionListener<
             return
         }
 
+        const generation = this.stopGeneration
         const { sub, unSub } = this.createCommands(this.subscribeCommand)
         const handler = this.transactionHandler
+        const unsubscribe = (): void => {
+            if (this.webSocket?.isConnected()) {
+                void this.webSocket.request(unSub).catch(() => {
+                    /* ignore unsubscribe errors on closing socket */
+                })
+            }
+        }
 
         try {
             await this.webSocket.request(sub)
@@ -313,12 +366,16 @@ export class TransactionListener<
             throw error instanceof Error ? error : new Error(String(error))
         }
 
+        // stop() was called while subscribing: drop the subscription instead of attaching
+        if (generation !== this.stopGeneration) {
+            unsubscribe()
+            return
+        }
+
         this.webSocket.on('transaction', handler)
 
         this.dynamicStop = () => {
-            if (this.webSocket?.isConnected()) {
-                void this.webSocket.request(unSub)
-            }
+            unsubscribe()
             this.webSocket?.off('transaction', handler)
         }
     }

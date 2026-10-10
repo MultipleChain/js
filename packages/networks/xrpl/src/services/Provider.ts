@@ -28,6 +28,11 @@ export class Provider implements ProviderInterface<NetworkConfigInterface> {
     mainnetWs = 'wss://xrplcluster.com'
 
     /**
+     * Listeners currently using the websocket client
+     */
+    private readonly wsHolders = new Set<object>()
+
+    /**
      * Static instance of the provider
      */
     private static _instance: Provider
@@ -112,10 +117,36 @@ export class Provider implements ProviderInterface<NetworkConfigInterface> {
      * Drop the websocket client so the next connect opens a fresh socket.
      */
     resetWebSocket(): void {
-        if (this.ws.isConnected()) {
-            void this.ws.disconnect()
-        }
+        const ws = this.ws
+        // Close the dropped client in any state (open, connecting or closed with a pending
+        // reconnect). xrpl reconnects a client by itself after an unexpected close, so close
+        // it again if it ever comes back; otherwise the old socket stays open forever.
+        ws.on('connected', () => {
+            void ws.disconnect()
+        })
+        void ws.disconnect()
         this.ws = new WsClient(this.network.wsUrl ?? '')
+    }
+
+    /**
+     * Mark the websocket client as used by a listener.
+     * @param holder - Listener that uses the websocket client
+     */
+    holdWebSocket(holder: object): void {
+        this.wsHolders.add(holder)
+    }
+
+    /**
+     * Release a listener's hold on the websocket client.
+     * The client is shared by all listeners of this provider, so it is closed only
+     * when the last listener releases it.
+     * @param holder - Listener that no longer uses the websocket client
+     */
+    releaseWebSocket(holder: object): void {
+        if (!this.wsHolders.delete(holder) || this.wsHolders.size > 0) {
+            return
+        }
+        this.resetWebSocket()
     }
 
     /**
@@ -128,14 +159,23 @@ export class Provider implements ProviderInterface<NetworkConfigInterface> {
             return this.ws
         }
 
-        await Promise.race([
-            this.ws.connect(),
-            new Promise<never>((_resolve, reject) => {
-                setTimeout(() => {
-                    reject(new Error(ErrorTypeEnum.WS_CONNECTION_FAILED))
-                }, timeoutMs)
-            })
-        ])
+        const ws = this.ws
+        let timer: ReturnType<typeof setTimeout> | undefined
+
+        try {
+            await Promise.race([
+                ws.connect(),
+                new Promise<never>((_resolve, reject) => {
+                    timer = setTimeout(() => {
+                        // Close the attempt we gave up on, or it connects later and stays open
+                        void ws.disconnect()
+                        reject(new Error(ErrorTypeEnum.WS_CONNECTION_FAILED))
+                    }, timeoutMs)
+                })
+            ])
+        } finally {
+            clearTimeout(timer)
+        }
 
         return this.ws
     }
