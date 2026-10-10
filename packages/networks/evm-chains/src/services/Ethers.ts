@@ -48,6 +48,11 @@ export class Ethers {
     webSocketProvider?: WebSocketProvider
 
     /**
+     * Number of holders of each connected webSocket provider
+     */
+    private readonly webSocketHolders = new Map<WebSocketProvider, number>()
+
+    /**
      * @param network - Network configuration of the provider
      */
     constructor(network: EvmNetworkConfigInterface) {
@@ -79,6 +84,7 @@ export class Ethers {
     }
 
     /**
+     * Every successful call holds the returned provider until it is given back with releaseWebSocket()
      * @returns Ethers webSocket provider
      */
     public async connectWebSocket(): Promise<WebSocketProvider> {
@@ -87,6 +93,7 @@ export class Ethers {
         }
 
         if (this.webSocketProvider !== undefined) {
+            this.holdWebSocket(this.webSocketProvider)
             return this.webSocketProvider
         }
 
@@ -95,17 +102,79 @@ export class Ethers {
             staticNetwork: true
         })
 
-        await Promise.race([
-            provider.getBlockNumber(),
-            new Promise<never>((_resolve, reject) => {
-                setTimeout(() => {
-                    reject(new Error(ErrorTypeEnum.WS_CONNECTION_FAILED))
-                }, WS_CONNECT_TIMEOUT_MS)
-            })
-        ])
+        let timer: ReturnType<typeof setTimeout> | undefined
+
+        try {
+            await Promise.race([
+                provider.getBlockNumber(),
+                new Promise<never>((_resolve, reject) => {
+                    // ethers does not listen for socket errors, so a failed connection would be an
+                    // unhandled 'error' event. Fail the attempt instead; errors after connecting
+                    // are followed by a 'close' event, which the listeners handle.
+                    provider.websocket.onerror = () => {
+                        reject(new Error(ErrorTypeEnum.WS_CONNECTION_FAILED))
+                    }
+                    timer = setTimeout(() => {
+                        reject(new Error(ErrorTypeEnum.WS_CONNECTION_FAILED))
+                    }, WS_CONNECT_TIMEOUT_MS)
+                })
+            ])
+        } catch (error) {
+            // Close the socket of the failed attempt so it does not keep connecting in the background
+            this.closeWebSocket(provider)
+            throw error
+        } finally {
+            clearTimeout(timer)
+        }
 
         this.webSocketProvider = provider
+        this.holdWebSocket(provider)
         return provider
+    }
+
+    /**
+     * Give back a provider taken with connectWebSocket(), its socket is closed when nothing holds it anymore
+     * @param provider - WebSocket provider to release
+     */
+    public releaseWebSocket(provider: WebSocketProvider): void {
+        const holders = this.webSocketHolders.get(provider)
+
+        if (holders === undefined) {
+            return
+        }
+
+        if (holders > 1) {
+            this.webSocketHolders.set(provider, holders - 1)
+            return
+        }
+
+        this.webSocketHolders.delete(provider)
+
+        if (this.webSocketProvider === provider) {
+            this.webSocketProvider = undefined
+        }
+
+        this.closeWebSocket(provider)
+    }
+
+    /**
+     * @param provider - WebSocket provider to hold
+     */
+    private holdWebSocket(provider: WebSocketProvider): void {
+        this.webSocketHolders.set(provider, (this.webSocketHolders.get(provider) ?? 0) + 1)
+    }
+
+    /**
+     * Closes only the socket: destroy() would also reject requests that are still in flight
+     * (like a just sent eth_subscribe) inside ethers, where nothing catches the rejection.
+     * @param provider - WebSocket provider to close
+     */
+    private closeWebSocket(provider: WebSocketProvider): void {
+        try {
+            provider.websocket.close()
+        } catch {
+            /* already destroyed */
+        }
     }
 
     /**

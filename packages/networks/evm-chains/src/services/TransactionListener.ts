@@ -123,6 +123,11 @@ export class TransactionListener<
     private wsErrorHandler?: (error: Error) => void
 
     /**
+     * Incremented by every stop(), lets a pending connect know that it was cancelled
+     */
+    private stopGeneration = 0
+
+    /**
      * @param type - Transaction type
      * @param filter - Transaction listener filter
      * @param provider - Provider
@@ -139,12 +144,14 @@ export class TransactionListener<
      * Close the listener
      */
     stop(): void {
+        this.stopGeneration++
         if (this.status) {
             this.status = false
             this.intentionalStop = true
             this.clearReconnectTimer()
             this.unbindWebSocketResilience()
             this.dynamicStop()
+            this.releaseWebSocket()
         }
     }
 
@@ -173,7 +180,21 @@ export class TransactionListener<
      * @returns - listener status
      */
     async on(callback: CallBackType): Promise<boolean> {
-        await this.ensureWebSocket()
+        const generation = this.stopGeneration
+
+        try {
+            await this.ensureWebSocket()
+        } catch (error) {
+            if (generation === this.stopGeneration) {
+                throw error
+            }
+        }
+
+        // A stop() issued while connecting wins, the listener is not started
+        if (generation !== this.stopGeneration) {
+            return false
+        }
+
         this.callbacks.push(callback)
         this.start()
 
@@ -185,6 +206,12 @@ export class TransactionListener<
      * @param transaction - Transaction data
      */
     trigger<T extends TransactionTypeEnum>(transaction: TransactionListenerTriggerType<T>): void {
+        // A stopped listener stays silent: an in-flight block scan or transaction.wait()
+        // can reach here after stop().
+        if (!this.status) {
+            return
+        }
+
         if (!this.triggeredTransactions.includes(transaction.id)) {
             this.triggeredTransactions.push(transaction.id)
             this.callbacks.forEach((callback) => {
@@ -267,14 +294,7 @@ export class TransactionListener<
 
         this.dynamicStop()
         this.unbindWebSocketResilience()
-
-        try {
-            void this.webSocket?.destroy()
-        } catch {
-            /* ignore */
-        }
-
-        this.webSocket = undefined
+        this.releaseWebSocket()
         this.ethers.resetWebSocket()
 
         this.reconnectTimer = setTimeout(() => {
@@ -292,6 +312,10 @@ export class TransactionListener<
 
         try {
             await this.ensureWebSocket()
+            // stop() was called while reconnecting
+            if (this.intentionalStop || !this.status) {
+                return
+            }
             this.restartSubscriptions()
             this.reconnectDelayMs = 1_000
         } catch {
@@ -301,9 +325,22 @@ export class TransactionListener<
 
     private async ensureWebSocket(): Promise<void> {
         if (this.webSocket === undefined) {
+            const generation = this.stopGeneration
             const socket = await this.provider.ethers.connectWebSocket()
+            // stop() was called while connecting, or another call has connected meanwhile
+            if (generation !== this.stopGeneration || this.webSocket !== undefined) {
+                this.ethers.releaseWebSocket(socket)
+                return
+            }
             this.webSocket = socket
             this.bindWebSocketResilience()
+        }
+    }
+
+    private releaseWebSocket(): void {
+        if (this.webSocket !== undefined) {
+            this.ethers.releaseWebSocket(this.webSocket)
+            this.webSocket = undefined
         }
     }
 
