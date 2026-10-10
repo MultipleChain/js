@@ -97,6 +97,16 @@ export class TransactionListener<
     private reconnectTimer?: ReturnType<typeof setTimeout>
 
     /**
+     * Incremented by stop(), so setup work that was pending at that time does not subscribe
+     */
+    private stopGeneration = 0
+
+    /**
+     * Max wait for a network call made while setting up the subscription
+     */
+    private readonly setupTimeoutMs = 10_000
+
+    /**
      * Active logs subscription id
      */
     private logsSubscriptionId?: number
@@ -105,6 +115,7 @@ export class TransactionListener<
      * Websocket close handler
      */
     private wsCloseHandler?: () => void
+    private wsCloseTarget?: RpcWebSocketLike
     private resilienceBound = false
 
     /**
@@ -146,6 +157,7 @@ export class TransactionListener<
             this.status = false
             this.intentionalStop = true
             this.connected = false
+            this.stopGeneration++
             this.clearReconnectTimer()
             this.unbindResilience()
             this.dynamicStop()
@@ -192,6 +204,11 @@ export class TransactionListener<
      * @param transaction - Transaction data
      */
     trigger<T extends TransactionTypeEnum>(transaction: TransactionListenerTriggerType<T>): void {
+        // A stopped listener stays silent: an in-flight handler can reach here after stop()
+        if (!this.status) {
+            return
+        }
+
         if (!this.triggeredTransactions.includes(transaction.id)) {
             this.triggeredTransactions.push(transaction.id)
             this.callbacks.forEach((callback) => {
@@ -253,7 +270,8 @@ export class TransactionListener<
     }
 
     private unbindResilience(): void {
-        const rpcWs = this.getRpcWebSocket()
+        // Remove from the socket the handler was bound to; provider.web3 may have been replaced since
+        const rpcWs = this.wsCloseTarget
 
         if (rpcWs === undefined || this.wsCloseHandler === undefined) {
             return
@@ -261,6 +279,7 @@ export class TransactionListener<
 
         rpcWs.removeListener('close', this.wsCloseHandler)
         this.wsCloseHandler = undefined
+        this.wsCloseTarget = undefined
         this.resilienceBound = false
     }
 
@@ -268,7 +287,8 @@ export class TransactionListener<
         queueMicrotask(() => {
             const rpcWs = this.getRpcWebSocket()
 
-            if (rpcWs === undefined || this.resilienceBound) {
+            // stop() may have run before this microtask
+            if (rpcWs === undefined || this.resilienceBound || !this.status) {
                 return
             }
 
@@ -281,6 +301,7 @@ export class TransactionListener<
             }
 
             rpcWs.on('close', this.wsCloseHandler)
+            this.wsCloseTarget = rpcWs
             this.resilienceBound = true
         })
     }
@@ -320,12 +341,16 @@ export class TransactionListener<
     private restartSubscriptions(): void {
         this.dynamicStop()
 
+        const generation = this.stopGeneration
         const processName = TransactionListenerProcessIndex[this.type] as keyof this
         const result = (this[processName] as () => void | Promise<void>)()
 
         if (result instanceof Promise) {
             void result.catch(() => {
-                this.scheduleReconnect()
+                // A setup that fails after stop() must not reconnect a later start()
+                if (generation === this.stopGeneration) {
+                    this.scheduleReconnect()
+                }
             })
         }
     }
@@ -335,12 +360,14 @@ export class TransactionListener<
         callback: (logs: Logs) => void,
         commitment: Commitment = 'confirmed'
     ): void {
-        this.logsSubscriptionId = this.provider.web3.onLogs(parameter, callback, commitment)
+        // Unsubscribe from the same connection; provider.resetConnection() replaces provider.web3
+        const web3 = this.provider.web3
+        this.logsSubscriptionId = web3.onLogs(parameter, callback, commitment)
         this.connected = true
 
         this.dynamicStop = () => {
             if (this.logsSubscriptionId !== undefined) {
-                void this.provider.web3.removeOnLogsListener(this.logsSubscriptionId)
+                void web3.removeOnLogsListener(this.logsSubscriptionId)
                 this.logsSubscriptionId = undefined
             }
         }
@@ -556,7 +583,17 @@ export class TransactionListener<
 
         if (filter?.address !== undefined) {
             const tokenMintAddress = new PublicKey(filter.address)
-            const accountInfo = await this.provider.web3.getParsedAccountInfo(tokenMintAddress)
+            let timer: ReturnType<typeof setTimeout> | undefined
+            const accountInfo = await Promise.race([
+                this.provider.web3.getParsedAccountInfo(tokenMintAddress),
+                new Promise<never>((_resolve, reject) => {
+                    timer = setTimeout(() => {
+                        reject(new Error(ErrorTypeEnum.RPC_TIMEOUT))
+                    }, this.setupTimeoutMs)
+                })
+            ]).finally(() => {
+                clearTimeout(timer)
+            })
 
             const result = accountInfo?.value
             const data = (result?.data as ParsedAccountData) ?? null
@@ -620,7 +657,14 @@ export class TransactionListener<
             }
         }
 
+        const generation = this.stopGeneration
         const parameter = await this.createTokenNftListenParameter()
+
+        // stop() was called while the parameter was being resolved
+        if (generation !== this.stopGeneration) {
+            return
+        }
+
         this.subscribeLogs(parameter, callback, 'confirmed')
     }
 
@@ -661,7 +705,14 @@ export class TransactionListener<
             }
         }
 
+        const generation = this.stopGeneration
         const parameter = await this.createTokenNftListenParameter()
+
+        // stop() was called while the parameter was being resolved
+        if (generation !== this.stopGeneration) {
+            return
+        }
+
         this.subscribeLogs(parameter, callback, 'confirmed')
     }
 }
