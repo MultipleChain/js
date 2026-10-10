@@ -102,6 +102,13 @@ export class TransactionListener<
     private intentionalStop = false
 
     /**
+     * Incremented by every stop(). on() captures it on entry and refuses to
+     * start if it changed while setup was awaiting, so a stop() issued during
+     * a pending on() wins without permanently disabling the listener.
+     */
+    private stopGeneration = 0
+
+    /**
      * Whether the websocket endpoint was verified
      */
     private connectionVerified = false
@@ -163,6 +170,12 @@ export class TransactionListener<
     private readonly livenessTimeoutMs = 45_000
 
     /**
+     * Timeout (ms) for REST calls made by the listener, matching the
+     * websocket probe timeout so setup can never hang indefinitely.
+     */
+    private readonly requestTimeoutMs = 10_000
+
+    /**
      * Dynamic stop method
      */
     dynamicStop: () => void = () => {}
@@ -182,6 +195,7 @@ export class TransactionListener<
      * Close the listener
      */
     stop(): void {
+        this.stopGeneration++
         if (this.status) {
             this.status = false
             this.intentionalStop = true
@@ -215,11 +229,17 @@ export class TransactionListener<
      * @returns Connection status
      */
     async on(callback: CallBackType): Promise<boolean> {
+        const stopGeneration = this.stopGeneration
+
         if (!this.connectionVerified) {
             try {
                 await checkWebSocket(this.provider.wsUrl)
                 this.connectionVerified = true
             } catch (error) {
+                // Stopped while probing: the caller no longer wants this listener.
+                if (stopGeneration !== this.stopGeneration) {
+                    return false
+                }
                 throw new Error(
                     'WebSocket connection is not available' +
                         (error instanceof Error ? ': ' + error.message : '')
@@ -230,9 +250,15 @@ export class TransactionListener<
         // Record the tip height once, so reconnect catch-up can recover a
         // transaction that both arrived and confirmed during a gap without
         // replaying older history. Best-effort; esplora endpoint only.
-        if (this.provider.blockCypherToken === undefined && this.startBlockHeight === undefined) {
+        if (
+            stopGeneration === this.stopGeneration &&
+            this.provider.blockCypherToken === undefined &&
+            this.startBlockHeight === undefined
+        ) {
             try {
-                const res = await axios.get(this.provider.createEndpoint('blocks/tip/height'))
+                const res = await axios.get(this.provider.createEndpoint('blocks/tip/height'), {
+                    timeout: this.requestTimeoutMs
+                })
                 const height = Number(res.data)
                 if (Number.isFinite(height)) {
                     this.startBlockHeight = height
@@ -240,6 +266,11 @@ export class TransactionListener<
             } catch {
                 /* best-effort: confirmed catch-up is skipped if height is unknown */
             }
+        }
+
+        // A stop() issued while setup was pending wins: do not start.
+        if (stopGeneration !== this.stopGeneration) {
+            return false
         }
 
         this.callbacks.push(callback)
@@ -253,6 +284,12 @@ export class TransactionListener<
      * @param transaction - Transaction data
      */
     trigger<T extends TransactionTypeEnum>(transaction: TransactionListenerTriggerType<T>): void {
+        // A stopped listener stays silent: an in-flight catch-up request or a
+        // frame still buffered on the closing socket can reach here after stop().
+        if (!this.status) {
+            return
+        }
+
         if (!this.triggeredTransactions.includes(transaction.id)) {
             this.triggeredTransactions.push(transaction.id)
             this.callbacks.forEach((callback) => {
@@ -573,7 +610,7 @@ export class TransactionListener<
 
         // /txs returns pending transactions first, then the most recent confirmed.
         const url = this.provider.createEndpoint('address/' + address + '/txs')
-        const response = await axios.get(url)
+        const response = await axios.get(url, { timeout: this.requestTimeoutMs })
         const txs = Array.isArray(response.data) ? response.data : []
 
         return txs.filter((tx: any) => {
